@@ -1,28 +1,17 @@
 import SwiftUI
-internal import Combine
 
 struct RecordingView: View {
 
     @Environment(\.dismiss) private var dismiss
-
-    @State private var duration = 0
     @State private var navigateToReflection = false
-
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var recordingTime = 103
 
     var body: some View {
 
         ZStack {
 
-            LinearGradient(
-                colors: [
-                    Color(red: 0.84, green: 0.89, blue: 0.98),
-                    Color(red: 0.94, green: 0.96, blue: 1.0)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            Color(red: 240/255, green: 249/255, blue: 255/255)
+                .ignoresSafeArea()
 
             VStack {
 
@@ -33,7 +22,7 @@ struct RecordingView: View {
                     } label: {
                         Image(systemName: "xmark")
                             .font(.title3)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.secondary)
                     }
 
                     Spacer()
@@ -43,7 +32,7 @@ struct RecordingView: View {
                     } label: {
                         Image(systemName: "arrow.clockwise")
                             .font(.title3)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .padding()
@@ -51,24 +40,36 @@ struct RecordingView: View {
                 Spacer()
 
                 Text("Listening...")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(.blue)
 
-                Text("You can talk freely.")
-                    .foregroundStyle(.white.opacity(0.8))
+                Text("You can talk freely")
+                    .foregroundStyle(.secondary)
 
-                WaveformView()
-                    .padding(.vertical, 40)
+                Spacer()
+
+                WaveFormView()
+
+                Spacer()
+
+                VStack(spacing: 8) {
+
+                    Text("RECORDING 1")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text("June 1, 2024")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
 
                 Image("penguin")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 120)
+                    .frame(width: 90)
 
                 Text(timeString)
-                    .font(.system(size: 56, weight: .light, design: .rounded))
-                    .padding(.top)
+                    .font(.system(size: 54, weight: .light))
 
                 Spacer()
 
@@ -79,8 +80,8 @@ struct RecordingView: View {
                     } label: {
 
                         Circle()
-                            .fill(.white.opacity(0.8))
-                            .frame(width: 70, height: 70)
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(width: 72, height: 72)
                             .overlay {
                                 Image(systemName: "pause.fill")
                                     .font(.title2)
@@ -94,24 +95,28 @@ struct RecordingView: View {
 
                         Circle()
                             .fill(Color.blue)
-                            .frame(width: 80, height: 80)
+                            .frame(width: 72, height: 72)
                             .overlay {
                                 Image(systemName: "checkmark")
-                                    .font(.title)
+                                    .font(.title2)
                                     .foregroundStyle(.white)
                             }
                     }
                 }
 
-                Text("Finish")
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 8)
+                HStack(spacing: 52) {
+
+                    Text("PAUSE")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text("FINISH")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 Spacer()
             }
-        }
-        .onReceive(timer) { _ in
-            duration += 1
         }
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $navigateToReflection) {
@@ -120,9 +125,15 @@ struct RecordingView: View {
     }
 
     var timeString: String {
-        let minutes = duration / 60
-        let seconds = duration % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+
+        let minutes = recordingTime / 60
+        let seconds = recordingTime % 60
+
+        return String(
+            format: "%02d:%02d",
+            minutes,
+            seconds
+        )
     }
 }
 
