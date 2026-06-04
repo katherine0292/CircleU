@@ -7,21 +7,22 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(
-                    red: 248 / 255,
-                    green: 247 / 255,
-                    blue: 243 / 255
-                )
-                .ignoresSafeArea()
-                VStack {
+                Color(red: 240/255, green: 249/255, blue: 255/255)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+
                     HStack {
                         Button {
+
                         } label: {
                             Image(systemName: "line.3.horizontal")
                                 .font(.title3)
                                 .foregroundStyle(.black)
                         }
+
                         Spacer()
+
                         HStack(spacing: 4) {
                             Image(systemName: "flame.fill")
                                 .foregroundStyle(.orange)
@@ -31,62 +32,105 @@ struct HomeView: View {
                         }
                     }
                     .padding(.horizontal)
-                    Spacer()
-                    VStack(alignment: .leading, spacing: 8) {
+                    .padding(.top, 8)
 
-                        Text("Hey User,")
+                    Spacer()
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Hey Pingu 👋")
                             .font(.title3)
 
                         Text("How was your day?")
-                            .font(.system(size: 36, weight: .bold))
+                            .font(.system(size: 34, weight: .bold))
+
+                        Text("Take a moment to share your thoughts.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
+
                     Spacer()
-                    VStack(spacing: 20) {
-                        ZStack {
-                            Circle()
-                                .fill(.white)
-                            Circle()
-                                .stroke(
-                                    Color.blue.opacity(0.15),
-                                    lineWidth: 2
-                                )
-                            Image("penguin")
-                                .resizable()
-                                .scaledToFit()
-                                .padding(20)
+
+                    ZStack {
+
+                        Circle()
+                            .fill(.white)
+
+                        Circle()
+                            .stroke(
+                                Color.blue.opacity(0.12),
+                                lineWidth: 2
+                            )
+
+                        Image("penguin")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(20)
+
+                        VStack {
+                            HStack {
+                                Spacer()
+
+                                Image(systemName: "heart.fill")
+                                    .foregroundStyle(.blue)
+                                    .padding(10)
+                                    .background(.white)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 4)
+                            }
+
+                            Spacer()
                         }
-                        .frame(width: 220, height: 220)
-                        VStack(spacing: 4) {
-                            Text("Your voice is safe here.")
-                                .font(.headline)
-                            Text("Share your thoughts, feelings, or simply how your day went.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
-                        .padding(.horizontal)
+                        .padding(18)
                     }
+                    .frame(width: 230, height: 230)
+
+                    VStack(spacing: 8) {
+
+                        Text("Your voice is safe here")
+                            .font(.headline)
+
+                        Text("Share your thoughts, feelings, or simply how your day went.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
+                    .padding(.top, 24)
+
                     Spacer()
+
                     Button {
                         showRecording = true
                     } label: {
+
                         ZStack {
+
                             Circle()
-                                .fill(Color.blue)
+                                .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+
+                            Circle()
+                                .stroke(
+                                    Color.blue.opacity(0.15),
+                                    lineWidth: 16
+                                )
+
                             Image(systemName: "mic.fill")
                                 .font(.system(size: 34))
                                 .foregroundStyle(.white)
                         }
-                        .frame(width: 90, height: 90)
+                        .frame(width: 100, height: 100)
                     }
+
                     Text("Tap to record")
                         .font(.headline)
-                        .padding(.top, 12)
+                        .padding(.top, 14)
+
                     Spacer()
                 }
             }
+            .navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $showRecording) {
                 RecordingView()
             }
