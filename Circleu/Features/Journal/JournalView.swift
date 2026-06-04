@@ -233,11 +233,13 @@ struct JournalView: View {
 
         return journalStore.entries.filter { entry in
             [
-                entry.result.title,
-                entry.result.emotion,
-                entry.result.summary,
+                entry.displayTitle,
+                entry.displayEmotion,
+                entry.displaySummary,
                 entry.result.insight,
                 entry.result.quote,
+                entry.privateNote,
+                entry.tags.joined(separator: " "),
                 entry.transcript,
                 entry.engineName
             ]
@@ -269,7 +271,7 @@ private struct JournalEntryRow: View {
                 .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 7) {
-                Text(entry.result.title)
+                Text(entry.displayTitle)
                     .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.ink)
                     .lineLimit(1)
@@ -285,7 +287,7 @@ private struct JournalEntryRow: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 10) {
-                Text(entry.result.emotion)
+                Text(entry.displayEmotion)
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.blue)
                     .padding(.horizontal, 10)

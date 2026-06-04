@@ -38,9 +38,7 @@ final class ReflectionJournalStore: ObservableObject {
         entries[index].editableTitle = sanitizedOptional(title)
         entries[index].editableEmotion = sanitizedOptional(emotion)
         entries[index].privateNote = sanitized(privateNote, fallback: "")
-        entries[index].tags = tags
-            .map { sanitized($0, fallback: "") }
-            .filter { !$0.isEmpty }
+        entries[index].tags = normalizedTags(from: tags)
         entries[index].lastEditedAt = Date()
         save()
     }
@@ -175,6 +173,20 @@ final class ReflectionJournalStore: ObservableObject {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return fallback }
         return String(clean.prefix(280))
+    }
+
+    private func normalizedTags(from tags: [String]) -> [String] {
+        var seen = Set<String>()
+
+        return tags.compactMap { tag in
+            let clean = sanitized(tag, fallback: "")
+            guard !clean.isEmpty else { return nil }
+
+            let key = clean.lowercased()
+            guard !seen.contains(key) else { return nil }
+            seen.insert(key)
+            return clean
+        }
     }
 
     private func remove(at offsets: IndexSet) {

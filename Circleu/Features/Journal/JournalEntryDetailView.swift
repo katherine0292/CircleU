@@ -17,7 +17,7 @@ struct JournalEntryDetailView: View {
     }
 
     private var session: AIReflectionSession? {
-        aiSessionStore.session(with: currentEntry.sessionID)
+        aiSessionStore.session(for: currentEntry)
     }
 
     var body: some View {
