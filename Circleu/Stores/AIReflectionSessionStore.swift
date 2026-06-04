@@ -23,12 +23,8 @@ final class AIReflectionSessionStore: ObservableObject {
 
     func upsert(_ session: AIReflectionSession) {
         let normalizedSession = normalize(session)
-        if let index = mergeIndex(for: normalizedSession, in: sessions) {
-            sessions[index] = mergePair(sessions[index], normalizedSession)
-        } else {
-            sessions.insert(normalizedSession, at: 0)
-        }
-        sortSessions()
+        sessions.append(normalizedSession)
+        sessions = normalizedUniqueSortedSessions(from: sessions)
         save()
     }
 
@@ -42,7 +38,7 @@ final class AIReflectionSessionStore: ObservableObject {
             sessions[index].engineName = attempt.engineName
         }
         sessions[index] = normalize(sessions[index])
-        sortSessions()
+        sessions = normalizedUniqueSortedSessions(from: sessions)
         save()
     }
 
@@ -228,33 +224,42 @@ final class AIReflectionSessionStore: ObservableObject {
 
     private func normalizedUniqueSortedSessions(from source: [AIReflectionSession]) -> [AIReflectionSession] {
         let sortedSessions = orderedSessions(source)
+        var unvisitedIndices = Set(sortedSessions.indices)
+        var components: [[AIReflectionSession]] = []
 
-        var mergedSessions: [AIReflectionSession] = []
-        var indexBySessionID: [UUID: Int] = [:]
-        var indexByEntryID: [UUID: Int] = [:]
+        while let seedIndex = unvisitedIndices.first {
+            var component: [AIReflectionSession] = []
+            var pendingIndices = [seedIndex]
+            unvisitedIndices.remove(seedIndex)
 
-        for session in sortedSessions {
-            let index = indexBySessionID[session.id] ?? session.entryID.flatMap { indexByEntryID[$0] }
-            if let index {
-                mergedSessions[index] = merge(mergedSessions[index], with: session)
-                indexBySessionID[session.id] = index
-                indexBySessionID[mergedSessions[index].id] = index
-                if let entryID = session.entryID {
-                    indexByEntryID[entryID] = index
+            while let currentIndex = pendingIndices.popLast() {
+                let current = sortedSessions[currentIndex]
+                component.append(current)
+
+                let connectedIndices = unvisitedIndices.filter { candidateIndex in
+                    areSessionsConnected(current, sortedSessions[candidateIndex])
                 }
-                if let entryID = mergedSessions[index].entryID {
-                    indexByEntryID[entryID] = index
+                for candidateIndex in connectedIndices {
+                    unvisitedIndices.remove(candidateIndex)
+                    pendingIndices.append(candidateIndex)
                 }
-            } else {
-                indexBySessionID[session.id] = mergedSessions.count
-                if let entryID = session.entryID {
-                    indexByEntryID[entryID] = mergedSessions.count
-                }
-                mergedSessions.append(session)
             }
+
+            components.append(component)
         }
 
-        return orderedSessions(mergedSessions.map(normalize))
+        return orderedSessions(components.map(mergeComponent))
+    }
+
+    private func mergeComponent(_ component: [AIReflectionSession]) -> AIReflectionSession {
+        let sortedSessions = orderedSessions(component)
+        guard let newestSession = sortedSessions.first else {
+            preconditionFailure("Cannot merge an empty AI session component.")
+        }
+
+        return sortedSessions.dropFirst().reduce(newestSession) { mergedSession, session in
+            merge(mergedSession, with: session)
+        }
     }
 
     private func merge(_ newestSession: AIReflectionSession, with olderSession: AIReflectionSession) -> AIReflectionSession {
@@ -265,25 +270,22 @@ final class AIReflectionSessionStore: ObservableObject {
             mergedSession.entryID = olderSession.entryID
         }
 
-        if mergedSession.transcript.isEmpty, !olderSession.transcript.isEmpty {
+        if olderSession.transcript.count > mergedSession.transcript.count {
             mergedSession.transcript = olderSession.transcript
         }
 
         return normalize(mergedSession)
     }
 
-    private func mergePair(_ firstSession: AIReflectionSession, _ secondSession: AIReflectionSession) -> AIReflectionSession {
-        let sortedSessions = orderedSessions([firstSession, secondSession])
-        return merge(sortedSessions[0], with: sortedSessions[1])
-    }
-
-    private func mergeIndex(for session: AIReflectionSession, in candidates: [AIReflectionSession]) -> Int? {
-        if let index = candidates.firstIndex(where: { $0.id == session.id }) {
-            return index
+    private func areSessionsConnected(_ lhs: AIReflectionSession, _ rhs: AIReflectionSession) -> Bool {
+        if lhs.id == rhs.id {
+            return true
         }
-
-        guard let entryID = session.entryID else { return nil }
-        return candidates.firstIndex { $0.entryID == entryID }
+        guard let leftEntryID = lhs.entryID,
+              let rightEntryID = rhs.entryID else {
+            return false
+        }
+        return leftEntryID == rightEntryID
     }
 
     private func sortSessions() {
