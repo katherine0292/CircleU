@@ -2,35 +2,31 @@ import SwiftUI
 
 struct RootView: View {
 
+    @State private var selectedTab: Tab = .home
+
     var body: some View {
 
-        TabView {
+        ZStack(alignment: .bottom) {
 
-            HomeView()
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
-                }
+            switch selectedTab {
 
-            TipsView()
-                .tabItem {
-                    Image(systemName: "spark.fill")
-                    Text("Journal")
-                }
+            case .home:
+                HomeView()
 
-            CircleView()
-                .tabItem {
-                    Image(systemName: "person.3.fill")
-                    Text("Circle")
-                }
+            case .tips:
+                TipsView()
 
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person")
-                    Text("Noot")
-                }
+            case .circle:
+                CircleView()
+
+            case .noot:
+                ProfileView()
+            }
+
+            CustomTabBar(
+                selectedTab: $selectedTab
+            )
         }
-        .tint(Color.blue)
     }
 }
 
