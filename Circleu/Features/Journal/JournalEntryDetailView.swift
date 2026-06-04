@@ -5,6 +5,7 @@ struct JournalEntryDetailView: View {
     let entry: JournalReflectionEntry
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var journalStore: ReflectionJournalStore
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var circleStore: CircleStore
     @State private var didCopy = false
@@ -84,7 +85,7 @@ struct JournalEntryDetailView: View {
                     }
 
                     Button(role: .destructive) {
-                        journalStore.delete(entry)
+                        deleteEntry()
                         dismiss()
                     } label: {
                         Label("Delete reflection", systemImage: "trash.fill")
@@ -252,6 +253,14 @@ struct JournalEntryDetailView: View {
             return "Skipped"
         }
     }
+
+    private func deleteEntry() {
+        aiSessionStore.deleteSessions(forEntryID: entry.id)
+        if let sessionID = entry.sessionID {
+            aiSessionStore.delete(sessionID: sessionID)
+        }
+        journalStore.delete(entry)
+    }
 }
 
 #Preview {
@@ -259,6 +268,7 @@ struct JournalEntryDetailView: View {
         JournalEntryDetailView(entry: .preview)
     }
     .environmentObject(ReflectionJournalStore())
+    .environmentObject(AIReflectionSessionStore())
     .environmentObject(QuestStore())
     .environmentObject(CircleStore())
 }

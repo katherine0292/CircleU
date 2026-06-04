@@ -3,6 +3,7 @@ import UIKit
 
 struct JournalView: View {
     @EnvironmentObject private var journalStore: ReflectionJournalStore
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @State private var searchText = ""
     @State private var didCopyExport = false
     let onStartRecording: () -> Void
@@ -199,7 +200,7 @@ struct JournalView: View {
                     .buttonStyle(.plain)
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
-                            journalStore.delete(entry)
+                            delete(entry)
                         } label: {
                             Label("Delete", systemImage: "trash.fill")
                         }
@@ -216,7 +217,7 @@ struct JournalView: View {
                         }
 
                         Button(role: .destructive) {
-                            journalStore.delete(entry)
+                            delete(entry)
                         } label: {
                             Label("Delete reflection", systemImage: "trash.fill")
                         }
@@ -248,6 +249,14 @@ struct JournalView: View {
 
     private var sectionTitle: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Saved reflections" : "Search results"
+    }
+
+    private func delete(_ entry: JournalReflectionEntry) {
+        aiSessionStore.deleteSessions(forEntryID: entry.id)
+        if let sessionID = entry.sessionID {
+            aiSessionStore.delete(sessionID: sessionID)
+        }
+        journalStore.delete(entry)
     }
 }
 
@@ -310,4 +319,5 @@ private struct JournalEntryRow: View {
 #Preview {
     JournalView(onStartRecording: {})
         .environmentObject(ReflectionJournalStore())
+        .environmentObject(AIReflectionSessionStore())
 }

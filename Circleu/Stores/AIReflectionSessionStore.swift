@@ -23,7 +23,19 @@ final class AIReflectionSessionStore: ObservableObject {
 
     func upsert(_ session: AIReflectionSession) {
         let normalizedSession = normalize(session)
-        sessions.append(normalizedSession)
+        let matchingSessions = sessions.filter { existingSession in
+            areSessionsConnected(existingSession, normalizedSession)
+        }
+
+        if matchingSessions.isEmpty {
+            sessions.append(normalizedSession)
+        } else {
+            sessions.removeAll { existingSession in
+                areSessionsConnected(existingSession, normalizedSession)
+            }
+            sessions.append(mergeForUpsert(existing: matchingSessions, incoming: normalizedSession))
+        }
+
         sessions = normalizedUniqueSortedSessions(from: sessions)
         save()
     }
@@ -75,6 +87,18 @@ final class AIReflectionSessionStore: ObservableObject {
             return linked
         }
         return sessions.first { $0.entryID == entry.id }
+    }
+
+    func delete(sessionID: UUID) {
+        sessions.removeAll { session in
+            session.id == sessionID || session.mergedSessionIDs.contains(sessionID)
+        }
+        save()
+    }
+
+    func deleteSessions(forEntryID entryID: UUID) {
+        sessions.removeAll { $0.entryID == entryID }
+        save()
     }
 
     func replaceAll(with newSessions: [AIReflectionSession]) {
@@ -268,6 +292,15 @@ final class AIReflectionSessionStore: ObservableObject {
         }
     }
 
+    private func mergeForUpsert(
+        existing existingSessions: [AIReflectionSession],
+        incoming incomingSession: AIReflectionSession
+    ) -> AIReflectionSession {
+        existingSessions.reduce(incomingSession) { mergedSession, existingSession in
+            merge(mergedSession, with: existingSession)
+        }
+    }
+
     private func merge(_ newestSession: AIReflectionSession, with olderSession: AIReflectionSession) -> AIReflectionSession {
         var mergedSession = newestSession
         mergedSession.attempts.append(contentsOf: olderSession.attempts)
@@ -314,10 +347,6 @@ final class AIReflectionSessionStore: ObservableObject {
         Set(ids)
             .filter { $0 != excludedID }
             .sorted { $0.uuidString < $1.uuidString }
-    }
-
-    private func sortSessions() {
-        sessions = orderedSessions(sessions)
     }
 
     private func orderedSessions(_ source: [AIReflectionSession]) -> [AIReflectionSession] {
