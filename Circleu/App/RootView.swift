@@ -21,7 +21,8 @@ struct RootView: View {
                     case .home:
                         HomeView(
                             onStartRecording: { showRecording = true },
-                            onOpenJournal: { selectedTab = .journal }
+                            onOpenJournal: { selectedTab = .journal },
+                            onOpenPractice: { selectedTab = .practice }
                         )
                     case .journal:
                         JournalView(onStartRecording: { showRecording = true })

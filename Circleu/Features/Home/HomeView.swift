@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var selectedEntry: JournalReflectionEntry?
     let onStartRecording: () -> Void
     let onOpenJournal: () -> Void
+    let onOpenPractice: () -> Void
 
     private let dailyPrompts = [
         "What feeling has been sitting with you today?",
@@ -218,7 +219,7 @@ struct HomeView: View {
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundStyle(PinguDesign.muted)
 
-                    Text(activeQuest?.detail ?? "Create your first quest")
+                    Text(betaState.nextActionTitle)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(3)
@@ -228,7 +229,7 @@ struct HomeView: View {
                 Spacer()
             }
 
-            Text(activeQuestSupportText)
+            Text(betaState.nextActionSubtitle)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.body)
                 .lineSpacing(4)
@@ -249,7 +250,7 @@ struct HomeView: View {
                                     .font(.system(size: 12, weight: .bold, design: .rounded))
                                     .foregroundStyle(PinguDesign.muted)
 
-                                Text(sourceEntry.result.title)
+                                Text(sourceEntry.displayTitle)
                                     .font(.system(size: 14, weight: .bold, design: .rounded))
                                     .foregroundStyle(PinguDesign.ink)
                                     .lineLimit(1)
@@ -270,13 +271,22 @@ struct HomeView: View {
 
                 HStack(spacing: 10) {
                     Button {
+                        onOpenPractice()
+                    } label: {
+                        Label("Open Practice", systemImage: "checklist.checked")
+                    }
+                    .buttonStyle(HomeQuestButtonStyle(isPrimary: true))
+                }
+
+                HStack(spacing: 10) {
+                    Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
                             questStore.complete(quest)
                         }
                     } label: {
                         Label("Complete", systemImage: "checkmark")
                     }
-                    .buttonStyle(HomeQuestButtonStyle(isPrimary: true))
+                    .buttonStyle(HomeQuestButtonStyle(isPrimary: false))
 
                     Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
@@ -431,6 +441,10 @@ struct HomeView: View {
         return "Created \(relativeDateText(for: activeQuest.createdAt)). Complete it when the practice is done, or skip it if it no longer fits today."
     }
 
+    private var betaState: DailyReflectionBetaState {
+        DailyReflectionBetaState.make(entries: journalStore.entries, quests: questStore.quests)
+    }
+
     private func sourceEntry(for quest: Quest) -> JournalReflectionEntry? {
         guard let sourceEntryID = quest.sourceEntryID else { return nil }
         return journalStore.entries.first { $0.id == sourceEntryID }
@@ -493,7 +507,7 @@ private struct HomeStatTile: View {
 }
 
 #Preview {
-    HomeView(onStartRecording: {}, onOpenJournal: {})
+    HomeView(onStartRecording: {}, onOpenJournal: {}, onOpenPractice: {})
         .environmentObject(ReflectionJournalStore())
         .environmentObject(UserProfileStore())
         .environmentObject(QuestStore())
