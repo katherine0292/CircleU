@@ -49,20 +49,23 @@ Test this flow:
 6. Start **Recording**.
 7. Allow microphone permission.
 8. Allow speech recognition permission.
-9. Speak a short reflection, or type in the transcript box if microphone or speech recognition is not ready.
-10. Tap **Finish**.
-11. Wait for **AI Processing**.
-12. Review **Reflection**.
-13. Tap **Save Entry**.
-14. Confirm the **Saved** screen.
-15. Open **Journal** and inspect the saved detail.
-16. In the journal detail, add or reactivate the suggested next action.
-17. Complete or skip that next action and confirm Home/Profile progress changes.
-18. Save the reflection into a private circle from the journal detail.
-19. Open **Circles** and confirm the saved reflection appears as a private post.
-20. Open **Profile** and confirm the name, entry count, streak, and progress changed.
-21. Edit the display name from **Profile** and confirm **Home** updates.
-22. Open **Profile > QA tools** and confirm build info, local counts, export, seed, and reset controls are available.
+9. Confirm the transcript card shows **Mic Ready** and **Speech Ready**, or a clear fallback state.
+10. Speak a short reflection, or type in the transcript box if microphone or speech recognition is not ready.
+11. Confirm **Finish** stays unavailable until the transcript quality message says the entry is ready.
+12. Tap **Finish**.
+13. Wait for **AI Processing**.
+14. Review **Reflection**.
+15. Tap regenerate and confirm the reflection refreshes or shows a clear error.
+16. Tap **Save Entry**.
+17. Confirm the **Saved** screen.
+18. Open **Journal** and inspect the saved detail.
+19. In the journal detail, add or reactivate the suggested next action.
+20. Complete or skip that next action and confirm Home/Profile progress changes.
+21. Save the reflection into a private circle from the journal detail.
+22. Open **Circles** and confirm the saved reflection appears as a private post.
+23. Open **Profile** and confirm the name, entry count, streak, and progress changed.
+24. Edit the display name from **Profile** and confirm **Home** updates.
+25. Open **Profile > QA tools** and confirm build info, local counts, export, seed, and reset controls are available.
 
 Use Simulator for SwiftUI Previews. Use the connected iPhone for Run testing. Physical-device Preview errors do not necessarily mean the app build is broken.
 
@@ -87,12 +90,14 @@ Use these controls when teammates need the same local state on a phone:
 Test these before calling the build demo-ready:
 
 1. Start recording and type instead of speaking.
-2. Confirm **Finish** stays disabled until text exists.
-3. Finish with typed text and confirm AI analysis starts.
-4. Save once and confirm the confirmation screen appears.
-5. Open Journal and confirm only one new entry exists.
-6. Use **Record Another** and confirm the previous transcript is cleared.
-7. Deny microphone or speech permission on a fresh install if possible and confirm typed fallback still works.
+2. Confirm the word-count and guidance messages update as text changes.
+3. Confirm **Finish** stays disabled until the transcript passes the quality check.
+4. Finish with typed text and confirm AI analysis starts.
+5. Regenerate from the reflection screen and confirm Save uses the latest generated result.
+6. Save once and confirm the confirmation screen appears.
+7. Open Journal and confirm only one new entry exists.
+8. Use **Record Another** and confirm the previous transcript is cleared.
+9. Deny microphone or speech permission on a fresh install if possible and confirm typed fallback still works.
 
 ## 8. Onboarding And Home Visual Checks
 
