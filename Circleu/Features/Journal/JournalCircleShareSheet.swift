@@ -23,6 +23,8 @@ struct JournalCircleShareSheet: View {
                                 .lineSpacing(4)
                         }
 
+                        reflectionContextCard
+
                         if circleStore.circles.isEmpty {
                             emptyCircleState
                         } else {
@@ -44,6 +46,37 @@ struct JournalCircleShareSheet: View {
                 }
             }
         }
+    }
+
+    private var reflectionContextCard: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text("Saving")
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.muted)
+
+            Text(entry.displayTitle)
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.ink)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 8) {
+                Text(entry.displayEmotion)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.blue)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(PinguDesign.lightBlue.opacity(0.66))
+                    .clipShape(Capsule())
+
+                Text(entry.createdAt.formatted(date: .abbreviated, time: .shortened))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private var emptyCircleState: some View {
