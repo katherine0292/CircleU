@@ -207,7 +207,7 @@ final class AIReflectionSessionStore: ObservableObject {
     private func latestAttempt(from attempts: [EnumeratedAttempt]) -> AIReflectionAttempt? {
         attempts.sorted {
             if $0.element.createdAt == $1.element.createdAt {
-                return $0.offset < $1.offset
+                return $0.offset > $1.offset
             }
             return $0.element.createdAt > $1.element.createdAt
         }
@@ -257,7 +257,7 @@ final class AIReflectionSessionStore: ObservableObject {
             preconditionFailure("Cannot merge an empty AI session component.")
         }
 
-        return sortedSessions.dropFirst().reduce(newestSession) { mergedSession, session in
+        return sortedSessions.dropFirst().reduce(normalize(newestSession)) { mergedSession, session in
             merge(mergedSession, with: session)
         }
     }
