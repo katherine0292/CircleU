@@ -17,6 +17,7 @@ struct RecordingView: View {
     @State private var analysisMessage: String?
     @State private var manualTranscript = ""
     @State private var analysisTask: Task<Void, Never>?
+    @State private var sessionRunner = ReflectionSessionRunner()
 
     init(onViewJournal: @escaping () -> Void = {}) {
         self.onViewJournal = onViewJournal
@@ -117,7 +118,17 @@ struct RecordingView: View {
         .fullScreenCover(isPresented: $showReflection) {
             ReflectionView(
                 entry: pendingEntry,
-                onRegenerateAttempt: recordRegeneratedAttempt
+                session: pendingSession,
+                onSessionChange: { session in
+                    pendingSession = session
+                    if let selectedResult = session?.selectedResult,
+                       let selectedAttempt = session?.selectedAttempt,
+                       selectedAttempt.status == .succeeded {
+                        pendingEntry?.result = selectedResult
+                        pendingEntry?.engineName = selectedAttempt.engineName
+                        pendingEntry?.sessionID = session?.id
+                    }
+                }
             ) { entry in
                 persistPendingSession(for: entry)
                 journalStore.add(entry)
@@ -365,7 +376,6 @@ struct RecordingView: View {
         analysisMessage = nil
         let transcript = effectiveTranscript
         let durationSeconds = recorder.elapsedSeconds
-        let analysisStartedAt = Date()
         let reflectionSource: AIReflectionSource = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .typedFallback : .recording
 
         analysisTask = Task {
@@ -373,56 +383,38 @@ struct RecordingView: View {
                 isAnalyzing = true
             }
 
-            do {
-                let result = try await engine.analyze(
-                    transcript: transcript,
-                    durationSeconds: durationSeconds
-                )
-                guard !Task.isCancelled else { return }
-                let analysisElapsedMilliseconds = Int(Date().timeIntervalSince(analysisStartedAt) * 1000)
-                let sessionID = UUID()
-                let attempt = AIReflectionAttempt(
-                    createdAt: analysisStartedAt,
-                    engineName: engine.displayName,
-                    status: .succeeded,
-                    result: result,
-                    elapsedMilliseconds: analysisElapsedMilliseconds
-                )
+            let run = await sessionRunner.analyze(
+                transcript: transcript,
+                durationSeconds: durationSeconds,
+                source: reflectionSource,
+                engine: engine
+            )
+            guard !Task.isCancelled else { return }
+
+            guard let result = run.result else {
+                await MainActor.run {
+                    isAnalyzing = false
+                    analysisTask = nil
+                    analysisMessage = run.attempt.errorMessage ?? "AI analysis failed. Please try again."
+                }
+                return
+            }
+
+            await MainActor.run {
                 let entry = JournalReflectionEntry(
-                    id: UUID(),
-                    createdAt: analysisStartedAt,
+                    createdAt: run.attempt.createdAt,
                     durationSeconds: durationSeconds,
                     transcript: transcript,
-                    engineName: engine.displayName,
+                    engineName: run.attempt.engineName,
                     result: result,
-                    sessionID: sessionID
-                )
-                let session = AIReflectionSession(
-                    id: sessionID,
-                    createdAt: analysisStartedAt,
-                    updatedAt: Date(),
-                    engineName: engine.displayName,
-                    source: reflectionSource,
-                    transcript: transcript,
-                    durationSeconds: durationSeconds,
-                    attempts: [attempt],
-                    selectedAttemptID: attempt.id
+                    sessionID: run.session.id
                 )
 
-                await MainActor.run {
-                    pendingSession = session
-                    pendingEntry = entry
-                    isAnalyzing = false
-                    analysisTask = nil
-                    showReflection = true
-                }
-            } catch {
-                guard !Task.isCancelled else { return }
-                await MainActor.run {
-                    isAnalyzing = false
-                    analysisTask = nil
-                    analysisMessage = error.localizedDescription
-                }
+                pendingSession = run.session
+                pendingEntry = entry
+                isAnalyzing = false
+                analysisTask = nil
+                showReflection = true
             }
         }
     }
@@ -497,25 +489,6 @@ struct RecordingView: View {
         let minutes = seconds / 60
         let seconds = seconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
-    }
-
-    private func recordRegeneratedAttempt(entry: JournalReflectionEntry, attempt: AIReflectionAttempt) {
-        guard let sessionID = entry.sessionID,
-              var session = pendingSession,
-              session.id == sessionID else {
-            return
-        }
-
-        session.attempts.append(attempt)
-        session.updatedAt = Date()
-
-        if attempt.status == .succeeded {
-            session.selectedAttemptID = attempt.id
-            session.engineName = attempt.engineName
-        }
-
-        pendingEntry = entry
-        pendingSession = session
     }
 
     private func persistPendingSession(for entry: JournalReflectionEntry) {

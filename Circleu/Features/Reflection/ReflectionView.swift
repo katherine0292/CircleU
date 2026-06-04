@@ -4,22 +4,26 @@ struct ReflectionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var questStore: QuestStore
     var onSave: ((JournalReflectionEntry) -> Void)?
-    var onRegenerateAttempt: ((JournalReflectionEntry, AIReflectionAttempt) -> Void)?
+    var onSessionChange: ((AIReflectionSession?) -> Void)?
     @State private var hasSaved = false
     @State private var draftEntry: JournalReflectionEntry?
+    @State private var draftSession: AIReflectionSession?
     @State private var engine = ReflectionEngineFactory.makeDefault()
+    @State private var sessionRunner = ReflectionSessionRunner()
     @State private var isRegenerating = false
     @State private var regenerateMessage: String?
     @State private var regenerateTask: Task<Void, Never>?
 
     init(
         entry: JournalReflectionEntry? = nil,
-        onRegenerateAttempt: ((JournalReflectionEntry, AIReflectionAttempt) -> Void)? = nil,
+        session: AIReflectionSession? = nil,
+        onSessionChange: ((AIReflectionSession?) -> Void)? = nil,
         onSave: ((JournalReflectionEntry) -> Void)? = nil
     ) {
-        self.onRegenerateAttempt = onRegenerateAttempt
+        self.onSessionChange = onSessionChange
         self.onSave = onSave
         _draftEntry = State(initialValue: entry)
+        _draftSession = State(initialValue: session)
     }
 
     var body: some View {
@@ -63,6 +67,8 @@ struct ReflectionView: View {
                             questCard(reflection: reflection)
 
                             quoteCard(reflection: reflection)
+
+                            aiSessionStatusCard
 
                             regenerationStatus
                         } else {
@@ -314,51 +320,34 @@ struct ReflectionView: View {
         regenerateTask?.cancel()
         isRegenerating = true
         regenerateMessage = nil
-        let analysisStartedAt = Date()
 
         regenerateTask = Task {
-            do {
-                let result = try await engine.analyze(
-                    transcript: draftEntry.transcript,
-                    durationSeconds: draftEntry.durationSeconds
-                )
-                guard !Task.isCancelled else { return }
-                let analysisElapsedMilliseconds = Int(Date().timeIntervalSince(analysisStartedAt) * 1000)
-                let attempt = AIReflectionAttempt(
-                    createdAt: analysisStartedAt,
-                    engineName: engine.displayName,
-                    status: .succeeded,
-                    result: result,
-                    elapsedMilliseconds: analysisElapsedMilliseconds
-                )
+            let run = await sessionRunner.analyze(
+                transcript: draftEntry.transcript,
+                durationSeconds: draftEntry.durationSeconds,
+                source: .journalRegeneration,
+                engine: engine,
+                existingSession: draftSession
+            )
+            guard !Task.isCancelled else { return }
 
+            if let result = run.result {
                 await MainActor.run {
+                    self.draftSession = run.session
                     self.draftEntry?.result = result
-                    self.draftEntry?.engineName = engine.displayName
-                    if let updatedEntry = self.draftEntry {
-                        onRegenerateAttempt?(updatedEntry, attempt)
-                    }
+                    self.draftEntry?.engineName = run.attempt.engineName
+                    self.draftEntry?.sessionID = run.session.id
+                    self.onSessionChange?(run.session)
                     self.isRegenerating = false
-                    self.regenerateMessage = "Generated a fresh reflection with \(engine.displayName)."
+                    self.regenerateMessage = "Generated attempt \(run.session.attempts.count) with \(run.attempt.engineName)."
                     self.regenerateTask = nil
                 }
-            } catch {
-                guard !Task.isCancelled else { return }
-                let analysisElapsedMilliseconds = Int(Date().timeIntervalSince(analysisStartedAt) * 1000)
-                let attempt = AIReflectionAttempt(
-                    createdAt: analysisStartedAt,
-                    engineName: engine.displayName,
-                    status: .failed,
-                    errorMessage: error.localizedDescription,
-                    elapsedMilliseconds: analysisElapsedMilliseconds
-                )
-
+            } else {
                 await MainActor.run {
-                    if let draftEntry = self.draftEntry {
-                        onRegenerateAttempt?(draftEntry, attempt)
-                    }
+                    self.draftSession = run.session
+                    self.onSessionChange?(run.session)
                     self.isRegenerating = false
-                    self.regenerateMessage = error.localizedDescription
+                    self.regenerateMessage = run.attempt.errorMessage ?? "AI regeneration failed. Please try again."
                     self.regenerateTask = nil
                 }
             }
@@ -436,6 +425,76 @@ struct ReflectionView: View {
                     }
             }
         }
+    }
+
+    private var aiSessionStatusCard: some View {
+        Group {
+            if let draftSession {
+                HStack(spacing: 10) {
+                    sessionStatusItem(
+                        icon: "tray.full.fill",
+                        title: draftSession.source.label,
+                        value: "Source"
+                    )
+
+                    Divider()
+                        .frame(height: 28)
+
+                    sessionStatusItem(
+                        icon: "cpu.fill",
+                        title: draftSession.engineName,
+                        value: "Engine"
+                    )
+
+                    Divider()
+                        .frame(height: 28)
+
+                    sessionStatusItem(
+                        icon: "sparkles",
+                        title: "\(draftSession.attempts.count)",
+                        value: "Attempts"
+                    )
+
+                    Divider()
+                        .frame(height: 28)
+
+                    sessionStatusItem(
+                        icon: "text.word.spacing",
+                        title: "\(draftSession.wordCount)",
+                        value: "Words"
+                    )
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(PinguDesign.border, lineWidth: 1)
+                }
+            }
+        }
+    }
+
+    private func sessionStatusItem(icon: String, title: String, value: String) -> some View {
+        VStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(PinguDesign.blue)
+
+            Text(title)
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            Text(value)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.muted)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
