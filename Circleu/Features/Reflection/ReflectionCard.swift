@@ -8,15 +8,18 @@ struct ReflectionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(.headline)
+                .foregroundStyle(PinguDesign.ink)
 
             Text(content)
-                .foregroundColor(.secondary)
+                .font(.subheadline)
+                .foregroundStyle(PinguDesign.muted)
+                .lineSpacing(3)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
+        .padding(18)
         .background(.white)
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 14, y: 6)
     }
 }
 
