@@ -18,19 +18,12 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     func add(_ session: AIReflectionSession) {
-        let normalizedSession = normalize(session)
-        if let index = sessions.firstIndex(where: { $0.id == normalizedSession.id }) {
-            sessions[index] = mergePair(sessions[index], normalizedSession)
-        } else {
-            sessions.insert(normalizedSession, at: 0)
-        }
-        sortSessions()
-        save()
+        upsert(session)
     }
 
     func upsert(_ session: AIReflectionSession) {
         let normalizedSession = normalize(session)
-        if let index = sessions.firstIndex(where: { $0.id == normalizedSession.id }) {
+        if let index = mergeIndex(for: normalizedSession, in: sessions) {
             sessions[index] = mergePair(sessions[index], normalizedSession)
         } else {
             sessions.insert(normalizedSession, at: 0)
@@ -41,7 +34,6 @@ final class AIReflectionSessionStore: ObservableObject {
 
     func append(_ attempt: AIReflectionAttempt, to sessionID: UUID) {
         guard let index = sessions.firstIndex(where: { $0.id == sessionID }) else { return }
-        guard !sessions[index].attempts.contains(where: { $0.id == attempt.id }) else { return }
 
         sessions[index].attempts.append(attempt)
         sessions[index].updatedAt = Date()
@@ -58,7 +50,7 @@ final class AIReflectionSessionStore: ObservableObject {
         guard let index = sessions.firstIndex(where: { $0.id == sessionID }) else { return }
         sessions[index].entryID = entryID
         sessions[index].updatedAt = Date()
-        sortSessions()
+        sessions = normalizedUniqueSortedSessions(from: sessions)
         save()
     }
 
@@ -239,12 +231,25 @@ final class AIReflectionSessionStore: ObservableObject {
 
         var mergedSessions: [AIReflectionSession] = []
         var indexBySessionID: [UUID: Int] = [:]
+        var indexByEntryID: [UUID: Int] = [:]
 
         for session in sortedSessions {
-            if let index = indexBySessionID[session.id] {
+            let index = indexBySessionID[session.id] ?? session.entryID.flatMap { indexByEntryID[$0] }
+            if let index {
                 mergedSessions[index] = merge(mergedSessions[index], with: session)
+                indexBySessionID[session.id] = index
+                indexBySessionID[mergedSessions[index].id] = index
+                if let entryID = session.entryID {
+                    indexByEntryID[entryID] = index
+                }
+                if let entryID = mergedSessions[index].entryID {
+                    indexByEntryID[entryID] = index
+                }
             } else {
                 indexBySessionID[session.id] = mergedSessions.count
+                if let entryID = session.entryID {
+                    indexByEntryID[entryID] = mergedSessions.count
+                }
                 mergedSessions.append(session)
             }
         }
@@ -270,6 +275,15 @@ final class AIReflectionSessionStore: ObservableObject {
     private func mergePair(_ firstSession: AIReflectionSession, _ secondSession: AIReflectionSession) -> AIReflectionSession {
         let sortedSessions = orderedSessions([firstSession, secondSession])
         return merge(sortedSessions[0], with: sortedSessions[1])
+    }
+
+    private func mergeIndex(for session: AIReflectionSession, in candidates: [AIReflectionSession]) -> Int? {
+        if let index = candidates.firstIndex(where: { $0.id == session.id }) {
+            return index
+        }
+
+        guard let entryID = session.entryID else { return nil }
+        return candidates.firstIndex { $0.entryID == entryID }
     }
 
     private func sortSessions() {
