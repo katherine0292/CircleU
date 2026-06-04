@@ -59,8 +59,8 @@ final class CircleStore: ObservableObject {
         posts.insert(
             CirclePost(
                 circleID: circle.id,
-                title: entry.result.title,
-                body: "\(entry.result.summary)\n\nQuest: \(entry.result.suggestedQuest)",
+                title: entry.displayTitle,
+                body: "\(entry.displaySummary)\n\nQuest: \(entry.displayQuest)",
                 sourceEntryID: entry.id
             ),
             at: 0
@@ -140,8 +140,8 @@ final class CircleStore: ObservableObject {
                 CirclePost(
                     circleID: practiceCircle.id,
                     createdAt: referenceDate,
-                    title: latestEntry.result.title,
-                    body: "\(latestEntry.result.summary)\n\nQuest: \(latestEntry.result.suggestedQuest)",
+                    title: latestEntry.displayTitle,
+                    body: "\(latestEntry.displaySummary)\n\nQuest: \(latestEntry.displayQuest)",
                     sourceEntryID: latestEntry.id
                 ),
                 at: 0

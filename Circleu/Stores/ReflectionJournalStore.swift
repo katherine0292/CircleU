@@ -26,6 +26,54 @@ final class ReflectionJournalStore: ObservableObject {
         save()
     }
 
+    func updateWorkspace(
+        entry: JournalReflectionEntry,
+        title: String?,
+        emotion: String?,
+        privateNote: String,
+        tags: [String]
+    ) {
+        guard let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
+
+        entries[index].editableTitle = sanitizedOptional(title)
+        entries[index].editableEmotion = sanitizedOptional(emotion)
+        entries[index].privateNote = sanitized(privateNote, fallback: "")
+        entries[index].tags = tags
+            .map { sanitized($0, fallback: "") }
+            .filter { !$0.isEmpty }
+        entries[index].lastEditedAt = Date()
+        save()
+    }
+
+    func attach(sessionID: UUID, to entryID: UUID) {
+        guard let index = entries.firstIndex(where: { $0.id == entryID }) else { return }
+
+        entries[index].sessionID = sessionID
+        entries[index].lastEditedAt = Date()
+        save()
+    }
+
+    func replaceResult(
+        entryID: UUID,
+        result: AIReflectionResult,
+        engineName: String,
+        sessionID: UUID?
+    ) {
+        guard let index = entries.firstIndex(where: { $0.id == entryID }) else { return }
+
+        entries[index].result = result
+        entries[index].engineName = engineName
+        if let sessionID {
+            entries[index].sessionID = sessionID
+        }
+        entries[index].lastEditedAt = Date()
+        save()
+    }
+
+    func entry(with id: UUID) -> JournalReflectionEntry? {
+        entries.first { $0.id == id }
+    }
+
     func delete(at offsets: IndexSet, aiSessionStore: AIReflectionSessionStore) {
         let entriesToDelete = offsets.compactMap { index in
             entries.indices.contains(index) ? entries[index] : nil
@@ -55,9 +103,9 @@ final class ReflectionJournalStore: ObservableObject {
         """
         Circleu Reflection
 
-        \(entry.result.title)
+        \(entry.displayTitle)
         \(entry.createdAt.formatted(date: .complete, time: .shortened))
-        Emotion: \(entry.result.emotion)
+        Emotion: \(entry.displayEmotion)
         Engine: \(entry.engineName)
 
         Summary
@@ -71,6 +119,9 @@ final class ReflectionJournalStore: ObservableObject {
 
         Suggested Quest
         \(entry.result.suggestedQuest)
+
+        Private Note
+        \(entry.privateNote.isEmpty ? "None" : entry.privateNote)
 
         Transcript
         \(entry.transcript)
@@ -99,6 +150,21 @@ final class ReflectionJournalStore: ObservableObject {
     private func save() {
         guard let data = try? encoder.encode(entries) else { return }
         UserDefaults.standard.set(data, forKey: storageKey)
+    }
+
+    private func sanitizedOptional(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let clean = sanitized(value, fallback: "")
+        return clean.isEmpty ? nil : clean
+    }
+
+    private func sanitized(_ value: String, fallback: String) -> String {
+        let clean = value
+            .split(whereSeparator: { $0.isWhitespace })
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else { return fallback }
+        return String(clean.prefix(280))
     }
 
     private func remove(at offsets: IndexSet) {
