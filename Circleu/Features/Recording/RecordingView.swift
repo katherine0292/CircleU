@@ -3,6 +3,7 @@ import SwiftUI
 struct RecordingView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var journalStore: ReflectionJournalStore
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @StateObject private var recorder = VoiceRecorder()
     let onViewJournal: () -> Void
 
@@ -114,6 +115,9 @@ struct RecordingView: View {
         }
         .fullScreenCover(isPresented: $showReflection) {
             ReflectionView(entry: pendingEntry) { entry in
+                if let sessionID = entry.sessionID {
+                    aiSessionStore.link(sessionID: sessionID, to: entry.id)
+                }
                 journalStore.add(entry)
                 savedEntry = entry
                 showReflection = false
@@ -355,6 +359,9 @@ struct RecordingView: View {
         recorder.stop()
         analysisMessage = nil
         let transcript = effectiveTranscript
+        let durationSeconds = recorder.elapsedSeconds
+        let analysisStartedAt = Date()
+        let reflectionSource: AIReflectionSource = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .typedFallback : .recording
 
         analysisTask = Task {
             await MainActor.run {
@@ -364,17 +371,41 @@ struct RecordingView: View {
             do {
                 let result = try await engine.analyze(
                     transcript: transcript,
-                    durationSeconds: recorder.elapsedSeconds
+                    durationSeconds: durationSeconds
                 )
                 guard !Task.isCancelled else { return }
+                let analysisElapsedMilliseconds = Int(Date().timeIntervalSince(analysisStartedAt) * 1000)
+                let sessionID = UUID()
+                let attempt = AIReflectionAttempt(
+                    createdAt: analysisStartedAt,
+                    engineName: engine.displayName,
+                    status: .succeeded,
+                    result: result,
+                    elapsedMilliseconds: analysisElapsedMilliseconds
+                )
                 let entry = JournalReflectionEntry(
-                    durationSeconds: recorder.elapsedSeconds,
+                    id: UUID(),
+                    createdAt: analysisStartedAt,
+                    durationSeconds: durationSeconds,
                     transcript: transcript,
                     engineName: engine.displayName,
-                    result: result
+                    result: result,
+                    sessionID: sessionID
+                )
+                let session = AIReflectionSession(
+                    id: sessionID,
+                    createdAt: analysisStartedAt,
+                    updatedAt: Date(),
+                    engineName: engine.displayName,
+                    source: reflectionSource,
+                    transcript: transcript,
+                    durationSeconds: durationSeconds,
+                    attempts: [attempt],
+                    selectedAttemptID: attempt.id
                 )
 
                 await MainActor.run {
+                    aiSessionStore.upsert(session)
                     pendingEntry = entry
                     isAnalyzing = false
                     analysisTask = nil
@@ -466,4 +497,5 @@ struct RecordingView: View {
 #Preview {
     RecordingView()
         .environmentObject(ReflectionJournalStore())
+        .environmentObject(AIReflectionSessionStore())
 }

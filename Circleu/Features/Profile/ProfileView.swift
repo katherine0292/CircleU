@@ -241,7 +241,7 @@ struct ProfileView: View {
                 .buttonStyle(ProfileActionButtonStyle(isPrimary: true))
             }
 
-            Text("Your journal, circles, quests, and profile name stay in local app storage until you delete the app or clear app data from iOS.")
+            Text("Your journal, AI sessions and transcripts, circles, quests, and profile name stay in local app storage until you delete the app or clear app data from iOS.")
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)

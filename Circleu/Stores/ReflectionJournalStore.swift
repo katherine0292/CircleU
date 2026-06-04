@@ -26,13 +26,6 @@ final class ReflectionJournalStore: ObservableObject {
         save()
     }
 
-    func delete(at offsets: IndexSet) {
-        for index in offsets.sorted(by: >) {
-            entries.remove(at: index)
-        }
-        save()
-    }
-
     func delete(at offsets: IndexSet, aiSessionStore: AIReflectionSessionStore) {
         let entriesToDelete = offsets.compactMap { index in
             entries.indices.contains(index) ? entries[index] : nil
@@ -41,17 +34,12 @@ final class ReflectionJournalStore: ObservableObject {
         entriesToDelete.forEach { entry in
             deleteAISessions(for: entry, aiSessionStore: aiSessionStore)
         }
-        delete(at: offsets)
-    }
-
-    func delete(_ entry: JournalReflectionEntry) {
-        entries.removeAll { $0.id == entry.id }
-        save()
+        remove(at: offsets)
     }
 
     func delete(_ entry: JournalReflectionEntry, aiSessionStore: AIReflectionSessionStore) {
         deleteAISessions(for: entry, aiSessionStore: aiSessionStore)
-        delete(entry)
+        remove(entry)
     }
 
     func reset() {
@@ -111,6 +99,18 @@ final class ReflectionJournalStore: ObservableObject {
     private func save() {
         guard let data = try? encoder.encode(entries) else { return }
         UserDefaults.standard.set(data, forKey: storageKey)
+    }
+
+    private func remove(at offsets: IndexSet) {
+        for index in offsets.sorted(by: >) {
+            entries.remove(at: index)
+        }
+        save()
+    }
+
+    private func remove(_ entry: JournalReflectionEntry) {
+        entries.removeAll { $0.id == entry.id }
+        save()
     }
 
     private func deleteAISessions(for entry: JournalReflectionEntry, aiSessionStore: AIReflectionSessionStore) {
