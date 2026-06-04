@@ -1,9 +1,14 @@
 import SwiftUI
 
+enum ReflectionSaveDestination {
+    case confirmation
+    case practice
+}
+
 struct ReflectionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var questStore: QuestStore
-    var onSave: ((JournalReflectionEntry) -> Void)?
+    var onSave: ((JournalReflectionEntry, ReflectionSaveDestination) -> Void)?
     var onSessionChange: ((AIReflectionSession?) -> Void)?
     @State private var hasSaved = false
     @State private var draftEntry: JournalReflectionEntry?
@@ -18,7 +23,7 @@ struct ReflectionView: View {
         entry: JournalReflectionEntry? = nil,
         session: AIReflectionSession? = nil,
         onSessionChange: ((AIReflectionSession?) -> Void)? = nil,
-        onSave: ((JournalReflectionEntry) -> Void)? = nil
+        onSave: ((JournalReflectionEntry, ReflectionSaveDestination) -> Void)? = nil
     ) {
         self.onSessionChange = onSessionChange
         self.onSave = onSave
@@ -211,28 +216,39 @@ struct ReflectionView: View {
     }
 
     private func questCard(reflection: AIReflectionResult) -> some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: "flag.fill")
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 46, height: 46)
-                .background(PinguDesign.orange)
-                .clipShape(Circle())
+        VStack(alignment: .leading, spacing: 15) {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: "flag.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 46, height: 46)
+                    .background(PinguDesign.orange)
+                    .clipShape(Circle())
 
-            VStack(alignment: .leading, spacing: 7) {
-                Text("NEXT QUEST")
-                    .font(.system(size: 14, weight: .bold))
-                    .tracking(1.2)
-                    .foregroundStyle(PinguDesign.muted)
+                VStack(alignment: .leading, spacing: 7) {
+                    Text("NEXT PRACTICE")
+                        .font(.system(size: 14, weight: .bold))
+                        .tracking(1.2)
+                        .foregroundStyle(PinguDesign.muted)
 
-                Text(reflection.suggestedQuest)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundStyle(PinguDesign.ink)
-                    .lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(reflection.suggestedQuest)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundStyle(PinguDesign.ink)
+                        .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
             }
 
-            Spacer(minLength: 0)
+            Button {
+                saveAndStartPractice()
+            } label: {
+                Label("Save & Start Practice", systemImage: "checklist.checked")
+            }
+            .buttonStyle(PinguPrimaryButtonStyle())
+            .disabled(hasSaved || draftEntry == nil || isRegenerating)
+            .opacity(hasSaved || draftEntry == nil || isRegenerating ? 0.48 : 1)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -303,6 +319,14 @@ struct ReflectionView: View {
     }
 
     private func saveEntry() {
+        saveEntry(to: .confirmation)
+    }
+
+    private func saveAndStartPractice() {
+        saveEntry(to: .practice)
+    }
+
+    private func saveEntry(to destination: ReflectionSaveDestination) {
         guard !hasSaved else { return }
         guard let draftEntry else {
             dismiss()
@@ -311,7 +335,7 @@ struct ReflectionView: View {
 
         hasSaved = true
         questStore.addSuggestedQuest(from: draftEntry)
-        onSave?(draftEntry)
+        onSave?(draftEntry, destination)
     }
 
     private func regenerateReflection() {

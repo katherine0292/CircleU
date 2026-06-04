@@ -48,6 +48,10 @@ struct RootView: View {
                 onViewJournal: {
                     selectedTab = .journal
                     showRecording = false
+                },
+                onViewPractice: {
+                    selectedTab = .practice
+                    showRecording = false
                 }
             )
         }

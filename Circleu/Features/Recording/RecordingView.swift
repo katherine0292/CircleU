@@ -6,6 +6,7 @@ struct RecordingView: View {
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @StateObject private var recorder = VoiceRecorder()
     let onViewJournal: () -> Void
+    let onViewPractice: () -> Void
 
     @State private var engine = ReflectionEngineFactory.makeDefault()
     @State private var showReflection = false
@@ -19,8 +20,12 @@ struct RecordingView: View {
     @State private var analysisTask: Task<Void, Never>?
     @State private var sessionRunner = ReflectionSessionRunner()
 
-    init(onViewJournal: @escaping () -> Void = {}) {
+    init(
+        onViewJournal: @escaping () -> Void = {},
+        onViewPractice: @escaping () -> Void = {}
+    ) {
         self.onViewJournal = onViewJournal
+        self.onViewPractice = onViewPractice
     }
 
     var body: some View {
@@ -129,14 +134,21 @@ struct RecordingView: View {
                         pendingEntry?.sessionID = session?.id
                     }
                 }
-            ) { entry in
+            ) { entry, destination in
                 persistPendingSession(for: entry)
                 journalStore.add(entry)
                 savedEntry = entry
                 pendingEntry = nil
                 pendingSession = nil
                 showReflection = false
-                showSaveConfirmation = true
+
+                switch destination {
+                case .confirmation:
+                    showSaveConfirmation = true
+                case .practice:
+                    onViewPractice()
+                    dismiss()
+                }
             }
         }
         .fullScreenCover(isPresented: $showSaveConfirmation) {
