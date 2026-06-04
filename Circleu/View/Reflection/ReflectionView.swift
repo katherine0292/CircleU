@@ -8,12 +8,8 @@ struct ReflectionView: View {
 
         ZStack {
 
-            Color(
-                red: 248 / 255,
-                green: 247 / 255,
-                blue: 243 / 255
-            )
-            .ignoresSafeArea()
+            Color(red: 240/255, green: 249/255, blue: 255/255)
+                .ignoresSafeArea()
 
             VStack(spacing: 16) {
 
@@ -23,6 +19,7 @@ struct ReflectionView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
+                            .foregroundStyle(.primaryBlue)
                     }
 
                     Spacer()
@@ -33,6 +30,7 @@ struct ReflectionView: View {
                     Spacer()
 
                     Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(.primaryBlue)
                 }
                 .padding()
 
@@ -42,67 +40,106 @@ struct ReflectionView: View {
                     .frame(width: 90)
 
                 Text("Here's what I noticed")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(.title.bold())
 
-                ReflectionCard(
-                    icon: "heart.fill",
-                    title: "Emotion",
-                    content: "You seemed nervous about being judged. That's completely normal."
+                Text("Take a moment to soak in your growth.")
+                    .foregroundStyle(.secondaryBlue)
+
+                reflectionCard(
+                    title: "EMOTION",
+                    text: "You seemed nervous. It's totally normal to feel this way."
                 )
 
-                ReflectionCard(
-                    icon: "sparkles",
-                    title: "Expression Moment",
-                    content: "You spoke honestly about your experience. That took courage."
+                reflectionCard(
+                    title: "EXPRESSION MOMENT",
+                    text: "You spoke honestly about your experience."
                 )
 
-                VStack(alignment: .leading, spacing: 12) {
-
-                    Text("QUOTE")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white.opacity(0.8))
-
-                    Text("Confidence grows through expression.")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .background(Color.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 24))
+                quoteCard
 
                 Spacer()
 
-                HStack {
+                HStack(spacing: 12) {
 
-                    Button("Cancel") {
+                    Button {
+                        dismiss()
+                    } label: {
 
+                        Text("Cancel")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white)
+                            .clipShape(
+                                RoundedRectangle(cornerRadius: 14)
+                            )
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(.gray.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
 
-                    Button("Save Entry") {
+                    Button {
 
+                        dismiss()
+
+                    } label: {
+
+                        Text("Save Entry")
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .clipShape(
+                                RoundedRectangle(cornerRadius: 14)
+                            )
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
-
-                Text("Saved entries are private to you.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                .padding(.horizontal)
             }
-            .padding()
         }
-        .navigationBarBackButtonHidden(true)
+    }
+
+    func reflectionCard(
+        title: String,
+        text: String
+    ) -> some View {
+
+        VStack(alignment: .leading, spacing: 8) {
+
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text(text)
+                .fontWeight(.medium)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 20)
+        )
+        .padding(.horizontal)
+    }
+
+    var quoteCard: some View {
+
+        VStack {
+
+            Text("❝")
+
+            Text("Confidence grows through expression")
+                .font(.title3.bold())
+                .multilineTextAlignment(.center)
+
+            Text("Daily Wisdom")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.8))
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.blue)
+        .foregroundStyle(.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 20)
+        )
+        .padding(.horizontal)
     }
 }
 
