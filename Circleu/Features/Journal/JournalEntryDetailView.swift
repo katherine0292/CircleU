@@ -255,11 +255,7 @@ struct JournalEntryDetailView: View {
     }
 
     private func deleteEntry() {
-        aiSessionStore.deleteSessions(forEntryID: entry.id)
-        if let sessionID = entry.sessionID {
-            aiSessionStore.delete(sessionID: sessionID)
-        }
-        journalStore.delete(entry)
+        journalStore.delete(entry, aiSessionStore: aiSessionStore)
     }
 }
 

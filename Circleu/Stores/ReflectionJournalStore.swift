@@ -33,9 +33,25 @@ final class ReflectionJournalStore: ObservableObject {
         save()
     }
 
+    func delete(at offsets: IndexSet, aiSessionStore: AIReflectionSessionStore) {
+        let entriesToDelete = offsets.compactMap { index in
+            entries.indices.contains(index) ? entries[index] : nil
+        }
+
+        entriesToDelete.forEach { entry in
+            deleteAISessions(for: entry, aiSessionStore: aiSessionStore)
+        }
+        delete(at: offsets)
+    }
+
     func delete(_ entry: JournalReflectionEntry) {
         entries.removeAll { $0.id == entry.id }
         save()
+    }
+
+    func delete(_ entry: JournalReflectionEntry, aiSessionStore: AIReflectionSessionStore) {
+        deleteAISessions(for: entry, aiSessionStore: aiSessionStore)
+        delete(entry)
     }
 
     func reset() {
@@ -95,6 +111,13 @@ final class ReflectionJournalStore: ObservableObject {
     private func save() {
         guard let data = try? encoder.encode(entries) else { return }
         UserDefaults.standard.set(data, forKey: storageKey)
+    }
+
+    private func deleteAISessions(for entry: JournalReflectionEntry, aiSessionStore: AIReflectionSessionStore) {
+        if let sessionID = entry.sessionID {
+            aiSessionStore.delete(sessionID: sessionID)
+        }
+        aiSessionStore.deleteSessions(forEntryID: entry.id)
     }
 }
 

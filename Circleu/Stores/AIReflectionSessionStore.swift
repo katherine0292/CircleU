@@ -23,19 +23,7 @@ final class AIReflectionSessionStore: ObservableObject {
 
     func upsert(_ session: AIReflectionSession) {
         let normalizedSession = normalize(session)
-        let matchingSessions = sessions.filter { existingSession in
-            areSessionsConnected(existingSession, normalizedSession)
-        }
-
-        if matchingSessions.isEmpty {
-            sessions.append(normalizedSession)
-        } else {
-            sessions.removeAll { existingSession in
-                areSessionsConnected(existingSession, normalizedSession)
-            }
-            sessions.append(mergeForUpsert(existing: matchingSessions, incoming: normalizedSession))
-        }
-
+        sessions.append(normalizedSession)
         sessions = normalizedUniqueSortedSessions(from: sessions)
         save()
     }
@@ -289,15 +277,6 @@ final class AIReflectionSessionStore: ObservableObject {
 
         return sortedSessions.dropFirst().reduce(normalize(newestSession)) { mergedSession, session in
             merge(mergedSession, with: session)
-        }
-    }
-
-    private func mergeForUpsert(
-        existing existingSessions: [AIReflectionSession],
-        incoming incomingSession: AIReflectionSession
-    ) -> AIReflectionSession {
-        existingSessions.reduce(incomingSession) { mergedSession, existingSession in
-            merge(mergedSession, with: existingSession)
         }
     }
 
