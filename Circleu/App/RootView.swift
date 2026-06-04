@@ -5,6 +5,7 @@ struct RootView: View {
     @EnvironmentObject private var questStore: QuestStore
     @State private var selectedTab: PinguTab = .home
     @State private var showRecording = false
+    @State private var selectedJournalEntry: JournalReflectionEntry?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -24,6 +25,11 @@ struct RootView: View {
                         )
                     case .journal:
                         JournalView(onStartRecording: { showRecording = true })
+                    case .practice:
+                        PracticeView(
+                            onStartRecording: { showRecording = true },
+                            onOpenJournalEntry: { selectedJournalEntry = $0 }
+                        )
                     case .circle:
                         CircleView()
                     case .profile:
@@ -44,13 +50,25 @@ struct RootView: View {
                 }
             )
         }
+        .sheet(item: $selectedJournalEntry) { entry in
+            NavigationStack {
+                JournalEntryDetailView(entry: entry)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") {
+                                selectedJournalEntry = nil
+                            }
+                        }
+                    }
+            }
+        }
     }
 
     private var navigationTrailing: PinguTopBar.Trailing {
         switch selectedTab {
         case .home:
             .level(progress.level)
-        case .journal, .profile:
+        case .journal, .practice, .profile:
             .streak(progress.streak)
         case .circle:
             .none
@@ -69,6 +87,8 @@ private extension PinguTab {
             "Circleu"
         case .journal:
             "Journal"
+        case .practice:
+            "Practice"
         case .circle:
             "Circles"
         case .profile:
@@ -82,6 +102,8 @@ private extension PinguTab {
             "sparkles"
         case .journal:
             "book.closed.fill"
+        case .practice:
+            "checklist.checked"
         case .circle:
             "person.2.fill"
         case .profile:

@@ -27,6 +27,7 @@ struct PinguCard<Content: View>: View {
 enum PinguTab: String, CaseIterable {
     case home = "Home"
     case journal = "Journal"
+    case practice = "Practice"
     case circle = "Circle"
     case profile = "Profile"
 
@@ -34,6 +35,7 @@ enum PinguTab: String, CaseIterable {
         switch self {
         case .home: "house.fill"
         case .journal: "book.closed.fill"
+        case .practice: "checklist.checked"
         case .circle: "person.2.fill"
         case .profile: "person.crop.circle.fill"
         }
@@ -143,9 +145,11 @@ struct PinguBottomTabBar: View {
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 22, weight: .semibold))
+                            .font(.system(size: 21, weight: .semibold))
                         Text(tab.rawValue)
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.78)
                     }
                     .foregroundStyle(selection == tab ? PinguDesign.blue : PinguDesign.muted)
                     .frame(maxWidth: .infinity)

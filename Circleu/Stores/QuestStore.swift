@@ -19,6 +19,18 @@ final class QuestStore: ObservableObject {
         quests.filter { $0.status == .active }
     }
 
+    var completedQuests: [Quest] {
+        quests.filter { $0.status == .completed }
+    }
+
+    var skippedQuests: [Quest] {
+        quests.filter { $0.status == .skipped }
+    }
+
+    var latestActiveQuest: Quest? {
+        activeQuests.first
+    }
+
     func quest(for entry: JournalReflectionEntry) -> Quest? {
         quests.first { $0.sourceEntryID == entry.id }
     }
@@ -61,6 +73,10 @@ final class QuestStore: ObservableObject {
 
     func skip(_ quest: Quest) {
         update(quest, status: .skipped, completedAt: Date())
+    }
+
+    func reactivate(_ quest: Quest) {
+        update(quest, status: .active, completedAt: nil)
     }
 
     func delete(_ quest: Quest) {
