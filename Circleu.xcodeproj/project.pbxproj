@@ -10,33 +10,9 @@
 		02CCBDC22FCE6063007523F5 /* Circleu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Circleu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		02CCBDF82FCFB49D007523F5 /* Exceptions for "Circleu" folder in "Circleu" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				.swift,
-			);
-			target = 02CCBDC12FCE6063007523F5 /* Circleu */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		02CCBDF92FCFB49D007523F5 /* Exceptions for "Circleu" folder in "Compile Sources" phase from "Circleu" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 02CCBDBE2FCE6063007523F5 /* Sources */;
-			membershipExceptions = (
-				.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		02CCBDC42FCE6063007523F5 /* Circleu */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				02CCBDF82FCFB49D007523F5 /* Exceptions for "Circleu" folder in "Circleu" target */,
-				02CCBDF92FCFB49D007523F5 /* Exceptions for "Circleu" folder in "Compile Sources" phase from "Circleu" target */,
-			);
 			path = Circleu;
 			sourceTree = "<group>";
 		};
