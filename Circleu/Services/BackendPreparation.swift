@@ -47,7 +47,10 @@ struct LocalUserIdentityProvider: UserIdentityProviding {
     }
 
     var displayName: String {
-        defaults.string(forKey: "circleu.displayName") ?? "Friend"
+        let savedName = defaults
+            .string(forKey: "circleu.profile.displayName.v1")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return savedName.isEmpty ? "Friend" : savedName
     }
 }
 
