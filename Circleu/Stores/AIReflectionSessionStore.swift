@@ -46,6 +46,7 @@ final class AIReflectionSessionStore: ObservableObject {
             sessions[index].selectedAttemptID = attempt.id
             sessions[index].engineName = attempt.engineName
         }
+        sessions[index] = normalize(sessions[index])
         sortSessions()
         save()
     }
@@ -129,9 +130,14 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
-              let savedSessions = try? decoder.decode([AIReflectionSession].self, from: data) else {
+        guard let data = UserDefaults.standard.data(forKey: storageKey) else {
             sessions = []
+            return
+        }
+
+        guard let savedSessions = try? decoder.decode([AIReflectionSession].self, from: data) else {
+            sessions = []
+            UserDefaults.standard.removeObject(forKey: storageKey)
             return
         }
 
@@ -226,13 +232,36 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     private func normalizedUniqueSortedSessions(from source: [AIReflectionSession]) -> [AIReflectionSession] {
-        let sortedSessions = orderedSessions(source.map(normalize))
+        let sortedSessions = orderedSessions(source)
 
-        var seenSessionIDs = Set<UUID>()
-        return sortedSessions.compactMap { session in
-            guard seenSessionIDs.insert(session.id).inserted else { return nil }
-            return session
+        var mergedSessions: [AIReflectionSession] = []
+        var indexBySessionID: [UUID: Int] = [:]
+
+        for session in sortedSessions {
+            if let index = indexBySessionID[session.id] {
+                mergedSessions[index] = merge(mergedSessions[index], with: session)
+            } else {
+                indexBySessionID[session.id] = mergedSessions.count
+                mergedSessions.append(session)
+            }
         }
+
+        return orderedSessions(mergedSessions.map(normalize))
+    }
+
+    private func merge(_ newestSession: AIReflectionSession, with olderSession: AIReflectionSession) -> AIReflectionSession {
+        var mergedSession = newestSession
+        mergedSession.attempts.append(contentsOf: olderSession.attempts)
+
+        if mergedSession.entryID == nil {
+            mergedSession.entryID = olderSession.entryID
+        }
+
+        if mergedSession.transcript.isEmpty, !olderSession.transcript.isEmpty {
+            mergedSession.transcript = olderSession.transcript
+        }
+
+        return normalize(mergedSession)
     }
 
     private func sortSessions() {
