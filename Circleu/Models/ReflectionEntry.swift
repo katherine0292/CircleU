@@ -25,6 +25,21 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
     var tags: [String]
     var lastEditedAt: Date?
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case createdAt
+        case durationSeconds
+        case transcript
+        case engineName
+        case result
+        case sessionID
+        case editableTitle
+        case editableEmotion
+        case privateNote
+        case tags
+        case lastEditedAt
+    }
+
     init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
@@ -51,6 +66,40 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
         self.privateNote = privateNote
         self.tags = tags
         self.lastEditedAt = lastEditedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(UUID.self, forKey: .id)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        durationSeconds = try container.decode(Int.self, forKey: .durationSeconds)
+        transcript = try container.decode(String.self, forKey: .transcript)
+        engineName = try container.decode(String.self, forKey: .engineName)
+        result = try container.decode(AIReflectionResult.self, forKey: .result)
+        sessionID = try container.decodeIfPresent(UUID.self, forKey: .sessionID)
+        editableTitle = try container.decodeIfPresent(String.self, forKey: .editableTitle)
+        editableEmotion = try container.decodeIfPresent(String.self, forKey: .editableEmotion)
+        privateNote = try container.decodeIfPresent(String.self, forKey: .privateNote) ?? ""
+        tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
+        lastEditedAt = try container.decodeIfPresent(Date.self, forKey: .lastEditedAt)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(id, forKey: .id)
+        try container.encode(createdAt, forKey: .createdAt)
+        try container.encode(durationSeconds, forKey: .durationSeconds)
+        try container.encode(transcript, forKey: .transcript)
+        try container.encode(engineName, forKey: .engineName)
+        try container.encode(result, forKey: .result)
+        try container.encodeIfPresent(sessionID, forKey: .sessionID)
+        try container.encodeIfPresent(editableTitle, forKey: .editableTitle)
+        try container.encodeIfPresent(editableEmotion, forKey: .editableEmotion)
+        try container.encode(privateNote, forKey: .privateNote)
+        try container.encode(tags, forKey: .tags)
+        try container.encodeIfPresent(lastEditedAt, forKey: .lastEditedAt)
     }
 
     var displayTitle: String {
