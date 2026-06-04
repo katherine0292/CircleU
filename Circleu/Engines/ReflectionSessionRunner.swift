@@ -29,6 +29,7 @@ struct ReflectionSessionRunner {
         session.durationSeconds = durationSeconds
         session.updatedAt = Date()
 
+        let analysisStartedAt = Date()
         let startTime = ContinuousClock.now
 
         do {
@@ -37,6 +38,7 @@ struct ReflectionSessionRunner {
                 durationSeconds: durationSeconds
             )
             let attempt = AIReflectionAttempt(
+                createdAt: analysisStartedAt,
                 engineName: engine.displayName,
                 status: .succeeded,
                 result: result,
@@ -44,20 +46,43 @@ struct ReflectionSessionRunner {
             )
             session.attempts.append(attempt)
             session.selectedAttemptID = attempt.id
+            session.engineName = attempt.engineName
             session.updatedAt = Date()
 
             return ReflectionSessionRunResult(session: session, attempt: attempt)
         } catch {
+            let status: AIReflectionAttemptStatus = error is CancellationError || Task.isCancelled
+                ? .cancelled
+                : .failed
             let attempt = AIReflectionAttempt(
+                createdAt: analysisStartedAt,
                 engineName: engine.displayName,
-                status: .failed,
-                errorMessage: error.localizedDescription,
+                status: status,
+                errorMessage: status == .failed ? error.localizedDescription : nil,
                 elapsedMilliseconds: elapsedMilliseconds(since: startTime)
             )
             session.attempts.append(attempt)
+            preserveSelectedSuccessfulAttempt(in: &session)
             session.updatedAt = Date()
 
             return ReflectionSessionRunResult(session: session, attempt: attempt)
+        }
+    }
+
+    private func preserveSelectedSuccessfulAttempt(in session: inout AIReflectionSession) {
+        let selectedAttempt: AIReflectionAttempt?
+        if let selectedAttemptID = session.selectedAttemptID,
+           let currentSelection = session.attempts.first(where: { $0.id == selectedAttemptID && $0.status == .succeeded }) {
+            selectedAttempt = currentSelection
+        } else {
+            selectedAttempt = session.attempts.last(where: { $0.status == .succeeded })
+            session.selectedAttemptID = selectedAttempt?.id
+        }
+
+        if let selectedAttempt {
+            session.engineName = selectedAttempt.engineName
+        } else {
+            session.selectedAttemptID = nil
         }
     }
 
