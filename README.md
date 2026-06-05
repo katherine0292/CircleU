@@ -69,6 +69,14 @@ Command-line simulator build:
 xcodebuild build -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
+## Test
+
+The shared `Circleu` scheme includes the `CircleuTests` unit test target for ViewModel behavior checks.
+
+```bash
+xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
 ## Run On iPhone
 
 1. Open the `Circleu` target in Xcode.

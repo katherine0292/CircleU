@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		A10000012F0000010000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 02CCBDBA2FCE6063007523F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02CCBDC12FCE6063007523F5;
+			remoteInfo = Circleu;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		02CCBDC22FCE6063007523F5 /* Circleu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Circleu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000012F00000100000001 /* CircleuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CircleuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = Circleu;
 			sourceTree = "<group>";
 		};
+		A10000012F00000100000002 /* CircleuTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CircleuTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		02CCBDBF2FCE6063007523F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000012F00000100000004 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				02CCBDC42FCE6063007523F5 /* Circleu */,
+				A10000012F00000100000002 /* CircleuTests */,
 				02CCBDC32FCE6063007523F5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				02CCBDC22FCE6063007523F5 /* Circleu.app */,
+				A10000012F00000100000001 /* CircleuTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = 02CCBDC22FCE6063007523F5 /* Circleu.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A10000012F00000100000006 /* CircleuTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000012F00000100000007 /* Build configuration list for PBXNativeTarget "CircleuTests" */;
+			buildPhases = (
+				A10000012F00000100000003 /* Sources */,
+				A10000012F00000100000004 /* Frameworks */,
+				A10000012F00000100000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000012F0000010000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A10000012F00000100000002 /* CircleuTests */,
+			);
+			name = CircleuTests;
+			packageProductDependencies = (
+			);
+			productName = CircleuTests;
+			productReference = A10000012F00000100000001 /* CircleuTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					02CCBDC12FCE6063007523F5 = {
 						CreatedOnToolsVersion = 26.5;
+					};
+					A10000012F00000100000006 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 02CCBDC12FCE6063007523F5;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				02CCBDC12FCE6063007523F5 /* Circleu */,
+				A10000012F00000100000006 /* CircleuTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		02CCBDC02FCE6063007523F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000012F00000100000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A10000012F00000100000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000012F0000010000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02CCBDC12FCE6063007523F5 /* Circleu */;
+			targetProxy = A10000012F0000010000000A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		02CCBDCB2FCE6064007523F5 /* Debug */ = {
@@ -314,6 +389,60 @@
 			};
 			name = Release;
 		};
+		A10000012F00000100000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WV4WRB79Z7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Pingu.CircleuTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Circleu.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Circleu";
+			};
+			name = Debug;
+		};
+		A10000012F00000100000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WV4WRB79Z7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Pingu.CircleuTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Circleu.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Circleu";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -331,6 +460,15 @@
 			buildConfigurations = (
 				02CCBDCE2FCE6064007523F5 /* Debug */,
 				02CCBDCF2FCE6064007523F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000012F00000100000007 /* Build configuration list for PBXNativeTarget "CircleuTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000012F00000100000008 /* Debug */,
+				A10000012F00000100000009 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
