@@ -1,0 +1,514 @@
+import SwiftUI
+
+struct HomeView: View {
+    @EnvironmentObject private var journalStore: ReflectionJournalStore
+    @EnvironmentObject private var profileStore: UserProfileStore
+    @EnvironmentObject private var questStore: QuestStore
+    @State private var selectedEntry: JournalReflectionEntry?
+    let onStartRecording: () -> Void
+    let onOpenJournal: () -> Void
+    let onOpenPractice: () -> Void
+
+    private let dailyPrompts = [
+        "What feeling has been sitting with you today?",
+        "What small moment changed your mood?",
+        "What do you want to understand about yourself today?",
+        "What would make tomorrow feel lighter?"
+    ]
+
+    var body: some View {
+        ZStack {
+            PinguScreenBackground()
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 20) {
+                    greeting
+                    heroRecordPanel
+                    dailyPromptCard
+                    activeQuestCard
+                    statsRow
+                    latestReflectionSection
+                }
+                .padding(.horizontal, PinguDesign.screenSidePadding)
+                .padding(.top, 24)
+                .padding(.bottom, PinguDesign.bottomBarHeight + 28)
+            }
+        }
+        .sheet(item: $selectedEntry) { entry in
+            NavigationStack {
+                JournalEntryDetailView(entry: entry)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") {
+                                selectedEntry = nil
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+    private var greeting: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Hey \(profileStore.firstName),")
+                .font(.system(size: 36, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.ink)
+
+            Text(greetingSubtitle)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundStyle(PinguDesign.muted)
+                .lineSpacing(4)
+        }
+    }
+
+    private var heroRecordPanel: some View {
+        VStack(spacing: 18) {
+            ZStack(alignment: .topTrailing) {
+                pinguOrb
+
+                Text(latestEmotionLabel)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.blue)
+                    .padding(.horizontal, 12)
+                    .frame(height: 32)
+                    .background(.white)
+                    .clipShape(Capsule())
+                    .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 10, y: 5)
+                    .offset(x: 8, y: 4)
+            }
+            .frame(maxWidth: .infinity)
+
+            VStack(spacing: 7) {
+                Text("Start today's reflection")
+                    .font(.system(size: 25, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.ink)
+
+                Text("Speak for a minute, or type if voice is not ready.")
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+            }
+
+            Button {
+                onStartRecording()
+            } label: {
+                Label("Record now", systemImage: "mic.fill")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 58)
+                    .background(PinguDesign.blue)
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .shadow(color: PinguDesign.blue.opacity(0.22), radius: 16, y: 9)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(.white.opacity(0.8), lineWidth: 1)
+        }
+        .shadow(color: PinguDesign.deepBlue.opacity(0.07), radius: 22, y: 12)
+    }
+
+    private var pinguOrb: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 76, style: .continuous)
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            PinguDesign.aqua,
+                            PinguDesign.sky,
+                            PinguDesign.blue
+                        ],
+                        center: .center,
+                        startRadius: 18,
+                        endRadius: 160
+                    )
+                )
+                .frame(width: 170, height: 170)
+                .shadow(color: PinguDesign.blue.opacity(0.18), radius: 18, y: 10)
+
+            Image("PinguMascot")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 126, height: 126)
+                .clipShape(RoundedRectangle(cornerRadius: 48, style: .continuous))
+
+            Image(systemName: "heart.fill")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(PinguDesign.orange)
+                .frame(width: 44, height: 44)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .shadow(color: PinguDesign.ink.opacity(0.13), radius: 10, y: 5)
+                .offset(x: 72, y: -58)
+        }
+    }
+
+    private var dailyPromptCard: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: "sun.max.fill")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(PinguDesign.orange)
+                .frame(width: 42, height: 42)
+                .background(PinguDesign.lightBlue.opacity(0.68))
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text("Today's prompt")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+
+                Text(dailyPrompt)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.ink)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+
+            Button {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                    profileStore.advanceDailyPrompt(totalPrompts: dailyPrompts.count)
+                }
+            } label: {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(PinguDesign.blue)
+                    .frame(width: 40, height: 40)
+                    .background(PinguDesign.lightBlue.opacity(0.76))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(16)
+        .background(PinguDesign.lightBlue.opacity(0.42))
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(PinguDesign.border.opacity(0.7), lineWidth: 1)
+        }
+    }
+
+    private var statsRow: some View {
+        HStack(spacing: 10) {
+            HomeStatTile(value: "\(progress.entryCount)", label: "Entries", icon: "book.closed.fill")
+            HomeStatTile(value: "\(progress.streak)", label: "Streak", icon: "flame.fill")
+            HomeStatTile(value: latestEmotionLabel, label: "Latest", icon: "heart.fill")
+        }
+    }
+
+    private var activeQuestCard: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack(spacing: 11) {
+                Image(systemName: activeQuest == nil ? "flag" : "flag.fill")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(activeQuest == nil ? PinguDesign.blue : .white)
+                    .frame(width: 38, height: 38)
+                    .background(activeQuest == nil ? PinguDesign.lightBlue.opacity(0.78) : PinguDesign.orange)
+                    .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Next action")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(PinguDesign.muted)
+
+                    Text(betaState.nextActionTitle)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundStyle(PinguDesign.ink)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+
+            Text(betaState.nextActionSubtitle)
+                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .foregroundStyle(PinguDesign.body)
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let quest = activeQuest {
+                if let sourceEntry = sourceEntry(for: quest) {
+                    Button {
+                        selectedEntry = sourceEntry
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundStyle(PinguDesign.blue)
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("From reflection")
+                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .foregroundStyle(PinguDesign.muted)
+
+                                Text(sourceEntry.displayTitle)
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(PinguDesign.ink)
+                                    .lineLimit(1)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(PinguDesign.muted)
+                        }
+                        .padding(12)
+                        .background(PinguDesign.lightBlue.opacity(0.52))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                HStack(spacing: 10) {
+                    Button {
+                        onOpenPractice()
+                    } label: {
+                        Label("Open Practice", systemImage: "checklist.checked")
+                    }
+                    .buttonStyle(HomeQuestButtonStyle(isPrimary: true))
+                }
+
+                HStack(spacing: 10) {
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
+                            questStore.complete(quest)
+                        }
+                    } label: {
+                        Label("Complete", systemImage: "checkmark")
+                    }
+                    .buttonStyle(HomeQuestButtonStyle(isPrimary: false))
+
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
+                            questStore.skip(quest)
+                        }
+                    } label: {
+                        Label("Skip", systemImage: "forward.fill")
+                    }
+                    .buttonStyle(HomeQuestButtonStyle(isPrimary: false))
+                }
+            } else {
+                Button {
+                    onStartRecording()
+                } label: {
+                    Label("Start reflection", systemImage: "mic.fill")
+                }
+                .buttonStyle(HomeQuestButtonStyle(isPrimary: true))
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(PinguDesign.border.opacity(0.62), lineWidth: 1)
+        }
+        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 14, y: 7)
+    }
+
+    private var latestReflectionSection: some View {
+        Group {
+            if let latestEntry = journalStore.entries.first {
+                Button {
+                    selectedEntry = latestEntry
+                } label: {
+                    latestReflectionCard(latestEntry)
+                }
+                .buttonStyle(.plain)
+            } else {
+                emptyReflectionCard
+            }
+        }
+    }
+
+    private func latestReflectionCard(_ entry: JournalReflectionEntry) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Latest reflection", systemImage: "sparkles")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.blue)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(PinguDesign.muted)
+            }
+
+            Text(entry.result.title)
+                .font(.system(size: 21, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.ink)
+                .lineLimit(2)
+
+            Text(entry.result.summary)
+                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .foregroundStyle(PinguDesign.body)
+                .lineSpacing(4)
+                .lineLimit(3)
+
+            HStack {
+                Text(entry.result.emotion)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.blue)
+                    .padding(.horizontal, 10)
+                    .frame(height: 28)
+                    .background(PinguDesign.lightBlue.opacity(0.72))
+                    .clipShape(Capsule())
+
+                Spacer()
+
+                Text(entry.createdAt.formatted(date: .abbreviated, time: .shortened))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 16, y: 8)
+    }
+
+    private var emptyReflectionCard: some View {
+        HStack(alignment: .center, spacing: 14) {
+            Image(systemName: "waveform.circle.fill")
+                .font(.system(size: 42, weight: .semibold))
+                .foregroundStyle(PinguDesign.blue)
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Your first reflection is waiting")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.ink)
+
+                Text("Record or type a short check-in to fill this space with your own insight.")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+                    .lineSpacing(3)
+            }
+
+            Spacer(minLength: 0)
+
+            Button {
+                onStartRecording()
+            } label: {
+                Image(systemName: "mic.fill")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 42, height: 42)
+                    .background(PinguDesign.blue)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(16)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 16, y: 8)
+    }
+
+    private var dailyPrompt: String {
+        dailyPrompts[profileStore.dailyPromptIndex % dailyPrompts.count]
+    }
+
+    private var greetingSubtitle: String {
+        journalStore.entries.isEmpty ? "Ready for your first check-in?" : "Your reflection space is ready."
+    }
+
+    private var latestEmotionLabel: String {
+        journalStore.entries.first?.result.emotion ?? "Start"
+    }
+
+    private var activeQuest: Quest? {
+        questStore.activeQuests.first
+    }
+
+    private var activeQuestSupportText: String {
+        guard let activeQuest else {
+            return "Save a reflection and Circleu will turn the insight into one small action."
+        }
+
+        return "Created \(relativeDateText(for: activeQuest.createdAt)). Complete it when the practice is done, or skip it if it no longer fits today."
+    }
+
+    private var betaState: DailyReflectionBetaState {
+        DailyReflectionBetaState.make(entries: journalStore.entries, quests: questStore.quests)
+    }
+
+    private func sourceEntry(for quest: Quest) -> JournalReflectionEntry? {
+        guard let sourceEntryID = quest.sourceEntryID else { return nil }
+        return journalStore.entries.first { $0.id == sourceEntryID }
+    }
+
+    private func relativeDateText(for date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private var progress: AppProgressSnapshot {
+        ProgressEngine.snapshot(entries: journalStore.entries, quests: questStore.quests)
+    }
+}
+
+private struct HomeQuestButtonStyle: ButtonStyle {
+    let isPrimary: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .bold, design: .rounded))
+            .foregroundStyle(isPrimary ? .white : PinguDesign.blue)
+            .frame(maxWidth: .infinity)
+            .frame(height: 42)
+            .background(isPrimary ? PinguDesign.blue : PinguDesign.lightBlue.opacity(0.76))
+            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .opacity(configuration.isPressed ? 0.76 : 1)
+    }
+}
+
+private struct HomeStatTile: View {
+    let value: String
+    let label: String
+    let icon: String
+
+    var body: some View {
+        VStack(spacing: 7) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(PinguDesign.blue)
+
+            Text(value)
+                .font(.system(size: value.count > 7 ? 14 : 20, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .monospacedDigit()
+
+            Text(label)
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(PinguDesign.muted)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 94)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+    }
+}
+
+#Preview {
+    HomeView(onStartRecording: {}, onOpenJournal: {}, onOpenPractice: {})
+        .environmentObject(ReflectionJournalStore())
+        .environmentObject(UserProfileStore())
+        .environmentObject(QuestStore())
+}
