@@ -4,17 +4,10 @@ struct HomeView: View {
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var questStore: QuestStore
-    @State private var selectedEntry: JournalReflectionEntry?
+    @StateObject private var viewModel = HomeViewModel()
     let onStartRecording: () -> Void
     let onOpenJournal: () -> Void
     let onOpenTips: () -> Void
-
-    private let dailyPrompts = [
-        "What feeling has been sitting with you today?",
-        "What small moment changed your mood?",
-        "What do you want to understand about yourself today?",
-        "What would make tomorrow feel lighter?"
-    ]
 
     var body: some View {
         ZStack {
@@ -34,13 +27,13 @@ struct HomeView: View {
                 .padding(.bottom, PinguDesign.bottomBarHeight + 28)
             }
         }
-        .sheet(item: $selectedEntry) { entry in
+        .sheet(item: $viewModel.selectedEntry) { entry in
             NavigationStack {
                 JournalEntryDetailView(entry: entry)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button("Done") {
-                                selectedEntry = nil
+                                viewModel.selectedEntry = nil
                             }
                         }
                     }
@@ -54,7 +47,7 @@ struct HomeView: View {
                 .font(PinguFont.hero)
                 .foregroundStyle(PinguDesign.ink)
 
-            Text(greetingSubtitle)
+            Text(viewModel.greetingSubtitle(entries: journalStore.entries))
                 .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(3)
@@ -66,7 +59,7 @@ struct HomeView: View {
             ZStack(alignment: .topTrailing) {
                 pinguOrb
 
-                Text(latestEmotionLabel)
+                Text(viewModel.latestEmotionLabel(entries: journalStore.entries))
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.blue)
                     .padding(.horizontal, 12)
@@ -164,7 +157,7 @@ struct HomeView: View {
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
 
-                Text(dailyPrompt)
+                Text(viewModel.dailyPrompt(for: profileStore))
                     .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
                     .lineSpacing(4)
@@ -175,7 +168,7 @@ struct HomeView: View {
 
             Button {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
-                    profileStore.advanceDailyPrompt(totalPrompts: dailyPrompts.count)
+                    viewModel.advanceDailyPrompt(profileStore: profileStore)
                 }
             } label: {
                 Image(systemName: "arrow.clockwise")
@@ -200,7 +193,7 @@ struct HomeView: View {
         HStack(spacing: 10) {
             HomeStatTile(value: "\(progress.entryCount)", label: "Entries", icon: "book.closed.fill")
             HomeStatTile(value: "\(progress.streak)", label: "Streak", icon: "flame.fill")
-            HomeStatTile(value: latestEmotionLabel, label: "Latest", icon: "heart.fill")
+            HomeStatTile(value: viewModel.latestEmotionLabel(entries: journalStore.entries), label: "Latest", icon: "heart.fill")
         }
     }
 
@@ -236,9 +229,9 @@ struct HomeView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if let quest = activeQuest {
-                if let sourceEntry = sourceEntry(for: quest) {
+                if let sourceEntry = viewModel.sourceEntry(for: quest, entries: journalStore.entries) {
                     Button {
-                        selectedEntry = sourceEntry
+                        viewModel.selectedEntry = sourceEntry
                     } label: {
                         HStack(spacing: 10) {
                             Image(systemName: "sparkles")
@@ -281,7 +274,7 @@ struct HomeView: View {
                 HStack(spacing: 10) {
                     Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                            questStore.complete(quest)
+                            viewModel.complete(quest, questStore: questStore)
                         }
                     } label: {
                         Label("Complete", systemImage: "checkmark")
@@ -290,7 +283,7 @@ struct HomeView: View {
 
                     Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                            questStore.skip(quest)
+                            viewModel.skip(quest, questStore: questStore)
                         }
                     } label: {
                         Label("Skip", systemImage: "forward.fill")
@@ -321,7 +314,7 @@ struct HomeView: View {
         Group {
             if let latestEntry = journalStore.entries.first {
                 Button {
-                    selectedEntry = latestEntry
+                    viewModel.selectedEntry = latestEntry
                 } label: {
                     latestReflectionCard(latestEntry)
                 }
@@ -417,47 +410,20 @@ struct HomeView: View {
         .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 16, y: 8)
     }
 
-    private var dailyPrompt: String {
-        dailyPrompts[profileStore.dailyPromptIndex % dailyPrompts.count]
-    }
-
-    private var greetingSubtitle: String {
-        journalStore.entries.isEmpty ? "Ready for your first check-in?" : "Your reflection space is ready."
-    }
-
-    private var latestEmotionLabel: String {
-        journalStore.entries.first?.result.emotion ?? "Start"
-    }
-
     private var activeQuest: Quest? {
-        questStore.activeQuests.first
+        viewModel.activeQuest(from: questStore)
     }
 
     private var activeQuestSupportText: String {
-        guard let activeQuest else {
-            return "Save a reflection and Circleu will turn the insight into one small action."
-        }
-
-        return "Created \(relativeDateText(for: activeQuest.createdAt)). Complete it when the tips is done, or skip it if it no longer fits today."
+        viewModel.activeQuestSupportText(activeQuest: activeQuest)
     }
 
     private var betaState: DailyReflectionBetaState {
-        DailyReflectionBetaState.make(entries: journalStore.entries, quests: questStore.quests)
-    }
-
-    private func sourceEntry(for quest: Quest) -> JournalReflectionEntry? {
-        guard let sourceEntryID = quest.sourceEntryID else { return nil }
-        return journalStore.entries.first { $0.id == sourceEntryID }
-    }
-
-    private func relativeDateText(for date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter.localizedString(for: date, relativeTo: Date())
+        viewModel.betaState(entries: journalStore.entries, quests: questStore.quests)
     }
 
     private var progress: AppProgressSnapshot {
-        ProgressEngine.snapshot(entries: journalStore.entries, quests: questStore.quests)
+        viewModel.progress(entries: journalStore.entries, quests: questStore.quests)
     }
 }
 

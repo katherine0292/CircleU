@@ -3,10 +3,7 @@ import SwiftUI
 struct PinguOnboardingView: View {
     @EnvironmentObject private var profileStore: UserProfileStore
     let onContinue: () -> Void
-    @State private var selectedPage = 0
-    @State private var draftName = ""
-
-    private let pages = PinguOnboardingPage.allPages
+    @StateObject private var viewModel = OnboardingViewModel()
 
     var body: some View {
         GeometryReader { proxy in
@@ -38,9 +35,9 @@ struct PinguOnboardingView: View {
                     Spacer(minLength: max(48, proxy.size.height * 0.18))
 
                     VStack(spacing: 24) {
-                        TabView(selection: $selectedPage) {
-                            ForEach(pages.indices, id: \.self) { index in
-                                onboardingPage(pages[index])
+                        TabView(selection: $viewModel.selectedPage) {
+                            ForEach(viewModel.pages.indices, id: \.self) { index in
+                                onboardingPage(viewModel.pages[index])
                                     .tag(index)
                                     .padding(.horizontal, 28)
                             }
@@ -54,14 +51,14 @@ struct PinguOnboardingView: View {
                             Button {
                                 advance()
                             } label: {
-                                Label(primaryButtonTitle, systemImage: primaryButtonIcon)
+                                Label(viewModel.primaryButtonTitle, systemImage: viewModel.primaryButtonIcon)
                             }
                             .buttonStyle(PinguPrimaryButtonStyle())
 
                             Button {
                                 completeOnboarding()
                             } label: {
-                                Text(selectedPage == pages.indices.last ? "Maybe Later" : "Skip")
+                                Text(viewModel.selectedPage == viewModel.pages.indices.last ? "Maybe Later" : "Skip")
                             }
                             .buttonStyle(PinguSecondaryButtonStyle())
                         }
@@ -123,7 +120,7 @@ struct PinguOnboardingView: View {
                     .frame(maxWidth: 336)
                     .fixedSize(horizontal: false, vertical: true)
 
-                if page == pages.last {
+                if page == viewModel.pages.last {
                     nameInput
                         .padding(.top, 2)
                 }
@@ -152,7 +149,7 @@ struct PinguOnboardingView: View {
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.92))
 
-            TextField("Your name", text: $draftName)
+            TextField("Your name", text: $viewModel.draftName)
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
                 .textInputAutocapitalization(.words)
@@ -176,47 +173,28 @@ struct PinguOnboardingView: View {
 
     private var pagerDots: some View {
         HStack(spacing: 8) {
-            ForEach(pages.indices, id: \.self) { index in
+            ForEach(viewModel.pages.indices, id: \.self) { index in
                 Capsule()
-                    .fill(index == selectedPage ? .white : .white.opacity(0.34))
-                    .frame(width: index == selectedPage ? 28 : 8, height: 8)
-                    .animation(.spring(response: 0.28, dampingFraction: 0.82), value: selectedPage)
+                    .fill(index == viewModel.selectedPage ? .white : .white.opacity(0.34))
+                    .frame(width: index == viewModel.selectedPage ? 28 : 8, height: 8)
+                    .animation(.spring(response: 0.28, dampingFraction: 0.82), value: viewModel.selectedPage)
             }
         }
         .padding(.vertical, 2)
     }
 
-    private var primaryButtonTitle: String {
-        selectedPage == pages.indices.last ? "Start Reflecting" : "Continue"
-    }
-
-    private var primaryButtonIcon: String {
-        selectedPage == pages.indices.last ? "mic.fill" : "arrow.right"
-    }
-
     private func advance() {
-        if selectedPage == pages.indices.last {
-            completeOnboarding()
-        } else {
-            withAnimation(.spring(response: 0.38, dampingFraction: 0.84)) {
-                selectedPage += 1
-            }
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.84)) {
+            viewModel.advance(profileStore: profileStore, onContinue: onContinue)
         }
     }
 
     private func completeOnboarding() {
-        if !profileStore.hasDisplayName {
-            let name = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
-            profileStore.updateDisplayName(name.isEmpty ? "Friend" : name)
-        } else if !draftName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            profileStore.updateDisplayName(draftName)
-        }
-
-        onContinue()
+        viewModel.completeOnboarding(profileStore: profileStore, onContinue: onContinue)
     }
 }
 
-private struct PinguOnboardingPage: Equatable {
+struct PinguOnboardingPage: Equatable {
     let icon: String
     let title: String
     let subtitle: String

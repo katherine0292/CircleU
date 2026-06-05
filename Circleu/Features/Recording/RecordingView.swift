@@ -4,21 +4,9 @@ struct RecordingView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
-    @StateObject private var recorder = VoiceRecorder()
+    @StateObject private var viewModel = RecordingViewModel()
     let onViewJournal: () -> Void
     let onViewTips: () -> Void
-
-    @State private var engine = ReflectionEngineFactory.makeDefault()
-    @State private var showReflection = false
-    @State private var showSaveConfirmation = false
-    @State private var pendingEntry: JournalReflectionEntry?
-    @State private var pendingSession: AIReflectionSession?
-    @State private var savedEntry: JournalReflectionEntry?
-    @State private var isAnalyzing = false
-    @State private var analysisMessage: String?
-    @State private var manualTranscript = ""
-    @State private var analysisTask: Task<Void, Never>?
-    @State private var sessionRunner = ReflectionSessionRunner()
 
     init(
         onViewJournal: @escaping () -> Void = {},
@@ -37,14 +25,14 @@ struct RecordingView: View {
                     Spacer(minLength: max(24, proxy.size.height * 0.03))
 
                     VStack(spacing: 14) {
-                        Text(isAnalyzing ? "Thinking..." : recorder.statusMessage)
+                        Text(viewModel.isAnalyzing ? "Thinking..." : viewModel.recorder.statusMessage)
                             .font(PinguFont.hero)
                             .foregroundStyle(PinguDesign.blue)
                             .lineLimit(1)
                             .minimumScaleFactor(0.72)
                             .padding(.horizontal, PinguDesign.screenSidePadding)
 
-                        Text(subtitle)
+                        Text(viewModel.subtitle)
                             .font(PinguFont.body)
                             .foregroundStyle(PinguDesign.muted)
                             .multilineTextAlignment(.center)
@@ -56,7 +44,7 @@ struct RecordingView: View {
                     Spacer(minLength: max(40, proxy.size.height * 0.05))
 
                     WaveformView()
-                        .opacity(recorder.isRecording && !recorder.isPaused ? 1 : 0.42)
+                        .opacity(viewModel.recorder.isRecording && !viewModel.recorder.isPaused ? 1 : 0.42)
 
                     transcriptPanel
                         .padding(.horizontal, PinguDesign.screenSidePadding)
@@ -75,7 +63,7 @@ struct RecordingView: View {
                             .foregroundStyle(PinguDesign.muted.opacity(0.82))
                     }
 
-                    Text(formattedTime(recorder.elapsedSeconds))
+                    Text(viewModel.formattedElapsedTime)
                         .font(.system(size: 50, weight: .regular, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(PinguDesign.ink)
@@ -85,33 +73,33 @@ struct RecordingView: View {
 
                     HStack(spacing: 48) {
                         recordingAction(
-                            title: recorder.isPaused ? "RESUME" : "PAUSE",
-                            icon: recorder.isPaused ? "play.fill" : "pause.fill",
+                            title: viewModel.recorder.isPaused ? "RESUME" : "PAUSE",
+                            icon: viewModel.recorder.isPaused ? "play.fill" : "pause.fill",
                             background: PinguDesign.lightBlue,
                             foreground: PinguDesign.muted
                         ) {
-                            recorder.togglePause()
+                            viewModel.togglePause()
                         }
-                        .disabled(!recorder.isRecording || isAnalyzing)
-                        .opacity(!recorder.isRecording || isAnalyzing ? 0.48 : 1)
+                        .disabled(!viewModel.recorder.isRecording || viewModel.isAnalyzing)
+                        .opacity(!viewModel.recorder.isRecording || viewModel.isAnalyzing ? 0.48 : 1)
 
                         recordingAction(
-                            title: finishActionTitle,
-                            icon: isAnalyzing ? "sparkles" : "checkmark",
-                            background: canFinish ? PinguDesign.blue : PinguDesign.lightBlue,
-                            foreground: canFinish ? .white : PinguDesign.muted
+                            title: viewModel.finishActionTitle,
+                            icon: viewModel.isAnalyzing ? "sparkles" : "checkmark",
+                            background: viewModel.canFinish ? PinguDesign.blue : PinguDesign.lightBlue,
+                            foreground: viewModel.canFinish ? .white : PinguDesign.muted
                         ) {
-                            finishRecording()
+                            viewModel.finishRecording()
                         }
-                        .disabled(!canFinish)
-                        .opacity(canFinish ? 1 : 0.72)
+                        .disabled(!viewModel.canFinish)
+                        .opacity(viewModel.canFinish ? 1 : 0.72)
                     }
                     .padding(.bottom, max(22, proxy.safeAreaInsets.bottom + 14))
                 }
                 .frame(width: proxy.size.width, height: proxy.size.height)
             }
 
-            if isAnalyzing {
+            if viewModel.isAnalyzing {
                 analyzingOverlay
             }
         }
@@ -122,82 +110,49 @@ struct RecordingView: View {
                 .background(PinguDesign.ice.opacity(0.96))
         }
         .task {
-            recorder.start()
+            viewModel.start()
         }
         .onDisappear {
-            analysisTask?.cancel()
-            recorder.stop()
+            viewModel.stop()
         }
-        .fullScreenCover(isPresented: $showReflection) {
+        .fullScreenCover(isPresented: $viewModel.showReflection) {
             ReflectionView(
-                entry: pendingEntry,
-                session: pendingSession,
+                entry: viewModel.pendingEntry,
+                session: viewModel.pendingSession,
                 onSessionChange: { session in
-                    pendingSession = session
-                    if let selectedResult = session?.selectedResult,
-                       let selectedAttempt = session?.selectedAttempt,
-                       selectedAttempt.status == .succeeded {
-                        pendingEntry?.result = selectedResult
-                        pendingEntry?.engineName = selectedAttempt.engineName
-                        pendingEntry?.sessionID = session?.id
-                    }
+                    viewModel.applySessionChange(session)
                 }
             ) { entry, destination in
-                persistPendingSession(for: entry)
-                journalStore.add(entry)
-                savedEntry = entry
-                pendingEntry = nil
-                pendingSession = nil
-                showReflection = false
+                viewModel.savePendingEntry(entry, journalStore: journalStore, aiSessionStore: aiSessionStore)
 
                 switch destination {
                 case .confirmation:
-                    showSaveConfirmation = true
+                    viewModel.showConfirmationAfterSave()
                 case .tips:
                     onViewTips()
                     dismiss()
                 }
             }
         }
-        .fullScreenCover(isPresented: $showSaveConfirmation) {
-            SaveConfirmationView(entry: savedEntry) {
-                showSaveConfirmation = false
+        .fullScreenCover(isPresented: $viewModel.showSaveConfirmation) {
+            SaveConfirmationView(entry: viewModel.savedEntry) {
+                viewModel.clearSaveConfirmation()
                 dismiss()
             } onViewJournal: {
-                showSaveConfirmation = false
+                viewModel.clearSaveConfirmation()
                 onViewJournal()
                 dismiss()
             } onRecordAnother: {
-                showSaveConfirmation = false
-                resetForAnotherRecording()
+                viewModel.clearSaveConfirmation()
+                viewModel.resetForAnotherRecording()
             }
         }
-    }
-
-    private var subtitle: String {
-        if isAnalyzing {
-            return "Apple Intelligence is creating your reflection."
-        }
-
-        if recorder.isTypedFallbackAvailable {
-            return "Voice is not ready, but typing works. Your reflection can still continue."
-        }
-
-        if let message = recorder.errorMessage {
-            return message
-        }
-
-        if let message = engine.availabilityMessage {
-            return message
-        }
-
-        return "Speak naturally. Your transcript stays on this device."
     }
 
     private var recordingHeader: some View {
         HStack {
             Button {
-                recorder.stop()
+                viewModel.stop()
                 dismiss()
             } label: {
                 Label("Close", systemImage: "xmark")
@@ -215,14 +170,7 @@ struct RecordingView: View {
             Spacer()
 
             Button {
-                analysisTask?.cancel()
-                pendingEntry = nil
-                pendingSession = nil
-                savedEntry = nil
-                analysisMessage = nil
-                manualTranscript = ""
-                recorder.resetSession()
-                recorder.start()
+                viewModel.restartRecording()
             } label: {
                 Label("Replay", systemImage: "arrow.clockwise")
                     .labelStyle(.iconOnly)
@@ -234,7 +182,7 @@ struct RecordingView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 10, y: 5)
             }
-            .disabled(isAnalyzing || showReflection || showSaveConfirmation)
+            .disabled(viewModel.isAnalyzing || viewModel.showReflection || viewModel.showSaveConfirmation)
             .accessibilityLabel("Restart recording")
         }
         .padding(.horizontal, PinguDesign.screenSidePadding)
@@ -252,7 +200,7 @@ struct RecordingView: View {
 
                 Spacer()
 
-                Text(engine.displayName)
+                Text(viewModel.engine.displayName)
                     .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.blue)
                     .padding(.horizontal, 10)
@@ -261,16 +209,16 @@ struct RecordingView: View {
                     .clipShape(Capsule())
             }
 
-            if recorder.transcript.isEmpty {
-                TextEditor(text: $manualTranscript)
+            if viewModel.recorder.transcript.isEmpty {
+                TextEditor(text: $viewModel.manualTranscript)
                     .font(.system(size: 16, weight: .regular, design: .rounded))
-                    .foregroundStyle(manualTranscript.isEmpty ? PinguDesign.muted : PinguDesign.body)
+                    .foregroundStyle(viewModel.manualTranscript.isEmpty ? PinguDesign.muted : PinguDesign.body)
                     .frame(maxWidth: .infinity, minHeight: 92, alignment: .topLeading)
                     .scrollContentBackground(.hidden)
                     .background(.clear)
-                    .disabled(isAnalyzing)
+                    .disabled(viewModel.isAnalyzing)
                     .overlay(alignment: .topLeading) {
-                        if manualTranscript.isEmpty {
+                        if viewModel.manualTranscript.isEmpty {
                             Text("Speak naturally, or type here if microphone or speech recognition is not ready.")
                                 .font(.system(size: 16, weight: .regular, design: .rounded))
                                 .foregroundStyle(PinguDesign.muted)
@@ -281,22 +229,22 @@ struct RecordingView: View {
                         }
                     }
             } else {
-                Text(recorder.transcript)
+                Text(viewModel.recorder.transcript)
                     .font(.system(size: 16, weight: .regular, design: .rounded))
                     .foregroundStyle(PinguDesign.body)
                     .lineSpacing(4)
                     .frame(maxWidth: .infinity, minHeight: 92, alignment: .topLeading)
             }
 
-            if let analysisMessage {
+            if let analysisMessage = viewModel.analysisMessage {
                 Text(analysisMessage)
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.orange)
             }
 
-            if analysisMessage != nil && canFinish {
+            if viewModel.analysisMessage != nil && viewModel.canFinish {
                 Button {
-                    finishRecording()
+                    viewModel.finishRecording()
                 } label: {
                     Label("Try analysis again", systemImage: "arrow.clockwise")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -307,12 +255,12 @@ struct RecordingView: View {
 
             permissionReadinessRow
 
-            Label(transcriptQuality.guidance, systemImage: transcriptQuality.isReady ? "checkmark.circle.fill" : "info.circle.fill")
+            Label(viewModel.transcriptQuality.guidance, systemImage: viewModel.transcriptQuality.isReady ? "checkmark.circle.fill" : "info.circle.fill")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundStyle(transcriptQuality.isReady ? PinguDesign.blue : PinguDesign.muted)
+                .foregroundStyle(viewModel.transcriptQuality.isReady ? PinguDesign.blue : PinguDesign.muted)
 
-            if !canFinish && !isAnalyzing {
-                Label("\(transcriptQuality.wordCount) words captured", systemImage: "text.word.spacing")
+            if !viewModel.canFinish && !viewModel.isAnalyzing {
+                Label("\(viewModel.transcriptQuality.wordCount) words captured", systemImage: "text.word.spacing")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
             }
@@ -330,12 +278,12 @@ struct RecordingView: View {
         HStack(spacing: 8) {
             permissionBadge(
                 title: "Mic",
-                state: recorder.microphonePermissionState
+                state: viewModel.recorder.microphonePermissionState
             )
 
             permissionBadge(
                 title: "Speech",
-                state: recorder.speechPermissionState
+                state: viewModel.recorder.speechPermissionState
             )
         }
         .padding(.top, 2)
@@ -397,100 +345,6 @@ struct RecordingView: View {
         }
     }
 
-    private func finishRecording() {
-        guard canFinish else {
-            analysisMessage = transcriptQuality.guidance
-            return
-        }
-
-        analysisTask?.cancel()
-        recorder.stop()
-        analysisMessage = nil
-        let transcript = effectiveTranscript
-        let durationSeconds = recorder.elapsedSeconds
-        let reflectionSource: AIReflectionSource = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .typedFallback : .recording
-
-        analysisTask = Task {
-            await MainActor.run {
-                isAnalyzing = true
-            }
-
-            let run = await sessionRunner.analyze(
-                transcript: transcript,
-                durationSeconds: durationSeconds,
-                source: reflectionSource,
-                engine: engine
-            )
-            guard !Task.isCancelled else { return }
-
-            guard let result = run.result else {
-                await MainActor.run {
-                    isAnalyzing = false
-                    analysisTask = nil
-                    analysisMessage = run.attempt.errorMessage ?? "AI analysis failed. Please try again."
-                }
-                return
-            }
-
-            await MainActor.run {
-                let entry = JournalReflectionEntry(
-                    createdAt: run.attempt.createdAt,
-                    durationSeconds: durationSeconds,
-                    transcript: transcript,
-                    engineName: run.attempt.engineName,
-                    result: result,
-                    sessionID: run.session.id
-                )
-
-                pendingSession = run.session
-                pendingEntry = entry
-                isAnalyzing = false
-                analysisTask = nil
-                showReflection = true
-            }
-        }
-    }
-
-    private var effectiveTranscript: String {
-        let liveTranscript = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !liveTranscript.isEmpty {
-            return liveTranscript
-        }
-
-        return manualTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var canFinish: Bool {
-        !isAnalyzing && transcriptQuality.isReady
-    }
-
-    private var transcriptQuality: TranscriptQuality {
-        TranscriptQuality.evaluate(effectiveTranscript)
-    }
-
-    private var finishActionTitle: String {
-        if isAnalyzing {
-            return "WAIT"
-        }
-
-        return canFinish ? "FINISH" : "TYPE"
-    }
-
-    private func resetForAnotherRecording() {
-        analysisTask?.cancel()
-        analysisTask = nil
-        pendingEntry = nil
-        pendingSession = nil
-        savedEntry = nil
-        showReflection = false
-        showSaveConfirmation = false
-        isAnalyzing = false
-        analysisMessage = nil
-        manualTranscript = ""
-        recorder.resetSession()
-        recorder.start()
-    }
-
     private func recordingAction(
         title: String,
         icon: String,
@@ -515,26 +369,6 @@ struct RecordingView: View {
             }
         }
         .buttonStyle(.plain)
-    }
-
-    private func formattedTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let seconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-
-    private func persistPendingSession(for entry: JournalReflectionEntry) {
-        guard let sessionID = entry.sessionID else { return }
-
-        if var session = pendingSession, session.id == sessionID {
-            session.entryID = entry.id
-            session.engineName = entry.engineName
-            session.updatedAt = Date()
-            aiSessionStore.upsert(session)
-            return
-        }
-
-        aiSessionStore.link(sessionID: sessionID, to: entry.id)
     }
 }
 

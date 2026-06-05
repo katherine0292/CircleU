@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct ProfileView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -8,9 +7,7 @@ struct ProfileView: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
-    @State private var showProfileEditor = false
-    @State private var showQATools = false
-    @State private var didCopySummary = false
+    @StateObject private var viewModel = ProfileViewModel()
 
     var body: some View {
         NavigationStack {
@@ -37,7 +34,7 @@ struct ProfileView: View {
                     HStack {
                         Spacer()
                         Button {
-                            showProfileEditor = true
+                            viewModel.showProfileEditor = true
                         } label: {
                             Image(systemName: "pencil")
                                 .font(.system(size: 24, weight: .bold))
@@ -55,7 +52,7 @@ struct ProfileView: View {
             }
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showProfileEditor) {
+        .sheet(isPresented: $viewModel.showProfileEditor) {
             ProfileEditSheet(
                 entriesCount: progress.entryCount,
                 circleCount: circleStore.circles.count,
@@ -64,7 +61,7 @@ struct ProfileView: View {
             .environmentObject(profileStore)
             .presentationDetents([.medium])
         }
-        .sheet(isPresented: $showQATools) {
+        .sheet(isPresented: $viewModel.showQATools) {
             ProfileQAToolsSheet(
                 hasCompletedOnboarding: $hasCompletedOnboarding
             )
@@ -137,7 +134,7 @@ struct ProfileView: View {
 
                     Capsule()
                         .fill(PinguDesign.blue)
-                        .frame(width: proxy.size.width * levelProgress)
+                            .frame(width: proxy.size.width * levelProgress)
                 }
             }
             .frame(height: 13)
@@ -189,8 +186,8 @@ struct ProfileView: View {
                     ForEach(questStore.activeQuests) { quest in
                         ProfileQuestRow(
                             quest: quest,
-                            onComplete: { questStore.complete(quest) },
-                            onSkip: { questStore.skip(quest) }
+                            onComplete: { viewModel.complete(quest, questStore: questStore) },
+                            onSkip: { viewModel.skip(quest, questStore: questStore) }
                         )
                     }
                 }
@@ -228,10 +225,9 @@ struct ProfileView: View {
 
             HStack(spacing: 10) {
                 Button {
-                    UIPasteboard.general.string = profileSummary
-                    didCopySummary = true
+                    viewModel.copySummary(profileSummary)
                 } label: {
-                    Label(didCopySummary ? "Copied" : "Copy summary", systemImage: "doc.on.doc")
+                    Label(viewModel.didCopySummary ? "Copied" : "Copy summary", systemImage: "doc.on.doc")
                 }
                 .buttonStyle(ProfileActionButtonStyle(isPrimary: false))
 
@@ -253,7 +249,7 @@ struct ProfileView: View {
 
     private var qaToolsCard: some View {
         Button {
-            showQATools = true
+            viewModel.showQATools = true
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "wrench.and.screwdriver.fill")
@@ -288,11 +284,12 @@ struct ProfileView: View {
     }
 
     private var progress: AppProgressSnapshot {
-        ProgressEngine.snapshot(entries: journalStore.entries, quests: questStore.quests)
+        viewModel.progress(entries: journalStore.entries, quests: questStore.quests)
     }
 
     private var profileSummary: String {
-        profileStore.summaryText(
+        viewModel.profileSummary(
+            profileStore: profileStore,
             progress: progress,
             circleCount: circleStore.circles.count,
             supportPostCount: circleStore.posts.count
@@ -300,17 +297,11 @@ struct ProfileView: View {
     }
 
     private var profileTitle: String {
-        if progress.level >= 5 { return "Steady Reflector" }
-        if progress.entryCount >= 3 { return "Pattern Finder" }
-        if progress.entryCount >= 1 { return "Voice Explorer" }
-        return "New Voice Explorer"
+        viewModel.profileTitle(for: progress)
     }
 
     private var levelProgress: CGFloat {
-        let lowerBound = max(0, (progress.level - 1) * 100)
-        let upperBound = max(progress.xpForNextLevel, lowerBound + 100)
-        let value = CGFloat(progress.xp - lowerBound) / CGFloat(upperBound - lowerBound)
-        return min(max(value, 0), 1)
+        viewModel.levelProgress(for: progress)
     }
 }
 
@@ -320,7 +311,7 @@ private struct ProfileEditSheet: View {
     let completedQuestCount: Int
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var profileStore: UserProfileStore
-    @State private var draftName = ""
+    @StateObject private var viewModel = ProfileEditViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -360,7 +351,7 @@ private struct ProfileEditSheet: View {
             Spacer()
 
             Button("Save Profile") {
-                profileStore.updateDisplayName(draftName.isEmpty ? "Friend" : draftName)
+                viewModel.save(profileStore: profileStore)
                 dismiss()
             }
             .buttonStyle(PinguPrimaryButtonStyle())
@@ -368,7 +359,7 @@ private struct ProfileEditSheet: View {
         .padding(24)
         .background(PinguDesign.ice)
         .onAppear {
-            draftName = profileStore.displayName
+            viewModel.load(profileStore: profileStore)
         }
     }
 
@@ -378,7 +369,7 @@ private struct ProfileEditSheet: View {
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            TextField("Your name", text: $draftName)
+            TextField("Your name", text: $viewModel.draftName)
                 .font(.system(size: 17, weight: .semibold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
                 .textInputAutocapitalization(.words)

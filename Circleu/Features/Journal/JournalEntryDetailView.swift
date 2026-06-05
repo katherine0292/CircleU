@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct JournalEntryDetailView: View {
     let entry: JournalReflectionEntry
@@ -8,16 +7,14 @@ struct JournalEntryDetailView: View {
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var circleStore: CircleStore
-    @State private var didCopy = false
-    @State private var showCircleShareSheet = false
-    @State private var showEditSheet = false
+    @StateObject private var viewModel = JournalEntryDetailViewModel()
 
     private var currentEntry: JournalReflectionEntry {
-        journalStore.entry(with: entry.id) ?? entry
+        viewModel.currentEntry(fallback: entry, journalStore: journalStore)
     }
 
     private var session: AIReflectionSession? {
-        aiSessionStore.session(for: currentEntry)
+        viewModel.session(for: currentEntry, aiSessionStore: aiSessionStore)
     }
 
     var body: some View {
@@ -85,10 +82,9 @@ struct JournalEntryDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button {
-                        UIPasteboard.general.string = journalStore.shareText(for: currentEntry)
-                        didCopy = true
+                        viewModel.copyReflection(currentEntry, journalStore: journalStore)
                     } label: {
-                        Label(didCopy ? "Copied reflection" : "Copy reflection", systemImage: "doc.on.doc")
+                        Label(viewModel.didCopy ? "Copied reflection" : "Copy reflection", systemImage: "doc.on.doc")
                     }
 
                     ShareLink(item: journalStore.shareText(for: currentEntry)) {
@@ -96,7 +92,7 @@ struct JournalEntryDetailView: View {
                     }
 
                     Button {
-                        showEditSheet = true
+                        viewModel.showEditSheet = true
                     } label: {
                         Label("Edit workspace", systemImage: "pencil")
                     }
@@ -112,12 +108,12 @@ struct JournalEntryDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $showCircleShareSheet) {
+        .sheet(isPresented: $viewModel.showCircleShareSheet) {
             JournalCircleShareSheet(entry: currentEntry)
                 .environmentObject(circleStore)
                 .presentationDetents([.medium, .large])
         }
-        .sheet(isPresented: $showEditSheet) {
+        .sheet(isPresented: $viewModel.showEditSheet) {
             JournalWorkspaceEditSheet(entry: currentEntry) { title, emotion, privateNote, tags in
                 journalStore.updateWorkspace(
                     entry: currentEntry,
@@ -172,7 +168,7 @@ struct JournalEntryDetailView: View {
                 Spacer()
 
                 Button {
-                    showEditSheet = true
+                    viewModel.showEditSheet = true
                 } label: {
                     Label("Edit", systemImage: "pencil")
                         .labelStyle(.iconOnly)
@@ -322,7 +318,7 @@ struct JournalEntryDetailView: View {
                 .overlay(PinguDesign.border.opacity(0.6))
 
             Button {
-                showCircleShareSheet = true
+                viewModel.showCircleShareSheet = true
             } label: {
                 Label("Save insight to a community", systemImage: "person.2.wave.2.fill")
             }
@@ -356,7 +352,7 @@ struct JournalEntryDetailView: View {
                 HStack(spacing: 10) {
                     Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                            questStore.complete(quest)
+                            viewModel.complete(quest, questStore: questStore)
                         }
                     } label: {
                         Label("Complete", systemImage: "checkmark")
@@ -365,7 +361,7 @@ struct JournalEntryDetailView: View {
 
                     Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                            questStore.skip(quest)
+                            viewModel.skip(quest, questStore: questStore)
                         }
                     } label: {
                         Label("Skip", systemImage: "forward.fill")
@@ -376,7 +372,7 @@ struct JournalEntryDetailView: View {
             case .completed:
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                        _ = questStore.activateSuggestedQuest(from: currentEntry)
+                        viewModel.activateSuggestedQuest(from: currentEntry, questStore: questStore)
                     }
                 } label: {
                     Label("Restart tip", systemImage: "arrow.clockwise")
@@ -386,7 +382,7 @@ struct JournalEntryDetailView: View {
             case .skipped:
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                        _ = questStore.activateSuggestedQuest(from: currentEntry)
+                        viewModel.activateSuggestedQuest(from: currentEntry, questStore: questStore)
                     }
                 } label: {
                     Label("Make active again", systemImage: "flag.fill")
@@ -396,7 +392,7 @@ struct JournalEntryDetailView: View {
         } else {
             Button {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
-                    _ = questStore.activateSuggestedQuest(from: currentEntry)
+                    viewModel.activateSuggestedQuest(from: currentEntry, questStore: questStore)
                 }
             } label: {
                 Label("Add to next actions", systemImage: "flag.fill")
@@ -406,22 +402,11 @@ struct JournalEntryDetailView: View {
     }
 
     private var questStatusText: String {
-        guard let quest = questStore.quest(for: currentEntry) else {
-            return "Not added to next actions"
-        }
-
-        switch quest.status {
-        case .active:
-            return "Active next action"
-        case .completed:
-            return "Completed"
-        case .skipped:
-            return "Skipped"
-        }
+        viewModel.questStatusText(for: currentEntry, questStore: questStore)
     }
 
     private func deleteEntry() {
-        journalStore.delete(currentEntry, aiSessionStore: aiSessionStore)
+        viewModel.delete(currentEntry, journalStore: journalStore, aiSessionStore: aiSessionStore)
     }
 }
 

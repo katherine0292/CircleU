@@ -3,8 +3,7 @@ import SwiftUI
 struct CircleCreateSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var circleStore: CircleStore
-    @State private var name = ""
-    @State private var intention = ""
+    @StateObject private var viewModel = CircleCreateViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -19,8 +18,8 @@ struct CircleCreateSheet: View {
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
-                PinguTextInput(title: "Name", placeholder: "Study confidence", text: $name)
-                PinguTextInput(title: "Purpose", placeholder: "What will this community help you tips?", text: $intention)
+                PinguTextInput(title: "Name", placeholder: "Study confidence", text: $viewModel.name)
+                PinguTextInput(title: "Purpose", placeholder: "What will this community help you tips?", text: $viewModel.intention)
             }
 
             Text("This creates a private local community space. Live group sync can be added later when the backend is ready.")
@@ -30,22 +29,17 @@ struct CircleCreateSheet: View {
             Spacer()
 
             Button {
-                circleStore.createCircle(name: name, intention: intention)
+                viewModel.create(circleStore: circleStore)
                 dismiss()
             } label: {
                 Label("Create community", systemImage: "plus")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(!canSave)
-            .opacity(canSave ? 1 : 0.55)
+            .disabled(!viewModel.canSave)
+            .opacity(viewModel.canSave ? 1 : 0.55)
         }
         .padding(24)
         .background(PinguDesign.ice)
-    }
-
-    private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !intention.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
@@ -54,11 +48,7 @@ struct CircleDetailSheet: View {
     let entries: [JournalReflectionEntry]
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var circleStore: CircleStore
-    @State private var noteTitle = ""
-    @State private var noteBody = ""
-    @State private var showEditCircle = false
-    @State private var showReflectionPicker = false
-    @State private var editingPost: CirclePost?
+    @StateObject private var viewModel = CircleDetailViewModel()
 
     var body: some View {
         NavigationStack {
@@ -104,7 +94,7 @@ struct CircleDetailSheet: View {
                     HStack {
                         if let circle {
                             Button {
-                                showEditCircle = true
+                                viewModel.showEditCircle = true
                             } label: {
                                 Image(systemName: "pencil")
                             }
@@ -120,21 +110,21 @@ struct CircleDetailSheet: View {
                 }
             }
         }
-        .sheet(isPresented: $showEditCircle) {
+        .sheet(isPresented: $viewModel.showEditCircle) {
             if let circle {
                 CircleEditSheet(circle: circle)
                     .environmentObject(circleStore)
                     .presentationDetents([.medium])
             }
         }
-        .sheet(isPresented: $showReflectionPicker) {
+        .sheet(isPresented: $viewModel.showReflectionPicker) {
             if let circle {
                 ReflectionPickerSheet(circle: circle, entries: entries)
                     .environmentObject(circleStore)
                     .presentationDetents([.large])
             }
         }
-        .sheet(item: $editingPost) { post in
+        .sheet(item: $viewModel.editingPost) { post in
             CirclePostEditSheet(post: post)
                 .environmentObject(circleStore)
                 .presentationDetents([.medium])
@@ -142,7 +132,7 @@ struct CircleDetailSheet: View {
     }
 
     private var circle: CircleSpace? {
-        circleStore.circles.first { $0.id == circleID }
+        viewModel.circle(id: circleID, circleStore: circleStore)
     }
 
     private func quickActions(circle: CircleSpace) -> some View {
@@ -152,7 +142,7 @@ struct CircleDetailSheet: View {
                 .foregroundStyle(PinguDesign.ink)
 
             Button {
-                showReflectionPicker = true
+                viewModel.showReflectionPicker = true
             } label: {
                 Label(entries.isEmpty ? "Save a reflection first" : "Share a reflection card", systemImage: "sparkles")
             }
@@ -171,28 +161,21 @@ struct CircleDetailSheet: View {
                 .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            PinguTextInput(title: "Title", placeholder: "Before presentation", text: $noteTitle)
-            PinguTextInput(title: "Note", placeholder: "What should this community help you remember?", text: $noteBody, axis: .vertical)
+            PinguTextInput(title: "Title", placeholder: "Before presentation", text: $viewModel.noteTitle)
+            PinguTextInput(title: "Note", placeholder: "What should this community help you remember?", text: $viewModel.noteBody, axis: .vertical)
 
             Button {
-                circleStore.addNote(circle: circle, title: noteTitle, body: noteBody)
-                noteTitle = ""
-                noteBody = ""
+                viewModel.saveNote(circle: circle, circleStore: circleStore)
             } label: {
                 Label("Save note", systemImage: "text.badge.plus")
             }
             .buttonStyle(PinguSecondaryButtonStyle())
-            .disabled(!canSaveNote)
-            .opacity(canSaveNote ? 1 : 0.55)
+            .disabled(!viewModel.canSaveNote)
+            .opacity(viewModel.canSaveNote ? 1 : 0.55)
         }
         .padding(16)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-
-    private var canSaveNote: Bool {
-        !noteTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !noteBody.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private func postsList(circle: CircleSpace) -> some View {
@@ -216,7 +199,7 @@ struct CircleDetailSheet: View {
                     CirclePostCard(post: post)
                         .contextMenu {
                             Button {
-                                editingPost = post
+                                viewModel.edit(post)
                             } label: {
                                 Label("Edit post", systemImage: "pencil")
                             }
@@ -269,8 +252,7 @@ private struct CircleEditSheet: View {
     let circle: CircleSpace
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var circleStore: CircleStore
-    @State private var name = ""
-    @State private var intention = ""
+    @StateObject private var viewModel = CircleEditViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -285,31 +267,25 @@ private struct CircleEditSheet: View {
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
-                PinguTextInput(title: "Name", placeholder: "Community name", text: $name)
-                PinguTextInput(title: "Purpose", placeholder: "What this community supports", text: $intention)
+                PinguTextInput(title: "Name", placeholder: "Community name", text: $viewModel.name)
+                PinguTextInput(title: "Purpose", placeholder: "What this community supports", text: $viewModel.intention)
             }
 
             Spacer()
 
             Button("Save changes") {
-                circleStore.updateCircle(circle, name: name, intention: intention)
+                viewModel.save(circle: circle, circleStore: circleStore)
                 dismiss()
             }
             .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(!canSave)
-            .opacity(canSave ? 1 : 0.55)
+            .disabled(!viewModel.canSave)
+            .opacity(viewModel.canSave ? 1 : 0.55)
         }
         .padding(24)
         .background(PinguDesign.ice)
         .onAppear {
-            name = circle.name
-            intention = circle.intention
+            viewModel.load(circle: circle)
         }
-    }
-
-    private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !intention.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
@@ -394,8 +370,7 @@ private struct CirclePostEditSheet: View {
     let post: CirclePost
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var circleStore: CircleStore
-    @State private var title = ""
-    @State private var postBody = ""
+    @StateObject private var viewModel = CirclePostEditViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -410,8 +385,8 @@ private struct CirclePostEditSheet: View {
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
-                PinguTextInput(title: "Title", placeholder: "Post title", text: $title)
-                PinguTextInput(title: "Body", placeholder: "Post body", text: $postBody, axis: .vertical)
+                PinguTextInput(title: "Title", placeholder: "Post title", text: $viewModel.title)
+                PinguTextInput(title: "Body", placeholder: "Post body", text: $viewModel.postBody, axis: .vertical)
             }
 
             Spacer()
@@ -426,24 +401,18 @@ private struct CirclePostEditSheet: View {
                 .buttonStyle(PinguSecondaryButtonStyle())
 
                 Button("Save") {
-                    circleStore.updatePost(post, title: title, body: postBody)
+                    viewModel.save(post: post, circleStore: circleStore)
                     dismiss()
                 }
                 .buttonStyle(PinguPrimaryButtonStyle())
-                .disabled(!canSave)
-                .opacity(canSave ? 1 : 0.55)
+                .disabled(!viewModel.canSave)
+                .opacity(viewModel.canSave ? 1 : 0.55)
             }
         }
         .padding(24)
         .background(PinguDesign.ice)
         .onAppear {
-            title = post.title
-            postBody = post.body
+            viewModel.load(post: post)
         }
-    }
-
-    private var canSave: Bool {
-        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !postBody.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }

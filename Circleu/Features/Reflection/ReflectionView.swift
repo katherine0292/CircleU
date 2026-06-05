@@ -8,16 +8,7 @@ enum ReflectionSaveDestination {
 struct ReflectionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var questStore: QuestStore
-    var onSave: ((JournalReflectionEntry, ReflectionSaveDestination) -> Void)?
-    var onSessionChange: ((AIReflectionSession?) -> Void)?
-    @State private var hasSaved = false
-    @State private var draftEntry: JournalReflectionEntry?
-    @State private var draftSession: AIReflectionSession?
-    @State private var engine = ReflectionEngineFactory.makeDefault()
-    @State private var sessionRunner = ReflectionSessionRunner()
-    @State private var isRegenerating = false
-    @State private var regenerateMessage: String?
-    @State private var regenerateTask: Task<Void, Never>?
+    @StateObject private var viewModel: ReflectionViewModel
 
     init(
         entry: JournalReflectionEntry? = nil,
@@ -25,10 +16,14 @@ struct ReflectionView: View {
         onSessionChange: ((AIReflectionSession?) -> Void)? = nil,
         onSave: ((JournalReflectionEntry, ReflectionSaveDestination) -> Void)? = nil
     ) {
-        self.onSessionChange = onSessionChange
-        self.onSave = onSave
-        _draftEntry = State(initialValue: entry)
-        _draftSession = State(initialValue: session)
+        _viewModel = StateObject(
+            wrappedValue: ReflectionViewModel(
+                entry: entry,
+                session: session,
+                onSessionChange: onSessionChange,
+                onSave: onSave
+            )
+        )
     }
 
     var body: some View {
@@ -88,12 +83,12 @@ struct ReflectionView: View {
             }
         }
         .onDisappear {
-            regenerateTask?.cancel()
+            viewModel.cancelRegeneration()
         }
     }
 
     private var reflection: AIReflectionResult? {
-        draftEntry?.result
+        viewModel.reflection
     }
 
     private func insightCard(icon: String, label: String, title: String, body: String) -> some View {
@@ -247,8 +242,8 @@ struct ReflectionView: View {
                 Label("Save & Open Tips", systemImage: "checklist.checked")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(hasSaved || draftEntry == nil || isRegenerating)
-            .opacity(hasSaved || draftEntry == nil || isRegenerating ? 0.48 : 1)
+            .disabled(!viewModel.canEdit)
+            .opacity(viewModel.canEdit ? 1 : 0.48)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -263,31 +258,31 @@ struct ReflectionView: View {
     private var bottomActions: some View {
         HStack(spacing: 10) {
             Button("Cancel") {
-                if !hasSaved {
+                if !viewModel.hasSaved {
                     dismiss()
                 }
             }
-            .disabled(hasSaved)
+            .disabled(viewModel.hasSaved)
             .font(PinguFont.button)
             .foregroundStyle(PinguDesign.blue)
             .frame(maxWidth: .infinity)
             .frame(height: 50)
             .background(PinguDesign.lightBlue)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .opacity(hasSaved ? 0.45 : 1)
+            .opacity(viewModel.hasSaved ? 0.45 : 1)
 
             Button {
                 regenerateReflection()
             } label: {
-                Image(systemName: isRegenerating ? "sparkles" : "arrow.triangle.2.circlepath")
+                Image(systemName: viewModel.isRegenerating ? "sparkles" : "arrow.triangle.2.circlepath")
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(PinguDesign.blue)
                     .frame(width: 52, height: 50)
                     .background(PinguDesign.lightBlue)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
-            .disabled(hasSaved || draftEntry == nil || isRegenerating)
-            .opacity(hasSaved || draftEntry == nil ? 0.45 : 1)
+            .disabled(!viewModel.canEdit)
+            .opacity(viewModel.hasSaved || viewModel.draftEntry == nil ? 0.45 : 1)
 
             ShareLink(item: shareText) {
                 Image(systemName: "square.and.arrow.up")
@@ -297,18 +292,18 @@ struct ReflectionView: View {
                     .background(PinguDesign.lightBlue)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
-            .disabled(draftEntry == nil || isRegenerating)
-            .opacity(draftEntry == nil ? 0.45 : 1)
+            .disabled(viewModel.draftEntry == nil || viewModel.isRegenerating)
+            .opacity(viewModel.draftEntry == nil ? 0.45 : 1)
 
-            Button(hasSaved ? "Saved" : "Save Entry") {
+            Button(viewModel.hasSaved ? "Saved" : "Save Entry") {
                 saveEntry()
             }
-            .disabled(hasSaved || draftEntry == nil || isRegenerating)
+            .disabled(!viewModel.canEdit)
             .font(PinguFont.button)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(hasSaved || draftEntry == nil || isRegenerating ? PinguDesign.muted : PinguDesign.blue)
+            .background(viewModel.canEdit ? PinguDesign.blue : PinguDesign.muted)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .shadow(color: PinguDesign.blue.opacity(0.20), radius: 12, y: 6)
         }
@@ -327,72 +322,17 @@ struct ReflectionView: View {
     }
 
     private func saveEntry(to destination: ReflectionSaveDestination) {
-        guard !hasSaved else { return }
-        guard let draftEntry else {
+        viewModel.saveEntry(to: destination, questStore: questStore) {
             dismiss()
-            return
         }
-
-        hasSaved = true
-        questStore.addSuggestedQuest(from: draftEntry)
-        onSave?(draftEntry, destination)
     }
 
     private func regenerateReflection() {
-        guard !hasSaved, let draftEntry, !isRegenerating else { return }
-
-        regenerateTask?.cancel()
-        isRegenerating = true
-        regenerateMessage = nil
-
-        regenerateTask = Task {
-            let run = await sessionRunner.analyze(
-                transcript: draftEntry.transcript,
-                durationSeconds: draftEntry.durationSeconds,
-                source: .journalRegeneration,
-                engine: engine,
-                existingSession: draftSession
-            )
-            guard !Task.isCancelled else { return }
-
-            if let result = run.result {
-                await MainActor.run {
-                    self.draftSession = run.session
-                    self.draftEntry?.result = result
-                    self.draftEntry?.engineName = run.attempt.engineName
-                    self.draftEntry?.sessionID = run.session.id
-                    self.onSessionChange?(run.session)
-                    self.isRegenerating = false
-                    self.regenerateMessage = "Generated attempt \(run.session.attempts.count) with \(run.attempt.engineName)."
-                    self.regenerateTask = nil
-                }
-            } else {
-                await MainActor.run {
-                    self.draftSession = run.session
-                    self.onSessionChange?(run.session)
-                    self.isRegenerating = false
-                    self.regenerateMessage = run.attempt.errorMessage ?? "AI regeneration failed. Please try again."
-                    self.regenerateTask = nil
-                }
-            }
-        }
+        viewModel.regenerateReflection()
     }
 
     private var shareText: String {
-        guard let reflection else {
-            return "Circleu Reflection\n\nNo reflection is available yet."
-        }
-
-        return """
-        Circleu Reflection
-
-        \(reflection.title)
-        Emotion: \(reflection.emotion)
-
-        \(reflection.insight)
-
-        "\(reflection.quote)"
-        """
+        viewModel.shareText
     }
 
     private var emptyReflectionState: some View {
@@ -420,7 +360,7 @@ struct ReflectionView: View {
 
     private var regenerationStatus: some View {
         Group {
-            if isRegenerating {
+            if viewModel.isRegenerating {
                 HStack(spacing: 10) {
                     ProgressView()
                         .tint(PinguDesign.blue)
@@ -434,7 +374,7 @@ struct ReflectionView: View {
                 .padding(.vertical, 12)
                 .background(PinguDesign.lightBlue.opacity(0.54))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            } else if let regenerateMessage {
+            } else if let regenerateMessage = viewModel.regenerateMessage {
                 Label(regenerateMessage, systemImage: "sparkles")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
@@ -453,7 +393,7 @@ struct ReflectionView: View {
 
     private var aiSessionStatusCard: some View {
         Group {
-            if let draftSession {
+            if let draftSession = viewModel.draftSession {
                 HStack(spacing: 10) {
                     sessionStatusItem(
                         icon: "tray.full.fill",

@@ -21,6 +21,14 @@ Use `Features/<FeatureName>/` for screens and UI that belong to one workflow, su
 
 Keep feature-specific cards, rows, and sheets inside the feature folder until another feature truly needs them.
 
+Screen and workflow state should live in feature-local ViewModels. The app follows:
+
+```text
+View -> ViewModel -> Store / Engine / Service -> Model
+```
+
+Views render SwiftUI layout and call ViewModel actions. ViewModels own screen state, form validation, copy/export state, navigation sheet flags, and calls into stores, engines, or services. Stores remain the shared source of truth for local persistence.
+
 Profile also owns local QA tools because the controls are user-facing during phone testing but specific to app state and reproducibility.
 
 Tips owns the user-facing action workflow. The underlying model is still named `Quest` for now because earlier app state and persistence already use that language; `QuestStore` owns active, completed, skipped, and reactivated tip state.

@@ -1,10 +1,8 @@
 import SwiftUI
-import UIKit
 
 struct AIReflectionLabView: View {
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
-    @State private var selectedSession: AIReflectionSession?
-    @State private var statusMessage = "Ready to inspect AI reflection sessions."
+    @StateObject private var viewModel = AIReflectionLabViewModel()
 
     var body: some View {
         ZStack {
@@ -28,10 +26,9 @@ struct AIReflectionLabView: View {
         }
         .navigationTitle("AI Lab")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $selectedSession) { session in
+        .sheet(item: $viewModel.selectedSession) { session in
             AIReflectionSessionExportDetailView(session: session) {
-                UIPasteboard.general.string = session.exportText
-                statusMessage = "Copied AI session export to clipboard."
+                viewModel.copySession(session)
             }
         }
     }
@@ -42,7 +39,7 @@ struct AIReflectionLabView: View {
                 .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            Text(statusMessage)
+            Text(viewModel.statusMessage)
                 .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -61,8 +58,7 @@ struct AIReflectionLabView: View {
 
             HStack(spacing: 10) {
                 Button {
-                    UIPasteboard.general.string = aiSessionStore.exportText()
-                    statusMessage = "Copied AI QA export to clipboard."
+                    viewModel.copyAll(from: aiSessionStore)
                 } label: {
                     Label("Copy AI QA", systemImage: "doc.on.doc")
                 }
@@ -104,7 +100,7 @@ struct AIReflectionLabView: View {
 
             ForEach(aiSessionStore.sessions) { session in
                 Button {
-                    selectedSession = session
+                    viewModel.selectedSession = session
                 } label: {
                     AIReflectionSessionRow(session: session)
                 }

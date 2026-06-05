@@ -3,8 +3,7 @@ import SwiftUI
 struct CircleView: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var journalStore: ReflectionJournalStore
-    @State private var selectedCircle: CircleSpace?
-    @State private var showCreateCommunity = false
+    @StateObject private var viewModel = CircleViewModel()
 
     var body: some View {
         NavigationStack {
@@ -23,10 +22,10 @@ struct CircleView: View {
                                 ForEach(circleStore.circles) { circle in
                                     CommunitySpaceCard(
                                         circle: circle,
-                                        postCount: circleStore.posts(for: circle).count,
-                                        lastActivity: circleStore.lastActivity(for: circle)
+                                        postCount: viewModel.postCount(for: circle, circleStore: circleStore),
+                                        lastActivity: viewModel.lastActivity(for: circle, circleStore: circleStore)
                                     ) {
-                                        selectedCircle = circle
+                                        viewModel.open(circle)
                                     }
                                 }
                             }
@@ -44,7 +43,7 @@ struct CircleView: View {
                     HStack {
                         Spacer()
                         Button {
-                            showCreateCommunity = true
+                            viewModel.showCreateSheet()
                         } label: {
                             Image(systemName: "plus")
                                 .font(.system(size: 25, weight: .bold))
@@ -62,12 +61,12 @@ struct CircleView: View {
             }
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showCreateCommunity) {
+        .sheet(isPresented: $viewModel.showCreateCommunity) {
             CircleCreateSheet()
                 .environmentObject(circleStore)
                 .presentationDetents([.medium])
         }
-        .sheet(item: $selectedCircle) { circle in
+        .sheet(item: $viewModel.selectedCircle) { circle in
             CircleDetailSheet(circleID: circle.id, entries: journalStore.entries)
                 .environmentObject(circleStore)
                 .presentationDetents([.large])
@@ -139,7 +138,7 @@ struct CircleView: View {
             }
 
             Button {
-                showCreateCommunity = true
+                viewModel.showCreateSheet()
             } label: {
                 Label("Create community", systemImage: "plus")
             }

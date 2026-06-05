@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct ProfileQAToolsSheet: View {
     @Binding var hasCompletedOnboarding: Bool
@@ -9,9 +8,7 @@ struct ProfileQAToolsSheet: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
-    @State private var showAILab = false
-    @State private var showResetConfirmation = false
-    @State private var statusMessage = "Ready for local phone testing."
+    @StateObject private var viewModel = ProfileQAToolsViewModel()
 
     var body: some View {
         NavigationStack {
@@ -40,7 +37,7 @@ struct ProfileQAToolsSheet: View {
                     }
                 }
             }
-            .sheet(isPresented: $showAILab) {
+            .sheet(isPresented: $viewModel.showAILab) {
                 NavigationStack {
                     AIReflectionLabView()
                         .environmentObject(aiSessionStore)
@@ -48,7 +45,7 @@ struct ProfileQAToolsSheet: View {
             }
             .confirmationDialog(
                 "Reset all local Circleu data?",
-                isPresented: $showResetConfirmation,
+                isPresented: $viewModel.showResetConfirmation,
                 titleVisibility: .visible
             ) {
                 Button("Reset local data", role: .destructive) {
@@ -68,7 +65,7 @@ struct ProfileQAToolsSheet: View {
                 .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            Text(statusMessage)
+            Text(viewModel.statusMessage)
                 .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -81,10 +78,10 @@ struct ProfileQAToolsSheet: View {
                 .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            ProfileDataRow(title: "App", value: appName)
-            ProfileDataRow(title: "Version", value: appVersion)
-            ProfileDataRow(title: "Build", value: buildNumber)
-            ProfileDataRow(title: "Bundle", value: bundleIdentifier)
+            ProfileDataRow(title: "App", value: viewModel.appName)
+            ProfileDataRow(title: "Version", value: viewModel.appVersion)
+            ProfileDataRow(title: "Build", value: viewModel.buildNumber)
+            ProfileDataRow(title: "Bundle", value: viewModel.bundleIdentifier)
         }
         .padding(16)
         .background(.white)
@@ -118,8 +115,7 @@ struct ProfileQAToolsSheet: View {
 
             HStack(spacing: 10) {
                 Button {
-                    UIPasteboard.general.string = qaExport
-                    statusMessage = "Copied QA export to clipboard."
+                    viewModel.copyQAExport(qaExport)
                 } label: {
                     Label("Copy QA", systemImage: "doc.on.doc")
                 }
@@ -150,14 +146,14 @@ struct ProfileQAToolsSheet: View {
             .buttonStyle(PinguPrimaryButtonStyle())
 
             Button {
-                showAILab = true
+                viewModel.showAILab = true
             } label: {
                 Label("Open AI Lab", systemImage: "cpu")
             }
             .buttonStyle(PinguSecondaryButtonStyle())
 
             Button(role: .destructive) {
-                showResetConfirmation = true
+                viewModel.showResetConfirmation = true
             } label: {
                 Label("Reset local data", systemImage: "trash")
             }
@@ -174,78 +170,48 @@ struct ProfileQAToolsSheet: View {
     }
 
     private var qaExport: String {
-        """
-        Circleu QA Export
-
-        \(profileSummary)
-
-        Local State
-        Onboarding complete: \(hasCompletedOnboarding)
-        Total AI sessions: \(aiSessionStore.sessions.count)
-        Total quests: \(questStore.quests.count)
-        Active quests: \(questStore.activeQuests.count)
-        Total circles: \(circleStore.circles.count)
-        Total posts: \(circleStore.posts.count)
-
-        \(journalExport)
-
-        \(aiSessionStore.exportText())
-        """
-    }
-
-    private var currentProgress: AppProgressSnapshot {
-        ProgressEngine.snapshot(entries: journalStore.entries, quests: questStore.quests)
-    }
-
-    private var profileSummary: String {
-        profileStore.summaryText(
-            progress: currentProgress,
-            circleCount: circleStore.circles.count,
-            supportPostCount: circleStore.posts.count
+        viewModel.qaExport(
+            hasCompletedOnboarding: hasCompletedOnboarding,
+            journalStore: journalStore,
+            profileStore: profileStore,
+            circleStore: circleStore,
+            questStore: questStore,
+            aiSessionStore: aiSessionStore
         )
     }
 
-    private var journalExport: String {
-        journalStore.exportText(includePrivateMetadata: true)
+    private var currentProgress: AppProgressSnapshot {
+        viewModel.currentProgress(journalStore: journalStore, questStore: questStore)
+    }
+
+    private var profileSummary: String {
+        viewModel.profileSummary(
+            journalStore: journalStore,
+            profileStore: profileStore,
+            circleStore: circleStore,
+            questStore: questStore
+        )
     }
 
     private func seedDemoData() {
-        let referenceDate = Date()
-        let entries = ReflectionJournalStore.demoEntries(referenceDate: referenceDate)
-        profileStore.seedDemoProfile()
-        journalStore.replaceAll(with: entries)
-        aiSessionStore.seedDemoData(entries: entries)
-        questStore.seedDemoData(entries: entries, referenceDate: referenceDate)
-        circleStore.seedDemoData(entries: entries, referenceDate: referenceDate)
-        hasCompletedOnboarding = true
-        statusMessage = "Seeded repeatable demo data for phone testing."
+        viewModel.seedDemoData(
+            hasCompletedOnboarding: &hasCompletedOnboarding,
+            journalStore: journalStore,
+            profileStore: profileStore,
+            circleStore: circleStore,
+            questStore: questStore,
+            aiSessionStore: aiSessionStore
+        )
     }
 
     private func resetLocalData() {
-        profileStore.reset()
-        journalStore.reset()
-        aiSessionStore.reset()
-        questStore.reset()
-        circleStore.reset(seedStarterSpaces: false)
-        hasCompletedOnboarding = false
-        statusMessage = "Cleared local data. Relaunch or close this sheet to see onboarding."
-    }
-
-    private var appName: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ??
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ??
-        "Circleu"
-    }
-
-    private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1"
-    }
-
-    private var buildNumber: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
-    }
-
-    private var bundleIdentifier: String {
-        Bundle.main.bundleIdentifier ?? "Unknown"
+        viewModel.resetLocalData(
+            hasCompletedOnboarding: &hasCompletedOnboarding,
+            journalStore: journalStore,
+            profileStore: profileStore,
+            circleStore: circleStore,
+            questStore: questStore,
+            aiSessionStore: aiSessionStore
+        )
     }
 }

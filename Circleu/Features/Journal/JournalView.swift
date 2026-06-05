@@ -1,11 +1,9 @@
 import SwiftUI
-import UIKit
 
 struct JournalView: View {
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
-    @State private var searchText = ""
-    @State private var didCopyExport = false
+    @StateObject private var viewModel = JournalViewModel()
     let onStartRecording: () -> Void
 
     var body: some View {
@@ -73,10 +71,9 @@ struct JournalView: View {
             if !journalStore.entries.isEmpty {
                 Menu {
                     Button {
-                        UIPasteboard.general.string = journalStore.exportText()
-                        didCopyExport = true
+                        viewModel.copyExport(from: journalStore)
                     } label: {
-                        Label(didCopyExport ? "Copied journal" : "Copy journal", systemImage: "doc.on.doc")
+                        Label(viewModel.didCopyExport ? "Copied journal" : "Copy journal", systemImage: "doc.on.doc")
                     }
 
                     ShareLink(item: journalStore.exportText()) {
@@ -102,15 +99,15 @@ struct JournalView: View {
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(PinguDesign.muted)
 
-            TextField("Search journals", text: $searchText)
+            TextField("Search journals", text: $viewModel.searchText)
                 .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.ink)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
 
-            if !searchText.isEmpty {
+            if !viewModel.searchText.isEmpty {
                 Button {
-                    searchText = ""
+                    viewModel.clearSearch()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 18, weight: .semibold))
@@ -200,14 +197,14 @@ struct JournalView: View {
                     .buttonStyle(.plain)
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
-                            delete(entry)
+                            viewModel.delete(entry, journalStore: journalStore, aiSessionStore: aiSessionStore)
                         } label: {
                             Label("Delete", systemImage: "trash.fill")
                         }
                     }
                     .contextMenu {
                         Button {
-                            UIPasteboard.general.string = journalStore.shareText(for: entry)
+                            viewModel.copyReflection(entry, journalStore: journalStore)
                         } label: {
                             Label("Copy reflection", systemImage: "doc.on.doc")
                         }
@@ -217,7 +214,7 @@ struct JournalView: View {
                         }
 
                         Button(role: .destructive) {
-                            delete(entry)
+                            viewModel.delete(entry, journalStore: journalStore, aiSessionStore: aiSessionStore)
                         } label: {
                             Label("Delete reflection", systemImage: "trash.fill")
                         }
@@ -228,33 +225,11 @@ struct JournalView: View {
     }
 
     private var filteredEntries: [JournalReflectionEntry] {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return journalStore.entries }
-
-        return journalStore.entries.filter { entry in
-            [
-                entry.displayTitle,
-                entry.displayEmotion,
-                entry.displaySummary,
-                entry.result.insight,
-                entry.result.quote,
-                entry.privateNote,
-                entry.tags.joined(separator: " "),
-                entry.transcript,
-                entry.engineName
-            ]
-            .joined(separator: " ")
-            .lowercased()
-            .contains(query)
-        }
+        viewModel.filteredEntries(from: journalStore.entries)
     }
 
     private var sectionTitle: String {
-        searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Saved reflections" : "Search results"
-    }
-
-    private func delete(_ entry: JournalReflectionEntry) {
-        journalStore.delete(entry, aiSessionStore: aiSessionStore)
+        viewModel.sectionTitle
     }
 }
 

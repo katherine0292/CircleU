@@ -5,10 +5,7 @@ struct JournalWorkspaceEditSheet: View {
     let onSave: (String, String, String, [String]) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var title: String
-    @State private var emotion: String
-    @State private var privateNote: String
-    @State private var tagsText: String
+    @StateObject private var viewModel: JournalWorkspaceEditViewModel
 
     init(
         entry: JournalReflectionEntry,
@@ -16,10 +13,7 @@ struct JournalWorkspaceEditSheet: View {
     ) {
         self.entry = entry
         self.onSave = onSave
-        _title = State(initialValue: entry.displayTitle)
-        _emotion = State(initialValue: entry.displayEmotion)
-        _privateNote = State(initialValue: entry.privateNote)
-        _tagsText = State(initialValue: entry.tags.joined(separator: ", "))
+        _viewModel = StateObject(wrappedValue: JournalWorkspaceEditViewModel(entry: entry))
     }
 
     var body: some View {
@@ -39,15 +33,15 @@ struct JournalWorkspaceEditSheet: View {
                                 .foregroundStyle(PinguDesign.muted)
                         }
 
-                        PinguTextInput(title: "Title", placeholder: "Reflection title", text: $title)
-                        PinguTextInput(title: "Emotion", placeholder: "Emotion", text: $emotion)
+                        PinguTextInput(title: "Title", placeholder: "Reflection title", text: $viewModel.title)
+                        PinguTextInput(title: "Emotion", placeholder: "Emotion", text: $viewModel.emotion)
                         PinguTextInput(
                             title: "Private note",
                             placeholder: "Add a note only you can see",
-                            text: $privateNote,
+                            text: $viewModel.privateNote,
                             axis: .vertical
                         )
-                        PinguTextInput(title: "Tags", placeholder: "class, confidence, tips", text: $tagsText)
+                        PinguTextInput(title: "Tags", placeholder: "class, confidence, tips", text: $viewModel.tagsText)
                     }
                     .padding(.horizontal, PinguDesign.screenSidePadding)
                     .padding(.top, 20)
@@ -65,7 +59,7 @@ struct JournalWorkspaceEditSheet: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        onSave(title, emotion, privateNote, parsedTags)
+                        onSave(viewModel.title, viewModel.emotion, viewModel.privateNote, viewModel.parsedTags)
                         dismiss()
                     }
                     .fontWeight(.bold)
@@ -74,12 +68,6 @@ struct JournalWorkspaceEditSheet: View {
         }
     }
 
-    private var parsedTags: [String] {
-        tagsText
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-    }
 }
 
 #Preview {
