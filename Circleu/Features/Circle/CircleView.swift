@@ -4,7 +4,7 @@ struct CircleView: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @State private var selectedCircle: CircleSpace?
-    @State private var showCreateCircle = false
+    @State private var showCreateCommunity = false
 
     var body: some View {
         NavigationStack {
@@ -17,11 +17,11 @@ struct CircleView: View {
                         localSummary
 
                         if circleStore.circles.isEmpty {
-                            emptyCircleState
+                            emptyCommunityState
                         } else {
                             VStack(spacing: 12) {
                                 ForEach(circleStore.circles) { circle in
-                                    CircleSpaceCard(
+                                    CommunitySpaceCard(
                                         circle: circle,
                                         postCount: circleStore.posts(for: circle).count,
                                         lastActivity: circleStore.lastActivity(for: circle)
@@ -44,7 +44,7 @@ struct CircleView: View {
                     HStack {
                         Spacer()
                         Button {
-                            showCreateCircle = true
+                            showCreateCommunity = true
                         } label: {
                             Image(systemName: "plus")
                                 .font(.system(size: 25, weight: .bold))
@@ -62,7 +62,7 @@ struct CircleView: View {
             }
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showCreateCircle) {
+        .sheet(isPresented: $showCreateCommunity) {
             CircleCreateSheet()
                 .environmentObject(circleStore)
                 .presentationDetents([.medium])
@@ -76,11 +76,11 @@ struct CircleView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Private Circles")
+            Text("Communities")
                 .font(.system(size: 35, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Private support spaces saved on this iPhone.")
+            Text("Organize reflection shares, support notes, and practice wins by community.")
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -89,9 +89,9 @@ struct CircleView: View {
 
     private var localSummary: some View {
         HStack(spacing: 10) {
-            CircleSummaryTile(value: "\(circleStore.circles.count)", label: "Spaces", icon: "rectangle.stack.fill")
-            CircleSummaryTile(value: "\(circleStore.posts.count)", label: "Notes", icon: "text.bubble.fill")
-            CircleSummaryTile(value: "\(journalStore.entries.count)", label: "Reflections", icon: "sparkles")
+            CircleSummaryTile(value: "\(circleStore.circles.count)", label: "Groups", icon: "person.2.fill")
+            CircleSummaryTile(value: "\(circleStore.posts.count)", label: "Posts", icon: "text.bubble.fill")
+            CircleSummaryTile(value: "\(journalStore.entries.count)", label: "Shares", icon: "sparkles")
         }
     }
 
@@ -105,11 +105,11 @@ struct CircleView: View {
                 .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 5) {
-                Text("Local support space")
+                Text("Local community mode")
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Circle posts are local copies. Normal shares use reflection summaries and suggested practices, never private workspace notes.")
+                Text("Communities are private on this iPhone for now. Shared reflection cards use summaries and practice tips, never raw recording audio.")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
@@ -120,18 +120,18 @@ struct CircleView: View {
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
-    private var emptyCircleState: some View {
+    private var emptyCommunityState: some View {
         VStack(spacing: 16) {
             Image(systemName: "person.2.badge.plus")
                 .font(.system(size: 50, weight: .semibold))
                 .foregroundStyle(PinguDesign.blue)
 
             VStack(spacing: 7) {
-                Text("Create your first private circle")
+                Text("Create your first community")
                     .font(.system(size: 23, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Use circles to organize support notes and privacy-safe reflection cards on this iPhone.")
+                Text("Group your practice notes, reflection shares, and encouragement cards by class, friends, or goals.")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .multilineTextAlignment(.center)
@@ -139,9 +139,9 @@ struct CircleView: View {
             }
 
             Button {
-                showCreateCircle = true
+                showCreateCommunity = true
             } label: {
-                Label("Create circle", systemImage: "plus")
+                Label("Create community", systemImage: "plus")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
         }
@@ -153,7 +153,7 @@ struct CircleView: View {
     }
 }
 
-private struct CircleSpaceCard: View {
+private struct CommunitySpaceCard: View {
     let circle: CircleSpace
     let postCount: Int
     let lastActivity: Date?
@@ -181,9 +181,14 @@ private struct CircleSpaceCard: View {
                         .lineLimit(2)
                         .lineSpacing(3)
 
-                    Text(activityText)
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .foregroundStyle(PinguDesign.blue)
+                    HStack(spacing: 6) {
+                        Label(activityText, systemImage: "clock.fill")
+                        Label("Private", systemImage: "lock.fill")
+                    }
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.blue)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.76)
                 }
 
                 Spacer(minLength: 8)
@@ -213,7 +218,7 @@ private struct CircleSpaceCard: View {
 
     private var activityText: String {
         guard let lastActivity else { return "Created \(circle.createdAt.formatted(date: .abbreviated, time: .omitted))" }
-        return "Updated \(lastActivity.formatted(date: .abbreviated, time: .shortened))"
+        return "Active \(lastActivity.formatted(date: .abbreviated, time: .shortened))"
     }
 }
 

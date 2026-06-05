@@ -157,7 +157,7 @@ struct ProfileView: View {
         HStack(spacing: 10) {
             ProfileStat(value: "\(progress.entryCount)", title: "Entries")
             ProfileStat(value: "\(progress.streak)", title: "Streak")
-            ProfileStat(value: "\(circleStore.circles.count)", title: "Circles")
+            ProfileStat(value: "\(circleStore.circles.count)", title: "Communities")
             ProfileStat(value: progress.mostCommonEmotion, title: "Mood")
         }
     }
@@ -221,7 +221,7 @@ struct ProfileView: View {
 
             VStack(spacing: 9) {
                 ProfileDataRow(title: "Saved reflections", value: "\(progress.entryCount)")
-                ProfileDataRow(title: "Private circles", value: "\(circleStore.circles.count)")
+                ProfileDataRow(title: "Communities", value: "\(circleStore.circles.count)")
                 ProfileDataRow(title: "Support posts", value: "\(circleStore.posts.count)")
                 ProfileDataRow(title: "Completed quests", value: "\(progress.completedQuestCount)")
             }
@@ -241,7 +241,7 @@ struct ProfileView: View {
                 .buttonStyle(ProfileActionButtonStyle(isPrimary: true))
             }
 
-            Text("Your journal, AI sessions and transcripts, circles, quests, and profile name stay in local app storage until you delete the app or clear app data from iOS.")
+            Text("Your journal, AI sessions and transcripts, communities, quests, and profile name stay in local app storage until you delete the app or clear app data from iOS.")
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -352,9 +352,9 @@ private struct ProfileEditSheet: View {
             VStack(alignment: .leading, spacing: 12) {
                 displayNameEditor
                 ProfileEditorRow(icon: "sparkles", title: "Journey", value: "\(entriesCount) saved reflections")
-                ProfileEditorRow(icon: "person.2.fill", title: "Private circles", value: "\(circleCount) local spaces")
+                ProfileEditorRow(icon: "person.2.fill", title: "Communities", value: "\(circleCount) local spaces")
                 ProfileEditorRow(icon: "checkmark.seal.fill", title: "Quests", value: "\(completedQuestCount) completed")
-                ProfileEditorRow(icon: "lock.fill", title: "Privacy", value: "Local journal and circles")
+                ProfileEditorRow(icon: "lock.fill", title: "Privacy", value: "Local journal and communities")
             }
 
             Spacer()

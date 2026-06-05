@@ -95,7 +95,7 @@ private extension PinguTab {
         case .practice:
             "Tips"
         case .circle:
-            "Circles"
+            "Communities"
         case .profile:
             "Profile"
         }

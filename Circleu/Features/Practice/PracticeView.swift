@@ -18,6 +18,7 @@ struct PracticeView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     header
                     progressRow
+                    coachPathCard
 
                     if let activeQuest = questStore.latestActiveQuest {
                         activePracticeCard(activeQuest)
@@ -26,16 +27,16 @@ struct PracticeView: View {
                     }
 
                     practiceHistorySection(
-                        title: "Completed practice",
-                        emptyText: "Completed practices will appear here after you mark one done.",
+                        title: "Completed tips",
+                        emptyText: "Completed tips will appear here after you mark one done.",
                         quests: questStore.completedQuests,
                         statusIcon: "checkmark.circle.fill",
                         statusColor: PinguDesign.blue
                     )
 
                     practiceHistorySection(
-                        title: "Skipped practice",
-                        emptyText: "Skipped practices stay here so you can restart one when it fits again.",
+                        title: "Saved for later",
+                        emptyText: "Skipped tips stay here so you can restart one when it fits again.",
                         quests: questStore.skippedQuests,
                         statusIcon: "arrow.uturn.backward.circle.fill",
                         statusColor: PinguDesign.orange
@@ -50,11 +51,11 @@ struct PracticeView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Practice")
+            Text("Tips Coach")
                 .font(.system(size: 35, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Turn AI reflections into one small action you can actually complete today.")
+            Text("Practice one real conversation move from your reflections, then save what worked.")
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -64,8 +65,79 @@ struct PracticeView: View {
     private var progressRow: some View {
         HStack(spacing: 10) {
             PracticeMetricTile(value: "\(questStore.activeQuests.count)", label: "Active", icon: "flag.fill")
-            PracticeMetricTile(value: "\(questStore.completedQuests.count)", label: "Done", icon: "checkmark.seal.fill")
+            PracticeMetricTile(value: "\(questStore.completedQuests.count)", label: "Practiced", icon: "checkmark.seal.fill")
             PracticeMetricTile(value: "LV\(progress.level)", label: "Level", icon: "sparkles")
+        }
+    }
+
+    private var coachPathCard: some View {
+        PinguCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 13) {
+                    Image(systemName: "bubble.left.and.text.bubble.right.fill")
+                        .font(.system(size: 21, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 48, height: 48)
+                        .background(PinguDesign.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Communication Tips")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundStyle(PinguDesign.ink)
+
+                        Text("Record a reflection, get one clear practice tip, then come back here to complete or restart it.")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundStyle(PinguDesign.muted)
+                            .lineSpacing(4)
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    TipsContextChip(text: "Describe", icon: "text.quote")
+                    TipsContextChip(text: "Practice", icon: "mic.fill")
+                    TipsContextChip(text: "Reflect", icon: "sparkles")
+                }
+
+                VStack(spacing: 10) {
+                    TipsCoachActionRow(
+                        icon: "mic.circle.fill",
+                        title: "Create a new tip",
+                        detail: "Speak naturally and let Circleu turn the reflection into one practice action.",
+                        tint: PinguDesign.blue,
+                        actionTitle: "Record",
+                        action: onStartRecording
+                    )
+
+                    if let activeQuest = questStore.latestActiveQuest {
+                        TipsCoachActionRow(
+                            icon: "target",
+                            title: "Current focus",
+                            detail: activeQuest.detail,
+                            tint: PinguDesign.orange,
+                            actionTitle: "Finish",
+                            action: {
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                                    questStore.complete(activeQuest)
+                                }
+                            }
+                        )
+                    } else if let skippedQuest = questStore.skippedQuests.first {
+                        TipsCoachActionRow(
+                            icon: "arrow.clockwise.circle.fill",
+                            title: "Restart a saved tip",
+                            detail: skippedQuest.detail,
+                            tint: PinguDesign.orange,
+                            actionTitle: "Restart",
+                            action: {
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                                    questStore.reactivate(skippedQuest)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -81,7 +153,7 @@ struct PracticeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Today's practice")
+                        Text("Today's tip")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundStyle(PinguDesign.muted)
 
@@ -157,11 +229,11 @@ struct PracticeView: View {
                     .foregroundStyle(PinguDesign.blue)
 
                 VStack(spacing: 8) {
-                    Text("No active practice")
+                    Text("No active tip")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundStyle(PinguDesign.ink)
 
-                    Text("Save a reflection and Circleu will turn the AI suggestion into a short practice here.")
+                    Text("Save a reflection and Circleu will turn the AI suggestion into a short practice tip here.")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundStyle(PinguDesign.muted)
                         .multilineTextAlignment(.center)
@@ -323,6 +395,72 @@ private struct PracticeHistoryRow: View {
         case .skipped:
             quest.completedAt.map { "Skipped \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Skipped"
         }
+    }
+}
+
+private struct TipsContextChip: View {
+    let text: String
+    let icon: String
+
+    var body: some View {
+        Label(text, systemImage: icon)
+            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .foregroundStyle(PinguDesign.blue)
+            .padding(.horizontal, 10)
+            .frame(height: 34)
+            .frame(maxWidth: .infinity)
+            .background(PinguDesign.lightBlue.opacity(0.78))
+            .clipShape(Capsule())
+            .lineLimit(1)
+            .minimumScaleFactor(0.78)
+    }
+}
+
+private struct TipsCoachActionRow: View {
+    let icon: String
+    let title: String
+    let detail: String
+    let tint: Color
+    let actionTitle: String
+    let action: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 19, weight: .bold))
+                .foregroundStyle(tint)
+                .frame(width: 42, height: 42)
+                .background(tint.opacity(0.13))
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.ink)
+
+                Text(detail)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+                    .lineLimit(2)
+                    .lineSpacing(3)
+            }
+
+            Spacer(minLength: 8)
+
+            Button(action: action) {
+                Text(actionTitle)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .frame(height: 34)
+                    .background(tint)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(12)
+        .background(PinguDesign.lightBlue.opacity(0.34))
+        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
     }
 }
 

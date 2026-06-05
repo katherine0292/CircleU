@@ -61,7 +61,7 @@ final class UserProfileStore: ObservableObject {
         Saved reflections: \(progress.entryCount)
         Current streak: \(progress.streak)
         Most common mood: \(progress.mostCommonEmotion)
-        Private circles: \(circleCount)
+        Communities: \(circleCount)
         Support posts: \(supportPostCount)
         Completed quests: \(progress.completedQuestCount)
 

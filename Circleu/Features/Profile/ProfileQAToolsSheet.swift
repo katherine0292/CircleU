@@ -102,7 +102,7 @@ struct ProfileQAToolsSheet: View {
             ProfileDataRow(title: "Reflections", value: "\(currentProgress.entryCount)")
             ProfileDataRow(title: "AI sessions", value: "\(aiSessionStore.sessions.count)")
             ProfileDataRow(title: "Quests", value: "\(questStore.quests.count)")
-            ProfileDataRow(title: "Circles", value: "\(circleStore.circles.count)")
+            ProfileDataRow(title: "Communities", value: "\(circleStore.circles.count)")
             ProfileDataRow(title: "Posts", value: "\(circleStore.posts.count)")
         }
         .padding(16)

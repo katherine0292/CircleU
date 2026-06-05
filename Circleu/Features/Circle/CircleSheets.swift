@@ -14,16 +14,16 @@ struct CircleCreateSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
 
-            Text("Create a circle")
+            Text("Create community")
                 .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
                 PinguTextInput(title: "Name", placeholder: "Study confidence", text: $name)
-                PinguTextInput(title: "Intention", placeholder: "What will this space help you remember?", text: $intention)
+                PinguTextInput(title: "Purpose", placeholder: "What will this community help you practice?", text: $intention)
             }
 
-            Text("This creates a private local space, not a live group.")
+            Text("This creates a private local community space. Live group sync can be added later when the backend is ready.")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
 
@@ -33,7 +33,7 @@ struct CircleCreateSheet: View {
                 circleStore.createCircle(name: name, intention: intention)
                 dismiss()
             } label: {
-                Label("Create circle", systemImage: "plus")
+                Label("Create community", systemImage: "plus")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
             .disabled(!canSave)
@@ -88,7 +88,7 @@ struct CircleDetailSheet: View {
                         .padding(.bottom, 34)
                     }
                 } else {
-                    Text("This circle is no longer available.")
+                    Text("This community is no longer available.")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundStyle(PinguDesign.muted)
                 }
@@ -154,7 +154,7 @@ struct CircleDetailSheet: View {
             Button {
                 showReflectionPicker = true
             } label: {
-                Label(entries.isEmpty ? "Save a reflection to share" : "Choose reflection to share", systemImage: "sparkles")
+                Label(entries.isEmpty ? "Save a reflection first" : "Share a reflection card", systemImage: "sparkles")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
             .disabled(entries.isEmpty)
@@ -167,12 +167,12 @@ struct CircleDetailSheet: View {
 
     private func addNoteForm(circle: CircleSpace) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Add support note")
+            Text("Add community note")
                 .font(.system(size: 19, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
             PinguTextInput(title: "Title", placeholder: "Before presentation", text: $noteTitle)
-            PinguTextInput(title: "Note", placeholder: "What do you want to remember?", text: $noteBody, axis: .vertical)
+            PinguTextInput(title: "Note", placeholder: "What should this community help you remember?", text: $noteBody, axis: .vertical)
 
             Button {
                 circleStore.addNote(circle: circle, title: noteTitle, body: noteBody)
@@ -203,7 +203,7 @@ struct CircleDetailSheet: View {
 
             let posts = circleStore.posts(for: circle)
             if posts.isEmpty {
-                Text("Notes and reflection shares you save here will appear in this space.")
+                Text("Community notes and reflection cards you save here will appear in this space.")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
@@ -280,13 +280,13 @@ private struct CircleEditSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
 
-            Text("Edit circle")
+            Text("Edit community")
                 .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
-                PinguTextInput(title: "Name", placeholder: "Circle name", text: $name)
-                PinguTextInput(title: "Intention", placeholder: "What this space supports", text: $intention)
+                PinguTextInput(title: "Name", placeholder: "Community name", text: $name)
+                PinguTextInput(title: "Purpose", placeholder: "What this community supports", text: $intention)
             }
 
             Spacer()
@@ -330,7 +330,7 @@ private struct ReflectionPickerSheet: View {
                             .font(.system(size: 30, weight: .bold, design: .rounded))
                             .foregroundStyle(PinguDesign.ink)
 
-                        Text("Choose a saved reflection. Circleu keeps a privacy-safe local copy in this circle.")
+                        Text("Choose a saved reflection. Circleu keeps a privacy-safe local copy in this community.")
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(PinguDesign.muted)
                             .lineSpacing(4)

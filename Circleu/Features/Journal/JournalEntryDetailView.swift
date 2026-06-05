@@ -324,19 +324,19 @@ struct JournalEntryDetailView: View {
             Button {
                 showCircleShareSheet = true
             } label: {
-                Label("Save insight to a private circle", systemImage: "person.2.wave.2.fill")
+                Label("Save insight to a community", systemImage: "person.2.wave.2.fill")
             }
             .buttonStyle(PinguSecondaryButtonStyle())
             .disabled(circleStore.circles.isEmpty)
             .opacity(circleStore.circles.isEmpty ? 0.55 : 1)
 
             if circleStore.circles.isEmpty {
-                Text("Create a private circle from the Circles tab before saving this reflection into a support space.")
+                Text("Create a private community from the Circle tab before saving this reflection into a support space.")
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(3)
             } else if circleStore.circles.allSatisfy({ circleStore.hasShared(entry: currentEntry, to: $0) }) {
-                Text("This reflection is already saved in every private circle.")
+                Text("This reflection is already saved in every community.")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.blue)
             }

@@ -107,14 +107,14 @@ final class CircleStore: ObservableObject {
 
     func seedDemoData(entries: [JournalReflectionEntry], referenceDate: Date = Date()) {
         let confidenceCircle = CircleSpace(
-            name: "Class Confidence",
-            intention: "Keep reflection moments that help before speaking in class.",
+            name: "Class Confidence Community",
+            intention: "Keep reflection cards that help before speaking in class.",
             createdAt: Calendar.current.date(byAdding: .day, value: -4, to: referenceDate) ?? referenceDate
         )
 
         let practiceCircle = CircleSpace(
             name: "Daily Voice Practice",
-            intention: "Collect small actions that make expression feel easier.",
+            intention: "Collect small actions and notes that make expression feel easier.",
             createdAt: Calendar.current.date(byAdding: .day, value: -3, to: referenceDate) ?? referenceDate
         )
 
@@ -169,11 +169,11 @@ final class CircleStore: ObservableObject {
 
         circles = [
             CircleSpace(
-                name: "Reflection Practice",
+                name: "Reflection Practice Community",
                 intention: "Save reflection takeaways you want to revisit before speaking or studying."
             ),
             CircleSpace(
-                name: "Encouragement Notes",
+                name: "Encouragement Community",
                 intention: "Keep short support notes for days when you need a steadier voice."
             )
         ]

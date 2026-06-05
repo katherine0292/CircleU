@@ -13,11 +13,11 @@ struct JournalCircleShareSheet: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Save to circle")
+                            Text("Save to community")
                                 .font(.system(size: 31, weight: .bold, design: .rounded))
                                 .foregroundStyle(PinguDesign.ink)
 
-                            Text("Choose where this reflection should live as a private local support post.")
+                            Text("Choose where this reflection should live as a private local community post.")
                                 .font(.system(size: 16, weight: .medium, design: .rounded))
                                 .foregroundStyle(PinguDesign.muted)
                                 .lineSpacing(4)
@@ -26,7 +26,7 @@ struct JournalCircleShareSheet: View {
                         reflectionContextCard
 
                         if circleStore.circles.isEmpty {
-                            emptyCircleState
+                            emptyCommunityState
                         } else {
                             ForEach(circleStore.circles) { circle in
                                 circleChoice(circle)
@@ -79,17 +79,17 @@ struct JournalCircleShareSheet: View {
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
-    private var emptyCircleState: some View {
+    private var emptyCommunityState: some View {
         VStack(alignment: .leading, spacing: 10) {
             Image(systemName: "person.2.slash")
                 .font(.system(size: 34, weight: .semibold))
                 .foregroundStyle(PinguDesign.blue)
 
-            Text("No private circles yet")
+            Text("No communities yet")
                 .font(.system(size: 21, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Open the Circles tab and create a private space before saving journal insights there.")
+            Text("Open the Circle tab and create a private community before saving journal insights there.")
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
