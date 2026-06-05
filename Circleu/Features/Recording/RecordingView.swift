@@ -34,20 +34,22 @@ struct RecordingView: View {
 
             GeometryReader { proxy in
                 VStack(spacing: 0) {
-                    recordingHeader
-                        .padding(.top, recordingHeaderTopPadding(for: proxy))
-
-                    Spacer(minLength: max(36, proxy.size.height * 0.045))
+                    Spacer(minLength: max(24, proxy.size.height * 0.03))
 
                     VStack(spacing: 14) {
                         Text(isAnalyzing ? "Thinking..." : recorder.statusMessage)
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundStyle(PinguDesign.blue)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
+                            .padding(.horizontal, PinguDesign.screenSidePadding)
 
                         Text(subtitle)
                             .font(.system(size: 22, weight: .medium, design: .rounded))
                             .foregroundStyle(PinguDesign.muted)
                             .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.82)
                             .frame(maxWidth: 330)
                     }
 
@@ -104,7 +106,7 @@ struct RecordingView: View {
                         .disabled(!canFinish)
                         .opacity(canFinish ? 1 : 0.72)
                     }
-                    .padding(.bottom, max(34, proxy.safeAreaInsets.bottom + 22))
+                    .padding(.bottom, max(22, proxy.safeAreaInsets.bottom + 14))
                 }
                 .frame(width: proxy.size.width, height: proxy.size.height)
             }
@@ -112,6 +114,12 @@ struct RecordingView: View {
             if isAnalyzing {
                 analyzingOverlay
             }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            recordingHeader
+                .padding(.top, 8)
+                .padding(.bottom, 10)
+                .background(PinguDesign.ice.opacity(0.96))
         }
         .task {
             recorder.start()
@@ -192,12 +200,14 @@ struct RecordingView: View {
                 recorder.stop()
                 dismiss()
             } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 28, weight: .medium))
+                Label("Close", systemImage: "xmark")
+                    .labelStyle(.iconOnly)
+                    .font(.system(size: 27, weight: .medium))
                     .foregroundStyle(PinguDesign.tabText)
-                    .frame(width: 48, height: 48)
-                    .background(.white.opacity(0.82))
-                    .clipShape(Circle())
+                    .frame(width: 58, height: 50)
+                    .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .background(.white.opacity(0.9))
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 10, y: 5)
             }
             .accessibilityLabel("Close recording")
@@ -214,22 +224,20 @@ struct RecordingView: View {
                 recorder.resetSession()
                 recorder.start()
             } label: {
-                Image(systemName: "arrow.clockwise")
+                Label("Replay", systemImage: "arrow.clockwise")
+                    .labelStyle(.iconOnly)
                     .font(.system(size: 25, weight: .semibold))
                     .foregroundStyle(PinguDesign.tabText)
-                    .frame(width: 48, height: 48)
-                    .background(.white.opacity(0.82))
-                    .clipShape(Circle())
+                    .frame(width: 58, height: 50)
+                    .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .background(.white.opacity(0.9))
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 10, y: 5)
             }
             .disabled(isAnalyzing || showReflection || showSaveConfirmation)
             .accessibilityLabel("Restart recording")
         }
-        .padding(.horizontal, 24)
-    }
-
-    private func recordingHeaderTopPadding(for proxy: GeometryProxy) -> CGFloat {
-        max(proxy.safeAreaInsets.top + 18, 86)
+        .padding(.horizontal, PinguDesign.screenSidePadding)
     }
 
     private var transcriptPanel: some View {
@@ -493,15 +501,15 @@ struct RecordingView: View {
         Button(action: action) {
             VStack(spacing: 13) {
                 Image(systemName: icon)
-                    .font(.system(size: 32, weight: .bold))
+                    .font(.system(size: 29, weight: .bold))
                     .foregroundStyle(foreground)
-                    .frame(width: 86, height: 86)
+                    .frame(width: 76, height: 76)
                     .background(background)
                     .clipShape(Circle())
                     .shadow(color: PinguDesign.ink.opacity(0.12), radius: 12, y: 8)
 
                 Text(title)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
                     .tracking(2.0)
                     .foregroundStyle(title == "FINISH" || title == "WAIT" ? PinguDesign.blue : PinguDesign.muted)
             }
