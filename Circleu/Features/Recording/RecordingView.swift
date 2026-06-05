@@ -35,9 +35,9 @@ struct RecordingView: View {
             GeometryReader { proxy in
                 VStack(spacing: 0) {
                     recordingHeader
-                        .padding(.top, max(14, proxy.safeAreaInsets.top + 8))
+                        .padding(.top, recordingHeaderTopPadding(for: proxy))
 
-                    Spacer(minLength: max(54, proxy.size.height * 0.07))
+                    Spacer(minLength: max(36, proxy.size.height * 0.045))
 
                     VStack(spacing: 14) {
                         Text(isAnalyzing ? "Thinking..." : recorder.statusMessage)
@@ -226,6 +226,10 @@ struct RecordingView: View {
             .accessibilityLabel("Restart recording")
         }
         .padding(.horizontal, 24)
+    }
+
+    private func recordingHeaderTopPadding(for proxy: GeometryProxy) -> CGFloat {
+        max(proxy.safeAreaInsets.top + 18, 86)
     }
 
     private var transcriptPanel: some View {
