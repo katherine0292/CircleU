@@ -10,6 +10,10 @@ Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Practice -> 
 
 Users can record or type a reflection, review an AI-generated summary, save it to a private journal, start a suggested practice action, and optionally share a privacy-safe version into a private circle on the same device.
 
+## Design Reference
+
+- [TEAM 6 PINGU Figma design](https://www.figma.com/design/zLxqQQD19rjIf65Zqs2aeE/TEAM-6-PINGU?node-id=0-1&m=dev&t=MEb8WYBaU5VVG022-1)
+
 ## Current Capabilities
 
 - Voice recording with microphone permission handling.
