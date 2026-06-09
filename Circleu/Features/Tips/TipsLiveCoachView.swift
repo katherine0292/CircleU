@@ -42,17 +42,17 @@ struct TipsLiveCoachView: View {
                         PinguMascot(size: 64, mood: .idle)
                             .padding(.top, 8)
 
-                        ForEach(session.turns) { turn in
+                        let firstReplyIndex = session.turns.firstIndex { $0.role == .simulatedPerson }
+                        ForEach(Array(session.turns.enumerated()), id: \.element.id) { index, turn in
+                            if index == firstReplyIndex {
+                                dividerPill
+                            }
                             if turn.role == .user || turn.role == .simulatedPerson {
                                 TipsCoachBubble(label: turn.label, text: turn.text, role: turn.role)
                             } else if turn.role == .coach && turn.label == "Suggested phrasing" {
                                 suggestedPhrasingCard(text: turn.text, why: session.coachOutput.whyItWorks)
                             }
                             // other coach turns absorbed into nowWhatCard below
-                        }
-
-                        if session.turns.contains(where: { $0.role == .simulatedPerson }) {
-                            dividerPill
                         }
 
                         nowWhatCard(session)
@@ -371,7 +371,16 @@ struct TipsLiveCoachView: View {
                     .padding(.bottom, 8)
             }
         }
-        .glass(.nav, cornerRadius: 0)
+        .background {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .overlay(alignment: .top) {
+                    Rectangle()
+                        .fill(.white.opacity(0.35))
+                        .frame(height: 0.5)
+                }
+                .ignoresSafeArea(edges: .bottom)
+        }
     }
 
     private func modePill(_ label: String, mode: ComposerMode) -> some View {
