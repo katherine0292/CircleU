@@ -96,7 +96,7 @@ Use `main` as the stable team branch. Do feature work in a personal or feature b
 Recommended daily workflow:
 
 ```bash
-git checkout dev/mike
+git checkout feat/your-slice
 git fetch origin
 git merge origin/main
 ```

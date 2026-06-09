@@ -1,6 +1,6 @@
 # Circleu Project Structure
 
-Circleu uses a feature-first structure with a small shared core. This keeps product workflows easy to find while still giving shared models, stores, services, engines, design tokens, and components clear homes.
+Circleu uses a feature-first structure with clear homes for shared UI, state, models, engines, services, and tests.
 
 ```text
 Circleu/
@@ -8,69 +8,56 @@ Circleu/
   Assets.xcassets/     Colors and image assets
   Components/          Shared reusable SwiftUI components and button styles
   Design/              Design tokens such as colors, spacing, and layout constants
-  Engines/             Pure business or AI logic
+  Engines/             Business logic and AI/reflection logic
   Features/            User-facing screens grouped by product workflow
   Models/              Codable domain models and value types
-  Services/            Device/system integrations
+  Services/            Device APIs and future backend/provider boundaries
   Stores/              ObservableObject state and local persistence
+CircleuTests/          Unit tests for ViewModels, stores, engines, backend contracts, and data flow
+docs/                  Current project knowledge and archived planning history
 ```
 
 ## Feature Folders
 
-Use `Features/<FeatureName>/` for screens and UI that belong to one workflow, such as Home, Journal, Tips, Circle, Recording, Reflection, Profile, or Onboarding.
+Use `Features/<FeatureName>/` for screens and UI that belong to one workflow: Home, Journal, Tips, Circle, Recording, Reflection, Profile, and Onboarding.
 
-Keep feature-specific cards, rows, and sheets inside the feature folder until another feature truly needs them.
+Keep feature-specific cards, rows, sheets, and ViewModels inside the feature folder until another feature truly needs them.
 
-Screen and workflow state should live in feature-local ViewModels. The app follows:
+The app follows:
 
 ```text
 View -> ViewModel -> Store / Engine / Service -> Model
 ```
 
-Views render SwiftUI layout and call ViewModel actions. ViewModels own screen state, form validation, copy/export state, navigation sheet flags, and calls into stores, engines, or services. Stores remain the shared source of truth for local persistence.
+Views render layout and call ViewModel actions. ViewModels own screen state, validation, sheet flags, copy/export state, and calls into stores, engines, or services. Stores remain the source of truth for local persistence.
 
-Profile also owns local QA tools because the controls are user-facing during phone testing but specific to app state and reproducibility.
+## Shared UI
 
-Tips owns the user-facing action workflow. The underlying model is still named `Quest` for now because earlier app state and persistence already use that language; `QuestStore` owns active, completed, skipped, and reactivated tip state.
+Use `Components/` only for reusable UI used by multiple features. Do not put domain-specific screens in `Components/`.
 
-## Components
+Examples:
 
-Use `Components/` only for reusable UI used by multiple features. Examples:
-
-- `PinguScreenBackground`
-- `PinguTopBar`
-- `PinguBottomTabBar`
-- `PinguTextInput`
-- `PinguPrimaryButtonStyle`
-- `PinguSecondaryButtonStyle`
-
-Do not put domain-specific screens in `Components`.
+- app background,
+- top bar,
+- tab bar,
+- reusable form controls,
+- shared button styles.
 
 ## Design
 
-Use `Design/` for visual tokens and constants only. `PinguDesign` owns app colors, spacing, and fixed layout constants. SwiftUI views should live in `Components/` or `Features/`.
+Use `Design/` for visual tokens and constants only. `PinguDesign` owns colors, spacing, and fixed layout constants. SwiftUI views should live in `Components/` or `Features/`.
 
-## Models, Stores, Engines, Services
+## Backend And Engine Ownership
 
 - `Models/` defines app data types.
-- `Stores/` owns app state and persistence.
+- `Stores/` owns local state and persistence.
 - `Engines/` transforms data or runs analysis.
-- `Services/` wraps system APIs such as audio recording and speech recognition.
-- `Services/BackendPreparation.swift` defines local no-op interfaces for future identity, sync, analytics, and model provider work. These protocols prepare the app for backend work without adding network calls or secrets.
+- `Services/` wraps system APIs and backend/provider boundaries.
+- `Services/BackendPreparation.swift` defines identity, sync, analytics, and provider contracts.
+- `Services/CloudKitDataModel.swift` defines CloudKit record schema metadata.
 
-This separation lets frontend, business logic, and system integrations evolve independently while keeping the app easy to test on a real phone.
+This separation lets UI, business logic, and system integrations evolve independently.
 
 ## Reproducible Phone Testing
 
-Use `Profile > QA tools` on a device to seed deterministic local demo data, reset first-run app state, and export a QA summary. These controls are local-only and do not require a backend.
-
-## First Push Cleanup
-
-The first shareable branch keeps large workflow helpers close to their features:
-
-- `Features/Profile/ProfileQAToolsSheet.swift` owns local QA seed/reset/export UI.
-- `Features/Tips/TipsView.swift` owns the active/completed/skipped tip workflow.
-- `Features/Circle/CircleSheets.swift` owns circle create/detail/edit/post/share sheets.
-- `Features/Journal/JournalCircleShareSheet.swift` owns journal-to-circle sharing UI.
-
-This keeps top-level tab views focused on layout and navigation while keeping feature behavior easy to find.
+Use `Profile > QA tools` on a device to seed deterministic local demo data, reset first-run state, and export a QA summary. These controls are local-only and do not require a production backend.

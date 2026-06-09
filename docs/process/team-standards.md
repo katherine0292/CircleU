@@ -13,7 +13,7 @@ git merge origin/main
 git checkout -b feat/journal-circle-sharing
 ```
 
-Before pushing a feature branch, merge the latest `main` and resolve conflicts locally.
+Before pushing a feature branch, merge the latest `main` and resolve conflicts locally:
 
 ```bash
 git fetch origin
@@ -22,19 +22,19 @@ git merge origin/main
 
 ## Commit By Function
 
-Commit one working function, fix, refactor, or doc update at a time. Do not commit random unrelated files together.
+Commit one working function, fix, refactor, test addition, or doc update at a time.
 
-Good commit messages:
+Good messages:
 
 ```text
 feat: add journal circle sharing
 fix: handle empty transcript fallback
 refactor: move profile qa tools into feature folder
-docs: reorganize project documentation
 test: add tips practice flow coverage
+docs: reorganize project documentation
 ```
 
-Bad commit messages:
+Bad messages:
 
 ```text
 update files
@@ -45,14 +45,14 @@ commit all
 
 ## Professional Commit Commands
 
-Review the repo before staging:
+Review before staging:
 
 ```bash
 git status --short
 git diff
 ```
 
-Stage by function, not by habit:
+Stage only the files for the function:
 
 ```bash
 git add Circleu/Features/Journal
@@ -60,16 +60,15 @@ git add Circleu/Stores/ReflectionJournalStore.swift
 git commit -m "feat: add journal circle sharing"
 ```
 
-For docs-only work:
+Docs-only example:
 
 ```bash
-git status --short
 git diff -- docs README.md
 git add docs README.md
-git commit -m "docs: reorganize project documentation"
+git commit -m "docs: refine project documentation"
 ```
 
-For a bug fix:
+Bug-fix example:
 
 ```bash
 git diff -- Circleu/Features/Recording Circleu/Engines/TranscriptQuality.swift
@@ -77,16 +76,16 @@ git add Circleu/Features/Recording Circleu/Engines/TranscriptQuality.swift
 git commit -m "fix: handle short transcript validation"
 ```
 
-Avoid `git add .` unless you have already reviewed every changed file in `git status --short`.
+Avoid `git add .` unless every changed file has been reviewed.
 
 ## Verification Before Commit
 
-Run the smallest useful check for the change:
+Run the smallest useful check:
 
-- Docs only: review `git diff -- docs README.md`.
-- ViewModel, Store, or Engine behavior: run unit tests.
-- SwiftUI or app integration change: run an iPhone simulator build.
-- Microphone, speech, signing, Apple Intelligence, or real-device behavior: run the phone checklist.
+- Docs only: review `git diff -- docs README.md` and scan for stale links or placeholders.
+- ViewModel, Store, Engine, backend contract, or CloudKit mapping behavior: run unit tests.
+- SwiftUI or app integration: run an iPhone simulator build.
+- Microphone, speech, signing, Apple Intelligence, or full user flow: run the phone checklist.
 
 Useful commands:
 
@@ -95,7 +94,7 @@ xcodebuild build -project Circleu.xcodeproj -scheme Circleu -destination 'platfo
 xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
-## File Ownership Rules
+## File Ownership
 
 - `Circleu/Features/`: user-facing screens and feature-specific ViewModels.
 - `Circleu/Components/`: reusable UI shared by multiple features.
@@ -104,8 +103,28 @@ xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platfor
 - `Circleu/Stores/`: shared app state and local persistence.
 - `Circleu/Engines/`: business logic and AI/reflection logic.
 - `Circleu/Services/`: device APIs and future backend/provider boundaries.
-- `CircleuTests/`: behavior tests for ViewModels, Stores, Engines, and data flow.
+- `CircleuTests/`: behavior tests for ViewModels, Stores, Engines, backend contracts, and data flow.
 - `docs/`: living project knowledge and archived planning history.
+
+## Ownership Split
+
+Backend/engine owner:
+
+- `Circleu/Engines/`
+- `Circleu/Stores/`
+- `Circleu/Services/`
+- `Circleu/Models/`
+- `CircleuTests/`
+- `docs/engineering/`
+
+UI owners:
+
+- `Circleu/Features/`
+- `Circleu/Components/`
+- `Circleu/Design/`
+- `Circleu/Assets.xcassets/`
+
+Coordinate before changing another person's ownership area.
 
 ## Documentation Rules
 
@@ -114,12 +133,12 @@ Update docs in the same commit as the behavior or process change when the docs w
 Use these locations:
 
 - Product/user-flow docs: `docs/product/`
-- Architecture/domain docs: `docs/engineering/`
+- Architecture/domain/backend docs: `docs/engineering/`
 - Manual QA docs: `docs/qa/`
 - Team process docs: `docs/process/`
 - Historical plans/specs: `docs/archive/`
 
-Keep archived docs unchanged unless you are fixing broken links for readability. Current team rules should live in active docs, not in archived implementation plans.
+Keep archived docs unchanged unless fixing links for readability. Current rules belong in active docs.
 
 ## Pull And Push Rules
 

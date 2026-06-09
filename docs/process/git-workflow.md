@@ -1,62 +1,87 @@
 # Circleu Git Workflow
 
-Use small, reviewable commits by default. Each commit should represent one clear function, feature slice, refactor, or documentation update.
+Use small, reviewable commits. Each commit should represent one working feature slice, fix, refactor, test addition, or documentation update.
 
-For the full team rules, including branch commands, file ownership, documentation locations, and verification expectations, see [team-standards.md](team-standards.md).
+For complete team rules, see [team-standards.md](team-standards.md).
+
+## Daily Start
+
+```bash
+git checkout main
+git fetch origin
+git merge origin/main
+git checkout -b feat/short-description
+```
+
+If you are already on a feature branch:
+
+```bash
+git fetch origin
+git merge origin/main
+```
+
+Resolve conflicts locally before pushing.
 
 ## Commit Scope
 
-Prefer commits like:
+Good commits:
 
-- `feat: add journal-to-circle sharing`
-- `feat: add daily tips quest flow`
-- `refactor: split profile qa tools`
-- `refactor: move shared form controls`
-- `docs: add phone test checklist`
-- `chore: remove unused placeholder files`
+- `feat: add journal circle sharing`
+- `fix: handle empty transcript fallback`
+- `refactor: move profile qa tools into feature folder`
+- `test: cover CloudKit schema mapping`
+- `docs: refine project documentation`
 
-Avoid mixing unrelated work in one commit. A UI refactor, a model change, a doc update, and a build setting change should be separate commits unless they are required together for one working slice.
+Avoid:
 
-## Functional Slice Rule
+- `update files`
+- `final changes`
+- `fix stuff`
+- `commit all`
 
-A commit should answer one of these questions:
-
-- What user-facing function did this add or improve?
-- What internal structure did this clean up?
-- What bug or build issue did this fix?
-- What documentation did this clarify?
-
-If the answer needs "and then also," split the commit.
+If a commit description needs "and also," split it.
 
 ## Before Committing
 
-Run the smallest useful verification for the change:
+Review status and diff:
 
-- SwiftUI or store-only changes: run an iPhone simulator build.
-- Device, signing, microphone, or speech changes: run a connected iPhone build.
-- Documentation-only changes: run a quick status/diff review.
-- Release or push-ready changes: run placeholder scan, simulator build, and connected iPhone build.
-
-## Commit Message Format
-
-Use this format:
-
-```text
-type: short imperative summary
+```bash
+git status --short
+git diff
 ```
 
-Common types:
+Stage by function:
 
-- `feat`: user-facing feature or workflow
-- `fix`: bug fix
-- `refactor`: structure change without intended behavior change
-- `docs`: documentation only
-- `chore`: cleanup, project metadata, or maintenance
+```bash
+git add docs/engineering/cloudkit-data-model.md
+git add Circleu/Services/CloudKitDataModel.swift CircleuTests/CloudKitSchemaTests.swift
+git commit -m "feat: add CloudKit data model foundation"
+```
+
+Avoid `git add .` unless every changed file has been reviewed.
+
+## Verification
+
+Run the smallest useful check:
+
+- Docs only: review `git diff -- docs README.md` and scan for stale paths.
+- ViewModel, Store, Engine, backend contract, or mapping behavior: run unit tests.
+- SwiftUI or app integration: run a simulator build.
+- Signing, microphone, speech recognition, Apple Intelligence, or full flow: run the phone checklist.
+
+Useful commands:
+
+```bash
+xcodebuild build -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
 
 ## Push Rule
 
-Push after a coherent set of commits is ready for teammate review. Do not wait until many unrelated features pile up.
+Push after a coherent set of commits is ready for teammate review:
 
-## First MVP Exception
+```bash
+git push origin HEAD
+```
 
-The commit `02078f3 feat: prepare local-first MVP` was a one-time consolidation commit because the first MVP branch already had many uncommitted app, asset, store, and doc changes. Future work should return to functional-slice commits.
+Do not push broken builds or unrelated cleanup mixed with feature work.

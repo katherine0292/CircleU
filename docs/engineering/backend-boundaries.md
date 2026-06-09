@@ -1,40 +1,43 @@
 # Circleu Backend Boundaries
 
-Circleu is local-first for the current beta. Backend work should be added through explicit service boundaries, not directly from SwiftUI views or feature ViewModels.
+Circleu is local-first. Backend work should be added through explicit service boundaries, not directly from SwiftUI views or feature ViewModels.
 
 ## Current Local Ownership
 
-These systems stay local in the beta:
+These systems work locally today:
 
-- Reflection journal entries
-- Tips and quest state
-- Circle spaces and private posts
-- Profile name and preferences
-- AI reflection session history
-- QA seed, reset, and export tools
+- reflection journal entries,
+- tips and quest state,
+- circle spaces and private posts,
+- profile name and preferences,
+- AI reflection session history,
+- QA seed, reset, and export tools.
 
-The local stores are the source of truth until the product needs account login, cloud sync, analytics, shared devices, or external AI model providers.
+Local stores remain the source of truth until the app intentionally adds account login, cloud sync, analytics, shared devices, or external AI providers.
 
 ## Backend Entry Points
 
-Future backend work should enter through `Circleu/Services/BackendPreparation.swift`.
+Future backend work enters through `Circleu/Services/BackendPreparation.swift` and focused service files in `Circleu/Services/`.
 
-The current protocol boundaries are:
+Current protocol boundaries:
 
 - `UserIdentityProviding`: local or backend-backed user identity and display name.
-- `ReflectionSyncing`: sync boundary for a `BackendSyncSnapshot` containing reflections, tips, circles, circle posts, and AI sessions.
+- `ReflectionSyncing`: sync boundary for `BackendSyncSnapshot`.
 - `AnalyticsTracking`: privacy-safe `AnalyticsEvent` tracking boundary.
 - `ReflectionModelProvider`: model-provider availability, provider identity, and on-device capability.
 
-The current backend contract types are:
+Current contract types:
 
-- `BackendSyncSnapshot`: local data payload prepared for future sync.
-- `BackendSyncCounts`: count summary for sync visibility and test assertions.
+- `BackendSyncSnapshot`: local payload prepared for future sync.
+- `BackendSyncCounts`: count summary for sync visibility and tests.
 - `BackendSyncResult`: result of a sync attempt, including failed scopes.
-- `BackendSyncScope`: the local data groups that can be synced independently later.
+- `BackendSyncScope`: data groups that can be synced independently later.
 - `AnalyticsEvent`: sanitized event name, properties, and timestamp.
+- `CloudKitRecordSchema`: stable CloudKit record type, scope, field, sensitive-field, and record-name metadata.
 
-Do not call a backend directly from `Circleu/Features/`. A feature should call a ViewModel. A ViewModel should coordinate Stores, Engines, and Services.
+## Rule
+
+Do not call a backend directly from `Circleu/Features/`.
 
 ```text
 View -> ViewModel -> Store / Engine / Service -> Model
@@ -42,37 +45,35 @@ View -> ViewModel -> Store / Engine / Service -> Model
 
 ## Future Backend Responsibilities
 
-When the app needs backend support, add implementations behind these boundaries:
-
 - Auth/account identity: replace or extend `UserIdentityProviding`.
-- Cloud sync: implement `ReflectionSyncing` for local store snapshots and conflict handling.
+- Cloud sync: map local snapshots into CloudKit-ready payloads, then implement upload-only backup before two-way sync.
 - Analytics: implement `AnalyticsTracking` with privacy-safe event names and properties.
-- External AI: add a provider behind the reflection/model-provider boundary.
-- Model evaluation: sync AI session attempts without exposing private notes or unnecessary raw transcript data.
+- External AI: add provider implementations behind the reflection/model-provider boundary.
+- Model evaluation: sync AI session attempts without exposing unnecessary raw content.
 
 ## Privacy Rules
 
-Treat transcript, journal entries, private notes, and circle posts as sensitive user data.
+Treat transcripts, journal entries, private notes, tags, circle posts, practice messages, and AI attempts as sensitive data.
 
-Backend-bound work must define:
+Every backend-bound feature must define:
 
 - what data leaves the device,
-- why that data is needed,
+- why the data is needed,
 - whether the user can opt out,
 - how local-only mode still works,
 - how failures fall back to local behavior.
 
-For the beta, backend failures should never block local journaling, local tips, local circles, or local QA export.
+Backend failures must never block local journaling, tips, circles, profile editing, or QA export.
 
-## Your Ownership
+## Ownership
 
-The engine/backend owner should maintain:
+The engine/backend owner maintains:
 
 - `Circleu/Engines/`
 - `Circleu/Stores/`
 - `Circleu/Services/`
 - `Circleu/Models/`
-- `CircleuTests/` for engine, store, and data-flow behavior
-- `docs/engineering/` for backend and architecture decisions
+- `CircleuTests/` for engine, store, backend, and data-flow behavior
+- `docs/engineering/`
 
 UI owners should be able to change `Circleu/Features/`, `Circleu/Components/`, and `Circleu/Design/` without changing engine/backend behavior.

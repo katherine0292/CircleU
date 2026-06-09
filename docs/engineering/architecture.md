@@ -2,7 +2,7 @@
 
 Circleu uses a local-first SwiftUI architecture with feature-first folders and a small shared core.
 
-The main dependency flow is:
+## Dependency Flow
 
 ```text
 View -> ViewModel -> Store / Engine / Service -> Model
@@ -10,54 +10,25 @@ View -> ViewModel -> Store / Engine / Service -> Model
 
 ## Responsibilities
 
-`View`
+- **View**: renders SwiftUI layout, owns visual-only state, and calls ViewModel actions.
+- **ViewModel**: owns screen state, validation, loading/empty/error states, and coordinates stores, engines, and services.
+- **Store**: owns shared app state and local persistence. Stores save, load, update, delete, reset, and export local data.
+- **Engine**: runs business logic, reflection generation, transcript checks, progress calculation, and beta state derivation.
+- **Service**: wraps device APIs and future external integrations such as identity, sync, analytics, and model providers.
+- **Model**: defines `Codable` domain data and small computed properties that are universally true.
 
-- Renders SwiftUI layout.
-- Owns only visual state such as selected rows, sheet presentation, and animation state.
-- Calls ViewModel methods for user actions.
+## Ownership
 
-`ViewModel`
+Screens and feature ViewModels live together under `Circleu/Features/<FeatureName>/`.
 
-- Owns screen-specific state and user actions.
-- Converts model/store data into UI-ready values.
-- Coordinates stores, engines, and services.
-- Handles loading, empty, disabled, and error states.
-- Should be testable without rendering SwiftUI.
-
-`Store`
-
-- Owns shared app state and local persistence.
-- Saves, loads, updates, deletes, resets, and exports local data.
-- Can be injected into multiple ViewModels.
-- Should not know about screen layout.
-
-`Engine`
-
-- Runs pure or mostly pure business logic.
-- Examples: reflection generation, progress calculation, transcript quality checks, and beta state derivation.
-- Should be easy to unit test.
-
-`Service`
-
-- Wraps device/system APIs or future external integrations.
-- Examples: audio recording, speech recognition, future sync, analytics, identity, and model provider boundaries.
-
-`Model`
-
-- Defines Codable domain objects and value types.
-- Contains data shape and small computed properties when they are universally true.
-- Should not call stores, engines, or services.
-
-## Feature Ownership
-
-Screens and screen ViewModels live together under `Circleu/Features/<FeatureName>/`.
-
-Shared reusable SwiftUI pieces live in `Circleu/Components/` only after more than one feature needs them. Visual constants live in `Circleu/Design/`. Persistence belongs in `Circleu/Stores/`, business logic in `Circleu/Engines/`, and device/system integrations in `Circleu/Services/`.
+Shared reusable SwiftUI pieces live in `Circleu/Components/` only after more than one feature needs them. Visual constants live in `Circleu/Design/`. Persistence belongs in `Circleu/Stores/`, business logic in `Circleu/Engines/`, system and backend boundaries in `Circleu/Services/`, and data shapes in `Circleu/Models/`.
 
 ## Local-First Boundary
 
-The current beta does not require a backend. Reflections, tips, profile data, AI session history, and circles are stored locally. Future backend work should enter through service protocols for identity, sync, analytics, and model providers instead of being called directly from views.
+The beta stores reflections, tips, profile data, AI session history, and circles locally. Backend work must enter through service protocols and payload mapping, not directly from SwiftUI views or feature ViewModels.
+
+CloudKit is the preferred Apple-first database direction, but local mode remains the source of truth until sync is explicitly enabled.
 
 ## Testing Boundary
 
-Prefer ViewModel, Store, and Engine tests for behavior. Use phone QA for microphone, speech recognition, signing, Apple Intelligence availability, and full user-flow checks that cannot be verified reliably in pure unit tests.
+Prefer unit tests for ViewModels, Stores, Engines, data flow, backend contracts, and CloudKit mapping. Use phone QA for microphone, speech recognition, signing, Apple Intelligence availability, and full user-flow checks.

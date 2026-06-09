@@ -1,6 +1,6 @@
 # Circleu Documentation
 
-Use this folder for shared project knowledge that helps the team build, test, and maintain Circleu.
+This folder holds the current project knowledge the team should follow while building, testing, and presenting Circleu.
 
 ## Start Here
 
@@ -13,18 +13,19 @@ Use this folder for shared project knowledge that helps the team build, test, an
 7. [Backend roadmap](engineering/backend-roadmap.md)
 8. [CloudKit data model](engineering/cloudkit-data-model.md)
 9. [Phone test checklist](qa/phone-test-checklist.md)
-10. [Team standards](process/team-standards.md)
+10. [Git workflow](process/git-workflow.md)
+11. [Team standards](process/team-standards.md)
 
-## Folder Rules
+## Folder Map
 
 - `product/`: what the app is, who it serves, and how the user flow works.
-- `engineering/`: source ownership, architecture boundaries, domain language, and technical decisions.
-- `qa/`: manual test flows, phone checks, and repeatable demo/testing steps.
-- `process/`: Git workflow, commit standards, branch rules, and team conventions.
-- `archive/`: historical plans and specs. Do not treat archived files as current instructions unless a current doc links to them.
+- `engineering/`: architecture, source ownership, domain language, backend boundaries, and technical decisions.
+- `qa/`: repeatable manual checks for simulator and real-phone testing.
+- `process/`: Git workflow, commit standards, branch rules, and collaboration norms.
+- `archive/`: historical plans and specs. Archived files are reference material, not current instructions.
 
 ## Documentation Standard
 
-Keep active docs short and current. If a doc describes the product or engineering rules the team should still follow, keep it in `product/`, `engineering/`, `qa/`, or `process/`. If a doc describes a completed implementation plan, old design exploration, or one-time agent workflow, move it to `archive/`.
+Keep active docs short, current, and action-oriented. A current doc should answer what the team should do now; historical implementation notes belong in `archive/`.
 
-When adding or moving docs, update this index and the root [README](../README.md) if the doc is important for new contributors.
+When behavior, architecture, or process changes, update the matching active doc in the same commit. If a doc is important for new contributors, link it from this index and from the root `README.md`.

@@ -1,19 +1,19 @@
 # Circleu Backend Roadmap
 
-Circleu should stay local-first until the product needs backend features for real users. Backend work should be added in small, reversible slices behind the service contracts in `Circleu/Services/BackendPreparation.swift`.
+Circleu should stay local-first until backend features are needed for real users. Add backend work in small, reversible slices behind service contracts.
 
 ## Current Position
 
-The current beta does not require a backend. These systems already work locally:
+The beta already works locally:
 
-- Reflection journal entries
-- Tips and quest state
-- Circle spaces and private posts
-- Profile name and preferences
-- AI reflection session history
-- QA seed, reset, and export tools
+- reflection journal entries,
+- tips and quest state,
+- circle spaces and private posts,
+- profile name and preferences,
+- AI reflection session history,
+- QA seed, reset, and export tools.
 
-The backend-ready boundaries are documented in [backend-boundaries.md](backend-boundaries.md). Do not add direct network calls from SwiftUI views or feature ViewModels.
+Backend-ready boundaries are documented in [backend-boundaries.md](backend-boundaries.md). CloudKit schema direction is documented in [cloudkit-data-model.md](cloudkit-data-model.md).
 
 ## Build Order
 
@@ -21,28 +21,29 @@ The backend-ready boundaries are documented in [backend-boundaries.md](backend-b
 
 Goal: give each user a stable account while keeping local-only mode available.
 
-Add first:
+Add:
 
-- account sign-in state,
+- sign-in state,
 - stable backend user ID,
 - migration from `LocalUserIdentityProvider.localUserID`,
-- sign-out behavior that does not destroy local data by accident.
+- sign-out behavior that does not accidentally destroy local data.
 
-Do not require identity before the app can journal locally. If sign-in fails, the app should continue with the local identity provider.
+Local journaling must keep working if sign-in fails.
 
-### 2. Cloud Sync
+### 2. CloudKit Sync
 
-Goal: sync the local-first data model across devices.
+Goal: sync the local-first data model across Apple devices.
 
-Use [cloudkit-data-model.md](cloudkit-data-model.md) for the Apple-first schema and `BackendSyncSnapshot` as the starting contract. Sync should cover:
+Use `BackendSyncSnapshot` as the local data source and [cloudkit-data-model.md](cloudkit-data-model.md) as the record schema. Start by mapping local models into CloudKit-ready payloads:
 
 - journal entries,
 - quests,
 - circles,
 - circle posts,
-- AI sessions.
+- AI sessions,
+- tips practice sessions.
 
-Start with upload-only backup before adding two-way sync. Two-way sync needs conflict rules for edited journal workspace fields, deleted circle posts, quest status changes, and AI session merges.
+Start with upload-only private backup. Add two-way sync only after conflict rules are defined.
 
 ### 3. Analytics
 
@@ -58,13 +59,13 @@ Allowed examples:
 - `ai_reflection_regenerated`
 - `qa_export_copied`
 
-Do not send transcript text, private notes, circle post bodies, or raw AI reflection content as analytics properties.
+Never send transcript text, private notes, tags, circle post bodies, practice messages, or raw AI reflection content as analytics properties.
 
 ### 4. External AI Provider
 
 Goal: support cloud model providers when Apple Intelligence or local fallback is not enough.
 
-Add this after identity and privacy rules are clear. External AI should sit behind the reflection/model-provider boundary and preserve local fallback behavior.
+Add this after identity, consent, and privacy rules are clear. External AI must sit behind the reflection/model-provider boundary and preserve local fallback behavior.
 
 Before sending transcript text to a cloud model, define:
 
@@ -74,52 +75,32 @@ Before sending transcript text to a cloud model, define:
 - failure fallback,
 - whether cloud AI can be disabled.
 
-## What Stays Local
+## Local-First Guarantees
 
-Even after backend support exists, Circleu should keep these local-first guarantees:
+Even after backend support exists:
 
-- Users can record or type a reflection without network access.
-- Users can save a local journal entry without sign-in.
-- Existing local journal data remains readable if backend sync fails.
-- QA seed/reset/export tools keep working for demos and development.
-- Local fallback reflection still works when external model providers are unavailable.
-
-## Privacy Rules
-
-Treat these as sensitive user data:
-
-- transcripts,
-- journal entries,
-- private notes,
-- tags,
-- circle posts,
-- AI session attempts,
-- AI-generated reflection content.
-
-Every backend feature must answer:
-
-- What data leaves the device?
-- Why does it need to leave the device?
-- Can the user opt out?
-- What happens offline?
-- What happens if sync or AI fails?
-- How can a developer test it without production credentials?
+- users can record or type without network access,
+- users can save a local journal entry without sign-in,
+- existing local data remains readable if sync fails,
+- QA seed/reset/export tools keep working,
+- local reflection fallback keeps working when provider services are unavailable.
 
 ## Implementation Slices
 
-Use this order for future backend commits:
+Recommended backend sequence:
 
-1. `docs: add backend decision record`
-2. `test: cover identity provider behavior`
-3. `refactor: add backend identity provider`
-4. `test: cover sync snapshot serialization`
-5. `feat: add upload-only backup sync`
-6. `test: cover privacy-safe analytics events`
-7. `feat: add analytics tracker`
-8. `test: cover external reflection provider fallback`
-9. `feat: add external reflection provider boundary`
+1. `test: cover CloudKit snapshot mapping`
+2. `feat: map local snapshots to CloudKit payloads`
+3. `test: cover identity provider behavior`
+4. `refactor: add backend identity provider`
+5. `test: cover upload-only sync fallback`
+6. `feat: add upload-only CloudKit backup sync`
+7. `test: cover privacy-safe analytics events`
+8. `feat: add analytics tracker`
+9. `test: cover external reflection provider fallback`
+10. `feat: add external reflection provider boundary`
 
-Each slice should keep local mode working and should include tests for failure fallback.
+Each slice must keep local mode working and include tests for failure fallback.
 
 ## Not Yet
 
@@ -130,6 +111,4 @@ Do not build these until the product has a clear need:
 - social feeds,
 - production recommendation ranking,
 - server-side moderation workflows,
-- complex admin dashboards.
-
-Those features require product decisions and privacy review beyond the current beta.
+- admin dashboards.

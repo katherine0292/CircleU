@@ -1,25 +1,29 @@
 # Circleu App Flow
 
-This product flow aligns Figma, Xcode, team discussion, and live testing without requiring numbered files or folders in the repo.
+This flow keeps Figma, Xcode, team discussion, and live testing aligned.
 
-- **Onboarding**: Introduce Circleu and move the user into the app.
-- **Home**: Invite the user to begin a voice check-in.
-- **Recording**: Capture voice, show live transcript, and let the user finish.
-- **AI Processing**: Analyze the transcript with Apple Intelligence when available, with local fallback.
-- **Reflection**: Show emotion, insight, expression moment, quote, confidence score, regenerate, save, and **Save & Open Tips**.
-- **Saved**: Confirm the reflection was saved and explain where it lives.
-- **Journal**: List saved AI reflections, search edited workspace fields, open details, manage the related tips, and save useful insights into private circles.
-- **Tips**: Show the active AI-suggested tip, complete or skip it, restart past tips, and open the source reflection.
-- **Circles**: Store private support notes and privacy-safe reflection shares on this iPhone.
-- **Profile**: Show journey progress based on saved reflections.
-
-Primary beta path:
+## Primary Path
 
 ```text
 Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Tips -> Progress -> Circle/Profile
 ```
 
-Implementation notes:
-- Keep Swift file names semantic, such as `HomeView` and `RecordingView`.
-- Keep AI behind `ReflectionAnalyzing` so Apple Intelligence can be replaced or joined by other providers later.
-- Keep the daily tips loop local-first: `ReflectionJournalStore` owns saved reflections, `QuestStore` owns tip state, and `CircleStore` owns private support posts.
+## Screen Responsibilities
+
+- **Onboarding**: collect a local display name and introduce the reflection loop.
+- **Home**: show the daily prompt, latest reflection, active tip, and progress entry points.
+- **Recording**: capture audio, show transcript readiness, support typed fallback, and validate transcript quality.
+- **AI Processing**: run Apple Intelligence when available, with local reflection fallback.
+- **Reflection**: present structured insight, regenerate, Save Entry, or Save & Open Tips.
+- **Saved**: confirm the reflection was saved and route the user back into the app.
+- **Journal**: list, search, edit, export, reopen, and share saved reflections.
+- **Tips**: complete, skip, restart, and source-link AI-suggested actions.
+- **Circles**: store private local support notes and reflection shares.
+- **Profile**: show progress, profile settings, local data summary, QA tools, and AI session history.
+
+## Implementation Notes
+
+- Keep Swift file names semantic, such as `HomeView`, `RecordingView`, and `JournalViewModel`.
+- Keep AI behind `ReflectionAnalyzing` so Apple Intelligence, local fallback, and future providers can share one boundary.
+- Keep the local data loop explicit: `ReflectionJournalStore` owns saved reflections, `QuestStore` owns tips, `CircleStore` owns local support posts, and `AIReflectionSessionStore` owns AI generation history.
+- Backend work should enter through services, not through SwiftUI views.
