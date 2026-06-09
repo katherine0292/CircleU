@@ -6,8 +6,30 @@ struct TipsLiveCoachView: View {
     @ObservedObject var viewModel: TipsPracticeViewModel
     @State private var selectedReplyItem: PhotosPickerItem?
     @State private var composerMode: ComposerMode = .reply
+    @State private var copiedMain = false
+    @State private var copiedOptionID: TipsCoachReplyOption.ID?
 
     private enum ComposerMode { case reply, context }
+
+    private func copyMain(_ text: String) {
+        UIPasteboard.general.string = text
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { copiedMain = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            withAnimation(.easeOut(duration: 0.2)) { copiedMain = false }
+        }
+    }
+
+    private func copyOption(_ option: TipsCoachReplyOption) {
+        UIPasteboard.general.string = option.text
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { copiedOptionID = option.id }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            withAnimation(.easeOut(duration: 0.2)) {
+                if copiedOptionID == option.id { copiedOptionID = nil }
+            }
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -60,16 +82,7 @@ struct TipsLiveCoachView: View {
             title: "Live coach",
             subtitle: "in real time",
             onBack: { viewModel.backToSetup() }
-        ) {
-            Button {
-                viewModel.startNewTip()
-            } label: {
-                Image(systemName: "clock")
-                    .font(.system(size: 19, weight: .semibold))
-                    .foregroundStyle(Pingu.slate)
-            }
-            .buttonStyle(PressableButtonStyle())
-        }
+        )
     }
 
     private var contextBar: some View {
@@ -140,14 +153,21 @@ struct TipsLiveCoachView: View {
                 // Action pills
                 HStack(spacing: 8) {
                     Button {
-                        UIPasteboard.general.string = text
+                        copyMain(text)
                     } label: {
-                        Label("Copy", systemImage: "doc.on.doc")
+                        Label(copiedMain ? "Copied!" : "Copy",
+                              systemImage: copiedMain ? "checkmark" : "doc.on.doc")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 12)
                             .frame(height: 30)
-                            .background(GlassPrimaryFill(cornerRadius: 999))
+                            .background {
+                                if copiedMain {
+                                    Capsule().fill(Color(hex: 0x22C55E))
+                                } else {
+                                    GlassPrimaryFill(cornerRadius: 999)
+                                }
+                            }
                             .clipShape(Capsule())
                     }
                     .buttonStyle(PressableButtonStyle())
@@ -226,11 +246,11 @@ struct TipsLiveCoachView: View {
                             }
                             Spacer()
                             Button {
-                                UIPasteboard.general.string = option.text
+                                copyOption(option)
                             } label: {
-                                Image(systemName: "doc.on.doc")
+                                Image(systemName: copiedOptionID == option.id ? "checkmark" : "doc.on.doc")
                                     .font(.system(size: 13, weight: .bold))
-                                    .foregroundStyle(PinguDesign.muted)
+                                    .foregroundStyle(copiedOptionID == option.id ? Color(hex: 0x22C55E) : PinguDesign.muted)
                             }
                         }
                         .padding(12)

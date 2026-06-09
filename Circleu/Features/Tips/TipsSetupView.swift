@@ -9,11 +9,7 @@ struct TipsSetupView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            DemoNavBar(title: "New tip") {
-                Image(systemName: "clock")
-                    .font(.system(size: 19, weight: .semibold))
-                    .foregroundStyle(Pingu.slate)
-            }
+            DemoNavBar(title: "New tip")
 
             ZStack(alignment: .bottom) {
                 ScrollView(showsIndicators: false) {
