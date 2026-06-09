@@ -11,8 +11,9 @@ Use this folder for shared project knowledge that helps the team build, test, an
 5. [Domain models](engineering/domain-models.md)
 6. [Backend boundaries](engineering/backend-boundaries.md)
 7. [Backend roadmap](engineering/backend-roadmap.md)
-8. [Phone test checklist](qa/phone-test-checklist.md)
-9. [Team standards](process/team-standards.md)
+8. [CloudKit data model](engineering/cloudkit-data-model.md)
+9. [Phone test checklist](qa/phone-test-checklist.md)
+10. [Team standards](process/team-standards.md)
 
 ## Folder Rules
 

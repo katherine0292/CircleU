@@ -34,7 +34,7 @@ Do not require identity before the app can journal locally. If sign-in fails, th
 
 Goal: sync the local-first data model across devices.
 
-Use `BackendSyncSnapshot` as the starting contract. Sync should cover:
+Use [cloudkit-data-model.md](cloudkit-data-model.md) for the Apple-first schema and `BackendSyncSnapshot` as the starting contract. Sync should cover:
 
 - journal entries,
 - quests,
