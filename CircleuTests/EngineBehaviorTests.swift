@@ -56,4 +56,71 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertGreaterThan(result.confidenceScore, 0)
         XCTAssertLessThanOrEqual(result.confidenceScore, 1)
     }
+
+    func testLocalReflectionEngineCreatesAnxiousReflectionProfile() async throws {
+        let result = try await analyze(
+            "I was nervous before class and worried I would say the wrong thing, but I still asked my question."
+        )
+
+        XCTAssertEqual(result.title, "You met uncertainty with courage")
+        XCTAssertEqual(result.emotion, "Brave")
+        XCTAssertEqual(result.quote, "Courage often starts as one honest sentence.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineCreatesProudReflectionProfile() async throws {
+        let result = try await analyze(
+            "I felt proud and grateful because I finished the group update and helped everyone understand the next step."
+        )
+
+        XCTAssertEqual(result.title, "You noticed a meaningful win")
+        XCTAssertEqual(result.emotion, "Proud")
+        XCTAssertEqual(result.suggestedQuest, "Save one sentence about what helped this moment go well.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineCreatesTenderReflectionProfile() async throws {
+        let result = try await analyze(
+            "I felt sad and lonely after lunch because I missed my old friends and did not know who to talk with."
+        )
+
+        XCTAssertEqual(result.title, "You gave a tender feeling some space")
+        XCTAssertEqual(result.emotion, "Tender")
+        XCTAssertEqual(result.quote, "Soft honesty is still strength.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineCreatesNeutralReflectionProfile() async throws {
+        let result = try await analyze(
+            "I checked in after school and noticed I want tomorrow to feel more organized and clear."
+        )
+
+        XCTAssertEqual(result.title, "You checked in with yourself")
+        XCTAssertEqual(result.emotion, "Thoughtful")
+        XCTAssertEqual(result.suggestedQuest, "Write down one next step that would make tomorrow feel lighter.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineSuggestsLongerCheckInForShortDuration() async throws {
+        let result = try await analyze(
+            "I felt proud because I asked a clear question and understood what the team needed from me.",
+            durationSeconds: 20
+        )
+
+        XCTAssertEqual(result.suggestedQuest, "Try a one-minute check-in next time and name one feeling clearly.")
+    }
+
+    private func analyze(_ transcript: String, durationSeconds: Int = 90) async throws -> AIReflectionResult {
+        let engine = LocalReflectionEngine()
+        return try await engine.analyze(transcript: transcript, durationSeconds: durationSeconds)
+    }
+
+    private func XCTAssertConfidenceScoreIsValid(
+        _ result: AIReflectionResult,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertGreaterThanOrEqual(result.confidenceScore, 0, file: file, line: line)
+        XCTAssertLessThanOrEqual(result.confidenceScore, 1, file: file, line: line)
+    }
 }
