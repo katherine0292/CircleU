@@ -1,26 +1,83 @@
 import SwiftUI
 
 struct SettingsHubView: View {
+
     var body: some View {
-        List {
-            NavigationLink("Trust & Safety") {
-                TrustSafetyView()
-            }
 
-            NavigationLink("Support") {
-                SupportView()
-            }
+        ScrollView {
 
-            NavigationLink("About Circleu") {
-                AboutView()
+            VStack(spacing: 16) {
+
+                SettingsCard(
+                    title: "Trust & Safety",
+                    icon: "shield.fill",
+                    destination: AnyView(
+                        TrustSafetyView()
+                    )
+                )
+
+                SettingsCard(
+                    title: "Support",
+                    icon: "questionmark.circle.fill",
+                    destination: AnyView(
+                        SupportView()
+                    )
+                )
+
+                SettingsCard(
+                    title: "About Circleu",
+                    icon: "info.circle.fill",
+                    destination: AnyView(
+                        AboutView()
+                    )
+                )
             }
+            .padding()
         }
-        .navigationTitle("About Circleu")
+        .navigationTitle("Information")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-#Preview {
-    NavigationStack {
-        SettingsHubView()
+private struct SettingsCard: View {
+
+    let title: String
+    let icon: String
+    let destination: AnyView
+
+    var body: some View {
+
+        NavigationLink {
+
+            destination
+
+        } label: {
+
+            HStack(spacing: 16) {
+
+                Image(systemName: icon)
+                    .font(.title3)
+
+                Text(title)
+                    .font(.headline)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(.ultraThinMaterial)
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: 20
+                )
+            )
+        }
+        .buttonStyle(.plain)
     }
+}
+
+#Preview{
+    SettingsHubView()
 }

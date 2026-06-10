@@ -23,6 +23,7 @@ struct ProfileView: View {
     private var events: [ActivityEvent] {
         Array(rewardsStore.activity.filter { filter.matches($0.type) }.prefix(60))
     }
+    @State private var showAboutCircleu = false
 
     var body: some View {
         ZStack {
@@ -63,9 +64,12 @@ struct ProfileView: View {
 
                     historyFooter
                         .padding(.top, 12)
+                    
+                    informationButton
+                        .padding(.top, 24)
 
                     logoutButton
-                        .padding(.top, 24)
+                        .padding(.top, 16)
 
                     resetButton
                         .padding(.top, 16)
@@ -76,6 +80,11 @@ struct ProfileView: View {
             }
         }
         .navigationBarHidden(true)
+        .sheet(isPresented: $showAboutCircleu) {
+            NavigationStack {
+                SettingsHubView()
+            }
+        }
     }
 
     // MARK: - Header
@@ -363,6 +372,27 @@ struct ProfileView: View {
     }
 
     // MARK: - Footer actions
+    private var informationButton: some View {
+        Button {
+            showAboutCircleu = true
+        } label: {
+            HStack(spacing: 8) {
+
+                Image(systemName: "info.circle")
+                    .font(.system(size: 16, weight: .bold))
+
+                Text("About CircleU")
+                    .font(.system(size: 14,
+                                  weight: .bold,
+                                  design: .rounded))
+            }
+            .foregroundStyle(Color("PinguBlue"))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .glass(.pill, cornerRadius: 16)
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
 
     private var logoutButton: some View {
         Button {
@@ -431,9 +461,9 @@ private struct DailyQuest: Identifiable {
     let go: Destination?
 
     static let all: [DailyQuest] = [
-        DailyQuest(id: "daily_login", label: "Daily check-in", desc: "Open Circleu today", points: 2, emoji: "☀️", go: nil),
-        DailyQuest(id: "daily_reflect", label: "Reflect once", desc: "Record a reflection", points: 8, emoji: "📓", go: .record),
-        DailyQuest(id: "daily_tips", label: "Practise a conversation", desc: "Finish a communication tip", points: 5, emoji: "💬", go: .tips)
+        DailyQuest(id: "daily_login", label: "Daily check-in", desc: "Open Circleu today", points: 5, emoji: "☀️", go: nil),
+        DailyQuest(id: "daily_reflect", label: "Reflect once", desc: "Record a reflection", points: 30, emoji: "📓", go: .record),
+        DailyQuest(id: "daily_tips", label: "Practise a conversation", desc: "Finish a communication tip", points: 20, emoji: "💬", go: .tips)
     ]
 }
 

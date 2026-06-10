@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "PinguLight.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "ChatGPT Image 2026年6月10日 下午01_08_39.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
