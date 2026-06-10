@@ -82,9 +82,8 @@ struct ProfileView: View {
 
     private var header: some View {
         HStack(spacing: 16) {
-            PinguMascot(size: 72, mood: .idle)
-                .padding(6)
-                .glass(.strong, cornerRadius: 24)
+            PinguLevelBadge(level: level, size: 82)
+                .padding(4)
 
             VStack(alignment: .leading, spacing: 0) {
                 Kicker("LEVEL \(level) · \(xp) XP")
