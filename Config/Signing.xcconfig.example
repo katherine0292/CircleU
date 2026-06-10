@@ -1,0 +1,16 @@
+// Personal signing config — DO NOT commit your filled-in copy.
+//
+// One-time setup (per developer / per machine):
+//   1. Copy this file to `Config/Signing.xcconfig` (it's gitignored).
+//   2. Replace YOUR_TEAM_ID with your Apple Developer Team ID
+//      (Xcode → Settings → Accounts → your team → ID, e.g. ABCD123456).
+//   3. Replace YOUR_BUNDLE_PREFIX with your reverse-DNS prefix
+//      (e.g. com.yourname or edu.school.username).
+//   4. Open the project in Xcode. Clean build folder (Shift+Cmd+K) and build.
+//
+// The pbxproj no longer hardcodes team or bundle ID, so each developer
+// can build with their own Apple account without creating merge conflicts.
+
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+PRODUCT_BUNDLE_PREFIX = YOUR_BUNDLE_PREFIX
+PRODUCT_BUNDLE_IDENTIFIER = $(PRODUCT_BUNDLE_PREFIX).$(TARGET_NAME)

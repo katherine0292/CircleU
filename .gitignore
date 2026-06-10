@@ -15,3 +15,6 @@ DerivedData/
 # App archives and packaged output
 *.xcarchive
 *.ipa
+
+# Per-developer signing override (each dev copies Signing.xcconfig.example)
+Config/Signing.xcconfig
