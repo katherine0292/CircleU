@@ -25,8 +25,8 @@
 /* Begin PBXFileReference section */
 		02CCBDC22FCE6063007523F5 /* Circleu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Circleu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000012F00000100000001 /* CircleuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CircleuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B10000012F10000100000001 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Signing.xcconfig; sourceTree = "<group>"; };
-		B10000012F10000100000002 /* Signing.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Signing.xcconfig.example; sourceTree = "<group>"; };
+		B10000012F10000100000001 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		B10000012F10000100000002 /* Signing.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
