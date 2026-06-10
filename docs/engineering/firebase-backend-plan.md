@@ -128,8 +128,9 @@ Current development Firebase project:
 - Swift Package products linked to the app target: `FirebaseCore`, `FirebaseAuth`, `FirebaseFirestore`
 - Package lockfile path: `Circleu.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
 - App initialization: `FirebaseApp.configure()` in `Circleu/App/CircleuApp.swift`
+- Auth boundary: `Circleu/Services/FirebaseAuthService.swift`
 
-This setup only connects the SDK and config. It does not yet perform Firebase Auth sign-in or Firestore reads/writes.
+This setup connects the SDK/config and adds a tested Firebase Auth service boundary. The app UI still uses local `AuthStore`; Firebase sign-in is not yet wired into onboarding. Firestore reads/writes are not implemented yet.
 
 ## Security Rules Direction
 
@@ -150,10 +151,11 @@ FirebaseCollectionSchema
 FirebaseDataModel
 ```
 
-Then add mapping:
+Then add auth and mapping:
 
 ```text
+FirebaseAuthService
 BackendSyncSnapshot -> [FirebaseDocumentPayload]
 ```
 
-No network calls are needed for the first slice.
+Keep Firebase Auth behind `FirebaseAuthenticating` and Firestore behind a sync protocol so tests can run without real network calls.
