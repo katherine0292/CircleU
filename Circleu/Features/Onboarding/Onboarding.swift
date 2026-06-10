@@ -250,8 +250,8 @@ struct PinguOnboardingView: View {
                             }
                         }
                     }
-                    .buttonStyle(OnbPrimaryButtonStyle())
-                    .disabled(viewModel.isSubmitting)
+                    .buttonStyle(OnbPrimaryButtonStyle(enabled: viewModel.canSubmitSignin))
+                    .disabled(!viewModel.canSubmitSignin)
                     .padding(.top, 12)
                 }
                 .padding(.horizontal, 32)

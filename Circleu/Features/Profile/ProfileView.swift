@@ -109,13 +109,15 @@ struct ProfileView: View {
                 Text(profileStore.firstName.capitalized)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(Pingu.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
                     .padding(.top, 2)
 
                 GeometryReader { proxy in
                     ZStack(alignment: .leading) {
                         Capsule().fill(.white.opacity(0.6))
                         GlassPrimaryFill(cornerRadius: 999)
-                            .frame(width: proxy.size.width * CGFloat(intoLevel) / 100, height: proxy.size.height)
+                            .frame(width: proxy.size.width * CGFloat(max(0, min(intoLevel, 100))) / 100, height: proxy.size.height)
                             .clipShape(Capsule())
                     }
                 }
@@ -224,7 +226,7 @@ struct ProfileView: View {
                             Text(entry.label)
                                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Pingu.ink)
-                                .lineLimit(1)
+                                .lineLimit(2)
                             Text(CircleViewModel.timeAgo(entry.createdAt))
                                 .font(.system(size: 10.5, weight: .medium, design: .rounded))
                                 .foregroundStyle(Pingu.muted)
@@ -346,11 +348,11 @@ struct ProfileView: View {
                 Text(event.title)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Pingu.ink)
-                    .lineLimit(1)
+                    .lineLimit(2)
                 Text(event.keyword)
                     .font(.system(size: 12, weight: .regular, design: .rounded))
                     .foregroundStyle(Pingu.slate)
-                    .lineLimit(1)
+                    .lineLimit(2)
             }
 
             Spacer(minLength: 0)
@@ -583,7 +585,7 @@ private struct QuestRow: View {
                         .font(.system(size: 13.5, weight: .bold, design: .rounded))
                         .foregroundStyle(done ? Pingu.muted : Pingu.ink)
                         .strikethrough(done, color: Pingu.muted)
-                        .lineLimit(1)
+                        .lineLimit(2)
                     HStack(spacing: 2) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 9))
@@ -595,7 +597,7 @@ private struct QuestRow: View {
                 Text(quest.desc)
                     .font(.system(size: 11, weight: .regular, design: .rounded))
                     .foregroundStyle(Pingu.slate)
-                    .lineLimit(1)
+                    .lineLimit(2)
             }
 
             Spacer(minLength: 4)
@@ -643,10 +645,11 @@ struct ProfileDataRow: View {
     let value: String
 
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             Text(title)
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
 
@@ -654,9 +657,13 @@ struct ProfileDataRow: View {
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.blue)
                 .monospacedDigit()
+                .multilineTextAlignment(.trailing)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 14)
-        .frame(height: 42)
+        .padding(.vertical, 12)
+        .frame(minHeight: 42)
         .background(.white.opacity(0.78))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
@@ -684,4 +691,5 @@ struct ProfileActionButtonStyle: ButtonStyle {
         .environmentObject(CircleStore())
         .environmentObject(RewardsStore())
         .environmentObject(AuthStore())
+        .environmentObject(BackendSessionStore(authenticator: NoOpFirebaseAuthenticator(), syncer: NoOpReflectionSyncer()))
 }

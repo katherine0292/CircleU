@@ -17,7 +17,16 @@ final class OnboardingViewModel: ObservableObject {
     @Published private(set) var isSubmitting = false
 
     var canSubmitSignup: Bool {
-        !isSubmitting && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !isSubmitting
+            && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !password.isEmpty
+    }
+
+    var canSubmitSignin: Bool {
+        !isSubmitting
+            && !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !password.isEmpty
     }
 
     func go(to stage: Stage) {
