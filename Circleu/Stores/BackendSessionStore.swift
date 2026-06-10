@@ -1,13 +1,19 @@
 import Combine
 import Foundation
 
+enum BackendSyncOperation: String, Equatable {
+    case idle
+    case uploading
+    case restoring
+}
+
 @MainActor
 final class BackendSessionStore: ObservableObject {
     @Published private(set) var session: FirebaseAuthSession?
     @Published private(set) var lastAuthErrorMessage: String?
     @Published private(set) var lastSyncResult: BackendSyncResult?
     @Published private(set) var lastSyncErrorMessage: String?
-    @Published private(set) var isSyncing = false
+    @Published private(set) var syncOperation: BackendSyncOperation = .idle
 
     private let authenticator: FirebaseAuthenticating
     private let syncer: ReflectionSyncing
@@ -29,6 +35,14 @@ final class BackendSessionStore: ObservableObject {
 
     var backendUserID: String? {
         session?.uid
+    }
+
+    var backendEmail: String? {
+        session?.email
+    }
+
+    var isSyncing: Bool {
+        syncOperation != .idle
     }
 
     func signUp(
@@ -152,8 +166,8 @@ final class BackendSessionStore: ObservableObject {
 
         guard !snapshot.isEmpty else { return }
 
-        isSyncing = true
-        defer { isSyncing = false }
+        syncOperation = .uploading
+        defer { syncOperation = .idle }
 
         do {
             lastSyncResult = try await syncer.sync(snapshot)
@@ -174,8 +188,8 @@ final class BackendSessionStore: ObservableObject {
         guard let uid = session?.uid else { return }
         guard !isSyncing else { return }
 
-        isSyncing = true
-        defer { isSyncing = false }
+        syncOperation = .restoring
+        defer { syncOperation = .idle }
 
         do {
             let snapshot = try await restorer.restorePrivateBackup(userID: uid)

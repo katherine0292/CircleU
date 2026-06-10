@@ -121,9 +121,31 @@ struct ProfileQAToolsSheet: View {
                 title: "Auth",
                 value: backendSessionStore.backendUserID == nil ? "Local only" : "Signed in"
             )
+            ProfileDataRow(title: "Email", value: backendSessionStore.backendEmail ?? "None")
             ProfileDataRow(title: "UID", value: shortUID)
-            ProfileDataRow(title: "Sync", value: backendSessionStore.isSyncing ? "Syncing" : lastSyncSummary)
+            ProfileDataRow(title: "Sync", value: syncStateSummary)
             ProfileDataRow(title: "Uploaded", value: uploadedSummary)
+            ProfileDataRow(title: "Downloaded", value: downloadedSummary)
+            ProfileDataRow(title: "Failed scopes", value: failedScopesSummary)
+            ProfileDataRow(title: "Last sync", value: lastSyncTime)
+
+            HStack(spacing: 10) {
+                Button {
+                    backUpNow()
+                } label: {
+                    Label("Back Up Now", systemImage: "arrow.up.doc")
+                }
+                .buttonStyle(ProfileActionButtonStyle(isPrimary: true))
+                .disabled(backendActionsDisabled)
+
+                Button {
+                    restoreNow()
+                } label: {
+                    Label("Restore Now", systemImage: "arrow.down.doc")
+                }
+                .buttonStyle(ProfileActionButtonStyle(isPrimary: false))
+                .disabled(backendActionsDisabled)
+            }
 
             if let authError = backendSessionStore.lastAuthErrorMessage {
                 ProfileDataRow(title: "Auth error", value: authError)
@@ -248,28 +270,105 @@ struct ProfileQAToolsSheet: View {
         )
     }
 
+    private func backUpNow() {
+        guard backendSessionStore.backendUserID != nil else {
+            viewModel.statusMessage = "Sign in before backing up Firebase data."
+            return
+        }
+
+        viewModel.statusMessage = "Backing up private Firebase data..."
+        Task {
+            await backendSessionStore.uploadPrivateBackup(
+                profileStore: profileStore,
+                journalStore: journalStore,
+                questStore: questStore,
+                tipsPracticeStore: tipsPracticeStore,
+                rewardsStore: rewardsStore,
+                circleStore: circleStore,
+                aiSessionStore: aiSessionStore
+            )
+            viewModel.statusMessage = backendSessionStore.lastSyncErrorMessage == nil
+                ? "Firebase backup finished."
+                : "Firebase backup finished with an error."
+        }
+    }
+
+    private func restoreNow() {
+        guard backendSessionStore.backendUserID != nil else {
+            viewModel.statusMessage = "Sign in before restoring Firebase data."
+            return
+        }
+
+        viewModel.statusMessage = "Restoring private Firebase data..."
+        Task {
+            await backendSessionStore.restorePrivateBackup(
+                profileStore: profileStore,
+                journalStore: journalStore,
+                questStore: questStore,
+                tipsPracticeStore: tipsPracticeStore,
+                rewardsStore: rewardsStore,
+                aiSessionStore: aiSessionStore
+            )
+            viewModel.statusMessage = backendSessionStore.lastSyncErrorMessage == nil
+                ? "Firebase restore finished."
+                : "Firebase restore finished with an error."
+        }
+    }
+
     private var shortUID: String {
         guard let uid = backendSessionStore.backendUserID else { return "None" }
         guard uid.count > 10 else { return uid }
         return "\(uid.prefix(6))...\(uid.suffix(4))"
     }
 
-    private var lastSyncSummary: String {
-        guard let result = backendSessionStore.lastSyncResult else { return "Not yet" }
-        return result.didSucceed ? "OK" : "Partial"
+    private var backendActionsDisabled: Bool {
+        backendSessionStore.backendUserID == nil || backendSessionStore.isSyncing
+    }
+
+    private var syncStateSummary: String {
+        switch backendSessionStore.syncOperation {
+        case .idle:
+            guard let result = backendSessionStore.lastSyncResult else { return "Not yet" }
+            return result.didSucceed ? "OK" : "Partial"
+        case .uploading:
+            return "Uploading"
+        case .restoring:
+            return "Restoring"
+        }
     }
 
     private var uploadedSummary: String {
         guard let result = backendSessionStore.lastSyncResult else { return "0 docs" }
-        let counts = result.uploadedCounts
-        let fixedPrivateDocs = backendSessionStore.backendUserID == nil ? 0 : 3
-        let total = fixedPrivateDocs
+        return "\(privateDocumentCount(for: result.uploadedCounts, includeFixedDocuments: true)) docs"
+    }
+
+    private var downloadedSummary: String {
+        guard let result = backendSessionStore.lastSyncResult else { return "0 docs" }
+        return "\(privateDocumentCount(for: result.downloadedCounts, includeFixedDocuments: false)) records"
+    }
+
+    private var failedScopesSummary: String {
+        guard let result = backendSessionStore.lastSyncResult else { return "None" }
+        guard !result.failedScopes.isEmpty else { return "None" }
+        return result.failedScopes.map(\.rawValue).joined(separator: ", ")
+    }
+
+    private var lastSyncTime: String {
+        guard let syncedAt = backendSessionStore.lastSyncResult?.syncedAt else { return "Never" }
+        return syncedAt.formatted(date: .omitted, time: .shortened)
+    }
+
+    private func privateDocumentCount(
+        for counts: BackendSyncCounts,
+        includeFixedDocuments: Bool
+    ) -> Int {
+        let fixedPrivateDocs = includeFixedDocuments && backendSessionStore.backendUserID != nil ? 3 : 0
+        return fixedPrivateDocs
             + counts.journalEntryCount
             + counts.questCount
             + counts.tipsPracticeSessionCount
             + counts.pointEntryCount
             + counts.activityEventCount
             + counts.aiSessionCount
-        return "\(total) docs"
     }
 }
