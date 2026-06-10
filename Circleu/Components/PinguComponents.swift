@@ -81,7 +81,7 @@ struct PinguTopBar: View {
                 switch trailing {
                 case .level(let value):
                     navPill(icon: "sparkles", text: "LV\(value)", tint: PinguDesign.orange)
-                    PinguAvatar(size: 42)
+                    PinguLevelBadge(level: value, size: 42)
                 case .streak(let value):
                     navPill(icon: "flame.fill", text: "\(value)", tint: PinguDesign.blue)
                     PinguAvatar(size: 42)
@@ -122,6 +122,32 @@ struct PinguTopBar: View {
         .padding(.horizontal, 12)
         .frame(height: 36)
         .pinguGlass(cornerRadius: 18, tint: 0.10)
+    }
+}
+
+struct PinguLevelBadge: View {
+    let level: Int
+    let size: CGFloat
+
+    private var imageName: String {
+        switch level {
+        case 1...3:
+            "PinguLevel1"
+        case 4...6:
+            "PinguLevel2"
+        case 7...9:
+            "PinguLevel3"
+        default:
+            "PinguLevel4"
+        }
+    }
+
+    var body: some View {
+        Image(imageName)
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityLabel("Level \(level)")
     }
 }
 
