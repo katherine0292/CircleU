@@ -9,6 +9,9 @@ xcuserdata/
 .build/
 DerivedData/
 
+# Local agent workspace artifacts
+.superpowers/
+
 # App archives and packaged output
 *.xcarchive
 *.ipa
