@@ -134,9 +134,9 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
         if TranscriptQuality.containsRoughLanguage(cleanTranscript) { return .roughLanguage }
         let text = cleanTranscript.lowercased()
         if containsAny(["boundary", "interrupted", "crossed a line", "need space", "angry", "frustrated", "conflict"], in: text) { return .boundaryConflict }
-        if containsAny(["overwhelmed", "too much", "too many", "burned out", "burnt out", "exhausted"], in: text) { return .overwhelm }
+        if containsAny(["stress", "stressed", "busy", "hard", "overwhelmed", "too much", "too many", "burned out", "burnt out", "exhausted"], in: text) { return .overwhelm }
         if containsAny(["nervous", "anxious", "scared", "afraid", "worried", "panic"], in: text) { return .anxiety }
-        if containsAny(["proud", "grateful", "happy", "relieved", "excited", "win"], in: text) { return .pride }
+        if containsAny(["proud", "grateful", "happy", "relieved", "excited", "win", "good", "great", "won", "finished"], in: text) { return .pride }
         if containsAny(["sad", "lonely", "hurt", "miss", "tired", "cry"], in: text) { return .tender }
         return .neutral
     }

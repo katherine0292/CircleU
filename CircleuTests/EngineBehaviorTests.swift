@@ -88,6 +88,28 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertConfidenceScoreIsValid(result)
     }
 
+    func testLocalReflectionEnginePreservesLegacyFinishedPrideKeyword() async throws {
+        let result = try await analyze(
+            "I finished the group update before lunch and helped everyone understand the next step."
+        )
+
+        XCTAssertEqual(result.title, "You noticed a meaningful win")
+        XCTAssertEqual(result.emotion, "Proud")
+        XCTAssertEqual(result.suggestedQuest, "Save one sentence about what helped this moment go well.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEnginePreservesLegacyHardLoadKeyword() async throws {
+        let result = try await analyze(
+            "Today felt hard because the meeting notes, project setup, and messages all needed attention at the same time."
+        )
+
+        XCTAssertEqual(result.title, "Make the load smaller")
+        XCTAssertEqual(result.emotion, "Overloaded")
+        XCTAssertEqual(result.suggestedQuest, "Choose the smallest useful task and leave the rest for the next pass.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
     func testLocalReflectionEngineCreatesTenderReflectionProfile() async throws {
         let result = try await analyze(
             "I felt sad and lonely after lunch because I missed my old friends and did not know who to talk with."
