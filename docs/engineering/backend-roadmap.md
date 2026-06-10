@@ -26,10 +26,11 @@ Add:
 
 - sign-in state,
 - stable backend user ID,
+- migration path from local `AuthStore` accounts,
 - migration from `LocalUserIdentityProvider.localUserID`,
 - sign-out behavior that does not accidentally destroy local data.
 
-Local journaling must keep working if sign-in fails.
+Local journaling must keep working if sign-in or iCloud availability fails. Do not upload local password hashes to CloudKit.
 
 ### 2. CloudKit Sync
 

@@ -106,6 +106,12 @@ It stores:
 
 `PointEntry` records one points award. `ActivityEvent` records one profile timeline event, such as reflection, tips practice, community selection, or community join.
 
+## Account
+
+`Account` is the local account model owned by `AuthStore`.
+
+It stores email, display name, salted password hash, salt, and creation time. It is for local demo authentication only. Future CloudKit identity should use iCloud/private database access and a defined migration path rather than uploading local password hashes.
+
 ## Tips Practice Session
 
 `TipsPracticeSession` stores communication practice history.
@@ -129,6 +135,7 @@ Stores persist local data:
 - `QuestStore`: active, completed, and skipped quests.
 - `TipsPracticeStore`: recent tips practice sessions.
 - `RewardsStore`: profile points, reward log, daily award state, and activity timeline.
+- `AuthStore`: local accounts and local session state.
 
 Engines calculate or generate results:
 

@@ -8,6 +8,7 @@ This document is the guide for the next coding step. Update this doc before chan
 
 Use the private CloudKit database first:
 
+- `AccountRecord`: future account identity mapping if local accounts are migrated.
 - `UserProfileRecord`: profile and preferences.
 - `JournalEntryRecord`: reflection journal history.
 - `AIReflectionSessionRecord`: AI reflection attempts and selected output.
@@ -30,6 +31,7 @@ Do not store private journal text in public records. Do not build public databas
 
 | Record type | Scope | Fields |
 | --- | --- | --- |
+| `AccountRecord` | private | `accountID`, `email`, `displayName`, `createdAt`, `localAuthMigratedAt` |
 | `UserProfileRecord` | private | `localUserID`, `displayName`, `promptIndex`, `updatedAt` |
 | `JournalEntryRecord` | private | `entryID`, `createdAt`, `updatedAt`, `durationSeconds`, `transcript`, `engineName`, `sessionID`, `editableTitle`, `editableEmotion`, `privateNote`, `tags`, `resultJSON` |
 | `AIReflectionSessionRecord` | private | `sessionID`, `createdAt`, `updatedAt`, `entryID`, `engineName`, `source`, `transcript`, `durationSeconds`, `selectedAttemptID`, `mergedSessionIDs`, `attemptsJSON` |
@@ -52,14 +54,28 @@ Current local models changed after the demo UI work:
 - `PostReply` is a nested local reply model.
 - `RewardsStore` owns `points`, `pointsLog`, `questAwards`, and `activity`.
 - `PointEntry` and `ActivityEvent` are `Codable` reward/profile timeline models.
+- `AuthStore` is currently local-only account/session storage. It is not CloudKit identity yet.
 
 CloudKit code must reflect those current model names. Do not reintroduce the old `CirclePost.title` or `CirclePost.body` fields.
+
+## Identity Guidance
+
+`AuthStore` currently stores local accounts in UserDefaults with salted password hashes. Treat it as a local demo account system, not production auth.
+
+For CloudKit:
+
+- use the user's iCloud account for CloudKit private database access,
+- keep local mode available when iCloud is unavailable,
+- do not upload password hashes to CloudKit,
+- do not treat email as the only stable CloudKit user identity,
+- define migration from `AuthStore.currentAccount` and `LocalUserIdentityProvider.localUserID` before real account sync.
 
 ## Record IDs
 
 Use deterministic CloudKit record names so upload-only backup can overwrite the same logical record:
 
 - `profile_<localUserID>`
+- `account_<accountID>`
 - `journal_<entryID>`
 - `aiSession_<sessionID>`
 - `quest_<questID>`
