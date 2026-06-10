@@ -130,10 +130,13 @@ Current development Firebase project:
 - App initialization: `FirebaseApp.configure()` in `Circleu/App/CircleuApp.swift`
 - Auth boundary: `Circleu/Services/FirebaseAuthService.swift`
 - Upload-only Firestore sync boundary: `Circleu/Services/FirebaseFirestoreSyncService.swift`
+- App backend session coordinator: `Circleu/Stores/BackendSessionStore.swift`
 
-This setup connects the SDK/config, adds a tested Firebase Auth service boundary, and adds a tested upload-only Firestore sync boundary for private journal entries, quests, and AI reflection sessions.
+This setup connects the SDK/config, adds a tested Firebase Auth service boundary, adds a tested upload-only Firestore sync boundary for private journal entries, quests, and AI reflection sessions, and wires onboarding through a backend session coordinator.
 
-The app UI still uses local `AuthStore`; Firebase sign-in is not yet wired into onboarding. Firestore sync is not yet called from app flows. Shared circles are intentionally not uploaded until membership and security rules are implemented.
+The app remains local-first. Onboarding still creates or reads the local `AuthStore` account first, then attempts Firebase Auth. If Firebase is unavailable, the user can continue locally and the backend error is retained on `BackendSessionStore`.
+
+Firestore upload-only backup is now triggered from `RootView` when private mapped data changes and a Firebase UID exists. Shared circles are intentionally not uploaded until membership and security rules are implemented.
 
 ## Security Rules Direction
 
