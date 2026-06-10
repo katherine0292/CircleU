@@ -11,8 +11,10 @@ struct ProfileView: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var authStore: AuthStore
+    @EnvironmentObject private var backendSessionStore: BackendSessionStore
 
     @State private var filter: ActivityFilter = .all
+    @State private var showQATools = false
 
     private var xp: Int { rewardsStore.points }
     private var level: Int { rewardsStore.level }
@@ -68,6 +70,9 @@ struct ProfileView: View {
                     informationButton
                         .padding(.top, 24)
 
+                    qaToolsButton
+                        .padding(.top, 24)
+
                     logoutButton
                         .padding(.top, 16)
 
@@ -84,6 +89,10 @@ struct ProfileView: View {
             NavigationStack {
                 SettingsHubView()
             }
+        }
+        .sheet(isPresented: $showQATools) {
+            ProfileQAToolsSheet(hasCompletedOnboarding: $hasCompletedOnboarding)
+                .environmentObject(backendSessionStore)
         }
     }
 
@@ -393,9 +402,27 @@ struct ProfileView: View {
         .buttonStyle(PressableButtonStyle())
     }
 
+    private var qaToolsButton: some View {
+        Button {
+            showQATools = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "wrench.and.screwdriver.fill")
+                    .font(.system(size: 15, weight: .bold))
+                Text("QA tools")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+            }
+            .foregroundStyle(Pingu.accent)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .glass(.pill, cornerRadius: 16)
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
     private var logoutButton: some View {
         Button {
-            authStore.logout()
+            backendSessionStore.signOut(authStore: authStore)
             withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
                 hasCompletedOnboarding = false
             }

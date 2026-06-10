@@ -7,7 +7,10 @@ struct ProfileQAToolsSheet: View {
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var questStore: QuestStore
+    @EnvironmentObject private var tipsPracticeStore: TipsPracticeStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
+    @EnvironmentObject private var rewardsStore: RewardsStore
+    @EnvironmentObject private var backendSessionStore: BackendSessionStore
     @StateObject private var viewModel = ProfileQAToolsViewModel()
 
     var body: some View {
@@ -20,6 +23,7 @@ struct ProfileQAToolsSheet: View {
                         header
                         buildCard
                         dataCard
+                        backendCard
                         exportCard
                         actionsCard
                     }
@@ -98,8 +102,36 @@ struct ProfileQAToolsSheet: View {
             ProfileDataRow(title: "Reflections", value: "\(currentProgress.entryCount)")
             ProfileDataRow(title: "AI sessions", value: "\(aiSessionStore.sessions.count)")
             ProfileDataRow(title: "Quests", value: "\(questStore.quests.count)")
+            ProfileDataRow(title: "Tips practice", value: "\(tipsPracticeStore.recentSessions.count)")
+            ProfileDataRow(title: "Reward points", value: "\(rewardsStore.points)")
             ProfileDataRow(title: "Communities", value: "\(circleStore.circles.count)")
             ProfileDataRow(title: "Posts", value: "\(circleStore.posts.count)")
+        }
+        .padding(16)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
+    }
+
+    private var backendCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Firebase status", systemImage: "externaldrive.connected.to.line.below")
+                .font(PinguFont.cardTitle)
+                .foregroundStyle(PinguDesign.ink)
+
+            ProfileDataRow(
+                title: "Auth",
+                value: backendSessionStore.backendUserID == nil ? "Local only" : "Signed in"
+            )
+            ProfileDataRow(title: "UID", value: shortUID)
+            ProfileDataRow(title: "Sync", value: backendSessionStore.isSyncing ? "Syncing" : lastSyncSummary)
+            ProfileDataRow(title: "Uploaded", value: uploadedSummary)
+
+            if let authError = backendSessionStore.lastAuthErrorMessage {
+                ProfileDataRow(title: "Auth error", value: authError)
+            }
+
+            if let syncError = backendSessionStore.lastSyncErrorMessage {
+                ProfileDataRow(title: "Sync error", value: syncError)
+            }
         }
         .padding(16)
         .pinguGlass(cornerRadius: 22, tint: 0.22)
@@ -172,6 +204,7 @@ struct ProfileQAToolsSheet: View {
             profileStore: profileStore,
             circleStore: circleStore,
             questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
             aiSessionStore: aiSessionStore
         )
     }
@@ -196,6 +229,8 @@ struct ProfileQAToolsSheet: View {
             profileStore: profileStore,
             circleStore: circleStore,
             questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
             aiSessionStore: aiSessionStore
         )
     }
@@ -207,7 +242,34 @@ struct ProfileQAToolsSheet: View {
             profileStore: profileStore,
             circleStore: circleStore,
             questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
             aiSessionStore: aiSessionStore
         )
+    }
+
+    private var shortUID: String {
+        guard let uid = backendSessionStore.backendUserID else { return "None" }
+        guard uid.count > 10 else { return uid }
+        return "\(uid.prefix(6))...\(uid.suffix(4))"
+    }
+
+    private var lastSyncSummary: String {
+        guard let result = backendSessionStore.lastSyncResult else { return "Not yet" }
+        return result.didSucceed ? "OK" : "Partial"
+    }
+
+    private var uploadedSummary: String {
+        guard let result = backendSessionStore.lastSyncResult else { return "0 docs" }
+        let counts = result.uploadedCounts
+        let fixedPrivateDocs = backendSessionStore.backendUserID == nil ? 0 : 3
+        let total = fixedPrivateDocs
+            + counts.journalEntryCount
+            + counts.questCount
+            + counts.tipsPracticeSessionCount
+            + counts.pointEntryCount
+            + counts.activityEventCount
+            + counts.aiSessionCount
+        return "\(total) docs"
     }
 }

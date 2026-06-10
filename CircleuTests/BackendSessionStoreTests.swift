@@ -108,6 +108,8 @@ final class BackendSessionStoreTests: XCTestCase {
     func testUploadPrivateBackupUsesFirebaseUID() async throws {
         let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
         let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
         let circleStore = CircleStore(userDefaults: makeDefaults(), seedStarterSpaces: false)
         let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
         let syncer = CapturingSyncer()
@@ -124,8 +126,11 @@ final class BackendSessionStoreTests: XCTestCase {
         journalStore.add(makeEntry())
 
         await store.uploadPrivateBackup(
+            profileStore: UserProfileStore(userDefaults: makeDefaults()),
             journalStore: journalStore,
             questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
             circleStore: circleStore,
             aiSessionStore: aiSessionStore
         )
@@ -141,8 +146,11 @@ final class BackendSessionStoreTests: XCTestCase {
         let store = BackendSessionStore(authenticator: FakeFirebaseAuthenticator(), syncer: syncer)
 
         await store.uploadPrivateBackup(
+            profileStore: UserProfileStore(userDefaults: makeDefaults()),
             journalStore: ReflectionJournalStore(userDefaults: makeDefaults()),
             questStore: QuestStore(userDefaults: makeDefaults()),
+            tipsPracticeStore: TipsPracticeStore(userDefaults: makeDefaults()),
+            rewardsStore: RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false),
             circleStore: CircleStore(userDefaults: makeDefaults(), seedStarterSpaces: false),
             aiSessionStore: AIReflectionSessionStore(userDefaults: makeDefaults())
         )

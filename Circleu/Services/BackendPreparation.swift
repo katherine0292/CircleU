@@ -3,8 +3,14 @@ import Foundation
 struct BackendSyncSnapshot: Codable, Equatable {
     var userID: String
     var generatedAt: Date
+    var user: BackendUserSnapshot?
+    var profile: BackendProfileSnapshot?
     var journalEntries: [JournalReflectionEntry]
     var quests: [Quest]
+    var tipsPracticeSessions: [TipsPracticeSession]
+    var rewardState: BackendRewardSnapshot?
+    var pointEntries: [PointEntry]
+    var activityEvents: [ActivityEvent]
     var circles: [CircleSpace]
     var circlePosts: [CirclePost]
     var aiSessions: [AIReflectionSession]
@@ -12,16 +18,28 @@ struct BackendSyncSnapshot: Codable, Equatable {
     init(
         userID: String,
         generatedAt: Date = Date(),
+        user: BackendUserSnapshot? = nil,
+        profile: BackendProfileSnapshot? = nil,
         journalEntries: [JournalReflectionEntry],
         quests: [Quest],
+        tipsPracticeSessions: [TipsPracticeSession] = [],
+        rewardState: BackendRewardSnapshot? = nil,
+        pointEntries: [PointEntry] = [],
+        activityEvents: [ActivityEvent] = [],
         circles: [CircleSpace],
         circlePosts: [CirclePost],
         aiSessions: [AIReflectionSession]
     ) {
         self.userID = userID
         self.generatedAt = generatedAt
+        self.user = user
+        self.profile = profile
         self.journalEntries = journalEntries
         self.quests = quests
+        self.tipsPracticeSessions = tipsPracticeSessions
+        self.rewardState = rewardState
+        self.pointEntries = pointEntries
+        self.activityEvents = activityEvents
         self.circles = circles
         self.circlePosts = circlePosts
         self.aiSessions = aiSessions
@@ -32,13 +50,39 @@ struct BackendSyncSnapshot: Codable, Equatable {
     }
 
     var isEmpty: Bool {
-        counts == .zero
+        user == nil && profile == nil && rewardState == nil && counts == .zero
     }
+}
+
+struct BackendUserSnapshot: Codable, Equatable {
+    var uid: String
+    var email: String?
+    var displayName: String
+    var localUserID: String?
+    var updatedAt: Date
+}
+
+struct BackendProfileSnapshot: Codable, Equatable {
+    var displayName: String
+    var promptIndex: Int
+    var updatedAt: Date
+}
+
+struct BackendRewardSnapshot: Codable, Equatable {
+    var points: Int
+    var level: Int
+    var intoLevel: Int
+    var nextLevel: Int
+    var questAwards: [String: String]
+    var updatedAt: Date
 }
 
 struct BackendSyncCounts: Codable, Equatable {
     var journalEntryCount: Int
     var questCount: Int
+    var tipsPracticeSessionCount: Int
+    var pointEntryCount: Int
+    var activityEventCount: Int
     var circleCount: Int
     var circlePostCount: Int
     var aiSessionCount: Int
@@ -46,6 +90,9 @@ struct BackendSyncCounts: Codable, Equatable {
     static let zero = BackendSyncCounts(
         journalEntryCount: 0,
         questCount: 0,
+        tipsPracticeSessionCount: 0,
+        pointEntryCount: 0,
+        activityEventCount: 0,
         circleCount: 0,
         circlePostCount: 0,
         aiSessionCount: 0
@@ -54,12 +101,18 @@ struct BackendSyncCounts: Codable, Equatable {
     init(
         journalEntryCount: Int,
         questCount: Int,
+        tipsPracticeSessionCount: Int = 0,
+        pointEntryCount: Int = 0,
+        activityEventCount: Int = 0,
         circleCount: Int,
         circlePostCount: Int,
         aiSessionCount: Int
     ) {
         self.journalEntryCount = journalEntryCount
         self.questCount = questCount
+        self.tipsPracticeSessionCount = tipsPracticeSessionCount
+        self.pointEntryCount = pointEntryCount
+        self.activityEventCount = activityEventCount
         self.circleCount = circleCount
         self.circlePostCount = circlePostCount
         self.aiSessionCount = aiSessionCount
@@ -69,6 +122,9 @@ struct BackendSyncCounts: Codable, Equatable {
         self.init(
             journalEntryCount: snapshot.journalEntries.count,
             questCount: snapshot.quests.count,
+            tipsPracticeSessionCount: snapshot.tipsPracticeSessions.count,
+            pointEntryCount: snapshot.pointEntries.count,
+            activityEventCount: snapshot.activityEvents.count,
             circleCount: snapshot.circles.count,
             circlePostCount: snapshot.circlePosts.count,
             aiSessionCount: snapshot.aiSessions.count
@@ -77,8 +133,14 @@ struct BackendSyncCounts: Codable, Equatable {
 }
 
 enum BackendSyncScope: String, Codable, Equatable, CaseIterable {
+    case user
+    case profile
     case journalEntries
     case quests
+    case tipsPracticeSessions
+    case rewardState
+    case pointEntries
+    case activityEvents
     case circles
     case circlePosts
     case aiSessions

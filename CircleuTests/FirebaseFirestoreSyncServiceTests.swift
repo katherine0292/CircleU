@@ -12,17 +12,26 @@ final class FirebaseFirestoreSyncServiceTests: XCTestCase {
         XCTAssertEqual(
             documents.map(\.path),
             [
+                "users/firebase-user-1",
+                "users/firebase-user-1/profile/main",
                 "users/firebase-user-1/journalEntries/\(ids.entryID.uuidString)",
                 "users/firebase-user-1/quests/\(ids.questID.uuidString)",
+                "users/firebase-user-1/tipsPracticeSessions/\(ids.tipsSessionID.uuidString)",
+                "users/firebase-user-1/rewardState/main",
+                "users/firebase-user-1/pointEntries/\(ids.pointEntryID.uuidString)",
+                "users/firebase-user-1/activityEvents/\(ids.activityEventID.uuidString)",
                 "users/firebase-user-1/aiReflectionSessions/\(ids.sessionID.uuidString)"
             ]
         )
-        XCTAssertEqual(documents.map(\.scope), [.journalEntries, .quests, .aiSessions])
+        XCTAssertEqual(
+            documents.map(\.scope),
+            [.user, .profile, .journalEntries, .quests, .tipsPracticeSessions, .rewardState, .pointEntries, .activityEvents, .aiSessions]
+        )
     }
 
     func testJournalPayloadMatchesFirebaseSchemaFields() {
         let ids = TestIDs()
-        let journal = FirebaseSyncMapper.privateBackupDocuments(for: makeSnapshot(ids: ids))[0]
+        let journal = FirebaseSyncMapper.privateBackupDocuments(for: makeSnapshot(ids: ids))[2]
 
         XCTAssertEqual(journal.data["entryID"], .string(ids.entryID.uuidString))
         XCTAssertEqual(journal.data["durationSeconds"], .int(120))
@@ -43,6 +52,44 @@ final class FirebaseFirestoreSyncServiceTests: XCTestCase {
         XCTAssertEqual(result["confidenceScore"], .double(0.82))
     }
 
+    func testProfileRewardAndTipsPayloadsMatchFirebaseSchemaFields() {
+        let ids = TestIDs()
+        let documents = FirebaseSyncMapper.privateBackupDocuments(for: makeSnapshot(ids: ids))
+        let user = documents[0]
+        let profile = documents[1]
+        let tips = documents[4]
+        let reward = documents[5]
+        let points = documents[6]
+        let activity = documents[7]
+
+        XCTAssertEqual(user.data["uid"], .string("firebase-user-1"))
+        XCTAssertEqual(user.data["email"], .string("tuan@example.com"))
+        XCTAssertEqual(user.data["displayName"], .string("Tuan"))
+        XCTAssertEqual(user.data["localUserID"], .string("local-user-1"))
+
+        XCTAssertEqual(profile.data["displayName"], .string("Tuan"))
+        XCTAssertEqual(profile.data["promptIndex"], .int(2))
+
+        XCTAssertEqual(tips.data["sessionID"], .string(ids.tipsSessionID.uuidString))
+        XCTAssertEqual(tips.data["originalMessage"], .string("I need more time to finish this."))
+        XCTAssertEqual(tips.data["scene"], .string("workplace"))
+        XCTAssertEqual(tips.data["tone"], .string("diplomatic"))
+        XCTAssertEqual(tips.data["attachedImageCount"], .int(0))
+
+        XCTAssertEqual(reward.data["points"], .int(35))
+        XCTAssertEqual(reward.data["level"], .int(1))
+        XCTAssertEqual(reward.data["intoLevel"], .int(35))
+        XCTAssertEqual(reward.data["nextLevel"], .int(2))
+
+        XCTAssertEqual(points.data["pointEntryID"], .string(ids.pointEntryID.uuidString))
+        XCTAssertEqual(points.data["label"], .string("Daily reflection"))
+        XCTAssertEqual(points.data["points"], .int(8))
+
+        XCTAssertEqual(activity.data["activityEventID"], .string(ids.activityEventID.uuidString))
+        XCTAssertEqual(activity.data["type"], .string("reflect"))
+        XCTAssertEqual(activity.data["refID"], .string(ids.entryID.uuidString))
+    }
+
     func testPrivateBackupMapperDoesNotUploadSharedCircleDataBeforeRulesExist() {
         let ids = TestIDs()
         let documents = FirebaseSyncMapper.privateBackupDocuments(for: makeSnapshot(ids: ids))
@@ -61,12 +108,15 @@ final class FirebaseFirestoreSyncServiceTests: XCTestCase {
         XCTAssertTrue(result.didSucceed)
         XCTAssertEqual(result.uploadedCounts.journalEntryCount, 1)
         XCTAssertEqual(result.uploadedCounts.questCount, 1)
+        XCTAssertEqual(result.uploadedCounts.tipsPracticeSessionCount, 1)
+        XCTAssertEqual(result.uploadedCounts.pointEntryCount, 1)
+        XCTAssertEqual(result.uploadedCounts.activityEventCount, 1)
         XCTAssertEqual(result.uploadedCounts.aiSessionCount, 1)
         XCTAssertEqual(result.uploadedCounts.circleCount, 0)
         XCTAssertEqual(result.uploadedCounts.circlePostCount, 0)
         XCTAssertEqual(result.downloadedCounts, .zero)
-        XCTAssertEqual(client.writes.map(\.merge), [true, true, true])
-        XCTAssertEqual(client.writes.map(\.path).count, 3)
+        XCTAssertEqual(client.writes.map(\.merge), Array(repeating: true, count: 9))
+        XCTAssertEqual(client.writes.map(\.path).count, 9)
     }
 
     func testUploadOnlySyncerReportsFailedScopesWithoutThrowingAwaySuccessfulWrites() async throws {
@@ -93,6 +143,11 @@ private struct TestIDs {
     let postID = UUID(uuidString: "00000000-0000-0000-0000-000000000104")!
     let sessionID = UUID(uuidString: "00000000-0000-0000-0000-000000000105")!
     let attemptID = UUID(uuidString: "00000000-0000-0000-0000-000000000106")!
+    let tipsSessionID = UUID(uuidString: "00000000-0000-0000-0000-000000000107")!
+    let tipsTurnID = UUID(uuidString: "00000000-0000-0000-0000-000000000108")!
+    let tipsOptionID = UUID(uuidString: "00000000-0000-0000-0000-000000000109")!
+    let pointEntryID = UUID(uuidString: "00000000-0000-0000-0000-000000000110")!
+    let activityEventID = UUID(uuidString: "00000000-0000-0000-0000-000000000111")!
 }
 
 private struct FakeFirestoreWrite {
@@ -185,12 +240,73 @@ private func makeSnapshot(ids: TestIDs) -> BackendSyncSnapshot {
         ],
         selectedAttemptID: ids.attemptID
     )
+    let tipsSession = TipsPracticeSession(
+        id: ids.tipsSessionID,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        originalMessage: "I need more time to finish this.",
+        scene: .workplace,
+        tone: .diplomatic,
+        situation: "Group project deadline",
+        turns: [
+            TipsPracticeTurn(
+                id: ids.tipsTurnID,
+                role: .user,
+                label: "You said",
+                text: "I need more time to finish this.",
+                createdAt: createdAt
+            )
+        ],
+        coachOutput: TipsCoachOutput(
+            suggestedPhrasing: "I can finish this well if I have one more day.",
+            whyItWorks: "It names the need and the outcome.",
+            simulatedReply: "Thanks for explaining.",
+            roomReading: "Clear and calm.",
+            replyOptions: [
+                TipsCoachReplyOption(id: ids.tipsOptionID, label: "NEXT", text: "Can we agree on tomorrow?")
+            ]
+        )
+    )
+    let pointEntry = PointEntry(
+        id: ids.pointEntryID,
+        label: "Daily reflection",
+        points: 8,
+        icon: "📓",
+        createdAt: createdAt
+    )
+    let activityEvent = ActivityEvent(
+        id: ids.activityEventID,
+        type: .reflect,
+        title: "Team clarity",
+        keyword: "Focused · reflection",
+        refID: ids.entryID,
+        createdAt: createdAt
+    )
 
     return BackendSyncSnapshot(
         userID: "firebase-user-1",
         generatedAt: updatedAt,
+        user: BackendUserSnapshot(
+            uid: "firebase-user-1",
+            email: "tuan@example.com",
+            displayName: "Tuan",
+            localUserID: "local-user-1",
+            updatedAt: updatedAt
+        ),
+        profile: BackendProfileSnapshot(displayName: "Tuan", promptIndex: 2, updatedAt: updatedAt),
         journalEntries: [entry],
         quests: [quest],
+        tipsPracticeSessions: [tipsSession],
+        rewardState: BackendRewardSnapshot(
+            points: 35,
+            level: 1,
+            intoLevel: 35,
+            nextLevel: 2,
+            questAwards: ["daily_reflect": "2026-6-10"],
+            updatedAt: updatedAt
+        ),
+        pointEntries: [pointEntry],
+        activityEvents: [activityEvent],
         circles: [circle],
         circlePosts: [post],
         aiSessions: [session]

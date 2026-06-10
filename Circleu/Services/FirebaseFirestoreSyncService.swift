@@ -47,6 +47,22 @@ enum FirebaseSyncMapper {
     static func privateBackupDocuments(for snapshot: BackendSyncSnapshot) -> [FirebaseDocumentPayload] {
         let uid = snapshot.userID
 
+        let userDocument = snapshot.user.map { user in
+            FirebaseDocumentPayload(
+                path: "users/\(uid)",
+                data: user.firebasePayload,
+                scope: .user
+            )
+        }
+
+        let profileDocument = snapshot.profile.map { profile in
+            FirebaseDocumentPayload(
+                path: "users/\(uid)/profile/main",
+                data: profile.firebasePayload,
+                scope: .profile
+            )
+        }
+
         let journalDocuments = snapshot.journalEntries.map { entry in
             FirebaseDocumentPayload(
                 path: "users/\(uid)/journalEntries/\(entry.id.uuidString)",
@@ -63,6 +79,38 @@ enum FirebaseSyncMapper {
             )
         }
 
+        let tipsPracticeDocuments = snapshot.tipsPracticeSessions.map { session in
+            FirebaseDocumentPayload(
+                path: "users/\(uid)/tipsPracticeSessions/\(session.id.uuidString)",
+                data: session.firebasePayload,
+                scope: .tipsPracticeSessions
+            )
+        }
+
+        let rewardDocument = snapshot.rewardState.map { rewardState in
+            FirebaseDocumentPayload(
+                path: "users/\(uid)/rewardState/main",
+                data: rewardState.firebasePayload,
+                scope: .rewardState
+            )
+        }
+
+        let pointDocuments = snapshot.pointEntries.map { entry in
+            FirebaseDocumentPayload(
+                path: "users/\(uid)/pointEntries/\(entry.id.uuidString)",
+                data: entry.firebasePayload,
+                scope: .pointEntries
+            )
+        }
+
+        let activityDocuments = snapshot.activityEvents.map { event in
+            FirebaseDocumentPayload(
+                path: "users/\(uid)/activityEvents/\(event.id.uuidString)",
+                data: event.firebasePayload,
+                scope: .activityEvents
+            )
+        }
+
         let aiSessionDocuments = snapshot.aiSessions.map { session in
             FirebaseDocumentPayload(
                 path: "users/\(uid)/aiReflectionSessions/\(session.id.uuidString)",
@@ -71,7 +119,14 @@ enum FirebaseSyncMapper {
             )
         }
 
-        return journalDocuments + questDocuments + aiSessionDocuments
+        return [userDocument, profileDocument].compactMap { $0 }
+            + journalDocuments
+            + questDocuments
+            + tipsPracticeDocuments
+            + [rewardDocument].compactMap { $0 }
+            + pointDocuments
+            + activityDocuments
+            + aiSessionDocuments
     }
 }
 
@@ -126,10 +181,18 @@ struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
 private extension BackendSyncCounts {
     mutating func increment(_ scope: BackendSyncScope) {
         switch scope {
+        case .user, .profile, .rewardState:
+            break
         case .journalEntries:
             journalEntryCount += 1
         case .quests:
             questCount += 1
+        case .tipsPracticeSessions:
+            tipsPracticeSessionCount += 1
+        case .pointEntries:
+            pointEntryCount += 1
+        case .activityEvents:
+            activityEventCount += 1
         case .circles:
             circleCount += 1
         case .circlePosts:
@@ -137,6 +200,29 @@ private extension BackendSyncCounts {
         case .aiSessions:
             aiSessionCount += 1
         }
+    }
+}
+
+private extension BackendUserSnapshot {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        compactPayload([
+            "uid": .string(uid),
+            "email": email.map(FirebasePayloadValue.string),
+            "displayName": .string(displayName),
+            "createdAt": .date(updatedAt),
+            "localUserID": localUserID.map(FirebasePayloadValue.string),
+            "updatedAt": .date(updatedAt)
+        ])
+    }
+}
+
+private extension BackendProfileSnapshot {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        [
+            "displayName": .string(displayName),
+            "promptIndex": .int(promptIndex),
+            "updatedAt": .date(updatedAt)
+        ]
     }
 }
 
@@ -169,6 +255,96 @@ private extension Quest {
             "createdAt": .date(createdAt),
             "completedAt": completedAt.map(FirebasePayloadValue.date),
             "status": .string(status.rawValue)
+        ])
+    }
+}
+
+private extension TipsPracticeSession {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        compactPayload([
+            "sessionID": .string(id.uuidString),
+            "createdAt": .date(createdAt),
+            "updatedAt": .date(updatedAt),
+            "originalMessage": .string(originalMessage),
+            "scene": .string(scene.rawValue),
+            "customScene": customScene.map(FirebasePayloadValue.string),
+            "tone": .string(tone.rawValue),
+            "situation": .string(situation),
+            "attachedImageCount": .int(attachedImageCount),
+            "turns": .dictionaryArray(turns.map(\.firebasePayload)),
+            "coachOutput": .dictionary(coachOutput.firebasePayload)
+        ])
+    }
+}
+
+private extension TipsPracticeTurn {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        [
+            "turnID": .string(id.uuidString),
+            "role": .string(role.rawValue),
+            "label": .string(label),
+            "text": .string(text),
+            "createdAt": .date(createdAt)
+        ]
+    }
+}
+
+private extension TipsCoachOutput {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        [
+            "suggestedPhrasing": .string(suggestedPhrasing),
+            "whyItWorks": .string(whyItWorks),
+            "simulatedReply": .string(simulatedReply),
+            "roomReading": .string(roomReading),
+            "replyOptions": .dictionaryArray(replyOptions.map(\.firebasePayload))
+        ]
+    }
+}
+
+private extension TipsCoachReplyOption {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        [
+            "optionID": .string(id.uuidString),
+            "label": .string(label),
+            "text": .string(text)
+        ]
+    }
+}
+
+private extension BackendRewardSnapshot {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        [
+            "points": .int(points),
+            "level": .int(level),
+            "intoLevel": .int(intoLevel),
+            "nextLevel": .int(nextLevel),
+            "questAwards": .dictionary(questAwards.mapValues(FirebasePayloadValue.string)),
+            "updatedAt": .date(updatedAt)
+        ]
+    }
+}
+
+private extension PointEntry {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        [
+            "pointEntryID": .string(id.uuidString),
+            "label": .string(label),
+            "points": .int(points),
+            "icon": .string(icon),
+            "createdAt": .date(createdAt)
+        ]
+    }
+}
+
+private extension ActivityEvent {
+    var firebasePayload: [String: FirebasePayloadValue] {
+        compactPayload([
+            "activityEventID": .string(id.uuidString),
+            "type": .string(type.rawValue),
+            "title": .string(title),
+            "keyword": .string(keyword),
+            "refID": refID.map { .string($0.uuidString) },
+            "createdAt": .date(createdAt)
         ])
     }
 }

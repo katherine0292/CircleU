@@ -12,6 +12,7 @@ struct RootView: View {
     @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var tipsPracticeStore: TipsPracticeStore
     @EnvironmentObject private var circleStore: CircleStore
+    @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var backendSessionStore: BackendSessionStore
@@ -86,6 +87,7 @@ struct RootView: View {
         .onPreferenceChange(TabBarHiddenKey.self) { hidesTabBar = $0 }
         .onAppear {
             lastJoinedIDs = Set(circleStore.circles.filter { $0.joined }.map { $0.id })
+            uploadPrivateBackup()
         }
         .onChange(of: journalStore.entries.count) { oldCount, newCount in
             guard newCount > oldCount, let entry = journalStore.entries.first else { return }
@@ -115,6 +117,22 @@ struct RootView: View {
                 title: session.sceneTitle,
                 keyword: "\(session.tone)"
             )
+            uploadPrivateBackup()
+        }
+        .onChange(of: tipsPracticeStore.recentSessions) { _, _ in
+            uploadPrivateBackup()
+        }
+        .onChange(of: rewardsStore.points) { _, _ in
+            uploadPrivateBackup()
+        }
+        .onChange(of: rewardsStore.activity) { _, _ in
+            uploadPrivateBackup()
+        }
+        .onChange(of: profileStore.displayName) { _, _ in
+            uploadPrivateBackup()
+        }
+        .onChange(of: profileStore.dailyPromptIndex) { _, _ in
+            uploadPrivateBackup()
         }
         .onChange(of: circleStore.circles.filter { $0.joined }.count) { _, _ in
             let current = Set(circleStore.circles.filter { $0.joined }.map { $0.id })
@@ -156,8 +174,11 @@ struct RootView: View {
     private func uploadPrivateBackup() {
         Task {
             await backendSessionStore.uploadPrivateBackup(
+                profileStore: profileStore,
                 journalStore: journalStore,
                 questStore: questStore,
+                tipsPracticeStore: tipsPracticeStore,
+                rewardsStore: rewardsStore,
                 circleStore: circleStore,
                 aiSessionStore: aiSessionStore
             )

@@ -37,12 +37,19 @@ This checklist describes what must be true before a branch is considered shareab
 
 ## Backend Status
 
-The current beta does not require a production backend. Backend work is planned as local-first service slices:
+Firebase is the active backend path for the current beta:
 
-1. identity,
-2. CloudKit upload/download mapping,
-3. upload-only CloudKit backup,
-4. privacy-safe analytics,
-5. optional external AI provider fallback.
+- Firebase Authentication handles account identity during onboarding.
+- Cloud Firestore stores upload-only private backups under `users/{uid}`.
+- Profile > QA tools shows Firebase sign-in and sync status.
+- Shared circles remain local-only until membership rules and security rules are designed.
 
-See [backend-roadmap.md](../engineering/backend-roadmap.md) and [cloudkit-data-model.md](../engineering/cloudkit-data-model.md).
+Before demoing backend work, create a fresh account, save one reflection, then verify Firebase Console shows:
+
+1. the user in Authentication,
+2. `users/{uid}`,
+3. `users/{uid}/profile/main`,
+4. `users/{uid}/journalEntries/{entryID}`,
+5. `users/{uid}/rewardState/main`.
+
+See [backend-roadmap.md](../engineering/backend-roadmap.md) and [firebase-backend-plan.md](../engineering/firebase-backend-plan.md).

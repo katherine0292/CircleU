@@ -134,11 +134,11 @@ Current development Firebase project:
 - Firestore rules: `firestore.rules`
 - Firebase CLI config: `firebase.json`
 
-This setup connects the SDK/config, adds a tested Firebase Auth service boundary, adds a tested upload-only Firestore sync boundary for private journal entries, quests, and AI reflection sessions, and wires onboarding through a backend session coordinator.
+This setup connects the SDK/config, adds a tested Firebase Auth service boundary, adds a tested upload-only Firestore sync boundary for private profile, journal, quest, tips practice, reward, point log, activity, and AI reflection session data, and wires onboarding through a backend session coordinator.
 
-The app remains local-first. Onboarding still creates or reads the local `AuthStore` account first, then attempts Firebase Auth. If Firebase is unavailable, the user can continue locally and the backend error is retained on `BackendSessionStore`.
+The app remains local-first. Onboarding still creates or reads the local `AuthStore` account first, then attempts Firebase Auth. If Firebase Auth fails during onboarding, the error is shown so the team can catch setup problems; existing local data remains readable and the backend error is retained on `BackendSessionStore`.
 
-Firestore upload-only backup is now triggered from `RootView` when private mapped data changes and a Firebase UID exists. Shared circles are intentionally not uploaded until membership and security rules are implemented.
+Firestore upload-only backup is now triggered from `RootView` on app entry and when private mapped data changes while a Firebase UID exists. Shared circles are intentionally not uploaded until membership and security rules are implemented. Profile > QA tools shows the current Firebase UID, sync status, and last sync error for phone testing.
 
 ## Security Rules Direction
 

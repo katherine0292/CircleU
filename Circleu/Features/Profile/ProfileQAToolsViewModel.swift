@@ -14,6 +14,7 @@ final class ProfileQAToolsViewModel: ObservableObject {
         profileStore: UserProfileStore,
         circleStore: CircleStore,
         questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
         aiSessionStore: AIReflectionSessionStore
     ) -> String {
         """
@@ -26,6 +27,7 @@ final class ProfileQAToolsViewModel: ObservableObject {
         Total AI sessions: \(aiSessionStore.sessions.count)
         Total quests: \(questStore.quests.count)
         Active quests: \(questStore.activeQuests.count)
+        Total tips practice sessions: \(tipsPracticeStore.recentSessions.count)
         Total circles: \(circleStore.circles.count)
         Total posts: \(circleStore.posts.count)
 
@@ -63,6 +65,8 @@ final class ProfileQAToolsViewModel: ObservableObject {
         profileStore: UserProfileStore,
         circleStore: CircleStore,
         questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
+        rewardsStore: RewardsStore,
         aiSessionStore: AIReflectionSessionStore
     ) {
         let referenceDate = Date()
@@ -72,6 +76,8 @@ final class ProfileQAToolsViewModel: ObservableObject {
         aiSessionStore.seedDemoData(entries: entries)
         questStore.seedDemoData(entries: entries, referenceDate: referenceDate)
         circleStore.seedDemoData(entries: entries, referenceDate: referenceDate)
+        tipsPracticeStore.resetAll()
+        rewardsStore.resetToSeed()
         hasCompletedOnboarding = true
         statusMessage = "Seeded repeatable demo data for phone testing."
     }
@@ -82,12 +88,16 @@ final class ProfileQAToolsViewModel: ObservableObject {
         profileStore: UserProfileStore,
         circleStore: CircleStore,
         questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
+        rewardsStore: RewardsStore,
         aiSessionStore: AIReflectionSessionStore
     ) {
         profileStore.reset()
         journalStore.reset()
         aiSessionStore.reset()
         questStore.reset()
+        tipsPracticeStore.resetAll()
+        rewardsStore.reset()
         circleStore.reset(seedStarterSpaces: false)
         hasCompletedOnboarding = false
         statusMessage = "Cleared local data. Relaunch or close this sheet to see onboarding."

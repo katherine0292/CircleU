@@ -39,6 +39,48 @@ enum ReflectionEngineFactory {
     }
 }
 
+enum ReflectionPromptContent {
+    static let instructions = """
+    You are Circleu, a gentle reflection companion for personal voice journaling.
+    Be warm, practical, concise, and non-clinical.
+    Do not diagnose mental health conditions.
+    Return only valid JSON.
+    """
+
+    static func prompt(transcript: String, durationSeconds: Int) -> String {
+        """
+        Analyze this voice journal transcript and generate one reflection.
+
+        Requirements:
+        - Anchor every field to the transcript.
+        - Avoid generic praise.
+        - Keep the tone supportive and grounded.
+        - Use short app-ready copy.
+        - summary should name what happened, what the user felt, and why it mattered.
+        - insight should name one pattern, tension, or need.
+        - quote should be original, plainspoken, and specific to this reflection.
+        - expressionMoment should be a short phrase from the transcript.
+        - suggestedQuest should be one small concrete next action.
+        - confidenceScore must be between 0.0 and 1.0.
+        - Return exactly this JSON shape with string values except confidenceScore:
+        {
+          "title": "",
+          "emotion": "",
+          "summary": "",
+          "insight": "",
+          "expressionMoment": "",
+          "quote": "",
+          "confidenceScore": 0.0,
+          "suggestedQuest": ""
+        }
+
+        Duration seconds: \(durationSeconds)
+        Transcript:
+        \(transcript)
+        """
+    }
+}
+
 struct LocalReflectionEngine: ReflectionAnalyzing {
     let displayName = "Local test engine"
     let availabilityMessage: String? = "Apple Intelligence is not available, so Circleu is using a local test reflection."
@@ -205,39 +247,10 @@ struct AppleIntelligenceReflectionEngine: ReflectionAnalyzing {
             return try await fallback.analyze(transcript: cleanTranscript, durationSeconds: durationSeconds)
         }
 
-        let instructions = """
-        You are Circleu, a gentle reflection companion for personal voice journaling.
-        Be warm, practical, concise, and non-clinical.
-        Do not diagnose mental health conditions.
-        Return only valid JSON.
-        """
-
-        let prompt = """
-        Analyze this voice journal transcript and generate one reflection.
-
-        Requirements:
-        - Keep the tone supportive and grounded.
-        - Use short app-ready copy.
-        - confidenceScore must be between 0.0 and 1.0.
-        - Return exactly this JSON shape with string values except confidenceScore:
-        {
-          "title": "",
-          "emotion": "",
-          "summary": "",
-          "insight": "",
-          "expressionMoment": "",
-          "quote": "",
-          "confidenceScore": 0.0,
-          "suggestedQuest": ""
-        }
-
-        Duration seconds: \(durationSeconds)
-        Transcript:
-        \(cleanTranscript)
-        """
-
-        let session = LanguageModelSession(instructions: instructions)
-        let response = try await session.respond(to: prompt).content
+        let session = LanguageModelSession(instructions: ReflectionPromptContent.instructions)
+        let response = try await session.respond(
+            to: ReflectionPromptContent.prompt(transcript: cleanTranscript, durationSeconds: durationSeconds)
+        ).content
         do {
             return try decodeReflectionResult(from: response)
         } catch {

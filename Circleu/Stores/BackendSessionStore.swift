@@ -95,18 +95,46 @@ final class BackendSessionStore: ObservableObject {
     }
 
     func uploadPrivateBackup(
+        profileStore: UserProfileStore,
         journalStore: ReflectionJournalStore,
         questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
+        rewardsStore: RewardsStore,
         circleStore: CircleStore,
         aiSessionStore: AIReflectionSessionStore
     ) async {
         guard let uid = session?.uid else { return }
         guard !isSyncing else { return }
+        let now = Date()
 
         let snapshot = BackendSyncSnapshot(
             userID: uid,
+            generatedAt: now,
+            user: BackendUserSnapshot(
+                uid: uid,
+                email: session?.email,
+                displayName: session?.displayName ?? profileStore.displayName,
+                localUserID: session?.localUserID,
+                updatedAt: now
+            ),
+            profile: BackendProfileSnapshot(
+                displayName: profileStore.displayName,
+                promptIndex: profileStore.dailyPromptIndex,
+                updatedAt: now
+            ),
             journalEntries: journalStore.entries,
             quests: questStore.quests,
+            tipsPracticeSessions: tipsPracticeStore.recentSessions,
+            rewardState: BackendRewardSnapshot(
+                points: rewardsStore.points,
+                level: rewardsStore.level,
+                intoLevel: rewardsStore.intoLevel,
+                nextLevel: rewardsStore.nextLevel,
+                questAwards: rewardsStore.questAwards,
+                updatedAt: now
+            ),
+            pointEntries: rewardsStore.pointsLog,
+            activityEvents: rewardsStore.activity,
             circles: circleStore.circles,
             circlePosts: circleStore.posts,
             aiSessions: aiSessionStore.sessions

@@ -110,6 +110,24 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertEqual(result.suggestedQuest, "Try a one-minute check-in next time and name one feeling clearly.")
     }
 
+    func testAppleIntelligencePromptAsksForSpecificTranscriptAnchoredFeedback() {
+        let prompt = ReflectionPromptContent.prompt(
+            transcript: "I felt ignored in the team meeting, then I asked one clear question and felt calmer.",
+            durationSeconds: 75
+        )
+        let instructions = ReflectionPromptContent.instructions
+
+        XCTAssertTrue(instructions.contains("Do not diagnose"))
+        XCTAssertTrue(prompt.contains("Anchor every field to the transcript"))
+        XCTAssertTrue(prompt.contains("Avoid generic praise"))
+        XCTAssertTrue(prompt.contains("summary should name what happened, what the user felt, and why it mattered"))
+        XCTAssertTrue(prompt.contains("insight should name one pattern, tension, or need"))
+        XCTAssertTrue(prompt.contains("quote should be original, plainspoken, and specific to this reflection"))
+        XCTAssertTrue(prompt.contains("expressionMoment should be a short phrase from the transcript"))
+        XCTAssertTrue(prompt.contains("suggestedQuest should be one small concrete next action"))
+        XCTAssertTrue(prompt.contains("I felt ignored in the team meeting"))
+    }
+
     private func analyze(_ transcript: String, durationSeconds: Int = 90) async throws -> AIReflectionResult {
         let engine = LocalReflectionEngine()
         return try await engine.analyze(transcript: transcript, durationSeconds: durationSeconds)
