@@ -64,6 +64,37 @@ final class RewardsStore: ObservableObject {
         save()
     }
 
+    func mergeRestoredBackup(
+        rewardState: BackendRewardSnapshot?,
+        pointEntries: [PointEntry],
+        activityEvents: [ActivityEvent]
+    ) {
+        if let rewardState {
+            points = max(points, rewardState.points)
+            questAwards.merge(rewardState.questAwards) { local, restored in
+                restored > local ? restored : local
+            }
+        }
+
+        if !pointEntries.isEmpty {
+            var mergedPoints = Dictionary(uniqueKeysWithValues: pointsLog.map { ($0.id, $0) })
+            for pointEntry in pointEntries {
+                mergedPoints[pointEntry.id] = pointEntry
+            }
+            pointsLog = Array(mergedPoints.values.sorted { $0.createdAt > $1.createdAt }.prefix(50))
+        }
+
+        if !activityEvents.isEmpty {
+            var mergedActivity = Dictionary(uniqueKeysWithValues: activity.map { ($0.id, $0) })
+            for event in activityEvents {
+                mergedActivity[event.id] = event
+            }
+            activity = Array(mergedActivity.values.sorted { $0.createdAt > $1.createdAt }.prefix(100))
+        }
+
+        save()
+    }
+
     func resetToSeed() {
         seedStarter()
         save()

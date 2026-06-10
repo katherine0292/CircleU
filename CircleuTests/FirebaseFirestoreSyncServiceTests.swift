@@ -134,6 +134,31 @@ final class FirebaseFirestoreSyncServiceTests: XCTestCase {
         XCTAssertEqual(result.uploadedCounts.questCount, 0)
         XCTAssertEqual(result.uploadedCounts.aiSessionCount, 1)
     }
+
+    func testRestorePrivateBackupReadsUserScopedDocumentsIntoSnapshot() async throws {
+        let ids = TestIDs()
+        let snapshot = makeSnapshot(ids: ids)
+        let documents = Dictionary(
+            uniqueKeysWithValues: FirebaseSyncMapper.privateBackupDocuments(for: snapshot).map { ($0.path, $0.firestoreData) }
+        )
+        let client = FakeFirestoreClient(seedDocuments: documents)
+        let syncer = FirebaseUploadOnlySyncer(client: client)
+
+        let restored = try await syncer.restorePrivateBackup(userID: "firebase-user-1")
+
+        XCTAssertEqual(restored.user?.uid, "firebase-user-1")
+        XCTAssertEqual(restored.profile?.displayName, "Tuan")
+        XCTAssertEqual(restored.journalEntries.first?.id, ids.entryID)
+        XCTAssertEqual(restored.journalEntries.first?.result.title, "Clearer voice")
+        XCTAssertEqual(restored.quests.first?.id, ids.questID)
+        XCTAssertEqual(restored.tipsPracticeSessions.first?.id, ids.tipsSessionID)
+        XCTAssertEqual(restored.rewardState?.points, 35)
+        XCTAssertEqual(restored.pointEntries.first?.id, ids.pointEntryID)
+        XCTAssertEqual(restored.activityEvents.first?.id, ids.activityEventID)
+        XCTAssertEqual(restored.aiSessions.first?.id, ids.sessionID)
+        XCTAssertEqual(restored.counts.journalEntryCount, 1)
+        XCTAssertEqual(restored.counts.aiSessionCount, 1)
+    }
 }
 
 private struct TestIDs {
@@ -158,9 +183,11 @@ private struct FakeFirestoreWrite {
 
 private final class FakeFirestoreClient: FirebaseFirestoreClient {
     var writes: [FakeFirestoreWrite] = []
+    private var documents: [String: [String: Any]]
     private let failingPaths: Set<String>
 
-    init(failingPaths: Set<String> = []) {
+    init(seedDocuments: [String: [String: Any]] = [:], failingPaths: Set<String> = []) {
+        self.documents = seedDocuments
         self.failingPaths = failingPaths
     }
 
@@ -170,6 +197,20 @@ private final class FakeFirestoreClient: FirebaseFirestoreClient {
         }
 
         writes.append(FakeFirestoreWrite(path: documentPath, data: data, merge: merge))
+        documents[documentPath] = data
+    }
+
+    func getDocument(at documentPath: String) async throws -> [String: Any]? {
+        documents[documentPath]
+    }
+
+    func getDocuments(in collectionPath: String) async throws -> [[String: Any]] {
+        let prefix = "\(collectionPath)/"
+        return documents
+            .filter { item in
+                item.key.hasPrefix(prefix) && item.key.dropFirst(prefix.count).contains("/") == false
+            }
+            .map(\.value)
     }
 }
 

@@ -62,6 +62,22 @@ final class TipsPracticeStore: ObservableObject {
         save()
     }
 
+    func mergeRestoredSessions(_ restoredSessions: [TipsPracticeSession]) {
+        guard !restoredSessions.isEmpty else { return }
+        var merged = Dictionary(uniqueKeysWithValues: recentSessions.map { ($0.id, $0) })
+
+        for restoredSession in restoredSessions {
+            if let localSession = merged[restoredSession.id] {
+                merged[restoredSession.id] = restoredSession.updatedAt > localSession.updatedAt ? restoredSession : localSession
+            } else {
+                merged[restoredSession.id] = restoredSession
+            }
+        }
+
+        recentSessions = Array(merged.values.sorted { $0.updatedAt > $1.updatedAt }.prefix(12))
+        save()
+    }
+
     func clearCurrentSession() {
         currentSession = nil
     }

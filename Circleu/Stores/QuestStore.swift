@@ -91,6 +91,21 @@ final class QuestStore: ObservableObject {
         save()
     }
 
+    func mergeRestoredQuests(_ restoredQuests: [Quest]) {
+        guard !restoredQuests.isEmpty else { return }
+        var merged = Dictionary(uniqueKeysWithValues: quests.map { ($0.id, $0) })
+
+        for restoredQuest in restoredQuests {
+            if let localQuest = merged[restoredQuest.id] {
+                merged[restoredQuest.id] = preferredQuest(localQuest, restoredQuest)
+            } else {
+                merged[restoredQuest.id] = restoredQuest
+            }
+        }
+
+        replaceAll(with: Array(merged.values))
+    }
+
     func reset() {
         quests = []
         userDefaults.removeObject(forKey: storageKey)
@@ -132,6 +147,17 @@ final class QuestStore: ObservableObject {
         quests[index].status = status
         quests[index].completedAt = completedAt
         save()
+    }
+
+    private func preferredQuest(_ localQuest: Quest, _ restoredQuest: Quest) -> Quest {
+        switch (localQuest.completedAt, restoredQuest.completedAt) {
+        case let (localCompleted?, restoredCompleted?):
+            return restoredCompleted > localCompleted ? restoredQuest : localQuest
+        case (nil, .some):
+            return restoredQuest
+        default:
+            return restoredQuest.createdAt > localQuest.createdAt ? restoredQuest : localQuest
+        }
     }
 
     private func load() {

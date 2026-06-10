@@ -128,13 +128,43 @@ enum FirebaseSyncMapper {
             + activityDocuments
             + aiSessionDocuments
     }
+
+    static func privateBackupSnapshot(
+        userID: String,
+        userDocument: [String: Any]?,
+        profileDocument: [String: Any]?,
+        journalDocuments: [[String: Any]],
+        questDocuments: [[String: Any]],
+        tipsPracticeDocuments: [[String: Any]],
+        rewardDocument: [String: Any]?,
+        pointDocuments: [[String: Any]],
+        activityDocuments: [[String: Any]],
+        aiSessionDocuments: [[String: Any]]
+    ) -> BackendSyncSnapshot {
+        BackendSyncSnapshot(
+            userID: userID,
+            user: userDocument.flatMap(BackendUserSnapshot.init(firebaseData:)),
+            profile: profileDocument.flatMap(BackendProfileSnapshot.init(firebaseData:)),
+            journalEntries: journalDocuments.compactMap(JournalReflectionEntry.init(firebaseData:)),
+            quests: questDocuments.compactMap(Quest.init(firebaseData:)),
+            tipsPracticeSessions: tipsPracticeDocuments.compactMap(TipsPracticeSession.init(firebaseData:)),
+            rewardState: rewardDocument.flatMap(BackendRewardSnapshot.init(firebaseData:)),
+            pointEntries: pointDocuments.compactMap(PointEntry.init(firebaseData:)),
+            activityEvents: activityDocuments.compactMap(ActivityEvent.init(firebaseData:)),
+            circles: [],
+            circlePosts: [],
+            aiSessions: aiSessionDocuments.compactMap(AIReflectionSession.init(firebaseData:))
+        )
+    }
 }
 
 protocol FirebaseFirestoreClient {
     func setData(_ data: [String: Any], at documentPath: String, merge: Bool) async throws
+    func getDocument(at documentPath: String) async throws -> [String: Any]?
+    func getDocuments(in collectionPath: String) async throws -> [[String: Any]]
 }
 
-struct FirebaseUploadOnlySyncer: ReflectionSyncing {
+struct FirebaseUploadOnlySyncer: ReflectionSyncing, ReflectionBackupRestoring {
     private let client: FirebaseFirestoreClient
 
     init(client: FirebaseFirestoreClient = LiveFirebaseFirestoreClient()) {
@@ -161,6 +191,31 @@ struct FirebaseUploadOnlySyncer: ReflectionSyncing {
             failedScopes: BackendSyncScope.allCases.filter { failedScopes.contains($0) }
         )
     }
+
+    func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
+        async let userDocument = client.getDocument(at: "users/\(userID)")
+        async let profileDocument = client.getDocument(at: "users/\(userID)/profile/main")
+        async let journalDocuments = client.getDocuments(in: "users/\(userID)/journalEntries")
+        async let questDocuments = client.getDocuments(in: "users/\(userID)/quests")
+        async let tipsPracticeDocuments = client.getDocuments(in: "users/\(userID)/tipsPracticeSessions")
+        async let rewardDocument = client.getDocument(at: "users/\(userID)/rewardState/main")
+        async let pointDocuments = client.getDocuments(in: "users/\(userID)/pointEntries")
+        async let activityDocuments = client.getDocuments(in: "users/\(userID)/activityEvents")
+        async let aiSessionDocuments = client.getDocuments(in: "users/\(userID)/aiReflectionSessions")
+
+        return try await FirebaseSyncMapper.privateBackupSnapshot(
+            userID: userID,
+            userDocument: userDocument,
+            profileDocument: profileDocument,
+            journalDocuments: journalDocuments,
+            questDocuments: questDocuments,
+            tipsPracticeDocuments: tipsPracticeDocuments,
+            rewardDocument: rewardDocument,
+            pointDocuments: pointDocuments,
+            activityDocuments: activityDocuments,
+            aiSessionDocuments: aiSessionDocuments
+        )
+    }
 }
 
 struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
@@ -173,6 +228,32 @@ struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
                 }
 
                 continuation.resume()
+            }
+        }
+    }
+
+    func getDocument(at documentPath: String) async throws -> [String: Any]? {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[String: Any]?, Error>) in
+            Firestore.firestore().document(documentPath).getDocument { snapshot, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: snapshot?.data())
+            }
+        }
+    }
+
+    func getDocuments(in collectionPath: String) async throws -> [[String: Any]] {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[[String: Any]], Error>) in
+            Firestore.firestore().collection(collectionPath).getDocuments { snapshot, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: snapshot?.documents.map { $0.data() } ?? [])
             }
         }
     }
@@ -393,6 +474,365 @@ private extension AIReflectionResult {
             "confidenceScore": .double(confidenceScore),
             "suggestedQuest": .string(suggestedQuest)
         ]
+    }
+}
+
+private enum FirebasePayloadReader {
+    static func string(_ data: [String: Any], _ key: String) -> String? {
+        data[key] as? String
+    }
+
+    static func int(_ data: [String: Any], _ key: String) -> Int? {
+        switch data[key] {
+        case let value as Int:
+            return value
+        case let value as NSNumber:
+            return value.intValue
+        case let value as Double:
+            return Int(value)
+        default:
+            return nil
+        }
+    }
+
+    static func double(_ data: [String: Any], _ key: String) -> Double? {
+        switch data[key] {
+        case let value as Double:
+            return value
+        case let value as NSNumber:
+            return value.doubleValue
+        case let value as Int:
+            return Double(value)
+        default:
+            return nil
+        }
+    }
+
+    static func date(_ data: [String: Any], _ key: String) -> Date? {
+        switch data[key] {
+        case let value as Date:
+            return value
+        case let value as Timestamp:
+            return value.dateValue()
+        case let value as TimeInterval:
+            return Date(timeIntervalSince1970: value)
+        case let value as NSNumber:
+            return Date(timeIntervalSince1970: value.doubleValue)
+        default:
+            return nil
+        }
+    }
+
+    static func uuid(_ data: [String: Any], _ key: String) -> UUID? {
+        string(data, key).flatMap(UUID.init(uuidString:))
+    }
+
+    static func strings(_ data: [String: Any], _ key: String) -> [String] {
+        data[key] as? [String] ?? []
+    }
+
+    static func dictionary(_ data: [String: Any], _ key: String) -> [String: Any]? {
+        data[key] as? [String: Any]
+    }
+
+    static func dictionaries(_ data: [String: Any], _ key: String) -> [[String: Any]] {
+        data[key] as? [[String: Any]] ?? []
+    }
+}
+
+private extension BackendUserSnapshot {
+    init?(firebaseData data: [String: Any]) {
+        guard let uid = FirebasePayloadReader.string(data, "uid"),
+              let displayName = FirebasePayloadReader.string(data, "displayName") else {
+            return nil
+        }
+
+        self.init(
+            uid: uid,
+            email: FirebasePayloadReader.string(data, "email"),
+            displayName: displayName,
+            localUserID: FirebasePayloadReader.string(data, "localUserID"),
+            updatedAt: FirebasePayloadReader.date(data, "updatedAt") ?? Date()
+        )
+    }
+}
+
+private extension BackendProfileSnapshot {
+    init?(firebaseData data: [String: Any]) {
+        guard let displayName = FirebasePayloadReader.string(data, "displayName"),
+              let promptIndex = FirebasePayloadReader.int(data, "promptIndex") else {
+            return nil
+        }
+
+        self.init(
+            displayName: displayName,
+            promptIndex: promptIndex,
+            updatedAt: FirebasePayloadReader.date(data, "updatedAt") ?? Date()
+        )
+    }
+}
+
+private extension JournalReflectionEntry {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "entryID"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt"),
+              let durationSeconds = FirebasePayloadReader.int(data, "durationSeconds"),
+              let transcript = FirebasePayloadReader.string(data, "transcript"),
+              let engineName = FirebasePayloadReader.string(data, "engineName"),
+              let resultData = FirebasePayloadReader.dictionary(data, "result"),
+              let result = AIReflectionResult(firebaseData: resultData) else {
+            return nil
+        }
+
+        self.init(
+            id: id,
+            createdAt: createdAt,
+            durationSeconds: durationSeconds,
+            transcript: transcript,
+            engineName: engineName,
+            result: result,
+            sessionID: FirebasePayloadReader.uuid(data, "sessionID"),
+            editableTitle: FirebasePayloadReader.string(data, "editableTitle"),
+            editableEmotion: FirebasePayloadReader.string(data, "editableEmotion"),
+            privateNote: FirebasePayloadReader.string(data, "privateNote") ?? "",
+            tags: FirebasePayloadReader.strings(data, "tags"),
+            lastEditedAt: FirebasePayloadReader.date(data, "updatedAt")
+        )
+    }
+}
+
+private extension Quest {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "questID"),
+              let title = FirebasePayloadReader.string(data, "title"),
+              let detail = FirebasePayloadReader.string(data, "detail"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt"),
+              let statusValue = FirebasePayloadReader.string(data, "status"),
+              let status = QuestStatus(rawValue: statusValue) else {
+            return nil
+        }
+
+        self.init(
+            id: id,
+            title: title,
+            detail: detail,
+            sourceEntryID: FirebasePayloadReader.uuid(data, "sourceEntryID"),
+            createdAt: createdAt,
+            completedAt: FirebasePayloadReader.date(data, "completedAt"),
+            status: status
+        )
+    }
+}
+
+private extension TipsPracticeSession {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "sessionID"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt"),
+              let updatedAt = FirebasePayloadReader.date(data, "updatedAt"),
+              let originalMessage = FirebasePayloadReader.string(data, "originalMessage"),
+              let sceneValue = FirebasePayloadReader.string(data, "scene"),
+              let scene = TipsPracticeScene(rawValue: sceneValue),
+              let toneValue = FirebasePayloadReader.string(data, "tone"),
+              let tone = TipsPracticeTone(rawValue: toneValue),
+              let situation = FirebasePayloadReader.string(data, "situation"),
+              let coachOutputData = FirebasePayloadReader.dictionary(data, "coachOutput"),
+              let coachOutput = TipsCoachOutput(firebaseData: coachOutputData) else {
+            return nil
+        }
+
+        self.init(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            originalMessage: originalMessage,
+            scene: scene,
+            customScene: FirebasePayloadReader.string(data, "customScene"),
+            tone: tone,
+            situation: situation,
+            turns: FirebasePayloadReader.dictionaries(data, "turns").compactMap(TipsPracticeTurn.init(firebaseData:)),
+            coachOutput: coachOutput,
+            attachedImageCount: FirebasePayloadReader.int(data, "attachedImageCount") ?? 0
+        )
+    }
+}
+
+private extension TipsPracticeTurn {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "turnID"),
+              let roleValue = FirebasePayloadReader.string(data, "role"),
+              let role = TipsPracticeRole(rawValue: roleValue),
+              let label = FirebasePayloadReader.string(data, "label"),
+              let text = FirebasePayloadReader.string(data, "text"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt") else {
+            return nil
+        }
+
+        self.init(id: id, role: role, label: label, text: text, createdAt: createdAt)
+    }
+}
+
+private extension TipsCoachOutput {
+    init?(firebaseData data: [String: Any]) {
+        guard let suggestedPhrasing = FirebasePayloadReader.string(data, "suggestedPhrasing"),
+              let whyItWorks = FirebasePayloadReader.string(data, "whyItWorks"),
+              let simulatedReply = FirebasePayloadReader.string(data, "simulatedReply"),
+              let roomReading = FirebasePayloadReader.string(data, "roomReading") else {
+            return nil
+        }
+
+        self.init(
+            suggestedPhrasing: suggestedPhrasing,
+            whyItWorks: whyItWorks,
+            simulatedReply: simulatedReply,
+            roomReading: roomReading,
+            replyOptions: FirebasePayloadReader.dictionaries(data, "replyOptions").compactMap(TipsCoachReplyOption.init(firebaseData:))
+        )
+    }
+}
+
+private extension TipsCoachReplyOption {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "optionID"),
+              let label = FirebasePayloadReader.string(data, "label"),
+              let text = FirebasePayloadReader.string(data, "text") else {
+            return nil
+        }
+
+        self.init(id: id, label: label, text: text)
+    }
+}
+
+private extension BackendRewardSnapshot {
+    init?(firebaseData data: [String: Any]) {
+        guard let points = FirebasePayloadReader.int(data, "points"),
+              let level = FirebasePayloadReader.int(data, "level"),
+              let intoLevel = FirebasePayloadReader.int(data, "intoLevel"),
+              let nextLevel = FirebasePayloadReader.int(data, "nextLevel") else {
+            return nil
+        }
+
+        self.init(
+            points: points,
+            level: level,
+            intoLevel: intoLevel,
+            nextLevel: nextLevel,
+            questAwards: data["questAwards"] as? [String: String] ?? [:],
+            updatedAt: FirebasePayloadReader.date(data, "updatedAt") ?? Date()
+        )
+    }
+}
+
+private extension PointEntry {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "pointEntryID"),
+              let label = FirebasePayloadReader.string(data, "label"),
+              let points = FirebasePayloadReader.int(data, "points"),
+              let icon = FirebasePayloadReader.string(data, "icon"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt") else {
+            return nil
+        }
+
+        self.init(id: id, label: label, points: points, icon: icon, createdAt: createdAt)
+    }
+}
+
+private extension ActivityEvent {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "activityEventID"),
+              let typeValue = FirebasePayloadReader.string(data, "type"),
+              let type = ActivityType(rawValue: typeValue),
+              let title = FirebasePayloadReader.string(data, "title"),
+              let keyword = FirebasePayloadReader.string(data, "keyword"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt") else {
+            return nil
+        }
+
+        self.init(
+            id: id,
+            type: type,
+            title: title,
+            keyword: keyword,
+            refID: FirebasePayloadReader.uuid(data, "refID"),
+            createdAt: createdAt
+        )
+    }
+}
+
+private extension AIReflectionSession {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "sessionID"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt"),
+              let updatedAt = FirebasePayloadReader.date(data, "updatedAt"),
+              let engineName = FirebasePayloadReader.string(data, "engineName"),
+              let sourceValue = FirebasePayloadReader.string(data, "source"),
+              let source = AIReflectionSource(rawValue: sourceValue),
+              let transcript = FirebasePayloadReader.string(data, "transcript"),
+              let durationSeconds = FirebasePayloadReader.int(data, "durationSeconds") else {
+            return nil
+        }
+
+        self.init(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            entryID: FirebasePayloadReader.uuid(data, "entryID"),
+            engineName: engineName,
+            source: source,
+            transcript: transcript,
+            durationSeconds: durationSeconds,
+            attempts: FirebasePayloadReader.dictionaries(data, "attempts").compactMap(AIReflectionAttempt.init(firebaseData:)),
+            selectedAttemptID: FirebasePayloadReader.uuid(data, "selectedAttemptID"),
+            mergedSessionIDs: FirebasePayloadReader.strings(data, "mergedSessionIDs").compactMap(UUID.init(uuidString:))
+        )
+    }
+}
+
+private extension AIReflectionAttempt {
+    init?(firebaseData data: [String: Any]) {
+        guard let id = FirebasePayloadReader.uuid(data, "attemptID"),
+              let createdAt = FirebasePayloadReader.date(data, "createdAt"),
+              let engineName = FirebasePayloadReader.string(data, "engineName"),
+              let statusValue = FirebasePayloadReader.string(data, "status"),
+              let status = AIReflectionAttemptStatus(rawValue: statusValue) else {
+            return nil
+        }
+
+        let result = FirebasePayloadReader.dictionary(data, "result").flatMap(AIReflectionResult.init(firebaseData:))
+        self.init(
+            id: id,
+            createdAt: createdAt,
+            engineName: engineName,
+            status: status,
+            result: result,
+            errorMessage: FirebasePayloadReader.string(data, "errorMessage"),
+            elapsedMilliseconds: FirebasePayloadReader.int(data, "elapsedMilliseconds")
+        )
+    }
+}
+
+private extension AIReflectionResult {
+    init?(firebaseData data: [String: Any]) {
+        guard let title = FirebasePayloadReader.string(data, "title"),
+              let emotion = FirebasePayloadReader.string(data, "emotion"),
+              let summary = FirebasePayloadReader.string(data, "summary"),
+              let insight = FirebasePayloadReader.string(data, "insight"),
+              let expressionMoment = FirebasePayloadReader.string(data, "expressionMoment"),
+              let quote = FirebasePayloadReader.string(data, "quote"),
+              let confidenceScore = FirebasePayloadReader.double(data, "confidenceScore"),
+              let suggestedQuest = FirebasePayloadReader.string(data, "suggestedQuest") else {
+            return nil
+        }
+
+        self.init(
+            title: title,
+            emotion: emotion,
+            summary: summary,
+            insight: insight,
+            expressionMoment: expressionMoment,
+            quote: quote,
+            confidenceScore: confidenceScore,
+            suggestedQuest: suggestedQuest
+        )
     }
 }
 

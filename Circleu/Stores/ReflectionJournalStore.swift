@@ -28,6 +28,21 @@ final class ReflectionJournalStore: ObservableObject {
         save()
     }
 
+    func mergeRestoredEntries(_ restoredEntries: [JournalReflectionEntry]) {
+        guard !restoredEntries.isEmpty else { return }
+        var merged = Dictionary(uniqueKeysWithValues: entries.map { ($0.id, $0) })
+
+        for restoredEntry in restoredEntries {
+            if let localEntry = merged[restoredEntry.id] {
+                merged[restoredEntry.id] = preferredEntry(localEntry, restoredEntry)
+            } else {
+                merged[restoredEntry.id] = restoredEntry
+            }
+        }
+
+        replaceAll(with: Array(merged.values))
+    }
+
     func updateWorkspace(
         entry: JournalReflectionEntry,
         title: String?,
@@ -201,6 +216,12 @@ final class ReflectionJournalStore: ObservableObject {
     private func remove(_ entry: JournalReflectionEntry) {
         entries.removeAll { $0.id == entry.id }
         save()
+    }
+
+    private func preferredEntry(_ localEntry: JournalReflectionEntry, _ restoredEntry: JournalReflectionEntry) -> JournalReflectionEntry {
+        let localUpdatedAt = localEntry.lastEditedAt ?? localEntry.createdAt
+        let restoredUpdatedAt = restoredEntry.lastEditedAt ?? restoredEntry.createdAt
+        return restoredUpdatedAt > localUpdatedAt ? restoredEntry : localEntry
     }
 
     private func deleteAISessions(for entry: JournalReflectionEntry, aiSessionStore: AIReflectionSessionStore) {

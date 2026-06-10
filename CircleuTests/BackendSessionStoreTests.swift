@@ -158,6 +158,51 @@ final class BackendSessionStoreTests: XCTestCase {
         XCTAssertEqual(syncer.snapshots.count, 0)
     }
 
+    func testRestorePrivateBackupMergesRemoteSnapshotIntoLocalStores() async {
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
+        let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
+        let remoteSnapshot = makeRemoteSnapshot()
+        let restorer = CapturingRestorer(snapshot: remoteSnapshot)
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            restorer: restorer
+        )
+
+        await store.restorePrivateBackup(
+            profileStore: profileStore,
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            aiSessionStore: aiSessionStore
+        )
+
+        XCTAssertEqual(restorer.restoredUserIDs, ["firebase-user-1"])
+        XCTAssertEqual(profileStore.displayName, "Restored Tuan")
+        XCTAssertEqual(journalStore.entries.map(\.id), remoteSnapshot.journalEntries.map(\.id))
+        XCTAssertEqual(questStore.quests.map(\.id), remoteSnapshot.quests.map(\.id))
+        XCTAssertEqual(tipsPracticeStore.recentSessions.map(\.id), remoteSnapshot.tipsPracticeSessions.map(\.id))
+        XCTAssertEqual(rewardsStore.points, 42)
+        XCTAssertEqual(rewardsStore.pointsLog.map(\.id), remoteSnapshot.pointEntries.map(\.id))
+        XCTAssertEqual(rewardsStore.activity.map(\.id), remoteSnapshot.activityEvents.map(\.id))
+        XCTAssertEqual(aiSessionStore.sessions.map(\.id), remoteSnapshot.aiSessions.map(\.id))
+        XCTAssertEqual(store.lastSyncResult?.downloadedCounts.journalEntryCount, 1)
+        XCTAssertEqual(store.lastSyncResult?.uploadedCounts, .zero)
+    }
+
     private func makeEntry() -> JournalReflectionEntry {
         JournalReflectionEntry(
             durationSeconds: 60,
@@ -173,6 +218,67 @@ final class BackendSessionStoreTests: XCTestCase {
                 confidenceScore: 0.8,
                 suggestedQuest: "Ask one follow-up tomorrow."
             )
+        )
+    }
+
+    private func makeRemoteSnapshot() -> BackendSyncSnapshot {
+        let entry = makeEntry()
+        let quest = Quest(
+            title: "Restored quest",
+            detail: "Ask a restored follow-up.",
+            sourceEntryID: entry.id,
+            createdAt: entry.createdAt
+        )
+        let tipsSession = TipsPracticeSession(
+            originalMessage: "I need to pause before answering.",
+            scene: .friendship,
+            tone: .soft,
+            situation: "A hard message",
+            turns: [],
+            coachOutput: TipsCoachOutput(
+                suggestedPhrasing: "Can I take a moment and reply later?",
+                whyItWorks: "It keeps the relationship clear.",
+                simulatedReply: "Yes, that is okay.",
+                roomReading: "Gentle and direct.",
+                replyOptions: []
+            )
+        )
+        let pointEntry = PointEntry(label: "Restored points", points: 7, icon: "star")
+        let activity = ActivityEvent(type: .reflect, title: "Restored activity", keyword: "restore", refID: entry.id)
+        let aiAttempt = AIReflectionAttempt(
+            engineName: "Remote engine",
+            status: .succeeded,
+            result: entry.result
+        )
+        let aiSession = AIReflectionSession(
+            entryID: entry.id,
+            engineName: "Remote engine",
+            source: .typedFallback,
+            transcript: entry.transcript,
+            durationSeconds: entry.durationSeconds,
+            attempts: [aiAttempt],
+            selectedAttemptID: aiAttempt.id
+        )
+
+        return BackendSyncSnapshot(
+            userID: "firebase-user-1",
+            profile: BackendProfileSnapshot(displayName: "Restored Tuan", promptIndex: 3, updatedAt: Date()),
+            journalEntries: [entry],
+            quests: [quest],
+            tipsPracticeSessions: [tipsSession],
+            rewardState: BackendRewardSnapshot(
+                points: 42,
+                level: 1,
+                intoLevel: 42,
+                nextLevel: 2,
+                questAwards: ["daily_reflect": "2026-6-10"],
+                updatedAt: Date()
+            ),
+            pointEntries: [pointEntry],
+            activityEvents: [activity],
+            circles: [],
+            circlePosts: [],
+            aiSessions: [aiSession]
         )
     }
 
@@ -232,6 +338,20 @@ private final class CapturingSyncer: ReflectionSyncing {
     func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
         snapshots.append(snapshot)
         return BackendSyncResult(uploadedCounts: snapshot.counts)
+    }
+}
+
+private final class CapturingRestorer: ReflectionBackupRestoring {
+    var restoredUserIDs: [String] = []
+    private let snapshot: BackendSyncSnapshot
+
+    init(snapshot: BackendSyncSnapshot) {
+        self.snapshot = snapshot
+    }
+
+    func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
+        restoredUserIDs.append(userID)
+        return snapshot
     }
 }
 

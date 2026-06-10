@@ -31,6 +31,7 @@ struct RootView: View {
     @State private var showRecording = false
     @State private var selectedJournalEntry: JournalReflectionEntry?
     @State private var lastJoinedIDs: Set<UUID> = []
+    @State private var restoredBackendUserID: String?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -173,6 +174,7 @@ struct RootView: View {
 
     private func uploadPrivateBackup() {
         Task {
+            await restorePrivateBackupIfNeeded()
             await backendSessionStore.uploadPrivateBackup(
                 profileStore: profileStore,
                 journalStore: journalStore,
@@ -183,6 +185,24 @@ struct RootView: View {
                 aiSessionStore: aiSessionStore
             )
         }
+    }
+
+    private func restorePrivateBackupIfNeeded() async {
+        guard let uid = backendSessionStore.backendUserID else {
+            restoredBackendUserID = nil
+            return
+        }
+        guard restoredBackendUserID != uid else { return }
+
+        await backendSessionStore.restorePrivateBackup(
+            profileStore: profileStore,
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            aiSessionStore: aiSessionStore
+        )
+        restoredBackendUserID = uid
     }
 }
 

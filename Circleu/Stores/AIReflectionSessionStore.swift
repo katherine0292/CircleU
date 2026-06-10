@@ -96,6 +96,12 @@ final class AIReflectionSessionStore: ObservableObject {
         save()
     }
 
+    func mergeRestoredSessions(_ restoredSessions: [AIReflectionSession]) {
+        guard !restoredSessions.isEmpty else { return }
+        sessions = normalizedUniqueSortedSessions(from: sessions + restoredSessions)
+        save()
+    }
+
     func reset() {
         sessions = []
         userDefaults.removeObject(forKey: storageKey)

@@ -11,15 +11,18 @@ final class BackendSessionStore: ObservableObject {
 
     private let authenticator: FirebaseAuthenticating
     private let syncer: ReflectionSyncing
+    private let restorer: ReflectionBackupRestoring
     private let identityProvider: UserIdentityProviding
 
     init(
         authenticator: FirebaseAuthenticating = FirebaseAuthService(),
         syncer: ReflectionSyncing = FirebaseUploadOnlySyncer(),
+        restorer: ReflectionBackupRestoring = FirebaseUploadOnlySyncer(),
         identityProvider: UserIdentityProviding = LocalUserIdentityProvider()
     ) {
         self.authenticator = authenticator
         self.syncer = syncer
+        self.restorer = restorer
         self.identityProvider = identityProvider
         session = authenticator.currentSession
     }
@@ -147,6 +150,40 @@ final class BackendSessionStore: ObservableObject {
 
         do {
             lastSyncResult = try await syncer.sync(snapshot)
+            lastSyncErrorMessage = nil
+        } catch {
+            lastSyncErrorMessage = error.localizedDescription
+        }
+    }
+
+    func restorePrivateBackup(
+        profileStore: UserProfileStore,
+        journalStore: ReflectionJournalStore,
+        questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
+        rewardsStore: RewardsStore,
+        aiSessionStore: AIReflectionSessionStore
+    ) async {
+        guard let uid = session?.uid else { return }
+        guard !isSyncing else { return }
+
+        isSyncing = true
+        defer { isSyncing = false }
+
+        do {
+            let snapshot = try await restorer.restorePrivateBackup(userID: uid)
+            profileStore.mergeRestoredProfile(snapshot.profile)
+            journalStore.mergeRestoredEntries(snapshot.journalEntries)
+            questStore.mergeRestoredQuests(snapshot.quests)
+            tipsPracticeStore.mergeRestoredSessions(snapshot.tipsPracticeSessions)
+            rewardsStore.mergeRestoredBackup(
+                rewardState: snapshot.rewardState,
+                pointEntries: snapshot.pointEntries,
+                activityEvents: snapshot.activityEvents
+            )
+            aiSessionStore.mergeRestoredSessions(snapshot.aiSessions)
+
+            lastSyncResult = BackendSyncResult(downloadedCounts: snapshot.counts)
             lastSyncErrorMessage = nil
         } catch {
             lastSyncErrorMessage = error.localizedDescription

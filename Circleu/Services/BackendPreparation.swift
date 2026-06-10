@@ -201,6 +201,10 @@ protocol ReflectionSyncing {
     func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult
 }
 
+protocol ReflectionBackupRestoring {
+    func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot
+}
+
 protocol UserIdentityProviding {
     var localUserID: String { get }
     var displayName: String { get }
@@ -217,9 +221,20 @@ struct LocalReflectionModelProvider: ReflectionModelProvider {
     let supportsOnDeviceProcessing = true
 }
 
-struct NoOpReflectionSyncer: ReflectionSyncing {
+struct NoOpReflectionSyncer: ReflectionSyncing, ReflectionBackupRestoring {
     func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
         BackendSyncResult()
+    }
+
+    func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
+        BackendSyncSnapshot(
+            userID: userID,
+            journalEntries: [],
+            quests: [],
+            circles: [],
+            circlePosts: [],
+            aiSessions: []
+        )
     }
 }
 

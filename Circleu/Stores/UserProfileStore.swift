@@ -36,6 +36,15 @@ final class UserProfileStore: ObservableObject {
         displayName = sanitizedName(value)
     }
 
+    func mergeRestoredProfile(_ profile: BackendProfileSnapshot?) {
+        guard let profile else { return }
+        let restoredName = sanitizedName(profile.displayName)
+        if !restoredName.isEmpty && !hasDisplayName {
+            displayName = restoredName
+        }
+        dailyPromptIndex = max(dailyPromptIndex, profile.promptIndex)
+    }
+
     func reset() {
         displayName = ""
         dailyPromptIndex = 0
