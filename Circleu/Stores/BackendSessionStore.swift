@@ -17,6 +17,11 @@ final class BackendSessionStore: ObservableObject {
     @Published private(set) var lastSyncErrorMessage: String?
     @Published private(set) var lastSyncErrorOperation: BackendSyncOperation?
     @Published private(set) var syncOperation: BackendSyncOperation = .idle
+    @Published private(set) var lastSyncAttemptedAt: Date?
+    @Published private(set) var lastUploadStartedAt: Date?
+    @Published private(set) var lastUploadSucceededAt: Date?
+    @Published private(set) var lastRestoreStartedAt: Date?
+    @Published private(set) var lastRestoreSucceededAt: Date?
 
     private let authenticator: FirebaseAuthenticating
     private let syncer: ReflectionSyncing
@@ -181,6 +186,9 @@ final class BackendSessionStore: ObservableObject {
 
         guard !snapshot.isEmpty else { return }
 
+        let startedAt = Date()
+        lastSyncAttemptedAt = startedAt
+        lastUploadStartedAt = startedAt
         syncOperation = .uploading
         defer { syncOperation = .idle }
 
@@ -188,6 +196,9 @@ final class BackendSessionStore: ObservableObject {
             let result = try await syncer.sync(snapshot)
             lastUploadResult = result
             lastSyncResult = result
+            if result.didSucceed {
+                lastUploadSucceededAt = result.syncedAt
+            }
             lastSyncErrorMessage = nil
             lastSyncErrorOperation = nil
         } catch {
@@ -207,6 +218,9 @@ final class BackendSessionStore: ObservableObject {
         guard let uid = session?.uid else { return }
         guard !isSyncing else { return }
 
+        let startedAt = Date()
+        lastSyncAttemptedAt = startedAt
+        lastRestoreStartedAt = startedAt
         syncOperation = .restoring
         defer { syncOperation = .idle }
 
@@ -226,6 +240,9 @@ final class BackendSessionStore: ObservableObject {
             let result = BackendSyncResult(downloadedCounts: snapshot.counts)
             lastRestoreResult = result
             lastSyncResult = result
+            if result.didSucceed {
+                lastRestoreSucceededAt = result.syncedAt
+            }
             lastSyncErrorMessage = nil
             lastSyncErrorOperation = nil
         } catch {

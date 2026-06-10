@@ -253,6 +253,210 @@ final class BackendSessionStoreTests: XCTestCase {
         XCTAssertEqual(store.lastSyncResult?.uploadedCounts, .zero)
     }
 
+    func testUploadPrivateBackupTracksAttemptAndSuccessTimes() async throws {
+        let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
+        let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
+        let circleStore = CircleStore(userDefaults: makeDefaults(), seedStarterSpaces: false)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
+        let syncer = CapturingSyncer()
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(authenticator: authenticator, syncer: syncer)
+
+        journalStore.add(makeEntry())
+
+        await store.uploadPrivateBackup(
+            profileStore: UserProfileStore(userDefaults: makeDefaults()),
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            circleStore: circleStore,
+            aiSessionStore: aiSessionStore
+        )
+
+        XCTAssertNotNil(store.lastSyncAttemptedAt)
+        XCTAssertNotNil(store.lastUploadStartedAt)
+        XCTAssertNotNil(store.lastUploadSucceededAt)
+        XCTAssertNil(store.lastRestoreStartedAt)
+        XCTAssertNil(store.lastRestoreSucceededAt)
+        XCTAssertNil(store.lastSyncErrorMessage)
+    }
+
+    func testUploadPrivateBackupTracksFailureWithoutClearingLocalData() async throws {
+        let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
+        let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
+        let circleStore = CircleStore(userDefaults: makeDefaults(), seedStarterSpaces: false)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
+        let syncer = CapturingSyncer()
+        syncer.error = TestBackendError.failed
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(authenticator: authenticator, syncer: syncer)
+        let entry = makeEntry()
+
+        journalStore.add(entry)
+
+        await store.uploadPrivateBackup(
+            profileStore: UserProfileStore(userDefaults: makeDefaults()),
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            circleStore: circleStore,
+            aiSessionStore: aiSessionStore
+        )
+
+        XCTAssertEqual(journalStore.entries.map(\.id), [entry.id])
+        XCTAssertNotNil(store.lastSyncAttemptedAt)
+        XCTAssertNotNil(store.lastUploadStartedAt)
+        XCTAssertNil(store.lastUploadSucceededAt)
+        XCTAssertEqual(store.lastSyncErrorMessage, TestBackendError.failed.localizedDescription)
+        XCTAssertEqual(store.lastSyncErrorOperation, .uploading)
+        XCTAssertEqual(store.backendUserID, "firebase-user-1")
+    }
+
+    func testUploadPrivateBackupDoesNotSetSuccessTimeForPartialFailureResult() async throws {
+        let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
+        let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
+        let circleStore = CircleStore(userDefaults: makeDefaults(), seedStarterSpaces: false)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
+        let partialResult = BackendSyncResult(
+            uploadedCounts: .zero,
+            failedScopes: [.journalEntries]
+        )
+        let syncer = CapturingSyncer()
+        syncer.result = partialResult
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(authenticator: authenticator, syncer: syncer)
+
+        journalStore.add(makeEntry())
+
+        await store.uploadPrivateBackup(
+            profileStore: UserProfileStore(userDefaults: makeDefaults()),
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            circleStore: circleStore,
+            aiSessionStore: aiSessionStore
+        )
+
+        XCTAssertNotNil(store.lastSyncAttemptedAt)
+        XCTAssertNotNil(store.lastUploadStartedAt)
+        XCTAssertNil(store.lastUploadSucceededAt)
+        XCTAssertEqual(store.lastUploadResult, partialResult)
+        XCTAssertEqual(store.lastSyncResult, partialResult)
+        XCTAssertNil(store.lastSyncErrorMessage)
+    }
+
+    func testRestorePrivateBackupTracksAttemptAndSuccessTimes() async {
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
+        let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
+        let restorer = CapturingRestorer(snapshot: makeRemoteSnapshot())
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            restorer: restorer
+        )
+
+        await store.restorePrivateBackup(
+            profileStore: profileStore,
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            aiSessionStore: aiSessionStore
+        )
+
+        XCTAssertNotNil(store.lastSyncAttemptedAt)
+        XCTAssertNotNil(store.lastRestoreStartedAt)
+        XCTAssertNotNil(store.lastRestoreSucceededAt)
+        XCTAssertNil(store.lastUploadStartedAt)
+        XCTAssertNil(store.lastUploadSucceededAt)
+        XCTAssertNil(store.lastSyncErrorMessage)
+    }
+
+    func testRestorePrivateBackupTracksFailureWithoutClearingLocalData() async {
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
+        let questStore = QuestStore(userDefaults: makeDefaults())
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: makeDefaults())
+        let rewardsStore = RewardsStore(userDefaults: makeDefaults(), seedIfEmpty: false)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: makeDefaults())
+        let restorer = CapturingRestorer(snapshot: makeRemoteSnapshot())
+        restorer.error = TestBackendError.failed
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            restorer: restorer
+        )
+        let entry = makeEntry()
+
+        journalStore.add(entry)
+
+        await store.restorePrivateBackup(
+            profileStore: profileStore,
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            aiSessionStore: aiSessionStore
+        )
+
+        XCTAssertEqual(journalStore.entries.map(\.id), [entry.id])
+        XCTAssertNotNil(store.lastSyncAttemptedAt)
+        XCTAssertNotNil(store.lastRestoreStartedAt)
+        XCTAssertNil(store.lastRestoreSucceededAt)
+        XCTAssertEqual(store.lastSyncErrorMessage, TestBackendError.failed.localizedDescription)
+        XCTAssertEqual(store.lastSyncErrorOperation, .restoring)
+    }
+
     private func makeEntry() -> JournalReflectionEntry {
         JournalReflectionEntry(
             durationSeconds: 60,
@@ -383,15 +587,20 @@ private final class FakeFirebaseAuthenticator: FirebaseAuthenticating {
 }
 
 private final class CapturingSyncer: ReflectionSyncing {
+    var error: Error?
+    var result: BackendSyncResult?
     var snapshots: [BackendSyncSnapshot] = []
 
     func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
+        if let error { throw error }
         snapshots.append(snapshot)
+        if let result { return result }
         return BackendSyncResult(uploadedCounts: snapshot.counts)
     }
 }
 
 private final class CapturingRestorer: ReflectionBackupRestoring {
+    var error: Error?
     var restoredUserIDs: [String] = []
     private let snapshot: BackendSyncSnapshot
 
@@ -400,6 +609,7 @@ private final class CapturingRestorer: ReflectionBackupRestoring {
     }
 
     func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
+        if let error { throw error }
         restoredUserIDs.append(userID)
         return snapshot
     }
