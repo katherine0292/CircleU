@@ -15,7 +15,7 @@ struct Quest: Identifiable, Codable, Equatable {
     var completedAt: Date?
     var status: QuestStatus
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         title: String,
         detail: String,
@@ -47,7 +47,7 @@ struct CircleSpace: Identifiable, Codable, Equatable, Hashable {
     /// Optional cover photos (JPEG-encoded Data). First image is the primary cover.
     var coverImages: [Data] = []
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         name: String,
         intention: String,
@@ -78,7 +78,7 @@ struct PostReply: Identifiable, Codable, Equatable {
     var likes: Int
     var liked: Bool
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         who: String = "You",
         text: String,
@@ -109,7 +109,7 @@ struct CirclePost: Identifiable, Codable, Equatable {
     var replies: [PostReply]
     var sourceEntryID: UUID?
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         circleID: UUID,
         who: String = "You",
@@ -143,7 +143,7 @@ struct PointEntry: Identifiable, Codable, Equatable {
     var icon: String
     var createdAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         label: String,
         points: Int,
@@ -174,7 +174,7 @@ struct ActivityEvent: Identifiable, Codable, Equatable {
     var refID: UUID?
     var createdAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         type: ActivityType,
         title: String,

@@ -9,6 +9,26 @@ struct AIReflectionResult: Codable, Equatable {
     var quote: String
     var confidenceScore: Double
     var suggestedQuest: String
+
+    nonisolated init(
+        title: String,
+        emotion: String,
+        summary: String,
+        insight: String,
+        expressionMoment: String,
+        quote: String,
+        confidenceScore: Double,
+        suggestedQuest: String
+    ) {
+        self.title = title
+        self.emotion = emotion
+        self.summary = summary
+        self.insight = insight
+        self.expressionMoment = expressionMoment
+        self.quote = quote
+        self.confidenceScore = confidenceScore
+        self.suggestedQuest = suggestedQuest
+    }
 }
 
 struct JournalReflectionEntry: Identifiable, Codable, Equatable {
@@ -40,7 +60,7 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
         case lastEditedAt
     }
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
         durationSeconds: Int,

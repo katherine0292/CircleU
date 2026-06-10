@@ -104,4 +104,19 @@ Use Simulator for SwiftUI previews and unit checks. Use a connected iPhone for m
 
 ## Backend Note
 
-Firebase is enabled for beta backend testing. After signing up or signing in, open Profile > QA tools and confirm Firebase status shows a UID. Save a reflection, then confirm Firestore has private user documents under `users/{uid}`. Clear local app data or reinstall, sign in with the same account, and confirm private profile/journal/reward/tips data restores. Shared circles are still local-only and should not write under the top-level `circles/` collection.
+Firebase is enabled for beta backend testing. The current iOS bundle identifier is `edu.uts.tuannm3812.Circleu`, so `Circleu/GoogleService-Info.plist` must belong to that Firebase iOS app.
+
+Use this backend smoke test on a real iPhone:
+
+1. Sign up or sign in.
+2. Open Profile > QA tools and confirm Firebase status shows a UID.
+3. Save one reflection.
+4. Complete or skip one tip.
+5. Confirm Firestore has private user documents under `users/{uid}`.
+6. Confirm Authentication shows the same UID/email.
+7. Confirm there are no writes under top-level `circles/`.
+8. Clear local app data or reinstall.
+9. Sign in with the same account.
+10. Confirm private profile, journal, reward, tips, and AI session data restores.
+
+Shared circles are still local-only and should not write under the top-level `circles/` collection.

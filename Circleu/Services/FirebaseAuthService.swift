@@ -26,7 +26,7 @@ struct FirebaseAuthProfile: Codable, Equatable {
     }
 }
 
-protocol FirebaseAuthenticating {
+nonisolated protocol FirebaseAuthenticating {
     var currentSession: FirebaseAuthSession? { get }
 
     func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession
@@ -34,7 +34,7 @@ protocol FirebaseAuthenticating {
     func signOut() throws
 }
 
-protocol FirebaseAuthClient {
+nonisolated protocol FirebaseAuthClient {
     var currentUser: FirebaseAuthSession? { get }
 
     func createUser(email: String, password: String) async throws -> FirebaseAuthSession
@@ -44,17 +44,17 @@ protocol FirebaseAuthClient {
 }
 
 struct FirebaseAuthService: FirebaseAuthenticating {
-    private let client: FirebaseAuthClient
+    nonisolated(unsafe) private let client: FirebaseAuthClient
 
-    init(client: FirebaseAuthClient = LiveFirebaseAuthClient()) {
+    nonisolated init(client: FirebaseAuthClient = LiveFirebaseAuthClient()) {
         self.client = client
     }
 
-    var currentSession: FirebaseAuthSession? {
+    nonisolated var currentSession: FirebaseAuthSession? {
         client.currentUser
     }
 
-    func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession {
+    nonisolated func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession {
         let created = try await client.createUser(email: profile.email, password: password)
         let updated = try await client.updateDisplayName(profile.displayName)
 
@@ -66,20 +66,20 @@ struct FirebaseAuthService: FirebaseAuthenticating {
         )
     }
 
-    func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
+    nonisolated func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
         let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         return try await client.signIn(email: cleanEmail, password: password)
     }
 
-    func signOut() throws {
+    nonisolated func signOut() throws {
         try client.signOut()
     }
 }
 
 struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
-    var currentSession: FirebaseAuthSession? { nil }
+    nonisolated var currentSession: FirebaseAuthSession? { nil }
 
-    func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession {
+    nonisolated func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession {
         FirebaseAuthSession(
             uid: profile.localUserID,
             email: profile.email,
@@ -88,7 +88,7 @@ struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
         )
     }
 
-    func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
+    nonisolated func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
         FirebaseAuthSession(
             uid: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
             email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
@@ -97,15 +97,17 @@ struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
         )
     }
 
-    func signOut() throws {}
+    nonisolated func signOut() throws {}
 }
 
 struct LiveFirebaseAuthClient: FirebaseAuthClient {
-    var currentUser: FirebaseAuthSession? {
+    nonisolated init() {}
+
+    nonisolated var currentUser: FirebaseAuthSession? {
         Auth.auth().currentUser.map(Self.session(from:))
     }
 
-    func createUser(email: String, password: String) async throws -> FirebaseAuthSession {
+    nonisolated func createUser(email: String, password: String) async throws -> FirebaseAuthSession {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FirebaseAuthSession, Error>) in
             Auth.auth().createUser(withEmail: email, password: password) { result, error in
                 if let error {
@@ -123,7 +125,7 @@ struct LiveFirebaseAuthClient: FirebaseAuthClient {
         }
     }
 
-    func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
+    nonisolated func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FirebaseAuthSession, Error>) in
             Auth.auth().signIn(withEmail: email, password: password) { result, error in
                 if let error {
@@ -141,7 +143,7 @@ struct LiveFirebaseAuthClient: FirebaseAuthClient {
         }
     }
 
-    func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession {
+    nonisolated func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession {
         guard let user = Auth.auth().currentUser else {
             throw FirebaseAuthServiceError.missingUser
         }
@@ -162,11 +164,11 @@ struct LiveFirebaseAuthClient: FirebaseAuthClient {
         return Self.session(from: user)
     }
 
-    func signOut() throws {
+    nonisolated func signOut() throws {
         try Auth.auth().signOut()
     }
 
-    private static func session(from user: User) -> FirebaseAuthSession {
+    nonisolated private static func session(from user: User) -> FirebaseAuthSession {
         FirebaseAuthSession(
             uid: user.uid,
             email: user.email,

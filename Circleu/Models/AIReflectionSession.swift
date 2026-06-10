@@ -46,7 +46,7 @@ struct AIReflectionAttempt: Identifiable, Codable, Equatable {
     var errorMessage: String?
     var elapsedMilliseconds: Int?
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
         engineName: String,
@@ -78,7 +78,7 @@ struct AIReflectionSession: Identifiable, Codable, Equatable {
     var attempts: [AIReflectionAttempt]
     var selectedAttemptID: UUID?
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
         updatedAt: Date = Date(),

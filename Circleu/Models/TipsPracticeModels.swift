@@ -106,7 +106,7 @@ struct TipsPracticeTurn: Identifiable, Codable, Equatable {
     var text: String
     var createdAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         role: TipsPracticeRole,
         label: String,
@@ -126,7 +126,7 @@ struct TipsCoachReplyOption: Identifiable, Codable, Equatable {
     var label: String
     var text: String
 
-    init(id: UUID = UUID(), label: String, text: String) {
+    nonisolated init(id: UUID = UUID(), label: String, text: String) {
         self.id = id
         self.label = label
         self.text = text
@@ -139,6 +139,20 @@ struct TipsCoachOutput: Codable, Equatable {
     var simulatedReply: String
     var roomReading: String
     var replyOptions: [TipsCoachReplyOption]
+
+    nonisolated init(
+        suggestedPhrasing: String,
+        whyItWorks: String,
+        simulatedReply: String,
+        roomReading: String,
+        replyOptions: [TipsCoachReplyOption]
+    ) {
+        self.suggestedPhrasing = suggestedPhrasing
+        self.whyItWorks = whyItWorks
+        self.simulatedReply = simulatedReply
+        self.roomReading = roomReading
+        self.replyOptions = replyOptions
+    }
 }
 
 struct TipsPracticeSession: Identifiable, Codable, Equatable {
@@ -154,7 +168,7 @@ struct TipsPracticeSession: Identifiable, Codable, Equatable {
     var coachOutput: TipsCoachOutput
     var attachedImageCount: Int
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
         updatedAt: Date = Date(),

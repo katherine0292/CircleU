@@ -15,7 +15,7 @@ struct BackendSyncSnapshot: Codable, Equatable {
     var circlePosts: [CirclePost]
     var aiSessions: [AIReflectionSession]
 
-    init(
+    nonisolated init(
         userID: String,
         generatedAt: Date = Date(),
         user: BackendUserSnapshot? = nil,
@@ -45,12 +45,23 @@ struct BackendSyncSnapshot: Codable, Equatable {
         self.aiSessions = aiSessions
     }
 
-    var counts: BackendSyncCounts {
+    nonisolated var counts: BackendSyncCounts {
         BackendSyncCounts(snapshot: self)
     }
 
-    var isEmpty: Bool {
-        user == nil && profile == nil && rewardState == nil && counts == .zero
+    nonisolated var isEmpty: Bool {
+        guard case nil = user, case nil = profile, case nil = rewardState else {
+            return false
+        }
+
+        return counts.journalEntryCount == 0
+            && counts.questCount == 0
+            && counts.tipsPracticeSessionCount == 0
+            && counts.pointEntryCount == 0
+            && counts.activityEventCount == 0
+            && counts.circleCount == 0
+            && counts.circlePostCount == 0
+            && counts.aiSessionCount == 0
     }
 }
 
@@ -60,12 +71,26 @@ struct BackendUserSnapshot: Codable, Equatable {
     var displayName: String
     var localUserID: String?
     var updatedAt: Date
+
+    nonisolated init(uid: String, email: String?, displayName: String, localUserID: String?, updatedAt: Date) {
+        self.uid = uid
+        self.email = email
+        self.displayName = displayName
+        self.localUserID = localUserID
+        self.updatedAt = updatedAt
+    }
 }
 
 struct BackendProfileSnapshot: Codable, Equatable {
     var displayName: String
     var promptIndex: Int
     var updatedAt: Date
+
+    nonisolated init(displayName: String, promptIndex: Int, updatedAt: Date) {
+        self.displayName = displayName
+        self.promptIndex = promptIndex
+        self.updatedAt = updatedAt
+    }
 }
 
 struct BackendRewardSnapshot: Codable, Equatable {
@@ -75,6 +100,22 @@ struct BackendRewardSnapshot: Codable, Equatable {
     var nextLevel: Int
     var questAwards: [String: String]
     var updatedAt: Date
+
+    nonisolated init(
+        points: Int,
+        level: Int,
+        intoLevel: Int,
+        nextLevel: Int,
+        questAwards: [String: String],
+        updatedAt: Date
+    ) {
+        self.points = points
+        self.level = level
+        self.intoLevel = intoLevel
+        self.nextLevel = nextLevel
+        self.questAwards = questAwards
+        self.updatedAt = updatedAt
+    }
 }
 
 struct BackendSyncCounts: Codable, Equatable {
@@ -87,7 +128,7 @@ struct BackendSyncCounts: Codable, Equatable {
     var circlePostCount: Int
     var aiSessionCount: Int
 
-    static let zero = BackendSyncCounts(
+    nonisolated static let zero = BackendSyncCounts(
         journalEntryCount: 0,
         questCount: 0,
         tipsPracticeSessionCount: 0,
@@ -98,7 +139,7 @@ struct BackendSyncCounts: Codable, Equatable {
         aiSessionCount: 0
     )
 
-    init(
+    nonisolated init(
         journalEntryCount: Int,
         questCount: Int,
         tipsPracticeSessionCount: Int = 0,
@@ -118,7 +159,7 @@ struct BackendSyncCounts: Codable, Equatable {
         self.aiSessionCount = aiSessionCount
     }
 
-    init(snapshot: BackendSyncSnapshot) {
+    nonisolated init(snapshot: BackendSyncSnapshot) {
         self.init(
             journalEntryCount: snapshot.journalEntries.count,
             questCount: snapshot.quests.count,
@@ -152,7 +193,7 @@ struct BackendSyncResult: Codable, Equatable {
     var downloadedCounts: BackendSyncCounts
     var failedScopes: [BackendSyncScope]
 
-    init(
+    nonisolated init(
         syncedAt: Date = Date(),
         uploadedCounts: BackendSyncCounts = .zero,
         downloadedCounts: BackendSyncCounts = .zero,
@@ -164,7 +205,7 @@ struct BackendSyncResult: Codable, Equatable {
         self.failedScopes = failedScopes
     }
 
-    var didSucceed: Bool {
+    nonisolated var didSucceed: Bool {
         failedScopes.isEmpty
     }
 }
@@ -174,7 +215,7 @@ struct AnalyticsEvent: Codable, Equatable {
     var properties: [String: String]
     var createdAt: Date
 
-    init(name: String, properties: [String: String] = [:], createdAt: Date = Date()) {
+    nonisolated init(name: String, properties: [String: String] = [:], createdAt: Date = Date()) {
         let cleanName = name
             .split(whereSeparator: { $0.isWhitespace })
             .joined(separator: "_")
@@ -190,43 +231,43 @@ struct AnalyticsEvent: Codable, Equatable {
     }
 }
 
-protocol ReflectionModelProvider {
+nonisolated protocol ReflectionModelProvider {
     var providerName: String { get }
     var isAvailable: Bool { get }
     var availabilityReason: String? { get }
     var supportsOnDeviceProcessing: Bool { get }
 }
 
-protocol ReflectionSyncing {
+nonisolated protocol ReflectionSyncing {
     func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult
 }
 
-protocol ReflectionBackupRestoring {
+nonisolated protocol ReflectionBackupRestoring {
     func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot
 }
 
-protocol UserIdentityProviding {
+nonisolated protocol UserIdentityProviding {
     var localUserID: String { get }
     var displayName: String { get }
 }
 
-protocol AnalyticsTracking {
+nonisolated protocol AnalyticsTracking {
     func track(_ event: AnalyticsEvent)
 }
 
 struct LocalReflectionModelProvider: ReflectionModelProvider {
-    let providerName = "Local"
-    let isAvailable = true
-    let availabilityReason: String? = nil
-    let supportsOnDeviceProcessing = true
+    nonisolated let providerName = "Local"
+    nonisolated let isAvailable = true
+    nonisolated let availabilityReason: String? = nil
+    nonisolated let supportsOnDeviceProcessing = true
 }
 
 struct NoOpReflectionSyncer: ReflectionSyncing, ReflectionBackupRestoring {
-    func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
+    nonisolated func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
         BackendSyncResult()
     }
 
-    func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
+    nonisolated func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
         BackendSyncSnapshot(
             userID: userID,
             journalEntries: [],
@@ -239,13 +280,13 @@ struct NoOpReflectionSyncer: ReflectionSyncing, ReflectionBackupRestoring {
 }
 
 struct LocalUserIdentityProvider: UserIdentityProviding {
-    private let defaults: UserDefaults
+    nonisolated(unsafe) private let defaults: UserDefaults
 
-    init(defaults: UserDefaults = .standard) {
+    nonisolated init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
 
-    var localUserID: String {
+    nonisolated var localUserID: String {
         let key = "circleu.localUserID"
 
         if let existingID = defaults.string(forKey: key) {
@@ -257,7 +298,7 @@ struct LocalUserIdentityProvider: UserIdentityProviding {
         return newID
     }
 
-    var displayName: String {
+    nonisolated var displayName: String {
         let savedName = defaults
             .string(forKey: "circleu.profile.displayName.v1")?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -266,11 +307,11 @@ struct LocalUserIdentityProvider: UserIdentityProviding {
 }
 
 struct NoOpAnalyticsTracker: AnalyticsTracking {
-    func track(_ event: AnalyticsEvent) {}
+    nonisolated func track(_ event: AnalyticsEvent) {}
 }
 
 extension AnalyticsTracking {
-    func track(event: String, properties: [String: String] = [:]) {
+    nonisolated func track(event: String, properties: [String: String] = [:]) {
         track(AnalyticsEvent(name: event, properties: properties))
     }
 }

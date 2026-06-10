@@ -11,7 +11,7 @@ indirect enum FirebasePayloadValue: Equatable {
     case dictionary([String: FirebasePayloadValue])
     case dictionaryArray([[String: FirebasePayloadValue]])
 
-    var firestoreValue: Any {
+    nonisolated var firestoreValue: Any {
         switch self {
         case .string(let value):
             return value
@@ -38,13 +38,13 @@ struct FirebaseDocumentPayload: Equatable {
     var data: [String: FirebasePayloadValue]
     var scope: BackendSyncScope
 
-    var firestoreData: [String: Any] {
+    nonisolated var firestoreData: [String: Any] {
         data.mapValues(\.firestoreValue)
     }
 }
 
 enum FirebaseSyncMapper {
-    static func privateBackupDocuments(for snapshot: BackendSyncSnapshot) -> [FirebaseDocumentPayload] {
+    nonisolated static func privateBackupDocuments(for snapshot: BackendSyncSnapshot) -> [FirebaseDocumentPayload] {
         let uid = snapshot.userID
 
         let userDocument = snapshot.user.map { user in
@@ -129,7 +129,7 @@ enum FirebaseSyncMapper {
             + aiSessionDocuments
     }
 
-    static func privateBackupSnapshot(
+    nonisolated static func privateBackupSnapshot(
         userID: String,
         userDocument: [String: Any]?,
         profileDocument: [String: Any]?,
@@ -158,20 +158,20 @@ enum FirebaseSyncMapper {
     }
 }
 
-protocol FirebaseFirestoreClient {
+nonisolated protocol FirebaseFirestoreClient {
     func setData(_ data: [String: Any], at documentPath: String, merge: Bool) async throws
     func getDocument(at documentPath: String) async throws -> [String: Any]?
     func getDocuments(in collectionPath: String) async throws -> [[String: Any]]
 }
 
 struct FirebaseUploadOnlySyncer: ReflectionSyncing, ReflectionBackupRestoring {
-    private let client: FirebaseFirestoreClient
+    nonisolated(unsafe) private let client: FirebaseFirestoreClient
 
-    init(client: FirebaseFirestoreClient = LiveFirebaseFirestoreClient()) {
+    nonisolated init(client: FirebaseFirestoreClient = LiveFirebaseFirestoreClient()) {
         self.client = client
     }
 
-    func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
+    nonisolated func sync(_ snapshot: BackendSyncSnapshot) async throws -> BackendSyncResult {
         let documents = FirebaseSyncMapper.privateBackupDocuments(for: snapshot)
         var uploadedCounts = BackendSyncCounts.zero
         var failedScopes = Set<BackendSyncScope>()
@@ -192,7 +192,7 @@ struct FirebaseUploadOnlySyncer: ReflectionSyncing, ReflectionBackupRestoring {
         )
     }
 
-    func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
+    nonisolated func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot {
         async let userDocument = client.getDocument(at: "users/\(userID)")
         async let profileDocument = client.getDocument(at: "users/\(userID)/profile/main")
         async let journalDocuments = client.getDocuments(in: "users/\(userID)/journalEntries")
@@ -219,7 +219,9 @@ struct FirebaseUploadOnlySyncer: ReflectionSyncing, ReflectionBackupRestoring {
 }
 
 struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
-    func setData(_ data: [String: Any], at documentPath: String, merge: Bool) async throws {
+    nonisolated init() {}
+
+    nonisolated func setData(_ data: [String: Any], at documentPath: String, merge: Bool) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             Firestore.firestore().document(documentPath).setData(data, merge: merge) { error in
                 if let error {
@@ -232,7 +234,7 @@ struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
         }
     }
 
-    func getDocument(at documentPath: String) async throws -> [String: Any]? {
+    nonisolated func getDocument(at documentPath: String) async throws -> [String: Any]? {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[String: Any]?, Error>) in
             Firestore.firestore().document(documentPath).getDocument { snapshot, error in
                 if let error {
@@ -245,7 +247,7 @@ struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
         }
     }
 
-    func getDocuments(in collectionPath: String) async throws -> [[String: Any]] {
+    nonisolated func getDocuments(in collectionPath: String) async throws -> [[String: Any]] {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[[String: Any]], Error>) in
             Firestore.firestore().collection(collectionPath).getDocuments { snapshot, error in
                 if let error {
@@ -260,7 +262,7 @@ struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
 }
 
 private extension BackendSyncCounts {
-    mutating func increment(_ scope: BackendSyncScope) {
+    nonisolated mutating func increment(_ scope: BackendSyncScope) {
         switch scope {
         case .user, .profile, .rewardState:
             break
@@ -285,7 +287,7 @@ private extension BackendSyncCounts {
 }
 
 private extension BackendUserSnapshot {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "uid": .string(uid),
             "email": email.map(FirebasePayloadValue.string),
@@ -298,7 +300,7 @@ private extension BackendUserSnapshot {
 }
 
 private extension BackendProfileSnapshot {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "displayName": .string(displayName),
             "promptIndex": .int(promptIndex),
@@ -308,7 +310,7 @@ private extension BackendProfileSnapshot {
 }
 
 private extension JournalReflectionEntry {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "entryID": .string(id.uuidString),
             "createdAt": .date(createdAt),
@@ -327,7 +329,7 @@ private extension JournalReflectionEntry {
 }
 
 private extension Quest {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "questID": .string(id.uuidString),
             "title": .string(title),
@@ -341,7 +343,7 @@ private extension Quest {
 }
 
 private extension TipsPracticeSession {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "sessionID": .string(id.uuidString),
             "createdAt": .date(createdAt),
@@ -359,7 +361,7 @@ private extension TipsPracticeSession {
 }
 
 private extension TipsPracticeTurn {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "turnID": .string(id.uuidString),
             "role": .string(role.rawValue),
@@ -371,7 +373,7 @@ private extension TipsPracticeTurn {
 }
 
 private extension TipsCoachOutput {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "suggestedPhrasing": .string(suggestedPhrasing),
             "whyItWorks": .string(whyItWorks),
@@ -383,7 +385,7 @@ private extension TipsCoachOutput {
 }
 
 private extension TipsCoachReplyOption {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "optionID": .string(id.uuidString),
             "label": .string(label),
@@ -393,7 +395,7 @@ private extension TipsCoachReplyOption {
 }
 
 private extension BackendRewardSnapshot {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "points": .int(points),
             "level": .int(level),
@@ -406,7 +408,7 @@ private extension BackendRewardSnapshot {
 }
 
 private extension PointEntry {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "pointEntryID": .string(id.uuidString),
             "label": .string(label),
@@ -418,7 +420,7 @@ private extension PointEntry {
 }
 
 private extension ActivityEvent {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "activityEventID": .string(id.uuidString),
             "type": .string(type.rawValue),
@@ -431,7 +433,7 @@ private extension ActivityEvent {
 }
 
 private extension AIReflectionSession {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "sessionID": .string(id.uuidString),
             "createdAt": .date(createdAt),
@@ -449,7 +451,7 @@ private extension AIReflectionSession {
 }
 
 private extension AIReflectionAttempt {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         compactPayload([
             "attemptID": .string(id.uuidString),
             "createdAt": .date(createdAt),
@@ -463,7 +465,7 @@ private extension AIReflectionAttempt {
 }
 
 private extension AIReflectionResult {
-    var firebasePayload: [String: FirebasePayloadValue] {
+    nonisolated var firebasePayload: [String: FirebasePayloadValue] {
         [
             "title": .string(title),
             "emotion": .string(emotion),
@@ -478,11 +480,11 @@ private extension AIReflectionResult {
 }
 
 private enum FirebasePayloadReader {
-    static func string(_ data: [String: Any], _ key: String) -> String? {
+    nonisolated static func string(_ data: [String: Any], _ key: String) -> String? {
         data[key] as? String
     }
 
-    static func int(_ data: [String: Any], _ key: String) -> Int? {
+    nonisolated static func int(_ data: [String: Any], _ key: String) -> Int? {
         switch data[key] {
         case let value as Int:
             return value
@@ -495,7 +497,7 @@ private enum FirebasePayloadReader {
         }
     }
 
-    static func double(_ data: [String: Any], _ key: String) -> Double? {
+    nonisolated static func double(_ data: [String: Any], _ key: String) -> Double? {
         switch data[key] {
         case let value as Double:
             return value
@@ -508,7 +510,7 @@ private enum FirebasePayloadReader {
         }
     }
 
-    static func date(_ data: [String: Any], _ key: String) -> Date? {
+    nonisolated static func date(_ data: [String: Any], _ key: String) -> Date? {
         switch data[key] {
         case let value as Date:
             return value
@@ -523,25 +525,25 @@ private enum FirebasePayloadReader {
         }
     }
 
-    static func uuid(_ data: [String: Any], _ key: String) -> UUID? {
+    nonisolated static func uuid(_ data: [String: Any], _ key: String) -> UUID? {
         string(data, key).flatMap(UUID.init(uuidString:))
     }
 
-    static func strings(_ data: [String: Any], _ key: String) -> [String] {
+    nonisolated static func strings(_ data: [String: Any], _ key: String) -> [String] {
         data[key] as? [String] ?? []
     }
 
-    static func dictionary(_ data: [String: Any], _ key: String) -> [String: Any]? {
+    nonisolated static func dictionary(_ data: [String: Any], _ key: String) -> [String: Any]? {
         data[key] as? [String: Any]
     }
 
-    static func dictionaries(_ data: [String: Any], _ key: String) -> [[String: Any]] {
+    nonisolated static func dictionaries(_ data: [String: Any], _ key: String) -> [[String: Any]] {
         data[key] as? [[String: Any]] ?? []
     }
 }
 
 private extension BackendUserSnapshot {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let uid = FirebasePayloadReader.string(data, "uid"),
               let displayName = FirebasePayloadReader.string(data, "displayName") else {
             return nil
@@ -558,7 +560,7 @@ private extension BackendUserSnapshot {
 }
 
 private extension BackendProfileSnapshot {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let displayName = FirebasePayloadReader.string(data, "displayName"),
               let promptIndex = FirebasePayloadReader.int(data, "promptIndex") else {
             return nil
@@ -573,7 +575,7 @@ private extension BackendProfileSnapshot {
 }
 
 private extension JournalReflectionEntry {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "entryID"),
               let createdAt = FirebasePayloadReader.date(data, "createdAt"),
               let durationSeconds = FirebasePayloadReader.int(data, "durationSeconds"),
@@ -602,7 +604,7 @@ private extension JournalReflectionEntry {
 }
 
 private extension Quest {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "questID"),
               let title = FirebasePayloadReader.string(data, "title"),
               let detail = FirebasePayloadReader.string(data, "detail"),
@@ -625,7 +627,7 @@ private extension Quest {
 }
 
 private extension TipsPracticeSession {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "sessionID"),
               let createdAt = FirebasePayloadReader.date(data, "createdAt"),
               let updatedAt = FirebasePayloadReader.date(data, "updatedAt"),
@@ -657,7 +659,7 @@ private extension TipsPracticeSession {
 }
 
 private extension TipsPracticeTurn {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "turnID"),
               let roleValue = FirebasePayloadReader.string(data, "role"),
               let role = TipsPracticeRole(rawValue: roleValue),
@@ -672,7 +674,7 @@ private extension TipsPracticeTurn {
 }
 
 private extension TipsCoachOutput {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let suggestedPhrasing = FirebasePayloadReader.string(data, "suggestedPhrasing"),
               let whyItWorks = FirebasePayloadReader.string(data, "whyItWorks"),
               let simulatedReply = FirebasePayloadReader.string(data, "simulatedReply"),
@@ -691,7 +693,7 @@ private extension TipsCoachOutput {
 }
 
 private extension TipsCoachReplyOption {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "optionID"),
               let label = FirebasePayloadReader.string(data, "label"),
               let text = FirebasePayloadReader.string(data, "text") else {
@@ -703,7 +705,7 @@ private extension TipsCoachReplyOption {
 }
 
 private extension BackendRewardSnapshot {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let points = FirebasePayloadReader.int(data, "points"),
               let level = FirebasePayloadReader.int(data, "level"),
               let intoLevel = FirebasePayloadReader.int(data, "intoLevel"),
@@ -723,7 +725,7 @@ private extension BackendRewardSnapshot {
 }
 
 private extension PointEntry {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "pointEntryID"),
               let label = FirebasePayloadReader.string(data, "label"),
               let points = FirebasePayloadReader.int(data, "points"),
@@ -737,7 +739,7 @@ private extension PointEntry {
 }
 
 private extension ActivityEvent {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "activityEventID"),
               let typeValue = FirebasePayloadReader.string(data, "type"),
               let type = ActivityType(rawValue: typeValue),
@@ -759,7 +761,7 @@ private extension ActivityEvent {
 }
 
 private extension AIReflectionSession {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "sessionID"),
               let createdAt = FirebasePayloadReader.date(data, "createdAt"),
               let updatedAt = FirebasePayloadReader.date(data, "updatedAt"),
@@ -788,7 +790,7 @@ private extension AIReflectionSession {
 }
 
 private extension AIReflectionAttempt {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "attemptID"),
               let createdAt = FirebasePayloadReader.date(data, "createdAt"),
               let engineName = FirebasePayloadReader.string(data, "engineName"),
@@ -811,7 +813,7 @@ private extension AIReflectionAttempt {
 }
 
 private extension AIReflectionResult {
-    init?(firebaseData data: [String: Any]) {
+    nonisolated init?(firebaseData data: [String: Any]) {
         guard let title = FirebasePayloadReader.string(data, "title"),
               let emotion = FirebasePayloadReader.string(data, "emotion"),
               let summary = FirebasePayloadReader.string(data, "summary"),
@@ -836,7 +838,7 @@ private extension AIReflectionResult {
     }
 }
 
-private func compactPayload(_ values: [String: FirebasePayloadValue?]) -> [String: FirebasePayloadValue] {
+nonisolated private func compactPayload(_ values: [String: FirebasePayloadValue?]) -> [String: FirebasePayloadValue] {
     values.reduce(into: [:]) { result, item in
         guard let value = item.value else { return }
         result[item.key] = value

@@ -171,6 +171,31 @@ After deploy, verify in Firebase Console:
 5. Confirm there are no writes under `circles/`.
 6. Reset local data or reinstall, sign in with the same account, and confirm private journal/reward/tips data restores from `users/{uid}`.
 
+## Backend Completion Checklist
+
+Use this checklist before calling the Firebase backend complete for beta.
+
+1. Confirm Firebase Console > Project settings has an iOS app for bundle ID `edu.uts.tuannm3812.Circleu`.
+2. Confirm `Circleu/GoogleService-Info.plist` was downloaded for that same bundle ID.
+3. Confirm Firebase Authentication > Sign-in method has Email/Password enabled.
+4. Confirm Firestore Database exists in production or test mode, then deploy `firestore.rules`.
+5. Create a fresh account from a real iPhone build.
+6. Confirm Firebase Authentication shows the new UID.
+7. Save one reflection and complete or skip one tip.
+8. Confirm Firestore writes only under `users/{uid}`:
+   - `profile/main`
+   - `journalEntries/{entryID}`
+   - `quests/{questID}`
+   - `tipsPracticeSessions/{sessionID}` when tips are used
+   - `rewardState/main`
+   - `pointEntries/{pointEntryID}`
+   - `activityEvents/{activityEventID}`
+   - `aiReflectionSessions/{sessionID}`
+9. Confirm Firestore has no writes under top-level `circles/`.
+10. Delete or reset local app data, sign in with the same account, and confirm private profile, journal, reward, tips, and AI session data restores.
+
+If App Store Connect upload fails, treat it as Apple account permission work, not Firebase backend work. The backend is ready when the checklist above passes on a real device.
+
 ## Next Coding Slice
 
 Start with a pure Swift schema contract:
