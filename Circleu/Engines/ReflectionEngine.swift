@@ -133,11 +133,12 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
         if TranscriptQuality.isRoughLowSignal(cleanTranscript) { return .roughLowSignal }
         if TranscriptQuality.containsRoughLanguage(cleanTranscript) { return .roughLanguage }
         let text = cleanTranscript.lowercased()
-        if containsAny(["boundary", "interrupted", "crossed a line", "need space", "angry", "frustrated", "conflict"], in: text) { return .boundaryConflict }
-        if containsAny(["stress", "stressed", "busy", "hard", "overwhelmed", "too much", "too many", "burned out", "burnt out", "exhausted"], in: text) { return .overwhelm }
-        if containsAny(["nervous", "anxious", "scared", "afraid", "worried", "panic"], in: text) { return .anxiety }
-        if containsAny(["proud", "grateful", "happy", "relieved", "excited", "win", "good", "great", "won", "finished"], in: text) { return .pride }
-        if containsAny(["sad", "lonely", "hurt", "miss", "tired", "cry"], in: text) { return .tender }
+        let words = normalizedWords(in: text)
+        if containsAny(["boundary", "interrupted", "crossed a line", "need space", "angry", "frustrated", "conflict"], in: text, words: words) { return .boundaryConflict }
+        if containsAny(["proud", "grateful", "happy", "relieved", "excited", "win", "good", "great", "won", "finished"], in: text, words: words) { return .pride }
+        if containsAny(["stress", "stressed", "busy", "hard", "overwhelmed", "too much", "too many", "burned out", "burnt out", "exhausted"], in: text, words: words) { return .overwhelm }
+        if containsAny(["nervous", "anxious", "scared", "afraid", "worried", "panic"], in: text, words: words) { return .anxiety }
+        if containsAny(["sad", "lonely", "hurt", "miss", "tired", "cry"], in: text, words: words) { return .tender }
         return .neutral
     }
 
@@ -235,8 +236,26 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
         }
     }
 
-    private func containsAny(_ keywords: [String], in text: String) -> Bool {
-        keywords.contains { text.contains($0) }
+    private func containsAny(_ keywords: [String], in text: String, words: Set<String>? = nil) -> Bool {
+        let words = words ?? normalizedWords(in: text)
+        return keywords.contains { keyword in
+            if keyword.contains(" ") {
+                return text.contains(keyword)
+            }
+
+            return words.contains(keyword)
+        }
+    }
+
+    private func normalizedWords(in text: String) -> Set<String> {
+        let words = text
+            .split(separator: " ")
+            .map { word in
+                word.filter { $0.isLetter || $0.isNumber }
+            }
+            .filter { !$0.isEmpty }
+
+        return Set(words.map { String($0) })
     }
 
     private func summarize(_ transcript: String) -> String {

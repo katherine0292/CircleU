@@ -110,6 +110,39 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertConfidenceScoreIsValid(result)
     }
 
+    func testLocalReflectionEngineLetsLegacyPrideBeatGenericLoadKeyword() async throws {
+        let result = try await analyze(
+            "I worked hard and finished the project before the meeting started."
+        )
+
+        XCTAssertEqual(result.title, "You noticed a meaningful win")
+        XCTAssertEqual(result.emotion, "Proud")
+        XCTAssertEqual(result.suggestedQuest, "Save one sentence about what helped this moment go well.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineDoesNotTreatWindowAsWinKeyword() async throws {
+        let result = try await analyze(
+            "I sat by the window after class and noticed that tomorrow could feel more organized and clear."
+        )
+
+        XCTAssertEqual(result.title, "You checked in with yourself")
+        XCTAssertEqual(result.emotion, "Thoughtful")
+        XCTAssertEqual(result.suggestedQuest, "Write down one next step that would make tomorrow feel lighter.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineLetsGratefulBeatStressedKeyword() async throws {
+        let result = try await analyze(
+            "I felt stressed before the update, but I was grateful that the team helped me finish calmly."
+        )
+
+        XCTAssertEqual(result.title, "You noticed a meaningful win")
+        XCTAssertEqual(result.emotion, "Proud")
+        XCTAssertEqual(result.suggestedQuest, "Save one sentence about what helped this moment go well.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
     func testLocalReflectionEngineCreatesTenderReflectionProfile() async throws {
         let result = try await analyze(
             "I felt sad and lonely after lunch because I missed my old friends and did not know who to talk with."
