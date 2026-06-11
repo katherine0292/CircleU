@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Per-developer Firebase config — DO NOT commit your real GoogleService-Info.plist.
+
+  Each developer must register their own iOS app under Firebase project
+  `circleu-45651` because the Apple Bundle ID is unique per developer
+  (it includes the personal team prefix).
+
+  One-time setup (per developer / per machine):
+
+    1. Open https://console.firebase.google.com/project/circleu-45651/settings/general/
+    2. Under "Your apps", click "Add app" → select iOS+
+    3. Apple bundle ID: paste the bundle ID this machine builds with
+       (matches PRODUCT_BUNDLE_IDENTIFIER from Config/Signing.xcconfig).
+    4. Click "Register app", then click "Download GoogleService-Info.plist".
+    5. Replace the placeholder file at:
+         Circleu/GoogleService-Info.plist
+       (Drop your downloaded file in, overwriting this example.)
+    6. Skip the remaining SDK / init code steps in the wizard — the project
+       already has Firebase wired up.
+    7. Clean build folder in Xcode (⇧⌘K) and run.
+
+  The real plist is gitignored so two developers signing with different
+  Apple accounts don't overwrite each other's config on push.
+-->
+<plist version="1.0">
+<dict>
+    <key>BUNDLE_ID</key>
+    <string>PLACEHOLDER_FILL_FROM_YOUR_FIREBASE_APP_REGISTRATION</string>
+    <key>PROJECT_ID</key>
+    <string>circleu-45651</string>
+</dict>
+</plist>

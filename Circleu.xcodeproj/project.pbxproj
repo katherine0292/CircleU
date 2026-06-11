@@ -73,15 +73,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		B10000012F10000100000003 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				B10000012F10000100000001 /* Signing.xcconfig */,
-				B10000012F10000100000002 /* Signing.xcconfig.example */,
-			);
-			path = Config;
-			sourceTree = "<group>";
-		};
 		02CCBDC32FCE6063007523F5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -89,6 +80,15 @@
 				A10000012F00000100000001 /* CircleuTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B10000012F10000100000003 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				B10000012F10000100000001 /* Signing.xcconfig */,
+				B10000012F10000100000002 /* Signing.xcconfig.example */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
