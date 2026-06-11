@@ -192,7 +192,7 @@ struct ProfileView: View {
                 Image(systemName: "star.fill")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Pingu.amber)
-                Text("Recent rewards")
+                Text("Recent completed")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundStyle(Pingu.ink)
             }

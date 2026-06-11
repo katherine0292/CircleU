@@ -24,6 +24,15 @@ struct TipsSetupView: View {
                     .padding(.top, 12)
                     .padding(.bottom, PinguDesign.bottomBarHeight + 106)
                 }
+                .scrollDismissesKeyboard(.interactively)
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil
+                        )
+                    }
+                )
 
                 continueButton
             }
