@@ -29,11 +29,16 @@ struct TipsSceneChip: View {
     var isAddButton: Bool = false
     let action: () -> Void
 
-    private var label: String {
-        if isAddButton && !isSelected {
-            return "+ \(title)"
+    /// Pingu mascot illustration to use in place of the emoji for the four fixed scenes.
+    /// `custom` returns nil and falls back to the "+" text label.
+    private var pinguAssetName: String? {
+        switch scene {
+        case .workplace: return "PinguLevel1"
+        case .family: return "PinguLevel2"
+        case .friendship: return "PinguLevel3"
+        case .romantic: return "PinguLevel4"
+        case .custom: return nil
         }
-        return "\(scene.emoji) \(title)"
     }
 
     private var textColor: Color {
@@ -44,15 +49,27 @@ struct TipsSceneChip: View {
 
     var body: some View {
         Button(action: action) {
-            Text(label)
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .lineLimit(1)
-                .minimumScaleFactor(0.82)
-                .foregroundStyle(textColor)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 9)
-                .background { background }
-                .clipShape(Capsule())
+            HStack(spacing: 8) {
+                if let pinguAssetName {
+                    Image(pinguAssetName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                } else if isAddButton && !isSelected {
+                    Text("+")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                }
+
+                Text(title)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+            }
+            .foregroundStyle(textColor)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 9)
+            .background { background }
+            .clipShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
     }
