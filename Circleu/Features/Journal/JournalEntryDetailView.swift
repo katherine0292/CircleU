@@ -154,7 +154,7 @@ struct JournalEntryDetailView: View {
                     .foregroundStyle(Pingu.slate)
                     .padding(.bottom, 8)
 
-                Text(currentEntry.transcript)
+                Text(currentEntry.safeTranscriptPreview)
                     .font(.system(size: 13.5, weight: .regular, design: .rounded))
                     .foregroundStyle(Pingu.body)
                     .lineSpacing(4)

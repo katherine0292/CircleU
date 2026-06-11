@@ -39,6 +39,14 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertEqual(quality.guidance, "Try again with one real moment, one feeling, and words you would be comfortable saving.")
     }
 
+    func testTranscriptQualityCreatesSafePreviewForRoughConflict() {
+        let preview = TranscriptQuality.safePreview(
+            "Shit she's fucking bitch oh no I should should I tell her something that is too rough or is it OK"
+        )
+
+        XCTAssertEqual(preview, "You were deciding whether to respond to someone who upset you.")
+    }
+
     func testLocalReflectionEngineRejectsEmptyTranscript() async {
         let engine = LocalReflectionEngine()
 
@@ -187,6 +195,36 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertEqual(result.suggestedQuest, "Record again with one real moment, one feeling, and one thing you want to understand.")
     }
 
+    func testLocalReflectionEngineTreatsRoughResponseQuestionAsBoundaryCoaching() async throws {
+        let result = try await analyze(
+            "Shit she's fucking bitch oh no I should should I tell her something that is too rough or is it OK",
+            durationSeconds: 45
+        )
+
+        XCTAssertEqual(result.title, "Pause before you respond")
+        XCTAssertEqual(result.emotion, "Protective")
+        XCTAssertTrue(result.summary.lowercased().contains("too harsh") || result.summary.lowercased().contains("too rough"))
+        XCTAssertTrue(result.insight.lowercased().contains("boundary") || result.insight.lowercased().contains("wording"))
+        XCTAssertFalse(result.summary.contains("You gave shape to what was on your mind"))
+        XCTAssertNoRoughWords(in: result)
+        XCTAssertEqual(result.suggestedQuest, "Rewrite the message with one clear boundary and no attack.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineCreatesRelationshipRepairReflection() async throws {
+        let result = try await analyze(
+            "My friend said something hurtful and I want to reply, but I do not want to make it worse.",
+            durationSeconds: 70
+        )
+
+        XCTAssertEqual(result.title, "Choose the reply carefully")
+        XCTAssertEqual(result.emotion, "Careful")
+        XCTAssertTrue(result.insight.lowercased().contains("repair"))
+        XCTAssertEqual(result.suggestedQuest, "Write one sentence that names the impact and one clear ask.")
+        XCTAssertNoRoughWords(in: result)
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
     func testLocalReflectionEngineCoachesCoherentRoughLanguageWithoutGenericPraise() async throws {
         let result = try await analyze(
             "She said something really rough and I felt angry. Should I tell her that it was fucking disrespectful and crossed a line?",
@@ -194,12 +232,11 @@ final class EngineBehaviorTests: XCTestCase {
         )
 
         XCTAssertEqual(result.title, "Pause before you respond")
-        XCTAssertEqual(result.emotion, "Heated")
+        XCTAssertEqual(result.emotion, "Protective")
         XCTAssertFalse(result.summary.contains("You gave shape to what was on your mind"))
-        XCTAssertFalse(result.summary.lowercased().contains("fuck"))
-        XCTAssertFalse(result.expressionMoment.lowercased().contains("fuck"))
+        XCTAssertNoRoughWords(in: result)
         XCTAssertFalse(result.quote.contains("Small honest words"))
-        XCTAssertEqual(result.suggestedQuest, "Write one calm sentence that names the boundary without attacking the person.")
+        XCTAssertEqual(result.suggestedQuest, "Rewrite the message with one clear boundary and no attack.")
     }
 
     func testLocalReflectionEngineCoachesBoundaryConflictWithoutGenericPraise() async throws {
@@ -246,6 +283,9 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertTrue(prompt.contains("quote should be original, plainspoken, and specific to this reflection"))
         XCTAssertTrue(prompt.contains("If the transcript is mostly filler, repeated words, or rough language"))
         XCTAssertTrue(prompt.contains("coherent rough, angry, or hostile language"))
+        XCTAssertTrue(prompt.contains("If the user asks whether wording is too rough, treat it as response coaching."))
+        XCTAssertTrue(prompt.contains("Prefer concrete rewrite steps over generic encouragement."))
+        XCTAssertTrue(prompt.contains("For conflict, name the boundary, repair need, or response choice."))
         XCTAssertTrue(prompt.contains("Do not repeat profanity"))
         XCTAssertTrue(prompt.contains("expressionMoment should be a short clean phrase from the transcript"))
         XCTAssertTrue(prompt.contains("suggestedQuest should be one small concrete next action"))
@@ -264,5 +304,25 @@ final class EngineBehaviorTests: XCTestCase {
     ) {
         XCTAssertGreaterThanOrEqual(result.confidenceScore, 0, file: file, line: line)
         XCTAssertLessThanOrEqual(result.confidenceScore, 1, file: file, line: line)
+    }
+
+    private func XCTAssertNoRoughWords(
+        in result: AIReflectionResult,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let combined = [
+            result.title,
+            result.emotion,
+            result.summary,
+            result.insight,
+            result.expressionMoment,
+            result.quote,
+            result.suggestedQuest
+        ].joined(separator: " ").lowercased()
+
+        for roughWord in ["fuck", "fucking", "shit", "shitty", "bitch"] {
+            XCTAssertFalse(combined.contains(roughWord), "Unexpected rough word: \(roughWord)", file: file, line: line)
+        }
     }
 }

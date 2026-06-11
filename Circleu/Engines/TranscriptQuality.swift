@@ -73,6 +73,58 @@ struct TranscriptQuality: Equatable {
         normalizedWords(transcript).contains { roughWords.contains($0) }
     }
 
+    static func asksWhetherResponseIsTooHarsh(_ transcript: String) -> Bool {
+        let text = cleanedTranscript(transcript).lowercased()
+        let hasResponseQuestion = text.contains("should i tell")
+            || text.contains("should i say")
+            || text.contains("should i reply")
+            || text.contains("should i respond")
+            || text.contains("is it ok")
+            || text.contains("is it okay")
+
+        let hasHarshnessConcern = text.contains("too rough")
+            || text.contains("too harsh")
+            || text.contains("too much")
+            || text.contains("disrespectful")
+            || text.contains("crossed a line")
+
+        return hasResponseQuestion && hasHarshnessConcern
+    }
+
+    static func mentionsRelationshipRepair(_ transcript: String) -> Bool {
+        let text = cleanedTranscript(transcript).lowercased()
+        let hasRelationship = text.contains("friend")
+            || text.contains("partner")
+            || text.contains("teammate")
+            || text.contains("classmate")
+            || text.contains("family")
+            || text.contains("she ")
+            || text.contains("he ")
+            || text.contains("they ")
+
+        let hasRepairLanguage = text.contains("make it worse")
+            || text.contains("hurtful")
+            || text.contains("apolog")
+            || text.contains("repair")
+
+        return hasRelationship && hasRepairLanguage
+    }
+
+    static func safePreview(_ transcript: String) -> String {
+        let clean = cleanedTranscript(transcript)
+        guard containsRoughLanguage(clean) else { return clean }
+
+        if asksWhetherResponseIsTooHarsh(clean) || mentionsRelationshipRepair(clean) {
+            return "You were deciding whether to respond to someone who upset you."
+        }
+
+        if isRoughLowSignal(clean) {
+            return "This check-in needs one clearer real moment before Circleu can reflect on it."
+        }
+
+        return "You named a heated moment without needing to repeat the exact words."
+    }
+
     private static func normalizedWords(_ transcript: String) -> [String] {
         cleanedTranscript(transcript)
             .lowercased()

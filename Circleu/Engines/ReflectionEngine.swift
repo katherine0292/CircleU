@@ -59,6 +59,9 @@ enum ReflectionPromptContent {
         - Use short app-ready copy.
         - If the transcript is mostly filler, repeated words, or rough language, do not pretend it is a complete reflection. Gently say the check-in needs a clearer real moment.
         - If the transcript includes coherent rough, angry, or hostile language, coach the user toward a calmer boundary or repair step instead of praising it as thoughtful.
+        - If the user asks whether wording is too rough, treat it as response coaching.
+        - For conflict, name the boundary, repair need, or response choice.
+        - Prefer concrete rewrite steps over generic encouragement.
         - Do not repeat profanity, insults, slurs, or hostile phrases in any field.
         - summary should name what happened, what the user felt, and why it mattered.
         - insight should name one pattern, tension, or need.
@@ -87,7 +90,9 @@ enum ReflectionPromptContent {
 
 private enum LocalReflectionKind {
     case roughLowSignal
+    case heatedResponseQuestion
     case roughLanguage
+    case relationshipRepair
     case boundaryConflict
     case overwhelm
     case anxiety
@@ -107,6 +112,14 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
         let kind = reflectionKind(for: cleanTranscript)
         if kind == .roughLowSignal {
             return roughLowSignalReflection(durationSeconds: durationSeconds)
+        }
+
+        if kind == .heatedResponseQuestion {
+            return heatedResponseQuestionReflection()
+        }
+
+        if kind == .relationshipRepair {
+            return relationshipRepairReflection()
         }
 
         if kind == .roughLanguage {
@@ -131,6 +144,8 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
 
     private func reflectionKind(for cleanTranscript: String) -> LocalReflectionKind {
         if TranscriptQuality.isRoughLowSignal(cleanTranscript) { return .roughLowSignal }
+        if TranscriptQuality.asksWhetherResponseIsTooHarsh(cleanTranscript) { return .heatedResponseQuestion }
+        if TranscriptQuality.mentionsRelationshipRepair(cleanTranscript) { return .relationshipRepair }
         if TranscriptQuality.containsRoughLanguage(cleanTranscript) { return .roughLanguage }
         let text = cleanTranscript.lowercased()
         let words = normalizedWords(in: text)
@@ -165,6 +180,32 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
             quote: "A steady boundary can be stronger than a sharper sentence.",
             confidenceScore: 0.58,
             suggestedQuest: "Write one calm sentence that names the boundary without attacking the person."
+        )
+    }
+
+    private func heatedResponseQuestionReflection() -> AIReflectionResult {
+        AIReflectionResult(
+            title: "Pause before you respond",
+            emotion: "Protective",
+            summary: "You noticed the message might be too rough, which means part of you wants the boundary to land without causing more harm.",
+            insight: "The boundary may be valid, but the wording needs to be steady enough for the other person to hear it.",
+            expressionMoment: "You wondered whether the response was too rough.",
+            quote: "A clear boundary does not need a sharp edge.",
+            confidenceScore: 0.7,
+            suggestedQuest: "Rewrite the message with one clear boundary and no attack."
+        )
+    }
+
+    private func relationshipRepairReflection() -> AIReflectionResult {
+        AIReflectionResult(
+            title: "Choose the reply carefully",
+            emotion: "Careful",
+            summary: "You want to respond to something hurtful without making the situation worse.",
+            insight: "Repair starts when you name the impact clearly and leave room for the other person to answer.",
+            expressionMoment: "You wanted to reply without making it worse.",
+            quote: "Careful words can protect both honesty and connection.",
+            confidenceScore: 0.73,
+            suggestedQuest: "Write one sentence that names the impact and one clear ask."
         )
     }
 
@@ -224,7 +265,7 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
                 quote: "Small honest words can become steady progress.",
                 score: 0.62
             )
-        case .roughLowSignal, .roughLanguage:
+        case .roughLowSignal, .heatedResponseQuestion, .roughLanguage, .relationshipRepair:
             return LocalReflectionProfile(
                 title: "You checked in with yourself",
                 emotion: "Thoughtful",
@@ -301,7 +342,7 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
             return "Save one sentence about what helped this moment go well."
         case .tender:
             return "Send yourself one kind sentence you would offer a friend."
-        case .roughLowSignal, .roughLanguage, .neutral:
+        case .roughLowSignal, .heatedResponseQuestion, .roughLanguage, .relationshipRepair, .neutral:
             break
         }
 

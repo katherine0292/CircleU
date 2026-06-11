@@ -138,6 +138,10 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
         result.summary
     }
 
+    var safeTranscriptPreview: String {
+        TranscriptQuality.safePreview(transcript)
+    }
+
     private func sanitized(_ value: String?, fallback: String) -> String {
         guard let value else { return fallback }
         let clean = value
