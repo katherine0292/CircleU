@@ -5,15 +5,45 @@ import Foundation
 final class ReflectionJournalStore: ObservableObject {
     @Published private(set) var entries: [JournalReflectionEntry] = []
 
-    private let storageKey = "circleu.saved.reflections.v1"
+    private let baseStorageKey = "circleu.saved.reflections.v1"
     private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+
+    /// Firebase UID of the currently signed-in user, set by `configureBackend(uid:)`.
+    /// When non-nil, journal entries are read/written under a per-user key so a new
+    /// account on the same device cannot see another account's reflections.
+    private var currentUserID: String?
+
+    /// Effective UserDefaults key for the active scope. Signed-in users get a per-uid
+    /// bucket; signed-out usage falls back to the device-local bucket.
+    private var storageKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseStorageKey }
+        return "\(baseStorageKey).user.\(uid)"
+    }
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
+        load()
+    }
+
+    // MARK: - Backend wiring
+
+    /// Scope storage to a signed-in user. Called when a Firebase session becomes active.
+    /// Reloads in-memory entries from that user's bucket so a new account starts clean
+    /// and a returning account sees its own data.
+    func configureBackend(uid: String) {
+        guard !uid.isEmpty, currentUserID != uid else { return }
+        currentUserID = uid
+        load()
+    }
+
+    /// Drop user scope when the session ends. Reloads from the device-local bucket.
+    func teardownBackend() {
+        guard currentUserID != nil else { return }
+        currentUserID = nil
         load()
     }
 

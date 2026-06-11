@@ -34,13 +34,30 @@ struct ContentView: View {
         .environmentObject(rewardsStore)
         .environmentObject(authStore)
         .environmentObject(backendSessionStore)
-        // Keep CircleStore tied to the current Firebase auth session so public circles sync
-        // from /circles for whoever is signed in (and tear down when signed out).
+        // Keep backend-aware stores tied to the current Firebase auth session: CircleStore
+        // mirrors /circles for whoever is signed in, while journal + AI session stores scope
+        // their on-device cache by UID so accounts cannot see each other's reflections.
         .onAppear {
-            backendSessionStore.wireBackendStores(circleStore: circleStore)
+            backendSessionStore.wireBackendStores(
+                circleStore: circleStore,
+                journalStore: journalStore,
+                aiSessionStore: aiSessionStore,
+                rewardsStore: rewardsStore,
+                questStore: questStore,
+                tipsPracticeStore: tipsPracticeStore,
+                profileStore: profileStore
+            )
         }
         .onChange(of: backendSessionStore.session?.uid) {
-            backendSessionStore.wireBackendStores(circleStore: circleStore)
+            backendSessionStore.wireBackendStores(
+                circleStore: circleStore,
+                journalStore: journalStore,
+                aiSessionStore: aiSessionStore,
+                rewardsStore: rewardsStore,
+                questStore: questStore,
+                tipsPracticeStore: tipsPracticeStore,
+                profileStore: profileStore
+            )
         }
     }
 }

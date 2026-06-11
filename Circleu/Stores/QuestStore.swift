@@ -5,15 +5,39 @@ import Foundation
 final class QuestStore: ObservableObject {
     @Published private(set) var quests: [Quest] = []
 
-    private let storageKey = "circleu.quests.v1"
+    private let baseStorageKey = "circleu.quests.v1"
     private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+
+    /// Firebase UID for the active session. Each account keeps its own quest list.
+    private var currentUserID: String?
+
+    private var storageKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseStorageKey }
+        return "\(baseStorageKey).user.\(uid)"
+    }
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
+        load()
+    }
+
+    // MARK: - Backend wiring
+
+    func configureBackend(uid: String) {
+        guard !uid.isEmpty, currentUserID != uid else { return }
+        currentUserID = uid
+        quests = []
+        load()
+    }
+
+    func teardownBackend() {
+        guard currentUserID != nil else { return }
+        currentUserID = nil
+        quests = []
         load()
     }
 

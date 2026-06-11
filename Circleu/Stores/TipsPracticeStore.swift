@@ -11,15 +11,42 @@ final class TipsPracticeStore: ObservableObject {
     @Published var currentSession: TipsPracticeSession?
     @Published private(set) var recentSessions: [TipsPracticeSession] = []
 
-    private let storageKey = "circleu.tipsPractice.sessions.v1"
+    private let baseStorageKey = "circleu.tipsPractice.sessions.v1"
     private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+
+    /// Firebase UID for the active session. Practice transcripts can include personal
+    /// scenarios, so each account gets its own bucket.
+    private var currentUserID: String?
+
+    private var storageKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseStorageKey }
+        return "\(baseStorageKey).user.\(uid)"
+    }
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
+        load()
+    }
+
+    // MARK: - Backend wiring
+
+    func configureBackend(uid: String) {
+        guard !uid.isEmpty, currentUserID != uid else { return }
+        currentUserID = uid
+        currentSession = nil
+        recentSessions = []
+        load()
+    }
+
+    func teardownBackend() {
+        guard currentUserID != nil else { return }
+        currentUserID = nil
+        currentSession = nil
+        recentSessions = []
         load()
     }
 

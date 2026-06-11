@@ -14,10 +14,19 @@ final class RewardsStore: ObservableObject {
     /// Record-history timeline (most recent first, capped).
     @Published private(set) var activity: [ActivityEvent] = []
 
-    private let storageKey = "circleu.rewards.v1"
+    private let baseStorageKey = "circleu.rewards.v1"
     private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+
+    /// Firebase UID for the active session. Points and quest awards are scoped per
+    /// user so signing into a new account on the same device starts a fresh ledger.
+    private var currentUserID: String?
+
+    private var storageKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseStorageKey }
+        return "\(baseStorageKey).user.\(uid)"
+    }
 
     init(userDefaults: UserDefaults = .standard, seedIfEmpty: Bool = true) {
         self.userDefaults = userDefaults
@@ -27,6 +36,31 @@ final class RewardsStore: ObservableObject {
             seedStarter()
             save()
         }
+    }
+
+    // MARK: - Backend wiring
+
+    func configureBackend(uid: String) {
+        guard !uid.isEmpty, currentUserID != uid else { return }
+        currentUserID = uid
+        resetInMemoryState()
+        _ = load()
+    }
+
+    func teardownBackend() {
+        guard currentUserID != nil else { return }
+        currentUserID = nil
+        resetInMemoryState()
+        _ = load()
+    }
+
+    /// Clear published state before loading from a new bucket so we never briefly
+    /// show the previous account's points/log while decoding.
+    private func resetInMemoryState() {
+        points = 0
+        pointsLog = []
+        questAwards = [:]
+        activity = []
     }
 
     // MARK: - Derived

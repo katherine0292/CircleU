@@ -44,12 +44,34 @@ final class BackendSessionStore: ObservableObject {
 
     /// Wire backend-dependent stores to follow the current Firebase auth session. Call once
     /// (during app launch) and again whenever the session changes via sign-in / sign-out.
-    /// Currently scoped to CircleStore (public circles need real-time sync).
-    func wireBackendStores(circleStore: CircleStore) {
+    /// CircleStore mirrors the public `/circles` collection; the journal + AI session stores
+    /// scope their on-device cache to the signed-in UID so no account ever sees another
+    /// account's reflections on the same device.
+    func wireBackendStores(
+        circleStore: CircleStore,
+        journalStore: ReflectionJournalStore,
+        aiSessionStore: AIReflectionSessionStore,
+        rewardsStore: RewardsStore,
+        questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
+        profileStore: UserProfileStore
+    ) {
         if let session {
             circleStore.configureBackend(uid: session.uid, displayName: session.displayName)
+            journalStore.configureBackend(uid: session.uid)
+            aiSessionStore.configureBackend(uid: session.uid)
+            rewardsStore.configureBackend(uid: session.uid)
+            questStore.configureBackend(uid: session.uid)
+            tipsPracticeStore.configureBackend(uid: session.uid)
+            profileStore.configureBackend(uid: session.uid)
         } else {
             circleStore.teardownBackend()
+            journalStore.teardownBackend()
+            aiSessionStore.teardownBackend()
+            rewardsStore.teardownBackend()
+            questStore.teardownBackend()
+            tipsPracticeStore.teardownBackend()
+            profileStore.teardownBackend()
         }
     }
 
