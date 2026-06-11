@@ -137,6 +137,15 @@ final class LocalDataFlowTests: XCTestCase {
         XCTAssertEqual(snapshot.badges.first { $0.id == "three-reflections" }?.isUnlocked, false)
     }
 
+    func testRewardsStoreStartsEmptyByDefault() {
+        let store = RewardsStore(userDefaults: makeDefaults())
+
+        XCTAssertEqual(store.points, 0)
+        XCTAssertEqual(store.pointsLog, [])
+        XCTAssertEqual(store.activity, [])
+        XCTAssertEqual(store.questAwards, [:])
+    }
+
     func testSavedReflectionCanDriveJournalAndSuggestedQuestFlow() throws {
         let journalDefaults = makeDefaults()
         let questDefaults = makeDefaults()

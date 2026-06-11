@@ -212,12 +212,14 @@ struct ProfileQAToolsSheet: View {
                 .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
+#if DEBUG
             Button {
                 seedDemoData()
             } label: {
                 Label("Seed demo data", systemImage: "sparkles")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
+#endif
 
             Button {
                 viewModel.showAILab = true
@@ -233,13 +235,21 @@ struct ProfileQAToolsSheet: View {
             }
             .buttonStyle(PinguSecondaryButtonStyle())
 
-            Text("Seed creates a repeatable local state with demo reflections, AI sessions and transcripts, quests, circles, and support posts. Reset clears app data, including AI sessions and transcripts, and returns onboarding to the first-run state.")
+            Text(actionsHelpText)
                 .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }
         .padding(16)
         .pinguGlass(cornerRadius: 22, tint: 0.22)
+    }
+
+    private var actionsHelpText: String {
+        #if DEBUG
+        return "Seed creates a repeatable local state with demo reflections, AI sessions and transcripts, quests, circles, and support posts. Reset clears app data, including AI sessions and transcripts, and returns onboarding to the first-run state."
+        #else
+        return "Reset clears app data, including AI sessions and transcripts, and returns onboarding to the first-run state."
+        #endif
     }
 
     private var qaExport: String {

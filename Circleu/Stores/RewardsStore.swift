@@ -28,7 +28,7 @@ final class RewardsStore: ObservableObject {
         return "\(baseStorageKey).user.\(uid)"
     }
 
-    init(userDefaults: UserDefaults = .standard, seedIfEmpty: Bool = true) {
+    init(userDefaults: UserDefaults = .standard, seedIfEmpty: Bool = false) {
         self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601

@@ -80,7 +80,7 @@ struct AIReflectionLabView: View {
                 .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Seed demo data or complete a reflection to populate the AI lab.")
+            Text(emptyStateMessage)
                 .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -88,6 +88,14 @@ struct AIReflectionLabView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .pinguGlass(cornerRadius: 22, tint: 0.22)
+    }
+
+    private var emptyStateMessage: String {
+        #if DEBUG
+        return "Seed demo data or complete a reflection to populate the AI lab."
+        #else
+        return "Complete a reflection to populate the AI lab."
+        #endif
     }
 
     private var sessionList: some View {
