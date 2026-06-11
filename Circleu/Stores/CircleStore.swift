@@ -30,7 +30,11 @@ final class CircleStore: ObservableObject {
     /// Only seed local "starter" demo circles in DEBUG builds. Release builds rely on
     /// the public `/circles` Firestore collection, so we don't want to scatter local-only
     /// demo data through the UI on shipped users' devices.
-    private static var defaultSeedStarterSpaces: Bool {
+    ///
+    /// `nonisolated` because this is a compile-time constant with no actor state, and it
+    /// has to be readable from any context (it's used as the default value for `init`'s
+    /// `seedStarterSpaces:` parameter, which is evaluated at the call site).
+    nonisolated private static var defaultSeedStarterSpaces: Bool {
         #if DEBUG
         return true
         #else
