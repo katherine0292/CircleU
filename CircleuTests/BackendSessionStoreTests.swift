@@ -457,6 +457,31 @@ final class BackendSessionStoreTests: XCTestCase {
         XCTAssertEqual(store.lastSyncErrorOperation, .restoring)
     }
 
+    func testUpdateDisplayNameUpdatesFirebaseUserAndSession() async throws {
+        let authStore = AuthStore(userDefaults: makeDefaults())
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let authenticator = FakeFirebaseAuthenticator(
+            currentSession: FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "tuan@example.com",
+                displayName: "Tuan",
+                localUserID: "local-user-1"
+            )
+        )
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            identityProvider: StubIdentityProvider(localUserID: "local-user-1", displayName: "Tuan")
+        )
+
+        try await store.updateDisplayName("Tuan Nguyen")
+
+        XCTAssertEqual(store.backendUserID, "firebase-user-1")
+        XCTAssertEqual(authenticator.updatedDisplayName, "Tuan Nguyen")
+        XCTAssertEqual(store.session?.displayName, "Tuan Nguyen")
+        XCTAssertEqual(store.session?.localUserID, "local-user-1")
+    }
+
     private func makeEntry() -> JournalReflectionEntry {
         JournalReflectionEntry(
             durationSeconds: 60,
@@ -550,6 +575,8 @@ private final class FakeFirebaseAuthenticator: FirebaseAuthenticating {
     var signedInEmail: String?
     var signUpError: Error?
     var signInError: Error?
+    var updateDisplayNameError: Error?
+    var updatedDisplayName: String?
     var didSignOut = false
 
     init(currentSession: FirebaseAuthSession? = nil) {
@@ -577,6 +604,27 @@ private final class FakeFirebaseAuthenticator: FirebaseAuthenticating {
             displayName: "Tuan",
             localUserID: nil
         )
+        return currentSession!
+    }
+
+    func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession {
+        if let updateDisplayNameError { throw updateDisplayNameError }
+        updatedDisplayName = displayName
+        if let current = currentSession {
+            currentSession = FirebaseAuthSession(
+                uid: current.uid,
+                email: current.email,
+                displayName: displayName,
+                localUserID: current.localUserID
+            )
+        } else {
+            currentSession = FirebaseAuthSession(
+                uid: "firebase-user-1",
+                email: "noop@example.com",
+                displayName: displayName,
+                localUserID: nil
+            )
+        }
         return currentSession!
     }
 

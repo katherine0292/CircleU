@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Circleu is an iOS reflection and journaling app for voice check-ins, AI-assisted insight, private journals, and small communication tips."
+    >
+    <title>Circleu - Reflect in your own voice</title>
+    <link rel="stylesheet" href="site.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Circleu navigation">
+      <a class="brand" href="#top" aria-label="Circleu home">
+        <span class="brand-mark">C</span>
+        <span>Circleu</span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#features">Features</a>
+        <a href="#screens">Screens</a>
+        <a href="#beta">Beta</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-media" aria-hidden="true">
+          <img
+            class="hero-shot hero-shot-one"
+            src="product/snapshots/app-store/01-reflect-in-your-own-voice.png"
+            alt=""
+          >
+          <img
+            class="hero-shot hero-shot-two"
+            src="product/snapshots/app-store/02-turn-check-ins-into-insight.png"
+            alt=""
+          >
+          <img
+            class="hero-shot hero-shot-three"
+            src="product/snapshots/app-store/03-save-your-private-journal.png"
+            alt=""
+          >
+        </div>
+        <div class="hero-copy">
+          <p class="eyebrow">iOS reflection journal</p>
+          <h1 id="hero-title">Circleu</h1>
+          <p class="hero-subtitle">
+            Reflect in your own voice. Turn short check-ins into insight, a private journal,
+            and one small next step.
+          </p>
+          <div class="hero-actions" aria-label="Circleu links">
+            <a class="button button-primary" href="#beta">Join the beta</a>
+            <a class="button button-secondary" href="https://github.com/Devlaycon/JornalApp">View GitHub</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section intro" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow">Built for everyday moments</p>
+          <h2 id="intro-title">A calmer loop for reflection</h2>
+        </div>
+        <p>
+          Circleu guides a user from a quick voice or typed reflection into supportive AI feedback,
+          a saved journal entry, and a practical communication tip. It is built as a TestFlight beta
+          with Firebase sign-in and private Firestore backup.
+        </p>
+      </section>
+
+      <section id="features" class="section feature-grid" aria-label="Circleu features">
+        <article>
+          <span class="feature-icon">01</span>
+          <h3>Reflect quickly</h3>
+          <p>Record a short check-in or use typed fallback when voice input is not available.</p>
+        </article>
+        <article>
+          <span class="feature-icon">02</span>
+          <h3>Understand the moment</h3>
+          <p>Review emotion, insight, expression moment, quote, and a suggested next step.</p>
+        </article>
+        <article>
+          <span class="feature-icon">03</span>
+          <h3>Keep a private journal</h3>
+          <p>Save reflections, edit titles and notes, revisit progress, and restore through Firebase.</p>
+        </article>
+        <article>
+          <span class="feature-icon">04</span>
+          <h3>Practice communication</h3>
+          <p>Turn reflections into small tips for clearer, kinder messages.</p>
+        </article>
+      </section>
+
+      <section id="screens" class="section screens" aria-labelledby="screens-title">
+        <div class="section-heading">
+          <p class="eyebrow">App preview</p>
+          <h2 id="screens-title">From check-in to action</h2>
+          <p>
+            The beta focuses on one complete flow: reflect, review, save, practice, and share selected
+            support with a circle.
+          </p>
+        </div>
+        <div class="screen-strip" aria-label="Circleu app screenshots">
+          <figure>
+            <img src="product/snapshots/app-store/01-reflect-in-your-own-voice.png" alt="Circleu reflection home screen">
+            <figcaption>Reflect</figcaption>
+          </figure>
+          <figure>
+            <img src="product/snapshots/app-store/02-turn-check-ins-into-insight.png" alt="Circleu AI insight screen">
+            <figcaption>Insight</figcaption>
+          </figure>
+          <figure>
+            <img src="product/snapshots/app-store/03-save-your-private-journal.png" alt="Circleu journal screen">
+            <figcaption>Journal</figcaption>
+          </figure>
+          <figure>
+            <img src="product/snapshots/app-store/04-practice-one-small-step.png" alt="Circleu communication tips screen">
+            <figcaption>Tips</figcaption>
+          </figure>
+          <figure>
+            <img src="product/snapshots/app-store/05-share-support-with-circles.png" alt="Circleu circle sharing screen">
+            <figcaption>Circles</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section story" aria-labelledby="story-title">
+        <div class="story-copy">
+          <p class="eyebrow">Student project</p>
+          <h2 id="story-title">Designed for supportive reflection, not chatbot noise</h2>
+          <p>
+            Circleu was built during the Apple Foundation Program as a SwiftUI app with a product loop
+            that feels gentle, practical, and testable on real devices.
+          </p>
+        </div>
+        <div class="tech-list" aria-label="Technology stack">
+          <span>SwiftUI</span>
+          <span>Firebase Auth</span>
+          <span>Cloud Firestore</span>
+          <span>Speech Recognition</span>
+          <span>Apple Intelligence ready</span>
+        </div>
+      </section>
+
+      <section id="beta" class="section beta" aria-labelledby="beta-title">
+        <div>
+          <p class="eyebrow">TestFlight beta</p>
+          <h2 id="beta-title">Help test the reflection loop</h2>
+          <p>
+            Testers should try account sign-in, recording or typed reflection, AI feedback, journal save,
+            tips, profile progress, Firebase restore, and any confusing or unfinished screens.
+          </p>
+        </div>
+        <div class="beta-actions">
+          <a class="button button-primary" href="product/testflight-description.md">Testing notes</a>
+          <a class="button button-secondary" href="qa/testflight-firebase-checklist.md">QA checklist</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Circleu</span>
+      <span>Apple Foundation Program beta</span>
+    </footer>
+  </body>
+</html>

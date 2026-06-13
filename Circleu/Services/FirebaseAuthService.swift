@@ -31,6 +31,7 @@ nonisolated protocol FirebaseAuthenticating {
 
     func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession
     func signIn(email: String, password: String) async throws -> FirebaseAuthSession
+    func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession
     func signOut() throws
 }
 
@@ -71,6 +72,10 @@ struct FirebaseAuthService: FirebaseAuthenticating {
         return try await client.signIn(email: cleanEmail, password: password)
     }
 
+    nonisolated func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession {
+        try await client.updateDisplayName(displayName)
+    }
+
     nonisolated func signOut() throws {
         try client.signOut()
     }
@@ -93,6 +98,15 @@ struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
             uid: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
             email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
             displayName: "Friend",
+            localUserID: nil
+        )
+    }
+
+    nonisolated func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession {
+        FirebaseAuthSession(
+            uid: "noop-uid",
+            email: "noop@example.com",
+            displayName: displayName,
             localUserID: nil
         )
     }

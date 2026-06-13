@@ -160,6 +160,23 @@ final class BackendSessionStore: ObservableObject {
         authStore.logout()
     }
 
+    func updateDisplayName(_ displayName: String) async throws {
+        guard let currentSession = session else { return }
+        do {
+            let updatedSession = try await authenticator.updateDisplayName(displayName)
+            session = FirebaseAuthSession(
+                uid: updatedSession.uid,
+                email: updatedSession.email ?? currentSession.email,
+                displayName: updatedSession.displayName,
+                localUserID: currentSession.localUserID
+            )
+            lastAuthErrorMessage = nil
+        } catch {
+            lastAuthErrorMessage = error.localizedDescription
+            throw error
+        }
+    }
+
     func uploadPrivateBackup(
         profileStore: UserProfileStore,
         journalStore: ReflectionJournalStore,

@@ -12,6 +12,8 @@ Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Tips -> Circ
 
 App Store/TestFlight-ready screenshots live in [docs/product/snapshots/app-store](docs/product/snapshots/app-store). Raw simulator screenshots are kept in [docs/product/snapshots](docs/product/snapshots).
 
+The GitHub Pages product site lives at [docs/index.html](docs/index.html). To publish it, open the GitHub repository settings, go to **Pages**, and set the source to the `main` branch with the `/docs` folder.
+
 | Reflect | Insight | Journal |
 | --- | --- | --- |
 | ![Circleu App Store screenshot: reflect in your own voice](docs/product/snapshots/app-store/01-reflect-in-your-own-voice.png) | ![Circleu App Store screenshot: turn check-ins into insight](docs/product/snapshots/app-store/02-turn-check-ins-into-insight.png) | ![Circleu App Store screenshot: save your private journal](docs/product/snapshots/app-store/03-save-your-private-journal.png) |
@@ -143,6 +145,7 @@ See [docs/process/git-workflow.md](docs/process/git-workflow.md) and [docs/proce
 ## Key Docs
 
 - [Docs index](docs/README.md)
+- [Product website](docs/index.html)
 - [Product overview](docs/product/overview.md)
 - [App flow](docs/product/app-flow.md)
 - [TestFlight description](docs/product/testflight-description.md)

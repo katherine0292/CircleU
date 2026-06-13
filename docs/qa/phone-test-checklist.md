@@ -106,6 +106,8 @@ Use Simulator for SwiftUI previews and unit checks. Use a connected iPhone for m
 
 Firebase is enabled for beta backend testing. The current iOS bundle identifier is `edu.uts.tuannm3812.Circleu`, so `Circleu/GoogleService-Info.plist` must belong to that Firebase iOS app.
 
+For the full TestFlight backend verification runbook, use [testflight-firebase-checklist.md](testflight-firebase-checklist.md).
+
 Use this backend smoke test on a real iPhone:
 
 1. Sign up or sign in.

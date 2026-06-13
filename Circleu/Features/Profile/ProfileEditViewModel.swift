@@ -12,7 +12,16 @@ final class ProfileEditViewModel: ObservableObject {
         draftName = profileStore.displayName
     }
 
-    func save(profileStore: UserProfileStore) {
-        profileStore.updateDisplayName(draftName.isEmpty ? "Friend" : draftName)
+    func save(profileStore: UserProfileStore, backendSessionStore: BackendSessionStore) {
+        let nameToSave = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalName = nameToSave.isEmpty ? "Friend" : nameToSave
+        
+        profileStore.updateDisplayName(finalName)
+        
+        if backendSessionStore.backendUserID != nil {
+            Task {
+                try? await backendSessionStore.updateDisplayName(finalName)
+            }
+        }
     }
 }

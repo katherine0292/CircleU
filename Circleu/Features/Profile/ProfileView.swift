@@ -15,6 +15,7 @@ struct ProfileView: View {
 
     @State private var filter: ActivityFilter = .all
     @State private var showQATools = false
+    @State private var showProfileEditor = false
 
     private var xp: Int { rewardsStore.points }
     private var level: Int { rewardsStore.level }
@@ -73,7 +74,7 @@ struct ProfileView: View {
                     syncStatus
                         .padding(.top, 16)
 
-                    logoutButton
+                    accountActionButton
                         .padding(.top, 16)
                 }
                 .padding(.horizontal, 20)
@@ -91,6 +92,11 @@ struct ProfileView: View {
             ProfileQAToolsSheet(hasCompletedOnboarding: $hasCompletedOnboarding)
                 .environmentObject(backendSessionStore)
         }
+        .sheet(isPresented: $showProfileEditor) {
+            ProfileEditSheet()
+                .environmentObject(profileStore)
+                .environmentObject(backendSessionStore)
+        }
     }
 
     // MARK: - Header
@@ -103,12 +109,23 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: 0) {
                 Kicker("CONFIDENCE STAGE \(level)")
 
-                Text(profileStore.firstName.capitalized)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundStyle(Pingu.ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.78)
-                    .padding(.top, 2)
+                HStack(spacing: 8) {
+                    Text(profileStore.firstName.capitalized)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(Pingu.ink)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.78)
+
+                    Button {
+                        showProfileEditor = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(Pingu.accent)
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                }
+                .padding(.top, 2)
 
                 GeometryReader { proxy in
                     ZStack(alignment: .leading) {
@@ -424,25 +441,45 @@ struct ProfileView: View {
         .glass(.regular, cornerRadius: 18)
     }
 
-    private var logoutButton: some View {
-        Button {
-            backendSessionStore.signOut(authStore: authStore)
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
-                hasCompletedOnboarding = false
+    private var accountActionButton: some View {
+        if backendSessionStore.backendUserID == nil {
+            Button {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
+                    hasCompletedOnboarding = false
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "person.badge.key.fill")
+                        .font(.system(size: 16, weight: .bold))
+                    Text("Sign in or Create Account")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(Pingu.accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .glass(.pill, cornerRadius: 16)
             }
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "rectangle.portrait.and.arrow.right")
-                    .font(.system(size: 16, weight: .bold))
-                Text("Log out")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+            .buttonStyle(PressableButtonStyle())
+        } else {
+            Button {
+                backendSessionStore.signOut(authStore: authStore)
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
+                    hasCompletedOnboarding = false
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 16, weight: .bold))
+                    Text("Log out")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(Pingu.red)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .glass(.pill, cornerRadius: 16)
             }
-            .foregroundStyle(Pingu.red)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .glass(.pill, cornerRadius: 16)
+            .buttonStyle(PressableButtonStyle())
         }
-        .buttonStyle(PressableButtonStyle())
     }
 
     private var syncStatusIcon: String {
