@@ -43,7 +43,7 @@ struct RecordingView: View {
 
                     Spacer(minLength: max(40, proxy.size.height * 0.05))
 
-                    WaveformView()
+                    WaveformView(soundLevels: viewModel.recorder.soundLevels)
                         .opacity(viewModel.recorder.isRecording && !viewModel.recorder.isPaused ? 1 : 0.42)
 
                     transcriptPanel

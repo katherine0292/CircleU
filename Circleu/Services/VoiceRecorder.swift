@@ -51,6 +51,8 @@ final class VoiceRecorder: NSObject, ObservableObject {
     @Published var speechPermissionState: VoicePermissionState = .waiting
     @Published var statusMessage = "Preparing microphone..."
     @Published var errorMessage: String?
+    @Published var amplitude: Float = 0.0
+    @Published var soundLevels: [Float] = Array(repeating: 0.08, count: 25)
 
     private let audioEngine = AVAudioEngine()
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en_US"))
@@ -111,6 +113,8 @@ final class VoiceRecorder: NSObject, ObservableObject {
         recognitionRequest = nil
         isRecording = false
         isPaused = false
+        amplitude = 0.0
+        soundLevels = Array(repeating: 0.08, count: 25)
         statusMessage = "Finished"
     }
 
@@ -122,6 +126,8 @@ final class VoiceRecorder: NSObject, ObservableObject {
         isTypedFallbackAvailable = false
         microphonePermissionState = .waiting
         speechPermissionState = .waiting
+        amplitude = 0.0
+        soundLevels = Array(repeating: 0.08, count: 25)
         statusMessage = "Preparing microphone..."
     }
 
@@ -217,8 +223,27 @@ final class VoiceRecorder: NSObject, ObservableObject {
                 return
             }
 
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
+                guard let self else { return }
                 request.append(buffer)
+                
+                if let floatData = buffer.floatChannelData {
+                    let channelData = floatData[0]
+                    let frameLength = UInt32(buffer.frameLength)
+                    var sum: Float = 0.0
+                    for i in 0..<Int(frameLength) {
+                        let sample = channelData[i]
+                        sum += sample * sample
+                    }
+                    let rms = sqrt(sum / Float(frameLength))
+                    
+                    DispatchQueue.main.async {
+                        self.amplitude = rms
+                        self.soundLevels.removeFirst()
+                        let normalized = max(0.08, min(rms * 7.0, 1.0))
+                        self.soundLevels.append(normalized)
+                    }
+                }
             }
 
             audioEngine.prepare()
