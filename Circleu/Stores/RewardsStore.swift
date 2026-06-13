@@ -82,6 +82,7 @@ final class RewardsStore: ObservableObject {
         questAwards[questID] = Self.dayKey()
         pointsLog.insert(PointEntry(label: label, points: pointValue, icon: icon), at: 0)
         pointsLog = Array(pointsLog.prefix(50))
+        HapticManager.shared.trigger(.success)
         save()
     }
 

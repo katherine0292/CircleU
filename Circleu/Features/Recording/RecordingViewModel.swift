@@ -89,6 +89,7 @@ final class RecordingViewModel: ObservableObject {
     }
 
     func start() {
+        HapticManager.shared.impact(.light)
         recorder.start()
     }
 
@@ -99,10 +100,12 @@ final class RecordingViewModel: ObservableObject {
     }
 
     func togglePause() {
+        HapticManager.shared.selection()
         recorder.togglePause()
     }
 
     func restartRecording() {
+        HapticManager.shared.impact(.medium)
         analysisTask?.cancel()
         analysisTask = nil
         pendingEntry = nil
@@ -123,10 +126,12 @@ final class RecordingViewModel: ObservableObject {
 
     func finishRecording() {
         guard canFinish else {
+            HapticManager.shared.trigger(.warning)
             analysisMessage = transcriptQuality.guidance
             return
         }
 
+        HapticManager.shared.impact(.medium)
         analysisTask?.cancel()
         recorder.stop()
         analysisMessage = nil
@@ -150,6 +155,7 @@ final class RecordingViewModel: ObservableObject {
             guard !Task.isCancelled else { return }
 
             guard let result = run.result else {
+                HapticManager.shared.trigger(.error)
                 self.isAnalyzing = false
                 self.analysisTask = nil
                 self.analysisMessage = run.attempt.errorMessage ?? "AI analysis failed. Please try again."
@@ -165,6 +171,7 @@ final class RecordingViewModel: ObservableObject {
                 sessionID: run.session.id
             )
 
+            HapticManager.shared.trigger(.success)
             self.pendingSession = run.session
             self.pendingEntry = entry
             self.isAnalyzing = false
