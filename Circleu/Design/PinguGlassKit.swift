@@ -394,6 +394,11 @@ struct PinguMascot: View {
     @State private var celebrate = false
     @State private var pop = false
     @State private var ringPulse = false
+    @State private var isBlinking = false
+
+    private var scaleY: CGFloat {
+        isBlinking ? 0.05 : 1.0
+    }
 
     var body: some View {
         ZStack {
@@ -423,7 +428,7 @@ struct PinguMascot: View {
                 .shadow(color: Pingu.deepBlue.opacity(0.18), radius: 10, y: 6)
                 .rotationEffect(.degrees(rotation))
                 .offset(y: bobOffset)
-                .scaleEffect(scale)
+                .scaleEffect(x: scale, y: scale * scaleY)
         }
         .frame(width: size, height: size)
         .onAppear { startAnimations() }
@@ -440,6 +445,7 @@ struct PinguMascot: View {
     private var bobOffset: CGFloat {
         switch mood {
         case .idle: bob ? -7 : 0
+        case .think: think ? 8 : 0
         case .celebrate: celebrate ? -12 : 0
         default: 0
         }
@@ -465,6 +471,18 @@ struct PinguMascot: View {
         }
         if ring {
             withAnimation(.easeOut(duration: 1.8).repeatForever(autoreverses: false)) { ringPulse = true }
+        }
+
+        // Periodically blink the mascot's eyes every 3.5 seconds
+        Timer.scheduledTimer(withTimeInterval: 3.5, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 0.12)) {
+                isBlinking = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                withAnimation(.easeInOut(duration: 0.12)) {
+                    isBlinking = false
+                }
+            }
         }
     }
 }
