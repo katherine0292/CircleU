@@ -57,6 +57,7 @@ final class BackendSessionStore: ObservableObject {
         profileStore: UserProfileStore
     ) {
         if let session {
+            UserDefaults.standard.set(session.uid, forKey: "circleu.currentFirebaseUID")
             circleStore.configureBackend(uid: session.uid, displayName: session.displayName)
             journalStore.configureBackend(uid: session.uid)
             aiSessionStore.configureBackend(uid: session.uid)
@@ -65,6 +66,7 @@ final class BackendSessionStore: ObservableObject {
             tipsPracticeStore.configureBackend(uid: session.uid)
             profileStore.configureBackend(uid: session.uid)
         } else {
+            UserDefaults.standard.removeObject(forKey: "circleu.currentFirebaseUID")
             circleStore.teardownBackend()
             journalStore.teardownBackend()
             aiSessionStore.teardownBackend()

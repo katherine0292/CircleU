@@ -17,12 +17,27 @@ final class UserProfileStore: ObservableObject {
         }
     }
 
+    @Published var isCloudAIEnabled: Bool {
+        didSet {
+            guard !isReloadingFromBackend else { return }
+            userDefaults.set(isCloudAIEnabled, forKey: isCloudAIEnabledKey)
+        }
+    }
+
+    @Published var hasConsentedToCloudAI: Bool {
+        didSet {
+            guard !isReloadingFromBackend else { return }
+            userDefaults.set(hasConsentedToCloudAI, forKey: hasConsentedToCloudAIKey)
+        }
+    }
+
     private let userDefaults: UserDefaults
     private let baseDisplayNameKey = "circleu.profile.displayName.v1"
     private let baseDailyPromptIndexKey = "circleu.profile.dailyPromptIndex.v1"
+    private let baseIsCloudAIEnabledKey = "circleu.settings.isCloudAIEnabled.v1"
+    private let baseHasConsentedToCloudAIKey = "circleu.settings.hasConsentedToCloudAI.v1"
 
-    /// Firebase UID for the active session. Display name and daily prompt index are
-    /// scoped per user so a new account doesn't inherit the previous account's name.
+    /// Firebase UID for the active session.
     private var currentUserID: String?
 
     private var displayNameKey: String {
@@ -35,11 +50,23 @@ final class UserProfileStore: ObservableObject {
         return "\(baseDailyPromptIndexKey).user.\(uid)"
     }
 
+    private var isCloudAIEnabledKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseIsCloudAIEnabledKey }
+        return "\(baseIsCloudAIEnabledKey).user.\(uid)"
+    }
+
+    private var hasConsentedToCloudAIKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseHasConsentedToCloudAIKey }
+        return "\(baseHasConsentedToCloudAIKey).user.\(uid)"
+    }
+
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         let savedName = userDefaults.string(forKey: baseDisplayNameKey) ?? ""
         displayName = savedName.trimmingCharacters(in: .whitespacesAndNewlines)
         dailyPromptIndex = userDefaults.integer(forKey: baseDailyPromptIndexKey)
+        isCloudAIEnabled = userDefaults.object(forKey: baseIsCloudAIEnabledKey) as? Bool ?? false
+        hasConsentedToCloudAI = userDefaults.bool(forKey: baseHasConsentedToCloudAIKey)
     }
 
     // MARK: - Backend wiring
@@ -65,12 +92,14 @@ final class UserProfileStore: ObservableObject {
         let savedName = userDefaults.string(forKey: displayNameKey) ?? ""
         displayName = savedName.trimmingCharacters(in: .whitespacesAndNewlines)
         dailyPromptIndex = userDefaults.integer(forKey: dailyPromptIndexKey)
+        isCloudAIEnabled = userDefaults.object(forKey: isCloudAIEnabledKey) as? Bool ?? false
+        hasConsentedToCloudAI = userDefaults.bool(forKey: hasConsentedToCloudAIKey)
     }
 
     /// Set while reloading from a different scope's keys so the didSet persistence
     /// hooks don't overwrite the new bucket with the same values they just read.
     private var isReloadingFromBackend = false
-
+ 
     var firstName: String {
         let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let first = trimmed.split(separator: " ").first else { return "friend" }
@@ -97,8 +126,12 @@ final class UserProfileStore: ObservableObject {
     func reset() {
         displayName = ""
         dailyPromptIndex = 0
+        isCloudAIEnabled = false
+        hasConsentedToCloudAI = false
         userDefaults.removeObject(forKey: displayNameKey)
         userDefaults.removeObject(forKey: dailyPromptIndexKey)
+        userDefaults.removeObject(forKey: isCloudAIEnabledKey)
+        userDefaults.removeObject(forKey: hasConsentedToCloudAIKey)
     }
 
     func seedDemoProfile() {

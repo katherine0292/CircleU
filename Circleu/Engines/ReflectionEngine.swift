@@ -29,13 +29,37 @@ protocol ReflectionAnalyzing {
 
 enum ReflectionEngineFactory {
     static func makeDefault() -> any ReflectionAnalyzing {
+        let localFallback = LocalReflectionEngine()
+
+        let hasConsent: @Sendable () -> Bool = {
+            let uid = UserDefaults.standard.string(forKey: "circleu.currentFirebaseUID") ?? ""
+            let key = uid.isEmpty ? "circleu.settings.hasConsentedToCloudAI.v1" : "circleu.settings.hasConsentedToCloudAI.v1.user.\(uid)"
+            return UserDefaults.standard.bool(forKey: key)
+        }
+
+        let isEnabled: @Sendable () -> Bool = {
+            let uid = UserDefaults.standard.string(forKey: "circleu.currentFirebaseUID") ?? ""
+            let key = uid.isEmpty ? "circleu.settings.isCloudAIEnabled.v1" : "circleu.settings.isCloudAIEnabled.v1.user.\(uid)"
+            return UserDefaults.standard.object(forKey: key) as? Bool ?? false
+        }
+
+        let apiKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"]
+            ?? Bundle.main.infoDictionary?["GeminiAPIKey"] as? String
+
+        let cloudEngine = CloudReflectionEngine(
+            fallback: localFallback,
+            apiKey: apiKey,
+            hasConsent: hasConsent,
+            isEnabled: isEnabled
+        )
+
         #if canImport(FoundationModels)
         if #available(iOS 26.0, *) {
-            return AppleIntelligenceReflectionEngine(fallback: LocalReflectionEngine())
+            return AppleIntelligenceReflectionEngine(fallback: cloudEngine)
         }
         #endif
 
-        return LocalReflectionEngine()
+        return cloudEngine
     }
 }
 
