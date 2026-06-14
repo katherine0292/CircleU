@@ -43,8 +43,14 @@ enum ReflectionEngineFactory {
             return UserDefaults.standard.object(forKey: key) as? Bool ?? false
         }
 
-        let apiKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"]
+        var apiKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"]
             ?? Bundle.main.infoDictionary?["GeminiAPIKey"] as? String
+
+        if apiKey == nil,
+           let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let dict = NSDictionary(contentsOfFile: path) as? [String: Any] {
+            apiKey = dict["GEMINI_API_KEY"] as? String
+        }
 
         let cloudEngine = CloudReflectionEngine(
             fallback: localFallback,
