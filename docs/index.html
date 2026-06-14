@@ -9,6 +9,7 @@
     >
     <title>Circleu - Reflect in your own voice</title>
     <link rel="stylesheet" href="site.css">
+    <script src="site.js" defer></script>
   </head>
   <body>
     <header class="site-header" aria-label="Circleu navigation">
@@ -66,6 +67,77 @@
           a saved journal entry, and a practical communication tip. It is built as a TestFlight beta
           with Firebase sign-in and private Firestore backup.
         </p>
+      </section>
+
+      <section id="simulator" class="section simulator-section" aria-labelledby="sim-title">
+        <div class="simulator-grid">
+          <div class="simulator-input-container">
+            <p class="eyebrow">Interactive Demo</p>
+            <h2 id="sim-title">Try Circleu Reflection</h2>
+            <p class="simulator-desc">
+              Select one of our preset scenarios below to see Pingu analyze it in real time, or type your own reflection to experience our privacy-safe AI feedback loop.
+            </p>
+            
+            <div class="preset-buttons" aria-label="Reflection presets">
+              <button class="preset-btn" data-preset="stress" aria-label="Load stress preset">Work Stress</button>
+              <button class="preset-btn" data-preset="repair" aria-label="Load relationship preset">Friend Conflict</button>
+              <button class="preset-btn" data-preset="pride" aria-label="Load proud preset">Team Win</button>
+            </div>
+            
+            <div class="textarea-wrapper">
+              <textarea id="sim-textarea" placeholder="Type a reflection (e.g. 'I felt stressed before my presentation today...')" aria-label="Reflection text input"></textarea>
+              <div id="pingu-mascot-container">
+                <svg class="pingu-svg" viewBox="0 0 100 100" width="80" height="80">
+                  <defs>
+                    <linearGradient id="beak-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#ff9f1c" />
+                      <stop offset="100%" stop-color="#f77f00" />
+                    </linearGradient>
+                    <linearGradient id="body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#1e293b" />
+                      <stop offset="100%" stop-color="#0f172a" />
+                    </linearGradient>
+                  </defs>
+                  
+                  <path class="pingu-wing wing-l" d="M22 55 C12 60 15 72 25 68 Z" fill="#0f172a" />
+                  <path class="pingu-wing wing-r" d="M78 55 C88 60 85 72 75 68 Z" fill="#0f172a" />
+
+                  <ellipse cx="35" cy="88" rx="12" ry="5" fill="#fcbf49" />
+                  <ellipse cx="65" cy="88" rx="12" ry="5" fill="#fcbf49" />
+
+                  <path class="pingu-body" d="M50 15 C28 15 25 40 25 62 C25 82 35 86 50 86 C65 86 75 82 75 62 C75 40 72 15 50 15 Z" fill="url(#body-grad)" />
+                  
+                  <path class="pingu-belly" d="M50 42 C36 42 33 58 33 70 C33 80 40 82 50 82 C60 82 67 80 67 70 C67 58 64 42 50 42 Z" fill="#ffffff" />
+                  
+                  <path class="pingu-face" d="M50 20 C36 20 34 32 34 44 C34 50 40 54 50 54 C60 54 66 50 66 44 C66 32 64 20 50 20 Z" fill="#ffffff" opacity="0.95" />
+
+                  <g class="pingu-eyes">
+                    <ellipse class="pingu-eye eye-left" cx="42" cy="34" rx="5" ry="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.5" />
+                    <ellipse class="pingu-eye eye-right" cx="58" cy="34" rx="5" ry="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.5" />
+                    
+                    <circle class="pingu-pupil pupil-left" cx="42" cy="34" r="2.5" fill="#0f172a" />
+                    <circle class="pingu-pupil pupil-right" cx="58" cy="34" r="2.5" fill="#0f172a" />
+                  </g>
+
+                  <circle cx="34" cy="40" r="3" fill="#ff8da1" opacity="0.6" />
+                  <circle cx="66" cy="40" r="3" fill="#ff8da1" opacity="0.6" />
+
+                  <path class="pingu-beak" d="M50 38 L42 46 L58 46 Z" fill="url(#beak-grad)" />
+                </svg>
+              </div>
+            </div>
+            
+            <button id="sim-reflect-btn" class="button button-primary" aria-label="Submit reflection to simulator">Reflect & Analyze</button>
+          </div>
+          
+          <div class="simulator-output-container">
+            <div id="sim-output-card" class="sim-placeholder-card">
+              <div class="placeholder-icon">💡</div>
+              <p>Your structured insight will appear here.</p>
+              <span>Select a preset or write your check-in, and let Pingu find the calm in your story.</span>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="features" class="section feature-grid" aria-label="Circleu features">
