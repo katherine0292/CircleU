@@ -57,6 +57,13 @@ final class ProfileQAToolsViewModel: ObservableObject {
     func copyQAExport(_ export: String) {
         UIPasteboard.general.string = export
         statusMessage = "Copied QA export to clipboard."
+        
+        AnalyticsService.shared.track(
+            event: "qa_export_copied",
+            properties: [
+                "char_count": "\(export.count)"
+            ]
+        )
     }
 
     func seedDemoData(

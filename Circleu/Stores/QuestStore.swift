@@ -95,6 +95,16 @@ final class QuestStore: ObservableObject {
 
     func complete(_ quest: Quest) {
         update(quest, status: .completed, completedAt: Date())
+        
+        let daysActive = Date().timeIntervalSince(quest.createdAt) / 86400.0
+        AnalyticsService.shared.track(
+            event: "quest_completed",
+            properties: [
+                "quest_id": quest.id.uuidString,
+                "has_source_entry": quest.sourceEntryID != nil ? "true" : "false",
+                "days_active": String(format: "%.2f", daysActive)
+            ]
+        )
     }
 
     func skip(_ quest: Quest) {

@@ -11,6 +11,7 @@ import SwiftUI
 struct CircleuApp: App {
     init() {
         FirebaseRuntime.configureIfAvailable()
+        AnalyticsService.shared = FirebaseRuntime.makeAnalyticsTracker()
     }
 
     var body: some Scene {

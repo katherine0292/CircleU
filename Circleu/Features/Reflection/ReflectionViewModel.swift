@@ -82,6 +82,15 @@ final class ReflectionViewModel: ObservableObject {
 
         hasSaved = true
         questStore.addSuggestedQuest(from: draftEntry)
+        
+        let properties: [String: String] = [
+            "destination": destination == .confirmation ? "confirmation" : "tips",
+            "duration_seconds": "\(draftEntry.durationSeconds)",
+            "engine_name": draftEntry.engineName,
+            "confidence_score": String(format: "%.2f", draftEntry.result.confidenceScore)
+        ]
+        AnalyticsService.shared.track(event: "reflection_saved", properties: properties)
+        
         onSave?(draftEntry, destination)
     }
 
@@ -113,6 +122,16 @@ final class ReflectionViewModel: ObservableObject {
                 self.draftEntry?.engineName = run.attempt.engineName
                 self.draftEntry?.sessionID = run.session.id
                 self.regenerateMessage = "Generated attempt \(run.session.attempts.count) with \(run.attempt.engineName)."
+                
+                AnalyticsService.shared.track(
+                    event: "ai_reflection_regenerated",
+                    properties: [
+                        "engine_name": run.attempt.engineName,
+                        "attempt_number": "\(run.session.attempts.count)",
+                        "duration_seconds": "\(draftEntry.durationSeconds)",
+                        "confidence_score": String(format: "%.2f", result.confidenceScore)
+                    ]
+                )
             } else {
                 self.regenerateMessage = run.attempt.errorMessage ?? "AI regeneration failed. Please try again."
             }

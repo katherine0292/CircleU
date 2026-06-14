@@ -112,6 +112,16 @@ final class CircleStore: ObservableObject {
         circles.insert(circle, at: 0)
         saveCircles()
         pushCircle(circle, isCreator: true)
+        
+        AnalyticsService.shared.track(
+            event: "circle_created",
+            properties: [
+                "circle_id": circle.id.uuidString,
+                "emoji": circle.emoji,
+                "cover_image_count": "\(circle.coverImages.count)",
+                "has_custom_cover": circle.coverImages.isEmpty ? "false" : "true"
+            ]
+        )
     }
 
     func joinCircle(_ id: UUID) {

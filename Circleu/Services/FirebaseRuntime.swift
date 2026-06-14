@@ -43,6 +43,10 @@ enum FirebaseRuntime {
     static func makeSyncer() -> any ReflectionSyncing & ReflectionBackupRestoring {
         canUseLiveFirebase ? FirebaseUploadOnlySyncer() : NoOpBackendSyncer()
     }
+
+    static func makeAnalyticsTracker() -> any AnalyticsTracking {
+        canUseLiveFirebase ? FirebaseAnalyticsTracker() : NoOpAnalyticsTracker()
+    }
 }
 
 struct NoOpBackendSyncer: ReflectionSyncing, ReflectionBackupRestoring {
