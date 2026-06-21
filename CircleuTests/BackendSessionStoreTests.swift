@@ -561,6 +561,64 @@ final class BackendSessionStoreTests: XCTestCase {
         )
     }
 
+    func testDeleteAccountPurgesCloudBackupDeletesAuthAndResetsAllLocalStores() async throws {
+        let defaults = makeDefaults()
+        let authStore = AuthStore(userDefaults: defaults)
+        let profileStore = UserProfileStore(userDefaults: defaults)
+        let journalStore = ReflectionJournalStore(userDefaults: defaults)
+        let questStore = QuestStore(userDefaults: defaults)
+        let tipsPracticeStore = TipsPracticeStore(userDefaults: defaults)
+        let rewardsStore = RewardsStore(userDefaults: defaults)
+        let aiSessionStore = AIReflectionSessionStore(userDefaults: defaults)
+        let circleStore = CircleStore(userDefaults: defaults)
+
+        _ = try authStore.signUp(name: "Tuan", email: "tuan@example.com", password: "strong-password")
+        profileStore.updateDisplayName("Tuan")
+        
+        let authenticator = FakeFirebaseAuthenticator()
+        authenticator.currentSession = FirebaseAuthSession(
+            uid: "firebase-user-1",
+            email: "tuan@example.com",
+            displayName: "Tuan",
+            localUserID: "local-user-1"
+        )
+        
+        let syncer = CapturingSyncer()
+        let restorer = CapturingRestorer(snapshot: makeRestoredSnapshot())
+        
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: syncer,
+            restorer: restorer,
+            identityProvider: StubIdentityProvider(localUserID: "local-user-1", displayName: "Tuan")
+        )
+        
+        XCTAssertTrue(authStore.isSignedIn)
+        XCTAssertEqual(profileStore.displayName, "Tuan")
+        XCTAssertEqual(store.backendUserID, "firebase-user-1")
+
+        var hasCompletedOnboarding = true
+        
+        try await store.deleteAccount(
+            authStore: authStore,
+            profileStore: profileStore,
+            journalStore: journalStore,
+            questStore: questStore,
+            tipsPracticeStore: tipsPracticeStore,
+            rewardsStore: rewardsStore,
+            aiSessionStore: aiSessionStore,
+            circleStore: circleStore,
+            hasCompletedOnboarding: &hasCompletedOnboarding
+        )
+        
+        XCTAssertTrue(authenticator.didDeleteAccount)
+        XCTAssertEqual(restorer.purgedUserIDs, ["firebase-user-1"])
+        XCTAssertFalse(authStore.isSignedIn)
+        XCTAssertEqual(profileStore.displayName, "Friend")
+        XCTAssertFalse(hasCompletedOnboarding)
+        XCTAssertNil(store.backendUserID)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "circleu.backend.session.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -578,6 +636,7 @@ private final class FakeFirebaseAuthenticator: FirebaseAuthenticating {
     var updateDisplayNameError: Error?
     var updatedDisplayName: String?
     var didSignOut = false
+    var didDeleteAccount = false
 
     init(currentSession: FirebaseAuthSession? = nil) {
         self.currentSession = currentSession
@@ -632,6 +691,11 @@ private final class FakeFirebaseAuthenticator: FirebaseAuthenticating {
         didSignOut = true
         currentSession = nil
     }
+
+    func deleteAccount() async throws {
+        didDeleteAccount = true
+        currentSession = nil
+    }
 }
 
 private final class CapturingSyncer: ReflectionSyncing {
@@ -650,6 +714,7 @@ private final class CapturingSyncer: ReflectionSyncing {
 private final class CapturingRestorer: ReflectionBackupRestoring {
     var error: Error?
     var restoredUserIDs: [String] = []
+    var purgedUserIDs: [String] = []
     private let snapshot: BackendSyncSnapshot
 
     init(snapshot: BackendSyncSnapshot) {
@@ -660,6 +725,11 @@ private final class CapturingRestorer: ReflectionBackupRestoring {
         if let error { throw error }
         restoredUserIDs.append(userID)
         return snapshot
+    }
+
+    func purgePrivateBackup(userID: String) async throws {
+        if let error { throw error }
+        purgedUserIDs.append(userID)
     }
 }
 

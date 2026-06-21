@@ -159,6 +159,30 @@ final class FirebaseFirestoreSyncServiceTests: XCTestCase {
         XCTAssertEqual(restored.counts.journalEntryCount, 1)
         XCTAssertEqual(restored.counts.aiSessionCount, 1)
     }
+
+    func testPurgePrivateBackupDeletesAllUserScopedDocuments() async throws {
+        let ids = TestIDs()
+        let snapshot = makeSnapshot(ids: ids)
+        let documents = Dictionary(
+            uniqueKeysWithValues: FirebaseSyncMapper.privateBackupDocuments(for: snapshot).map { ($0.path, $0.firestoreData) }
+        )
+        let client = FakeFirestoreClient(seedDocuments: documents)
+        let syncer = FirebaseUploadOnlySyncer(client: client)
+
+        XCTAssertFalse(client.documents.isEmpty)
+
+        try await syncer.purgePrivateBackup(userID: "firebase-user-1")
+
+        XCTAssertTrue(client.documents.isEmpty)
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/profile/main"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/journalEntries/\(ids.entryID.uuidString)"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/quests/\(ids.questID.uuidString)"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/tipsPracticeSessions/\(ids.tipsSessionID.uuidString)"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/rewardState/main"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/pointEntries/\(ids.pointEntryID.uuidString)"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/activityEvents/\(ids.activityEventID.uuidString)"))
+        XCTAssertTrue(client.deletedPaths.contains("users/firebase-user-1/aiReflectionSessions/\(ids.sessionID.uuidString)"))
+    }
 }
 
 private struct TestIDs {
@@ -183,7 +207,8 @@ private struct FakeFirestoreWrite {
 
 private final class FakeFirestoreClient: FirebaseFirestoreClient {
     var writes: [FakeFirestoreWrite] = []
-    private var documents: [String: [String: Any]]
+    var deletedPaths: [String] = []
+    var documents: [String: [String: Any]]
     private let failingPaths: Set<String>
 
     init(seedDocuments: [String: [String: Any]] = [:], failingPaths: Set<String> = []) {
@@ -211,6 +236,14 @@ private final class FakeFirestoreClient: FirebaseFirestoreClient {
                 item.key.hasPrefix(prefix) && item.key.dropFirst(prefix.count).contains("/") == false
             }
             .map(\.value)
+    }
+
+    func deleteDocument(at documentPath: String) async throws {
+        if failingPaths.contains(documentPath) {
+            throw FakeFirestoreError.writeFailed
+        }
+        deletedPaths.append(documentPath)
+        documents.removeValue(forKey: documentPath)
     }
 }
 

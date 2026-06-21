@@ -75,6 +75,17 @@ final class FirebaseAuthServiceTests: XCTestCase {
 
         XCTAssertTrue(client.didSignOut)
     }
+
+    func testFirebaseAuthServiceDeletesAccount() async throws {
+        let client = FakeFirebaseAuthClient()
+        let service = FirebaseAuthService(client: client)
+
+        XCTAssertFalse(client.didDeleteAccount)
+
+        try await service.deleteAccount()
+
+        XCTAssertTrue(client.didDeleteAccount)
+    }
 }
 
 private final class FakeFirebaseAuthClient: FirebaseAuthClient {
@@ -85,6 +96,7 @@ private final class FakeFirebaseAuthClient: FirebaseAuthClient {
     var signedInPassword: String?
     var updatedDisplayName: String?
     var didSignOut = false
+    var didDeleteAccount = false
 
     func createUser(email: String, password: String) async throws -> FirebaseAuthSession {
         createdEmail = email
@@ -123,6 +135,11 @@ private final class FakeFirebaseAuthClient: FirebaseAuthClient {
 
     func signOut() throws {
         didSignOut = true
+        currentUser = nil
+    }
+
+    func deleteAccount() async throws {
+        didDeleteAccount = true
         currentUser = nil
     }
 }
