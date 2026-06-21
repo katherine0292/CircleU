@@ -162,6 +162,7 @@ nonisolated protocol FirebaseFirestoreClient {
     func setData(_ data: [String: Any], at documentPath: String, merge: Bool) async throws
     func getDocument(at documentPath: String) async throws -> [String: Any]?
     func getDocuments(in collectionPath: String) async throws -> [[String: Any]]
+    func deleteDocument(at documentPath: String) async throws
 }
 
 struct FirebaseUploadOnlySyncer: ReflectionSyncing, ReflectionBackupRestoring {
@@ -216,6 +217,50 @@ struct FirebaseUploadOnlySyncer: ReflectionSyncing, ReflectionBackupRestoring {
             aiSessionDocuments: aiSessionDocuments
         )
     }
+
+    nonisolated func purgePrivateBackup(userID: String) async throws {
+        let journalDocs = try? await client.getDocuments(in: "users/\(userID)/journalEntries")
+        let questDocs = try? await client.getDocuments(in: "users/\(userID)/quests")
+        let tipsPracticeDocs = try? await client.getDocuments(in: "users/\(userID)/tipsPracticeSessions")
+        let pointDocs = try? await client.getDocuments(in: "users/\(userID)/pointEntries")
+        let activityDocs = try? await client.getDocuments(in: "users/\(userID)/activityEvents")
+        let aiSessionDocs = try? await client.getDocuments(in: "users/\(userID)/aiReflectionSessions")
+
+        for doc in journalDocs ?? [] {
+            if let id = doc["entryID"] as? String {
+                try? await client.deleteDocument(at: "users/\(userID)/journalEntries/\(id)")
+            }
+        }
+        for doc in questDocs ?? [] {
+            if let id = doc["questID"] as? String {
+                try? await client.deleteDocument(at: "users/\(userID)/quests/\(id)")
+            }
+        }
+        for doc in tipsPracticeDocs ?? [] {
+            if let id = doc["sessionID"] as? String {
+                try? await client.deleteDocument(at: "users/\(userID)/tipsPracticeSessions/\(id)")
+            }
+        }
+        for doc in pointDocs ?? [] {
+            if let id = doc["pointEntryID"] as? String {
+                try? await client.deleteDocument(at: "users/\(userID)/pointEntries/\(id)")
+            }
+        }
+        for doc in activityDocs ?? [] {
+            if let id = doc["activityEventID"] as? String {
+                try? await client.deleteDocument(at: "users/\(userID)/activityEvents/\(id)")
+            }
+        }
+        for doc in aiSessionDocs ?? [] {
+            if let id = doc["sessionID"] as? String {
+                try? await client.deleteDocument(at: "users/\(userID)/aiReflectionSessions/\(id)")
+            }
+        }
+
+        try? await client.deleteDocument(at: "users/\(userID)/profile/main")
+        try? await client.deleteDocument(at: "users/\(userID)/rewardState/main")
+        try? await client.deleteDocument(at: "users/\(userID)")
+    }
 }
 
 struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
@@ -256,6 +301,19 @@ struct LiveFirebaseFirestoreClient: FirebaseFirestoreClient {
                 }
 
                 continuation.resume(returning: snapshot?.documents.map { $0.data() } ?? [])
+            }
+        }
+    }
+
+    nonisolated func deleteDocument(at documentPath: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            Firestore.firestore().document(documentPath).delete { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume()
             }
         }
     }

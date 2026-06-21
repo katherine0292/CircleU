@@ -40,7 +40,7 @@ struct TipsLiveCoachView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 14) {
                     if let session = viewModel.activeSession {
-                        PinguMascot(size: 64, mood: .idle)
+                        PinguMascot(size: 64, mood: .watering)
                             .padding(.top, 8)
 
                         let firstReplyIndex = session.turns.firstIndex { $0.role == .simulatedPerson }

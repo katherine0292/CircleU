@@ -1,0 +1,8 @@
+# The bundle identifier of your app
+app_identifier("edu.uts.tuannm3812.Circleu")
+
+# Your Apple Developer Portal / App Store Connect username
+apple_id("tuannm3812@gmail.com")
+
+# For more information about Appfile check out:
+# https://docs.fastlane.tools/advanced/#appfile

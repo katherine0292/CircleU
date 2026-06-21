@@ -33,6 +33,7 @@ nonisolated protocol FirebaseAuthenticating {
     func signIn(email: String, password: String) async throws -> FirebaseAuthSession
     func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession
     func signOut() throws
+    func deleteAccount() async throws
 }
 
 nonisolated protocol FirebaseAuthClient {
@@ -42,6 +43,7 @@ nonisolated protocol FirebaseAuthClient {
     func signIn(email: String, password: String) async throws -> FirebaseAuthSession
     func updateDisplayName(_ displayName: String) async throws -> FirebaseAuthSession
     func signOut() throws
+    func deleteAccount() async throws
 }
 
 struct FirebaseAuthService: FirebaseAuthenticating {
@@ -79,6 +81,10 @@ struct FirebaseAuthService: FirebaseAuthenticating {
     nonisolated func signOut() throws {
         try client.signOut()
     }
+
+    nonisolated func deleteAccount() async throws {
+        try await client.deleteAccount()
+    }
 }
 
 struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
@@ -112,6 +118,8 @@ struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
     }
 
     nonisolated func signOut() throws {}
+
+    nonisolated func deleteAccount() async throws {}
 }
 
 struct LiveFirebaseAuthClient: FirebaseAuthClient {
@@ -180,6 +188,20 @@ struct LiveFirebaseAuthClient: FirebaseAuthClient {
 
     nonisolated func signOut() throws {
         try Auth.auth().signOut()
+    }
+
+    nonisolated func deleteAccount() async throws {
+        guard let user = Auth.auth().currentUser else { return }
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            user.delete { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume()
+            }
+        }
     }
 
     nonisolated private static func session(from user: User) -> FirebaseAuthSession {

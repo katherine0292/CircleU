@@ -43,8 +43,11 @@ struct RecordingView: View {
 
                     Spacer(minLength: max(40, proxy.size.height * 0.05))
 
-                    WaveformView(soundLevels: viewModel.recorder.soundLevels)
-                        .opacity(viewModel.recorder.isRecording && !viewModel.recorder.isPaused ? 1 : 0.42)
+                    WaveformView(
+                        soundLevels: viewModel.recorder.soundLevels,
+                        amplitude: viewModel.recorder.amplitude
+                    )
+                    .opacity(viewModel.recorder.isRecording && !viewModel.recorder.isPaused ? 1 : 0.42)
 
                     transcriptPanel
                         .padding(.horizontal, PinguDesign.screenSidePadding)
@@ -318,10 +321,9 @@ struct RecordingView: View {
         ZStack {
             PinguDesign.ice.opacity(0.82).ignoresSafeArea()
 
-            VStack(spacing: 16) {
-                ProgressView()
-                    .controlSize(.large)
-                    .tint(PinguDesign.blue)
+            VStack(spacing: 22) {
+                PinguMascot(size: 110, mood: .think, ring: true)
+                    .padding(.bottom, 6)
 
                 Text("Analyzing your reflection")
                     .font(PinguFont.sectionTitle)

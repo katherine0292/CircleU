@@ -79,7 +79,7 @@ struct PinguOnboardingView: View {
             Spacer()
 
             VStack(spacing: 0) {
-                PinguMascot(size: 172, mood: .celebrate, ring: true)
+                PinguMascot(size: 172, mood: .waving, ring: true)
 
                 Text("A digital embrace\nfor your growth")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
@@ -142,7 +142,7 @@ struct PinguOnboardingView: View {
         VStack(spacing: 0) {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    PinguMascot(size: 84, mood: .idle)
+                    PinguMascot(size: 84, mood: .waving)
                         .padding(.bottom, 20)
 
                     Text("Create Your Space")
@@ -211,7 +211,7 @@ struct PinguOnboardingView: View {
         VStack(spacing: 0) {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    PinguMascot(size: 84, mood: .idle)
+                    PinguMascot(size: 84, mood: .waving)
                         .padding(.bottom, 20)
 
                     Text("Welcome Back")

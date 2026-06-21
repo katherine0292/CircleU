@@ -1,3 +1,4 @@
+#if DEBUG
 import Combine
 import Foundation
 import UIKit
@@ -17,3 +18,4 @@ final class AIReflectionLabViewModel: ObservableObject {
         statusMessage = "Copied AI session export to clipboard."
     }
 }
+#endif

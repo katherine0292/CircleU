@@ -35,10 +35,7 @@ extension AboutView {
 
         VStack(spacing: 12) {
 
-            Image("PinguMascot")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 90)
+            PinguMascot(size: 90, mood: .thumbsUp)
 
             Text("CircleU")
                 .font(.largeTitle.bold())

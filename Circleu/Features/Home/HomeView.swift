@@ -61,10 +61,18 @@ struct HomeView: View {
     // MARK: - Hero record panel
 
     private var heroRecordPanel: some View {
-        GlassCard(style: .strong, sheen: true) {
+        let hasReflectedToday: Bool = {
+            if let latest = journalStore.entries.first {
+                return Calendar.current.isDateInToday(latest.createdAt)
+            }
+            return false
+        }()
+        let mascotMood: PinguMood = hasReflectedToday ? .celebrate : .waving
+
+        return GlassCard(style: .strong, sheen: true) {
             VStack(spacing: 0) {
                 ZStack(alignment: .topTrailing) {
-                    PinguMascot(size: 120, mood: .idle, ring: true)
+                    PinguMascot(size: 120, mood: mascotMood, ring: true)
                         .frame(maxWidth: .infinity)
 
                     emotionPill

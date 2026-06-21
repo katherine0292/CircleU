@@ -1,0 +1,35 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Run unit tests"
+  lane :tests do
+    scan(
+      project: "Circleu.xcodeproj",
+      scheme: "Circleu",
+      device: "iPhone 17 Pro",
+      fail_build: true
+    )
+  end
+
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    # Ensure local git status is clean before building release
+    ensure_git_status_clean
+    
+    # Increment build number
+    increment_build_number(xcodeproj: "Circleu.xcodeproj")
+    
+    # Build app (copies production plist automatically via our custom Xcode Run Script phase!)
+    build_app(
+      project: "Circleu.xcodeproj",
+      scheme: "Circleu",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+    
+    # Upload to App Store Connect / TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

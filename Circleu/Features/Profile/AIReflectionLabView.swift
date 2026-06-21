@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 struct AIReflectionLabView: View {
@@ -248,3 +249,4 @@ private struct AIReflectionSessionExportDetailView: View {
         return title.isEmpty ? "AI Session" : title
     }
 }
+#endif

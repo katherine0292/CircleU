@@ -88,10 +88,12 @@ struct ProfileView: View {
                 SettingsHubView()
             }
         }
+        #if DEBUG
         .sheet(isPresented: $showQATools) {
             ProfileQAToolsSheet(hasCompletedOnboarding: $hasCompletedOnboarding)
                 .environmentObject(backendSessionStore)
         }
+        #endif
         .sheet(isPresented: $showProfileEditor) {
             ProfileEditSheet()
                 .environmentObject(profileStore)
@@ -103,7 +105,7 @@ struct ProfileView: View {
 
     private var header: some View {
         HStack(spacing: 16) {
-            PinguLevelBadge(level: level, size: 82)
+            PinguLevelBadge(level: level, size: 82, xpProgress: Double(intoLevel) / 100.0)
                 .padding(4)
 
             VStack(alignment: .leading, spacing: 0) {

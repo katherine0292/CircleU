@@ -382,7 +382,7 @@ struct PinguEmotionMeta {
 
 // MARK: - Pingu mascot with mood animations
 
-enum PinguMood { case idle, think, celebrate, pop }
+enum PinguMood { case idle, think, celebrate, pop, calm, waving, reading, thumbsUp, watering, levelUp }
 
 struct PinguMascot: View {
     var size: CGFloat = 100
@@ -398,6 +398,29 @@ struct PinguMascot: View {
 
     private var scaleY: CGFloat {
         isBlinking ? 0.05 : 1.0
+    }
+
+    private var imageName: String {
+        switch mood {
+        case .idle, .pop:
+            return "PinguMascot"
+        case .think:
+            return "PinguThinking"
+        case .celebrate:
+            return "PinguCelebrating"
+        case .calm:
+            return "PinguCalm"
+        case .waving:
+            return "PinguWaving"
+        case .reading:
+            return "PinguReading"
+        case .thumbsUp:
+            return "PinguThumbsUp"
+        case .watering:
+            return "PinguWatering"
+        case .levelUp:
+            return "PinguLevelUp"
+        }
     }
 
     var body: some View {
@@ -421,7 +444,7 @@ struct PinguMascot: View {
                 .frame(width: size * 0.85, height: size * 0.85)
                 .blur(radius: 12)
 
-            Image("PinguMascot")
+            Image(imageName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: size, height: size)
@@ -436,7 +459,7 @@ struct PinguMascot: View {
 
     private var rotation: Double {
         switch mood {
-        case .idle: bob ? 1.5 : -1.5
+        case .idle, .calm, .waving, .reading, .thumbsUp, .watering, .levelUp: bob ? 1.5 : -1.5
         case .think: think ? 3 : -3
         case .celebrate: celebrate ? 6 : -6
         case .pop: 0
@@ -445,6 +468,12 @@ struct PinguMascot: View {
     private var bobOffset: CGFloat {
         switch mood {
         case .idle: bob ? -7 : 0
+        case .calm: bob ? -5 : 0
+        case .waving: bob ? -6 : 0
+        case .reading: bob ? -4 : 0
+        case .thumbsUp: bob ? -5 : 0
+        case .watering: bob ? -5 : 0
+        case .levelUp: bob ? -8 : 0
         case .think: think ? 8 : 0
         case .celebrate: celebrate ? -12 : 0
         default: 0
@@ -468,6 +497,18 @@ struct PinguMascot: View {
             withAnimation(.easeInOut(duration: 0.55).repeatForever(autoreverses: true)) { celebrate = true }
         case .pop:
             withAnimation(.spring(response: 0.5, dampingFraction: 0.55)) { pop = true }
+        case .calm:
+            withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) { bob = true }
+        case .waving:
+            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) { bob = true }
+        case .reading:
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) { bob = true }
+        case .thumbsUp:
+            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { bob = true }
+        case .watering:
+            withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) { bob = true }
+        case .levelUp:
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { bob = true }
         }
         if ring {
             withAnimation(.easeOut(duration: 1.8).repeatForever(autoreverses: false)) { ringPulse = true }

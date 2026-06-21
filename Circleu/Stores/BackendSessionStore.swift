@@ -162,6 +162,51 @@ final class BackendSessionStore: ObservableObject {
         authStore.logout()
     }
 
+    func deleteAccount(
+        authStore: AuthStore,
+        profileStore: UserProfileStore,
+        journalStore: ReflectionJournalStore,
+        questStore: QuestStore,
+        tipsPracticeStore: TipsPracticeStore,
+        rewardsStore: RewardsStore,
+        aiSessionStore: AIReflectionSessionStore,
+        circleStore: CircleStore,
+        hasCompletedOnboarding: inout Bool
+    ) async throws {
+        // 1. Purge Firestore backup first while authenticated
+        if let uid = session?.uid {
+            do {
+                try await restorer.purgePrivateBackup(userID: uid)
+            } catch {
+                // Log and continue on best-effort basis
+                print("Failed to purge Firestore cloud backup: \(error)")
+            }
+        }
+
+        // 2. Delete Firebase Authentication account
+        do {
+            try await authenticator.deleteAccount()
+            lastAuthErrorMessage = nil
+        } catch {
+            lastAuthErrorMessage = error.localizedDescription
+            throw error
+        }
+
+        // 3. Log out and invalidate local session
+        session = nil
+        authStore.logout()
+
+        // 4. Reset all local data models and return to first-run state
+        profileStore.reset()
+        journalStore.reset()
+        aiSessionStore.reset()
+        questStore.reset()
+        tipsPracticeStore.resetAll()
+        rewardsStore.reset()
+        circleStore.reset(seedStarterSpaces: false)
+        hasCompletedOnboarding = false
+    }
+
     func updateDisplayName(_ displayName: String) async throws {
         guard let currentSession = session else { return }
         do {

@@ -59,7 +59,7 @@ struct JournalView: View {
 
     private var emptyState: some View {
         VStack(spacing: 0) {
-            PinguMascot(size: 120, mood: .idle)
+            PinguMascot(size: 120, mood: .reading)
 
             Text("Nothing here yet")
                 .font(.system(size: 17, weight: .bold, design: .rounded))

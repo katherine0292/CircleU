@@ -244,6 +244,7 @@ nonisolated protocol ReflectionSyncing {
 
 nonisolated protocol ReflectionBackupRestoring {
     func restorePrivateBackup(userID: String) async throws -> BackendSyncSnapshot
+    func purgePrivateBackup(userID: String) async throws
 }
 
 nonisolated protocol UserIdentityProviding {
@@ -277,6 +278,8 @@ struct NoOpReflectionSyncer: ReflectionSyncing, ReflectionBackupRestoring {
             aiSessions: []
         )
     }
+
+    nonisolated func purgePrivateBackup(userID: String) async throws {}
 }
 
 struct LocalUserIdentityProvider: UserIdentityProviding {

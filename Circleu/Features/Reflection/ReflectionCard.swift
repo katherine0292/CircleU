@@ -18,6 +18,11 @@ struct ReflectionCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
         .pinguGlass(cornerRadius: 24, tint: 0.22)
+        .overlay {
+            GlassSheen()
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .allowsHitTesting(false)
+        }
     }
 }
 

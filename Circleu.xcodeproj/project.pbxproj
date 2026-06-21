@@ -100,6 +100,7 @@
 			buildPhases = (
 				02CCBDBE2FCE6063007523F5 /* Sources */,
 				02CCBDBF2FCE6063007523F5 /* Frameworks */,
+				A30000012F20000100000001 /* Copy Firebase Plist */,
 				02CCBDC02FCE6063007523F5 /* Resources */,
 			);
 			buildRules = (
@@ -200,6 +201,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A30000012F20000100000001 /* Copy Firebase Plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Config/Firebase/GoogleService-Info-Dev.plist",
+				"$(SRCROOT)/Config/Firebase/GoogleService-Info-Prod.plist",
+			);
+			name = "Copy Firebase Plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Path to configurations folder\nFIREBASE_CONFIG_DIR=\"${PROJECT_DIR}/Config/Firebase\"\n\n# Path to target plist in the built app bundle\nTARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n\nif [ \"${CONFIGURATION}\" == \"Release\" ]; then\n    echo \"Copying Production Firebase Configuration...\"\n    cp \"${FIREBASE_CONFIG_DIR}/GoogleService-Info-Prod.plist\" \"${TARGET_PLIST}\"\nelse\n    echo \"Copying Development Firebase Configuration...\"\n    cp \"${FIREBASE_CONFIG_DIR}/GoogleService-Info-Dev.plist\" \"${TARGET_PLIST}\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		02CCBDBE2FCE6063007523F5 /* Sources */ = {

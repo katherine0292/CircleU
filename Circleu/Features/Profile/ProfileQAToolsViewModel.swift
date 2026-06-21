@@ -1,3 +1,4 @@
+#if DEBUG
 import Combine
 import Foundation
 import UIKit
@@ -128,3 +129,4 @@ final class ProfileQAToolsViewModel: ObservableObject {
         Bundle.main.bundleIdentifier ?? "Unknown"
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 struct ProfileQAToolsSheet: View {
@@ -438,3 +439,4 @@ struct ProfileQAToolsSheet: View {
             + counts.aiSessionCount
     }
 }
+#endif

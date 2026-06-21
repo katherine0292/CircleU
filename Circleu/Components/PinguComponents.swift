@@ -128,6 +128,7 @@ struct PinguTopBar: View {
 struct PinguLevelBadge: View {
     let level: Int
     let size: CGFloat
+    var xpProgress: Double = 0.0
 
     private var imageName: String {
         switch level {
@@ -137,17 +138,42 @@ struct PinguLevelBadge: View {
             "PinguLevel2"
         case 7...9:
             "PinguLevel3"
-        default:
+        case 10...11:
             "PinguLevel4"
+        default:
+            "PinguLevelUp"
         }
     }
 
     var body: some View {
-        Image(imageName)
-            .resizable()
-            .scaledToFit()
-            .frame(width: size, height: size)
-            .accessibilityLabel("Level \(level)")
+        ZStack {
+            // Background track
+            Circle()
+                .stroke(PinguDesign.lightBlue.opacity(0.35), lineWidth: size * 0.08)
+                .frame(width: size * 1.15, height: size * 1.15)
+
+            // Foreground progress ring
+            Circle()
+                .trim(from: 0.0, to: CGFloat(min(max(xpProgress, 0.0), 1.0)))
+                .stroke(
+                    LinearGradient(
+                        colors: [PinguDesign.electricBlue, PinguDesign.blue],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    style: StrokeStyle(lineWidth: size * 0.08, lineCap: .round)
+                )
+                .frame(width: size * 1.15, height: size * 1.15)
+                .rotationEffect(.degrees(-90)) // Start from top (12 o'clock)
+                .animation(.spring(response: 0.6, dampingFraction: 0.75), value: xpProgress)
+
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .accessibilityLabel("Level \(level)")
+        }
+        .frame(width: size * 1.25, height: size * 1.25)
     }
 }
 

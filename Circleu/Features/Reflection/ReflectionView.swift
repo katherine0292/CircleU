@@ -114,6 +114,11 @@ struct ReflectionView: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .pinguGlass(cornerRadius: 17, tint: 0.22)
+        .overlay {
+            GlassSheen()
+                .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+                .allowsHitTesting(false)
+        }
     }
 
     private func expressionCard(reflection: AIReflectionResult) -> some View {
@@ -156,6 +161,11 @@ struct ReflectionView: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .pinguGlass(cornerRadius: 17, tint: 0.22)
+        .overlay {
+            GlassSheen()
+                .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+                .allowsHitTesting(false)
+        }
     }
 
     private func quoteCard(reflection: AIReflectionResult) -> some View {
@@ -195,6 +205,11 @@ struct ReflectionView: View {
         }
         .frame(height: 214)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay {
+            GlassSheen()
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .allowsHitTesting(false)
+        }
         .shadow(color: PinguDesign.blue.opacity(0.18), radius: 18, y: 10)
     }
 
@@ -275,10 +290,9 @@ struct ReflectionView: View {
     }
 
     private var emptyReflectionState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "waveform.badge.magnifyingglass")
-                .font(.system(size: 58, weight: .semibold))
-                .foregroundStyle(PinguDesign.blue)
+        VStack(spacing: 20) {
+            PinguMascot(size: 110, mood: .calm, ring: false)
+                .padding(.bottom, 4)
 
             Text("No reflection to review")
                 .font(.system(size: 26, weight: .bold, design: .rounded))
@@ -293,6 +307,11 @@ struct ReflectionView: View {
         .padding(22)
         .frame(maxWidth: .infinity)
         .pinguGlass(cornerRadius: 26, tint: 0.22)
+        .overlay {
+            GlassSheen()
+                .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .allowsHitTesting(false)
+        }
     }
 
     private var regenerationStatus: some View {

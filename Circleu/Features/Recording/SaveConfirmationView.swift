@@ -25,18 +25,8 @@ struct SaveConfirmationView: View {
             VStack(spacing: 26) {
                 Spacer()
 
-                ZStack {
-                    Circle()
-                        .fill(PinguDesign.lightBlue.opacity(0.72))
-                        .frame(width: 124, height: 124)
-
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 46, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 86, height: 86)
-                        .background(PinguDesign.blue)
-                        .clipShape(Circle())
-                }
+                PinguMascot(size: 130, mood: .celebrate, ring: true)
+                    .padding(.top, 14)
 
                 VStack(spacing: 12) {
                     Text("Reflection saved")

@@ -22,3 +22,4 @@ Config/Signing.xcconfig
 # Per-developer Firebase config (each dev registers their own iOS app and
 # downloads their own GoogleService-Info.plist — see the .example file).
 Circleu/GoogleService-Info.plist
+Config/Firebase/GoogleService-Info-Prod.plist
