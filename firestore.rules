@@ -49,7 +49,7 @@ service cloud.firestore {
     // Public circles — every signed-in user can read the global list. Writes are restricted:
     // - create: caller must stamp themselves as the creator
     // - update: only the creator can edit metadata (name/intention/emoji/coverImagesBase64),
-    //           BUT any signed-in user can mutate `memberUserIDs` to join/leave
+    //           BUT any signed-in user can mutate their own membership/like/favorite status.
     // - delete: only the creator
     match /circles/{circleID} {
       allow read: if isSignedIn();
@@ -58,7 +58,7 @@ service cloud.firestore {
         && request.resource.data.creatorUserID == request.auth.uid;
 
       allow update: if isSignedIn() && (
-        // Creator-only fields are unchanged when this is a membership-only toggle.
+        // Creator-only fields are unchanged when this is a membership/like/favorite toggle.
         (resource.data.creatorUserID == request.auth.uid)
         || (
           request.resource.data.creatorUserID == resource.data.creatorUserID
@@ -71,11 +71,17 @@ service cloud.firestore {
 
       allow delete: if isSignedIn() && resource.data.creatorUserID == request.auth.uid;
 
-      // Posts subcollection — same public read, author-gated writes.
+      // Helper function: checks if requesting user is in the circle's member list
+      function isCircleMember() {
+        return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/circles/{circleID}).data.memberUserIDs;
+      }
+
+      // Posts subcollection — same public read, member-gated writes.
       match /posts/{postID} {
         allow read: if isSignedIn();
 
-        allow create: if isSignedIn()
+        // Gated: only members can create posts in this circle
+        allow create: if isCircleMember()
           && request.resource.data.authorUserID == request.auth.uid;
 
         // Anyone signed-in can mutate `likedBy` (for like toggle) and `replies`

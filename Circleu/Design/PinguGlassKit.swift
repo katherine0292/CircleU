@@ -382,7 +382,7 @@ struct PinguEmotionMeta {
 
 // MARK: - Pingu mascot with mood animations
 
-enum PinguMood { case idle, think, celebrate, pop, calm, waving, reading, thumbsUp, watering, levelUp }
+enum PinguMood { case idle, think, celebrate, pop, calm, waving, reading, thumbsUp, watering, levelUp, explorer }
 
 struct PinguMascot: View {
     var size: CGFloat = 100
@@ -420,6 +420,8 @@ struct PinguMascot: View {
             return "PinguWatering"
         case .levelUp:
             return "PinguLevelUp"
+        case .explorer:
+            return "PinguExplorer"
         }
     }
 
@@ -459,7 +461,7 @@ struct PinguMascot: View {
 
     private var rotation: Double {
         switch mood {
-        case .idle, .calm, .waving, .reading, .thumbsUp, .watering, .levelUp: bob ? 1.5 : -1.5
+        case .idle, .calm, .waving, .reading, .thumbsUp, .watering, .levelUp, .explorer: bob ? 1.5 : -1.5
         case .think: think ? 3 : -3
         case .celebrate: celebrate ? 6 : -6
         case .pop: 0
@@ -474,6 +476,7 @@ struct PinguMascot: View {
         case .thumbsUp: bob ? -5 : 0
         case .watering: bob ? -5 : 0
         case .levelUp: bob ? -8 : 0
+        case .explorer: bob ? -6 : 0
         case .think: think ? 8 : 0
         case .celebrate: celebrate ? -12 : 0
         default: 0
@@ -509,6 +512,8 @@ struct PinguMascot: View {
             withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) { bob = true }
         case .levelUp:
             withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { bob = true }
+        case .explorer:
+            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { bob = true }
         }
         if ring {
             withAnimation(.easeOut(duration: 1.8).repeatForever(autoreverses: false)) { ringPulse = true }

@@ -658,10 +658,9 @@ private struct SavedCirclesSheet: View {
                 PinguAurora()
 
                 if circles.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "bookmark")
-                            .font(.system(size: 36, weight: .regular))
-                            .foregroundStyle(Pingu.muted)
+                    VStack(spacing: 16) {
+                        PinguMascot(size: 110, mood: .explorer)
+                            .padding(.bottom, 6)
                         Text("No saved circles yet")
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundStyle(Pingu.ink)
