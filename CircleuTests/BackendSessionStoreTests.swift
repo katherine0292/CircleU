@@ -584,7 +584,7 @@ final class BackendSessionStoreTests: XCTestCase {
         )
         
         let syncer = CapturingSyncer()
-        let restorer = CapturingRestorer(snapshot: makeRestoredSnapshot())
+        let restorer = CapturingRestorer(snapshot: makeRemoteSnapshot())
         
         let store = BackendSessionStore(
             authenticator: authenticator,
@@ -607,9 +607,9 @@ final class BackendSessionStoreTests: XCTestCase {
             tipsPracticeStore: tipsPracticeStore,
             rewardsStore: rewardsStore,
             aiSessionStore: aiSessionStore,
-            circleStore: circleStore,
-            hasCompletedOnboarding: &hasCompletedOnboarding
+            circleStore: circleStore
         )
+        hasCompletedOnboarding = false
         
         XCTAssertTrue(authenticator.didDeleteAccount)
         XCTAssertEqual(restorer.purgedUserIDs, ["firebase-user-1"])

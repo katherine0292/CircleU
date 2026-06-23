@@ -170,8 +170,7 @@ final class BackendSessionStore: ObservableObject {
         tipsPracticeStore: TipsPracticeStore,
         rewardsStore: RewardsStore,
         aiSessionStore: AIReflectionSessionStore,
-        circleStore: CircleStore,
-        hasCompletedOnboarding: inout Bool
+        circleStore: CircleStore
     ) async throws {
         // 1. Purge Firestore backup first while authenticated
         if let uid = session?.uid {
@@ -204,7 +203,6 @@ final class BackendSessionStore: ObservableObject {
         tipsPracticeStore.resetAll()
         rewardsStore.reset()
         circleStore.reset(seedStarterSpaces: false)
-        hasCompletedOnboarding = false
     }
 
     func updateDisplayName(_ displayName: String) async throws {

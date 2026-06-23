@@ -118,6 +118,7 @@ struct TrustSafetyView: View {
         }
     }
 
+    @MainActor
     private func deleteAccount() {
         isDeleting = true
         Task {
@@ -130,9 +131,9 @@ struct TrustSafetyView: View {
                     tipsPracticeStore: tipsPracticeStore,
                     rewardsStore: rewardsStore,
                     aiSessionStore: aiSessionStore,
-                    circleStore: circleStore,
-                    hasCompletedOnboarding: &hasCompletedOnboarding
+                    circleStore: circleStore
                 )
+                self.hasCompletedOnboarding = false
             } catch {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
