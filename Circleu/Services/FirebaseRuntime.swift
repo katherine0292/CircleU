@@ -64,4 +64,6 @@ struct NoOpBackendSyncer: ReflectionSyncing, ReflectionBackupRestoring {
             aiSessions: []
         )
     }
+
+    func purgePrivateBackup(userID: String) async throws {}
 }

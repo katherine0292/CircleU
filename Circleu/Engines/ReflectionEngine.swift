@@ -397,10 +397,10 @@ private struct LocalReflectionProfile {
 @available(iOS 26.0, *)
 struct AppleIntelligenceReflectionEngine: ReflectionAnalyzing {
     let displayName = "Apple Intelligence"
-    private let fallback: LocalReflectionEngine
+    private let fallback: any ReflectionAnalyzing
     private let model = SystemLanguageModel.default
 
-    init(fallback: LocalReflectionEngine) {
+    init(fallback: any ReflectionAnalyzing) {
         self.fallback = fallback
     }
 
