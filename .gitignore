@@ -23,3 +23,6 @@ Config/Signing.xcconfig
 # downloads their own GoogleService-Info.plist — see the .example file).
 Circleu/GoogleService-Info.plist
 Config/Firebase/GoogleService-Info-Prod.plist
+
+# Showcase preparation files
+docs/showcase/

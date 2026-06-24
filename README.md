@@ -103,7 +103,7 @@ xcodebuild test \
 
 ---
 
-## 📜 License & Project Direction
-CircleU is developed as a production-grade beta application for the UTS Tech Festival. 
+## 📜 License & Support
+CircleU is released under the MIT License. See [LICENSE](LICENSE) for details.
 
-For inquiries regarding the tech stack or demo details, contact [feitconnect@uts.edu.au](mailto:feitconnect@uts.edu.au).
+For support, feedback, or contribution inquiries, please open an issue in the GitHub repository or contact the project maintainers.
