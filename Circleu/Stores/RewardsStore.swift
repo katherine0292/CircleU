@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import UIKit
 
 /// Drives the Profile screen's points, daily quests, rewards log, and record history.
 /// Points accumulate from daily quests and determine the user's level.
