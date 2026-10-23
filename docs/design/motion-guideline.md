@@ -1,6 +1,6 @@
 # CircleU motion proposal
 
-24 October 2026. The owner asked whether to add animation. Recommendation: use restrained native interface motion and occasional Pingu movement, with a quiet writing experience. This is a proposal for review, not implementation approval or verified accessibility support.
+24 October 2026. The owner asked whether to add animation and subsequently approved the small isolated demo. [The native motion demo](brand-demo/motion-demo.md) now implements the greeting/transitions/feedback comparison in the preview package. Production motion adoption remains a proposal; accessibility support is not certified by this demo.
 
 ## Purpose and proposed first pass
 
@@ -33,6 +33,6 @@ For a real flipper wave, eye blink or pencil movement later, prepare a layered/v
 
 ## Validation before adoption
 
-In a separately authorized isolated motion demo, compare a native transition, Save/Copy feedback and one Pingu greeting against the still version. Test Reduce Motion on/off and changes while visible, re-entry, background/resume, keyboard focus, cancellation, low-power/performance behavior and VoiceOver with truthful state announcements. Verify supported devices separately. Static ImageRenderer catalogs cannot validate animation behavior, performance or motion comfort.
+The authorized isolated demo compares a short transition, Save/Copy feedback and one Pingu greeting against the still version. Its [evidence record](brand-demo/motion-demo.md) distinguishes completed native interaction checks from remaining OS-setting, lifecycle, device, performance and accessibility checks. Test real Reduce Motion changes while visible, re-entry/background/resume, keyboard focus, cancellation and VoiceOver before adoption. Static ImageRenderer catalogs cannot validate animation behavior, performance or motion comfort.
 
-Open decision: whether the owner wants to proceed with that small motion demo after reviewing the artwork. No animation has been added to the app or the static catalogs.
+Current status: owner approved and received the isolated demo. Motion feel and production integration remain for review. No animation has been added to the main app or historical static catalogs.

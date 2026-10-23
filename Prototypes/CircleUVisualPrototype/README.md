@@ -1,6 +1,10 @@
 # CircleU SwiftUI visual prototype
 
-Static Today, Journal and Practice boards based on [Figma Draft 02](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-100). The owner approved this preview-only work on 23 October 2026. This package has no dependency on the Circleu app, Firebase, authentication, storage or networking. All content is invented and controls are static labels.
+Today, Journal and Practice boards based on [Figma Draft 02](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-100). The owner approved this preview-only work on 23 October 2026 and an isolated motion demo on 24 October. This package has no dependency on the Circleu app, Firebase, authentication, persistence or networking. All content is invented. Historical boards have static controls; the motion demo adds editable process-memory samples and simulated Save/Copy feedback.
+
+## Interactive motion demo
+
+[Instructions and checked behavior](../../docs/design/brand-demo/motion-demo.md). Run `bash scripts/build-motion-demo.sh` from this directory, then open the printed `/tmp/CircleU Motion Demo.app` path. It compares a finite greeting, short transitions and feedback with a forced reduced-motion panel. Save/Copy do not store data or write to the clipboard. `BrandMotionDemo.swift` has a named interactive Canvas preview. The executable is macOS only; no production app is launched.
 
 ## Open in Xcode
 
