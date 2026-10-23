@@ -6,6 +6,8 @@
 
 [Saved-day screen](../swiftui-previews/brand-03-journal.png) · [Empty-day screen](../swiftui-previews/brand-03-journal-empty.png) · [SwiftUI source](../../../Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/JournalCalendarPreview.swift)
 
+The approved preview milestone also adds a [two-entry day](../swiftui-previews/brand-03-journal-multiple.png): Wednesday, 21 October, with two invented items and one date dot. October 24 remains the sample Today. This adds a visual fixture; detailed search/month-selection rules remain [pending owner review](../prototype-review-results.md#open-calendar-decisions).
+
 ## Visual proposal
 
 Rounded pale-blue date tiles and a gentle orange today outline provide the cute treatment. Following owner feedback, the calendar header contains the month and navigation arrows without an extra Pingu icon. A blue fill identifies the selected day. Small dots mean at least one saved Journal reflection/note, not mood, achievement or a daily target. The selected-day heading and entry count explain the visible state alongside color cues. No streaks, scores or rewards are added.

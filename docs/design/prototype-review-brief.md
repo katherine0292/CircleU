@@ -1,6 +1,6 @@
 # Core-journey prototype review brief
 
-24 October 2026. **Proposed next milestone**, following the owner's request to continue planning. Product direction and brand are accepted; this brief has not yet been approved for implementation. It does not reopen circles, rewards or cloud backup scope.
+24 October 2026. The owner approved the bounded static-preview milestone after reviewing the planning handoff. The [branded core specimens](brand-demo/core-journeys.md) and [multiple-entry calendar example](brand-demo/journal-calendar.md) are prepared. Detailed calendar interactions and the owner walkthrough remain pending; see the [worksheet](prototype-review-results.md). This approval does not cover production implementation or reopen circles, rewards or cloud backup scope.
 
 ## Outcome
 

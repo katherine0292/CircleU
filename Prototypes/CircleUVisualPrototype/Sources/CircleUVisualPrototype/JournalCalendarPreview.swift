@@ -1,13 +1,21 @@
 import SwiftUI
 
+public enum JournalCalendarSampleDay: Sendable {
+    case saved
+    case empty
+    case multiple
+}
+
 /// October 2026 is an immutable sample month, not calendar/date-filter implementation.
 public struct JournalCalendarPreview: View {
-    public let emptyDay: Bool
-    private var selectedDay: Int { emptyDay ? 20 : 24 }
+    public let day: JournalCalendarSampleDay
+    public var emptyDay: Bool { day == .empty }
+    private var selectedDay: Int { day == .multiple ? 21 : (emptyDay ? 20 : 24) }
     private let entryDays: Set<Int> = [8, 13, 21, 24]
     private let weekdays = ["M", "T", "W", "T", "F", "S", "S"]
 
-    public init(emptyDay: Bool = false) { self.emptyDay = emptyDay }
+    public init(emptyDay: Bool = false) { self.day = emptyDay ? .empty : .saved }
+    public init(day: JournalCalendarSampleDay) { self.day = day }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -29,10 +37,10 @@ public struct JournalCalendarPreview: View {
             calendar.padding(.top, 18)
 
             HStack {
-                Text(emptyDay ? "Tuesday, 20 October" : "Saturday, 24 October")
+                Text(day == .multiple ? "Wednesday, 21 October" : (emptyDay ? "Tuesday, 20 October" : "Saturday, 24 October"))
                     .font(BrandDemoFont.font(15, .semibold))
                 Spacer()
-                Text(emptyDay ? "No entries" : "1 entry")
+                Text(day == .multiple ? "2 entries" : (emptyDay ? "No entries" : "1 entry"))
                     .font(BrandDemoFont.font(11)).foregroundStyle(BrandDemoColor.muted)
             }
             .padding(.top, 20).padding(.bottom, 12)
@@ -44,6 +52,13 @@ public struct JournalCalendarPreview: View {
                 }
                 .padding(18).frame(maxWidth: .infinity, alignment: .leading)
                 .background(.white, in: RoundedRectangle(cornerRadius: 22))
+            } else if day == .multiple {
+                VStack(alignment: .leading, spacing: 14) {
+                    compactEntry("Speaking up in class", subtitle: "9:15 am · Reflection")
+                    Rectangle().fill(BrandDemoColor.ice).frame(height: 1)
+                    compactEntry("A pause before replying", subtitle: "6:40 pm · My words")
+                }
+                .padding(18).background(.white, in: RoundedRectangle(cornerRadius: 22))
             } else {
                 BrandFixture.card(
                     title: "The group deadline", subtitle: "Reflection · 10:30 am",
@@ -59,6 +74,18 @@ public struct JournalCalendarPreview: View {
         .frame(width: 390, height: 844)
         .foregroundStyle(BrandDemoColor.ink).background(BrandDemoColor.ice)
         .clipShape(RoundedRectangle(cornerRadius: 36)).environment(\.colorScheme, .light)
+    }
+
+    private func compactEntry(_ title: String, subtitle: String) -> some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(subtitle).font(BrandDemoFont.font(11)).foregroundStyle(BrandDemoColor.muted)
+                Text(title).font(BrandDemoFont.font(15, .semibold))
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(BrandDemoColor.muted)
+        }
     }
 
     private var calendar: some View {
@@ -154,3 +181,4 @@ public struct JournalCalendarGallery: View {
 #Preview("Journal · calendar", traits: .sizeThatFitsLayout) { JournalCalendarPreview() }
 #Preview("Journal · empty day", traits: .sizeThatFitsLayout) { JournalCalendarPreview(emptyDay: true) }
 #Preview("Journal · calendar comparison", traits: .sizeThatFitsLayout) { JournalCalendarGallery() }
+#Preview("Journal · multiple entries", traits: .sizeThatFitsLayout) { JournalCalendarPreview(day: .multiple) }

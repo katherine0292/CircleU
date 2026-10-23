@@ -17,6 +17,8 @@ Generated 23 October 2026 from the [standalone preview package](../../../Prototy
 
 ## Editing previews and Xcode
 
+[Brand demo 04 core journeys](../brand-demo/core-journeys.md) adds [reflection](brand-04-reflection-journey.png), [direct Practice](brand-04-practice-journey.png) and [original/changed linked context](brand-04-linked-contexts.png). The [two-entry calendar day](brand-03-journal-multiple.png) complements the prior saved/empty samples. [Walkthrough worksheet](../prototype-review-results.md): prepared, not run. All fields/actions remain static.
+
 [Journal calendar — demo 03](../brand-demo/journal-calendar.md) shows [saved and empty selected dates](brand-03-calendar.png). Dates and entry dots are fixed October 2026 sample data; the calendar is not interactive.
 
 [Brand demo 02](../brand-demo/flow-previews.md) carries the accepted identity into [all three hubs](brand-02-hubs.png) and [both editors](brand-02-editors.png), with a softer Practice icon. The new layouts are static visual proposals; the original Draft 02 renders below remain reference evidence.

@@ -21,13 +21,13 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run \
   ../../docs/design/swiftui-previews
 ```
 
-The executable currently writes thirty-two PNGs, including six core-route screens, two linked-context variants and three journey/context galleries under `brand-04-`. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
+The executable currently writes thirty-three PNGs, including six core-route screens, two linked-context variants, three journey/context galleries under `brand-04-`, and the additional multiple-entry calendar specimen. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
 
 ## Brand demo 01
 
 [Demo 04 core journeys](../../docs/design/brand-demo/core-journeys.md) extends reflection and Practice in `BrandJourneyPreview.swift`, including original/updated linked context. These are sample fields/actions and have named Canvas previews; they do not implement navigation or storage.
 
-The [Journal calendar proposal](../../docs/design/brand-demo/journal-calendar.md) adds saved-day and empty-day specimens in `JournalCalendarPreview.swift`, using a fixed October 2026 month. It is a visual exploration, not real date filtering.
+The [Journal calendar proposal](../../docs/design/brand-demo/journal-calendar.md) adds saved-day, empty-day and multiple-entry specimens in `JournalCalendarPreview.swift`, using a fixed October 2026 month. It is a visual exploration, not real date filtering. The previous `emptyDay:` initializer remains available alongside the named sample-day initializer.
 
 For the continuation, open `Sources/CircleUVisualPrototype/BrandFlowPreview.swift`: [Demo 02](../../docs/design/brand-demo/flow-previews.md) adds Journal, Practice, reflection/message editors and comparison galleries. It shares Demo 01 font/color/artwork helpers and retains prior assets alongside the revised Practice PNG. These fixed static specimens are not production navigation or form implementations.
 
