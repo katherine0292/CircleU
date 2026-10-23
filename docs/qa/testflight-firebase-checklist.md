@@ -1,6 +1,8 @@
 # TestFlight Firebase QA Checklist
 
-Use this checklist after uploading a TestFlight build and before telling the team the backend is ready for beta testing.
+Status, 23 October 2026: **legacy cloud-build checklist, not completed and not the new guest/local beta checklist.** The [live inventory](../engineering/legacy-data-inventory.md) found accounts and records in Dev, while current Release configuration selects Prod. TestFlight **1.0 (1)** is verified and expired; its bundled Firebase configuration is still unverified. The upload Mac was returned and no archive is currently available. Do not use this checklist as evidence that the backend passed testing.
+
+Use the checks below only for an identified legacy build with isolated, disposable test data. Preserve existing installations and recovery copies; do not reinstall the only copy of someone's data. No account creation, record deletion or release change is authorized by the current planning task.
 
 ## Goal
 
@@ -17,7 +19,7 @@ Record these before starting:
 | Device |  |
 | iOS version |  |
 | TestFlight build |  |
-| Firebase project | `circleu-45651` |
+| Firebase project | Verify from the actual build/archive; do not assume Dev |
 | Bundle ID | `edu.uts.tuannm3812.Circleu` |
 | Test email |  |
 | Firebase UID |  |
@@ -27,18 +29,18 @@ Use a fresh Firebase Auth account when possible. Reusing an old account can rest
 ## 1. Firebase Console Preflight
 
 1. Open Firebase Console.
-2. Select project `circleu-45651`.
+2. Select the project verified from the actual build/archive. Current source selects `circleu-prod` for Release and `circleu-45651` otherwise; `.firebaserc` defaults to Dev.
 3. Open **Project settings > General**.
 4. Confirm the iOS app bundle ID is `edu.uts.tuannm3812.Circleu`.
 5. Open **Authentication > Sign-in method**.
 6. Confirm **Email/Password** is enabled.
 7. Open **Firestore Database > Rules**.
-8. Confirm the deployed rules match `firestore.rules` in the repo.
+8. Read and compare the full deployed rules with the build's intended rules. Record differences; do not deploy merely to make them match. Validate ownership behavior in an isolated rules test environment.
 
 Expected result:
 
 - Fresh users can read/write only under `users/{theirUid}`.
-- Top-level `circles/` writes are denied until shared-circle rules are intentionally implemented.
+- Private backup must not write into `circles/`. The earlier blanket expectation that all circle writes are denied is obsolete: circle records exist and current local rules include circle operations. Deployed owner/member/stranger behavior still needs verification.
 
 ## 2. Fresh TestFlight User Flow
 
@@ -107,7 +109,7 @@ Pass/fail:
 
 ## 4. Restore Test
 
-1. Delete the Circleu app from the phone, or reset local app data if using a debug/device build.
+1. On an isolated disposable test installation only, first verify a recoverable copy and expected record counts, then delete the Circleu app or reset its local test data. Never start with an existing tester's only installation/copy.
 2. Reinstall from TestFlight.
 3. Sign in with the same email and password.
 4. Wait for the app to finish restoring.
@@ -131,7 +133,7 @@ Pass/fail:
 
 ## 5. Old Mock Data Cleanup
 
-If old demo data appears for an account used before the cleanup commit, delete those records from Firebase Console. For the affected UID, inspect and remove seeded records under:
+Historical cleanup reference only; do not run during discovery or migration planning. A familiar title or a Dev project name does not prove a record is disposable. Any later cleanup needs independently verified test-only ownership, an explicit deletion scope and a recovery plan. Candidate legacy paths were:
 
 ```text
 users/{uid}/rewardState/main
@@ -142,7 +144,7 @@ users/{uid}/aiReflectionSessions/*
 users/{uid}/quests/*
 ```
 
-Only delete records for known test accounts. Do not delete another tester's data unless they confirm it is disposable.
+Do not delete real or uncertain data. This checklist is not authorization to clean up existing accounts.
 
 After cleanup:
 
@@ -164,4 +166,4 @@ Use this summary at the end of the run:
 | Firestore rules | Pass / Fail |  |
 | TestFlight readiness | Pass / Fail |  |
 
-Backend is ready for beta only when Auth, private backup upload, private restore, and mock-data checks all pass on a real TestFlight build.
+These results assess only the identified legacy cloud build. Readiness for the new guest/local beta also requires the [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md), data-preserving recovery, network isolation and the supported-device checks. No pass is recorded by this document update.
