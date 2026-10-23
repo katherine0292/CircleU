@@ -8,7 +8,7 @@
 
 ## Visual proposal
 
-Rounded pale-blue date tiles, a small Pingu head and gentle orange today outline provide the cute treatment. A blue fill identifies the selected day. Small dots mean at least one saved Journal reflection/note, not mood, achievement or a daily target. The selected-day heading and entry count explain the visible state alongside color cues. No streaks, scores or rewards are added.
+Rounded pale-blue date tiles and a gentle orange today outline provide the cute treatment. Following owner feedback, the calendar header contains the month and navigation arrows without an extra Pingu icon. A blue fill identifies the selected day. Small dots mean at least one saved Journal reflection/note, not mood, achievement or a daily target. The selected-day heading and entry count explain the visible state alongside color cues. No streaks, scores or rewards are added.
 
 October 2026 is a fixed Monday-first sample. October 1 is Thursday; October 24 is Saturday. Sample entry days are 8, 13, 21 and 24. The filled selection is October 24 in the saved-day specimen and October 20 in the empty-day specimen. “Today” remains October 24 in both. The month arrows, Search, dates, cards and actions are static labels. Nothing is filtered, edited or saved in this package.
 

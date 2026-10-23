@@ -64,7 +64,6 @@ public struct JournalCalendarPreview: View {
     private var calendar: some View {
         VStack(spacing: 9) {
             HStack(spacing: 8) {
-                BrandArtwork(name: "BrandLogo").frame(width: 30, height: 30)
                 Text("October 2026").font(BrandDemoFont.font(16, .semibold))
                 Spacer()
                 Image(systemName: "chevron.left")
