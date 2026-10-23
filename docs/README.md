@@ -2,6 +2,12 @@
 
 This folder holds the current project knowledge the team should follow while building, testing, and presenting Circleu.
 
+## Contributor and agent entry points
+
+- [Project coding standards](0_coding_standards.md): Swift/iOS adaptations of the shared master standard, verification and data-preservation rules.
+- [Agent instructions](../AGENTS.md): concise starting context; `CLAUDE.md` imports the same source.
+- [Agent collaboration log](agent-collaboration-log/README.md): dated work records, review discussions, decisions and handoffs; includes a labelled retrospective of the planning so far.
+
 ## Start Here
 
 1. [Product overview](product/overview.md)
@@ -21,6 +27,27 @@ This folder holds the current project knowledge the team should follow while bui
 15. [TestFlight Firebase checklist](qa/testflight-firebase-checklist.md)
 16. [Git workflow](process/git-workflow.md)
 17. [Team standards](process/team-standards.md)
+
+## Project Reviews
+
+- [23 October 2026 project inventory and improvement review](project-review-2026-10-23.md): source-backed feature/design inventory, documentation gaps, and proposed priorities. This is a dated review, not an approved implementation plan.
+- [Discovery brief](product/discovery-brief.md): selected audience A, circles deferred, and the research-first direction.
+- [MVP definition and user flow](product/mvp-definition.md): proposed features, acceptance criteria, navigation and failure states; detailed scope awaits review.
+- [Privacy, storage and recovery plan](product/privacy-storage-plan.md): approved guest/local direction, backup/export limits, retention/deletion rules and recovery acceptance criteria. Not yet implemented.
+- [Supported devices](product/supported-devices.md): proposed iPhone/iOS scope, optional AI and physical-device validation matrix.
+- [Local-first transition plan](superpowers/plans/2026-10-23-local-first-transition.md): staged legacy TestFlight recovery, Firebase isolation, migration and retirement gates.
+- [Legacy release and Firebase inventory](engineering/legacy-data-inventory.md): live Dev/Prod findings, current build mapping and unresolved TestFlight evidence.
+- [Legacy data-format catalog](engineering/legacy-data-format.md): current/historical JSON and Firestore shapes, ownership ambiguity, attachments and decoding risks.
+- [Personal Apple account release plan](product/personal-account-release-plan.md): transfer eligibility, recommended UTS recovery bridge and explicit import into a personal app; route not yet selected.
+- [Previous-data recovery prototype](design/legacy-recovery-flow.md): device migration, previous-account recovery, import/export and separate cloud-deletion scenarios.
+- [Figma prototype and design reference](design/README.md): Draft 02 with approved Today/Journal/Practice structure, shorter routes, entry details and known prototype limitations.
+- [SwiftUI visual previews](design/swiftui-previews/README.md): static Today/Journal/Practice comparison and Xcode package, using sample data; no app runtime or Firebase access.
+- [Branding guideline — demo draft](design/branding-guideline.md): modern Pingu-inspired logo/avatar/icons, font shortlist and open visual choices.
+- [Brand demo 01](design/brand-demo/README.md): coordinated artwork, actual Plus Jakarta Sans specimens and a static Today application.
+- [Brand demo 02](design/brand-demo/flow-previews.md): accepted branding across Today, Journal, Practice and both editing previews.
+- [Journal calendar — brand demo 03](design/brand-demo/journal-calendar.md): Pingu-styled monthly browsing with saved-day and empty-day specimens.
+- [Research findings and validation plan](product/research-findings.md): primary-source desk research, repository implications, interview questions and prototype tasks. No user study has been conducted yet.
+- [Discovery and planning plan](superpowers/plans/2026-10-23-project-discovery.md): verified Xcode/Git baseline and the steps toward an agreed product and design scope.
 
 ## Folder Map
 
