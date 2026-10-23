@@ -4,6 +4,8 @@
 
 [Pingu activity set 01](pingu-activities.md) adds writing, reading, practising, stretching and a quiet-breath pose. The [motion proposal](../motion-guideline.md) recommends how to introduce restrained animation later.
 
+[The full Pingu collection](pingu-collection.md) now brings together 21 full-body avatars, including twelve additional activities inspired by the owner's reference sheet.
+
 ![Pingu poses and illustrated icons](../swiftui-previews/brand-assets-expansion-01.png)
 
 ## Files and intended use

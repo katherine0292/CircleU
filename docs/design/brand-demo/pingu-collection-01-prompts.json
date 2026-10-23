@@ -1,0 +1,264 @@
+{
+  "version": 1,
+  "created": "2026-10-24",
+  "tool": "built-in image_gen",
+  "status": "review-candidates",
+  "referenceRoles": {
+    "identity": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+    "activityInspiration": "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+  },
+  "assets": [
+    {
+      "name": "PinguHeartV1.png",
+      "label": "Heart",
+      "detail": "Holding a heart",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu gently hugging one large coral-red rounded heart against its belly with both flippers. Eyes happily closed in small curved arcs; warm closed beak. No floating hearts, glitter or other effects.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguHeartV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 904509,
+      "sha256": "65b3336786aefb3a59a180fdaacc059fcde179cda5da9fbba6dbe3ef604fa085",
+      "contentBoundsAlphaAbove8": [
+        226,
+        62,
+        1155,
+        1181
+      ]
+    },
+    {
+      "name": "PinguIceCreamV1.png",
+      "label": "Ice cream",
+      "detail": "Enjoying a little treat",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu standing and holding one small waffle cone with a single softly rounded pink ice-cream scoop near its beak. Tiny orange beak, cheerful open oval eyes, other flipper relaxed. No cherry, sprinkles, dripping liquid or extra objects.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguIceCreamV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 866956,
+      "sha256": "317d3fbab5ca71aaec4d28c5eb840c7e028bcde316a8c75c2ec668953c6a162a",
+      "contentBoundsAlphaAbove8": [
+        226,
+        60,
+        1122,
+        1175
+      ]
+    },
+    {
+      "name": "PinguBackpackV1.png",
+      "label": "Backpack",
+      "detail": "Ready for the day",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu taking one small step, wearing a rounded royal-blue backpack with simple straps and one pale-blue pocket, no logo. Slight three-quarter view to make backpack visible, calm open eyes, flippers relaxed. Scarf remains visible. No books or other props.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguBackpackV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 868462,
+      "sha256": "a758685affec4f75df31660f72ff73b8acfaae32c74811e7fce3f9ecb253e2a6",
+      "contentBoundsAlphaAbove8": [
+        230,
+        54,
+        1133,
+        1156
+      ]
+    },
+    {
+      "name": "PinguThumbsUpV1.png",
+      "label": "You\u2019ve got this",
+      "detail": "A friendly gesture",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu wearing a plain royal-blue baseball cap with no marks, giving a gentle thumbs-up with one flipper shaped with one simple small thumb-like bump and no human fingers. Other flipper relaxed; happy crescent eyes, closed orange beak. No badge, stars or approval score.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguThumbsUpV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 842617,
+      "sha256": "f45896de913bd1dbd8efe9045db35a11cea7597e7feb1de9ac08f353186d3a1a",
+      "contentBoundsAlphaAbove8": [
+        164,
+        86,
+        1136,
+        1181
+      ]
+    },
+    {
+      "name": "PinguExplorerV1.png",
+      "label": "Exploring",
+      "detail": "Curious about the next turn",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu wearing a simple warm-tan explorer hat and small rounded tan backpack with a rolled sky-blue mat, holding one open folded pale map in front. Map has only a few soft blue/green region shapes, no lettering or markings. Curious open eyes, scarf visible. One coherent compact explorer composition, no landscape or compass.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguExplorerV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 968105,
+      "sha256": "66d2e95438dd02cac1f6a83577c20a29f3be6c15ed85cc904c1670f08165fd13",
+      "contentBoundsAlphaAbove8": [
+        197,
+        61,
+        1105,
+        1178
+      ]
+    },
+    {
+      "name": "PinguRunningV1.png",
+      "label": "On the move",
+      "detail": "A playful little dash",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu in a small playful running pose, leaning forward slightly, one orange foot lifted behind, other foot reaching ahead, flippers swept back and scarf trailing gently. Full body, friendly open eyes, closed beak. No speed lines, sweat, dust, racing accessories or cast shadow.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguRunningV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 783472,
+      "sha256": "81a7a9c259e52ac9565c5dbe9267ab4a66cfb6bacd9cb1e4391031a9c0446cc2",
+      "contentBoundsAlphaAbove8": [
+        97,
+        94,
+        1144,
+        1125
+      ]
+    },
+    {
+      "name": "PinguMusicV1.png",
+      "label": "Music",
+      "detail": "Listening to a favourite song",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu wearing soft royal-blue over-ear headphones over its head with crest still visible, eyes gently closed, one flipper resting on an ear cup, other relaxed. Slight content head tilt. No music notes, phone, player or other props. Scarf remains.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguMusicV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 918992,
+      "sha256": "76617a427b7abd8d8ace7ae95141d7bcf8e0485b10fc444a78c2714ab809c5a9",
+      "contentBoundsAlphaAbove8": [
+        201,
+        71,
+        1142,
+        1189
+      ]
+    },
+    {
+      "name": "PinguLaptopV1.png",
+      "label": "Laptop",
+      "detail": "A focused little moment",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu seated with orange feet visible, using one open plain pale blue-grey laptop resting on its lap. Both flippers at the keyboard, eyes focused toward screen. Laptop lid visible to viewer has absolutely no logo or letters. Scarf remains. No desk, chair, cables or background.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguLaptopV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 893981,
+      "sha256": "5332918c654f10952cea4828c02265a1cd7414eabd9dd0997c9d697b576fc610",
+      "contentBoundsAlphaAbove8": [
+        179,
+        76,
+        1157,
+        1173
+      ]
+    },
+    {
+      "name": "PinguGardeningV1.png",
+      "label": "Growing",
+      "detail": "Caring for something small",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu standing beside one small warm-brown terracotta pot with three simple green leaves, holding a small royal-blue watering can gently tipped toward the plant. A short thin arc of pale blue water connects spout to soil. Open kind eyes, scarf visible, both feet inside frame. No garden scene or extra plants.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguGardeningV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 842205,
+      "sha256": "6bb9773507dec35b2ec7f60281f8d7dc63f0c09896bc67da747093e0baca3efd",
+      "contentBoundsAlphaAbove8": [
+        139,
+        122,
+        1149,
+        1149
+      ]
+    },
+    {
+      "name": "PinguWarmDrinkV1.png",
+      "label": "Warm drink",
+      "detail": "Taking a cosy pause",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu holding one small rounded plain royal-blue ceramic mug with both flippers near belly height. Eyes gently closed, content calm beak, scarf visible. One short delicate pale-blue curved wisp above mug; no letters, lid, branding, coffee bean symbols or extra props.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguWarmDrinkV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 876042,
+      "sha256": "5f4c32cc3a4fe47cdf02b1fc5054e6dbb99bbe53ed00ba23dde5e4c7801770fd",
+      "contentBoundsAlphaAbove8": [
+        231,
+        61,
+        1129,
+        1173
+      ]
+    },
+    {
+      "name": "PinguSleepingV1.png",
+      "label": "Sleeping",
+      "detail": "Resting for a while",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu sleeping on its side with head on one plain pale-ice pillow, body under a small royal-blue quilt, tiny orange feet peeking at lower edge. Eyes closed in simple arcs, closed orange beak, crest visible, familiar scarf at neck. Keep same character proportions, one cozy compact composition. No bed frame, Z letters, stars, moon or background.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguSleepingV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 851223,
+      "sha256": "8b3f508cee0effe60d02a515bac3663aeac70c2073779830284614114f2be0ad",
+      "contentBoundsAlphaAbove8": [
+        27,
+        193,
+        1233,
+        1077
+      ]
+    },
+    {
+      "name": "PinguPillowHugV1.png",
+      "label": "Pillow hug",
+      "detail": "A moment of comfort",
+      "prompt": "Use case: stylized-concept. Asset type: ONE separate reusable CircleU Pingu activity avatar, transparent PNG, not a sticker sheet. Image 1 is the authoritative character identity/style master. Image 2 is ONLY inspiration for the activity and prop variety; do not copy its black body color, glossy style, lettering or grid. Preserve Image 1's recognizable navy body, white heart-shaped face and belly, single curved crest, tiny oval eyes, orange beak and feet, icy-blue scarf and plump proportions. Modern smooth precise softly shaded matte 2D editorial illustration, gentle tonal gradients, no sketch, hatching, texture, heavy outlines, glossy plastic or clay. Primary palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, warm orange #FF8538. Activity-specific props may add a restrained natural accent. Same adult-friendly warm Pingu, no eyebrows or blush. Full body centered, all props and feet inside square with generous 8\u201312% transparent margins. Genuine transparent background, no ground shadow, background tile, backdrop, scene, lettering, numbers, logos, watermark or extra characters. No journal unless requested. Activity: Pingu seated, gently hugging one plump pale sky-blue pillow to its chest with both flippers. Eyes softly closed in arcs, tiny closed orange beak, orange feet visible, scarf visible above pillow. No tears, hearts, bed, blanket, dream cloud or other effects.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "docs/design/brand-demo/references/pingu-activity-sheet-owner.jpg"
+      ],
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Collection01/PinguPillowHugV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 903140,
+      "sha256": "6dcbef40844bf28e3a62f2fbcbff8a8bc26c0ae043fb1c98e6615095dbee4869",
+      "contentBoundsAlphaAbove8": [
+        230,
+        72,
+        1161,
+        1182
+      ]
+    }
+  ]
+}

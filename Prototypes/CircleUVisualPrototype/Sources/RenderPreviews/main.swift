@@ -60,6 +60,8 @@ struct RenderPreviews {
         try render(BrandLinkedContextGallery(iconLed: true), to: output.appendingPathComponent("brand-05-linked-contexts.png"))
         try render(BrandAssetLibraryPreview(), to: output.appendingPathComponent("brand-assets-expansion-01.png"))
         try render(BrandPinguActivitiesPreview(), to: output.appendingPathComponent("brand-pingu-activities-01.png"))
+        try render(BrandPinguCollectionPreview(), to: output.appendingPathComponent("brand-pingu-collection-21.png"))
+        try render(BrandPinguCollectionPreview(additionsOnly: true), to: output.appendingPathComponent("brand-pingu-collection-12-new.png"))
         try render(
             PrototypeScreenView(screen: .today).frame(width: 320, height: 844),
             to: output.appendingPathComponent("today-compact.png")

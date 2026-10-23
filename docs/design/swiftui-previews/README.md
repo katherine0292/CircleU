@@ -17,6 +17,8 @@ Generated 23 October 2026 from the [standalone preview package](../../../Prototy
 
 ## Editing previews and Xcode
 
+[Full Pingu collection](../brand-demo/pingu-collection.md): [all 21 avatars](brand-pingu-collection-21.png) and [the 12 new additions](brand-pingu-collection-12-new.png). Each pose is a separate transparent source asset.
+
 [Pingu activity set 01](../brand-demo/pingu-activities.md) adds [an activity catalog](brand-pingu-activities-01.png): writing, reading, practising, stretching and a quiet breath beside the existing avatar reference. These are still images, not animation frames.
 
 [Asset library expansion 01](../brand-demo/asset-library.md) adds [a catalog](brand-assets-expansion-01.png) of three new Pingu poses and four illustrated icons, including 32/48-point light/dark specimens.

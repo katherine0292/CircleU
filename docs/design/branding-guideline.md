@@ -73,6 +73,8 @@ Mascot placements: welcome, empty states and occasional supportive transitions. 
 
 ## 7. Deliverables after direction review
 
+24 October reference-led expansion: [21 separate full-body Pingu avatars](brand-demo/pingu-collection.md) are now cataloged, with twelve new prop/activity variations inspired by the owner's supplied sheet. Individual placements remain for review; the collection does not add features or rewards. Prop accent colors do not redefine UI tokens.
+
 24 October asset expansion: [the project asset library](brand-demo/asset-library.md) now stores three additional Pingu poses and four illustrated icons, with transparent originals, exact generation prompts and a light/dark size-comparison catalog. These extend the accepted direction; individual new assets and screen placements remain candidates for review.
 
 1. Review the first coordinated concept board showing logo mark, wordmark, avatar and three icons together, plus actual-font specimens. A second direction is optional after feedback, not an already-authorized replacement.

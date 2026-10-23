@@ -2,6 +2,8 @@
 
 24 October 2026. The owner requested Pingu doing more things and asked about app animation. Five new transparent illustrations extend the accepted character, with the existing avatar included as a comparison. These are review candidates and static artwork, not animation frames or new app features.
 
+[The full 21-avatar collection](pingu-collection.md) adds twelve more activities while keeping this original activity set unchanged.
+
 ![Pingu activity collection](../swiftui-previews/brand-pingu-activities-01.png)
 
 ## Stored originals
