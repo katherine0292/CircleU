@@ -2,6 +2,8 @@
 
 24 October 2026. The owner requested more illustrated brand icons and Pingu avatars, saved in project storage. This set extends the accepted softly shaded Pingu direction without replacing existing artwork. New assets are review candidates, not approved production replacements.
 
+[Pingu activity set 01](pingu-activities.md) adds writing, reading, practising, stretching and a quiet-breath pose. The [motion proposal](../motion-guideline.md) recommends how to introduce restrained animation later.
+
 ![Pingu poses and illustrated icons](../swiftui-previews/brand-assets-expansion-01.png)
 
 ## Files and intended use

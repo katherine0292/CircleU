@@ -35,6 +35,8 @@ This folder holds the current project knowledge the team should follow while bui
 - [Branded core journeys](design/brand-demo/core-journeys.md): capture/reflection/detail, direct Practice and changed-source context specimens.
 - [Lighter copy and rounded icons](design/brand-demo/lighter-icon-journeys.md): latest owner-requested refinement with compact tags and icon-supported actions.
 - [Pingu and illustrated asset library](design/brand-demo/asset-library.md): reusable transparent artwork, pose/icon uses and generation provenance.
+- [Pingu activity collection](design/brand-demo/pingu-activities.md): five additional action poses, stored originals and static catalog.
+- [Motion proposal](design/motion-guideline.md): restrained interface/mascot movement, existing-source findings and Reduce Motion alternatives; no animation implemented.
 - [Prototype walkthrough worksheet](design/prototype-review-results.md): prepared tasks and pending calendar decisions; no participant results yet.
 - [MVP reuse and dependency map](engineering/mvp-reuse-map.md): existing code to retain/adapt and the safe order toward a manual local vertical slice.
 

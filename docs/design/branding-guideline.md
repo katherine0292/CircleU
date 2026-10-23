@@ -69,6 +69,8 @@ Use concise, supportive language with clear actions. Give people room to disagre
 
 Mascot placements: welcome, empty states and occasional supportive transitions. Keep illustrations modest in busy lists and out of the main text-editing area. Expressions should fit the context; avoid celebration on error or distress states.
 
+[Pingu activity set 01](brand-demo/pingu-activities.md) adds five action poses. Proposed motion rules are in the [motion guideline](motion-guideline.md): brief feedback/transitions, occasional finite mascot movement, still editors and reduced-motion alternatives. This is a recommendation; current app animations have not been changed or validated.
+
 ## 7. Deliverables after direction review
 
 24 October asset expansion: [the project asset library](brand-demo/asset-library.md) now stores three additional Pingu poses and four illustrated icons, with transparent originals, exact generation prompts and a light/dark size-comparison catalog. These extend the accepted direction; individual new assets and screen placements remain candidates for review.

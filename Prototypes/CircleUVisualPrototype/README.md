@@ -21,9 +21,11 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run \
   ../../docs/design/swiftui-previews
 ```
 
-The executable currently writes forty-five PNGs, including the previous thirty-three specimens, eleven `brand-05-` icon/copy variants and one artwork-library catalog. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
+The executable currently writes forty-six PNGs, including the previous thirty-three specimens, eleven `brand-05-` icon/copy variants, one artwork-library catalog and one Pingu activity catalog. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
 
 ## Brand demo 01
+
+[Pingu activity set 01](../../docs/design/brand-demo/pingu-activities.md) stores five additional transparent action poses under `Resources/BrandArtwork/Activities01/`. `BrandPinguActivitiesPreview` shows them beside the original character. This static catalog does not implement the proposed animation behavior.
 
 [Asset library expansion 01](../../docs/design/brand-demo/asset-library.md) stores three new Pingu poses and four illustrated icons under `Resources/BrandArtwork/Expansion01/`, with `BrandAssetLibraryPreview` showing large and small light/dark specimens. Earlier resources and app assets remain intact.
 
