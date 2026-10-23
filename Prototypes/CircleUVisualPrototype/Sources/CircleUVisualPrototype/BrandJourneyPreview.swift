@@ -122,10 +122,9 @@ public struct BrandJourneyPreview: View {
             block("My aim", text: updatedSource
                 ? "Agree on a revised deadline that works for both of us."
                 : "Ask for an update and agree on a realistic plan.")
+            block("My draft · optional", text: "Could you let me know where things stand?")
             if updatedSource {
-                BrandFixture.detail("Earlier wording was based on the old reflection. Review it again before saving or copying.", size: 13)
-            } else {
-                block("My draft · optional", text: "Could you let me know where things stand?")
+                BrandFixture.detail("Your draft stays here. Earlier wording needs review because the reflection changed.", size: 13)
             }
         case .wording:
             BrandFixture.detail(linkedContext ? "Linked to The group deadline" : "Standalone practice · No journal entry", size: 12)

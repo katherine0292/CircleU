@@ -34,7 +34,7 @@ These links reuse earlier connected Draft 02 scenarios. They are preset states a
 | Changed original source | [Source changed, 36:416](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-416) |
 | Preserved reflection/message edits after failed save | [Reflection failure, 36:396](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-396), [message failure, 36:397](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-397) |
 | Model unavailable / manual fallback | [Model unavailable, 36:389](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-389) |
-| Read failure versus empty day | [Storage read failure, 36:437](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-437), [locked storage, 36:411](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-411) |
+| Read failure versus empty day | [Empty-day sample](../swiftui-previews/brand-03-journal-empty.png), [storage read failure, 36:437](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-437); [locked storage, 36:411](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=36-411) remains a distinct condition |
 
 ## Verification boundaries
 
