@@ -41,6 +41,10 @@ struct RenderPreviews {
         try render(JournalCalendarPreview(), to: output.appendingPathComponent("brand-03-journal.png"), size: CGSize(width: 390, height: 844))
         try render(JournalCalendarPreview(emptyDay: true), to: output.appendingPathComponent("brand-03-journal-empty.png"), size: CGSize(width: 390, height: 844))
         try render(JournalCalendarGallery(), to: output.appendingPathComponent("brand-03-calendar.png"))
+        for screen in BrandJourneyScreen.allCases {
+            try render(BrandJourneyPreview(screen: screen), to: output.appendingPathComponent("brand-04-\(screen.rawValue).png"), size: CGSize(width: 390, height: 844))
+        }
+        try render(BrandJourneyGallery(), to: output.appendingPathComponent("brand-04-reflection-journey.png"))
         try render(
             PrototypeScreenView(screen: .today).frame(width: 320, height: 844),
             to: output.appendingPathComponent("today-compact.png")

@@ -21,9 +21,11 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run \
   ../../docs/design/swiftui-previews
 ```
 
-The executable writes twenty-one PNGs in the supplied output folder, including Demo 01, seven `brand-02-` exports and three `brand-03-` calendar exports. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
+The executable currently writes twenty-five PNGs, including four `brand-04-` reflection-route exports. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
 
 ## Brand demo 01
+
+[Demo 04 core journeys](../../docs/design/brand-demo/core-journeys.md) extends the branded reflection route in `BrandJourneyPreview.swift`. These are sample fields/actions and have named Canvas previews; they do not implement navigation or storage.
 
 The [Journal calendar proposal](../../docs/design/brand-demo/journal-calendar.md) adds saved-day and empty-day specimens in `JournalCalendarPreview.swift`, using a fixed October 2026 month. It is a visual exploration, not real date filtering.
 

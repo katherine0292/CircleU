@@ -1,0 +1,155 @@
+import SwiftUI
+
+/// Fixed scenarios for visual review. These cases never navigate, edit or persist data.
+public enum BrandJourneyScreen: String, CaseIterable, Identifiable, Sendable {
+    case capture
+    case reflection
+    case entry
+
+    public var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .capture: "Start with\nyour words."
+        case .reflection: "Does this\nfeel right?"
+        case .entry: "The group\ndeadline"
+        }
+    }
+
+    var eyebrow: String {
+        switch self {
+        case .capture: "DESCRIBE A MOMENT"
+        case .reflection: "REVIEW THE REFLECTION"
+        case .entry: "SAMPLE SAVED ENTRY"
+        }
+    }
+}
+
+/// Branded core-route specimens. All writing and action affordances are inert sample content.
+public struct BrandJourneyPreview: View {
+    public let screen: BrandJourneyScreen
+    private let originalWords = "My groupmate missed our deadline. I’m worried we won’t finish in time."
+    private let acceptedReflection = "I feel frustrated and worried. I need a clear update and a shared plan."
+
+    public init(screen: BrandJourneyScreen) { self.screen = screen }
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold))
+                Text(screen == .entry ? "Journal" : "Today").font(BrandDemoFont.font(14, .semibold))
+                Spacer()
+                Text(screen == .capture ? "Draft" : "Sample")
+                    .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
+            }
+            .frame(height: 24).padding(.top, 10).padding(.bottom, 6)
+
+            BrandFixture.eyebrow(screen.eyebrow)
+            BrandFixture.title(screen.title)
+            VStack(alignment: .leading, spacing: 12) { content }
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 8)
+            VStack(spacing: 8) { actions }
+                .fixedSize(horizontal: false, vertical: true)
+            BrandFixture.footer
+        }
+        .padding(.horizontal, 24).padding(.vertical, 20)
+        .frame(width: 390, height: 844)
+        .foregroundStyle(BrandDemoColor.ink).background(BrandDemoColor.ice)
+        .clipShape(RoundedRectangle(cornerRadius: 36)).environment(\.colorScheme, .light)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch screen {
+        case .capture:
+            BrandFixture.detail("What happened, and what matters to you?")
+            block("Your words", text: originalWords, minimumHeight: 185)
+            HStack(spacing: 8) {
+                Image(systemName: "mic").font(.system(size: 14))
+                Text("Prefer to speak? Record your words.").font(BrandDemoFont.font(12, .medium))
+            }
+            .foregroundStyle(BrandDemoColor.blue).padding(.vertical, 4)
+            BrandFixture.detail("You can keep just your words. A reflection and next step are optional.", size: 13)
+        case .reflection:
+            BrandFixture.detail("A suggestion to consider. Change anything that doesn’t fit.")
+            block("My words", text: originalWords, edit: "Edit my words")
+            block("Suggested reflection", text: "You might feel frustrated and worried. A clear update and a shared plan may help.", edit: "Edit reflection")
+            BrandFixture.detail("Your words stay separate from this interpretation.", size: 12)
+        case .entry:
+            BrandFixture.detail("24 October 2026 · 10:30 am", size: 12)
+            block("My original words", text: originalWords)
+            block("My reflection", text: acceptedReflection, edit: "Edit reflection")
+            VStack(alignment: .leading, spacing: 7) {
+                Text("Next step · optional").font(BrandDemoFont.font(13, .semibold))
+                Text("No step chosen").font(BrandDemoFont.font(13)).foregroundStyle(BrandDemoColor.muted)
+                Text("Add a next step").font(BrandDemoFont.font(12, .semibold)).foregroundStyle(BrandDemoColor.blue)
+            }
+            .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(RoundedRectangle(cornerRadius: 18).stroke(BrandDemoColor.blue.opacity(0.13)))
+        }
+    }
+
+    @ViewBuilder
+    private var actions: some View {
+        switch screen {
+        case .capture:
+            BrandFixture.action("Review a reflection")
+            BrandFixture.action("Save only my words", primary: false)
+        case .reflection:
+            BrandFixture.action("Save reflection")
+            BrandFixture.action("Save only my words", primary: false)
+        case .entry:
+            BrandFixture.action("Practice from this entry")
+            Text("Back to Journal").font(BrandDemoFont.font(14, .semibold))
+                .foregroundStyle(BrandDemoColor.blue).frame(maxWidth: .infinity).frame(height: 34)
+        }
+    }
+
+    private func block(_ label: String, text: String, edit: String? = nil, minimumHeight: CGFloat = 0) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(label).font(BrandDemoFont.font(13, .semibold))
+            Text(text).font(BrandDemoFont.font(15)).lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
+            if let edit {
+                Text(edit).font(BrandDemoFont.font(12, .semibold)).foregroundStyle(BrandDemoColor.blue)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: minimumHeight, alignment: .topLeading)
+        .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 20))
+    }
+}
+
+public struct BrandJourneyGallery: View {
+    public let screens: [BrandJourneyScreen]
+    public let title: String
+
+    public init(screens: [BrandJourneyScreen] = [.capture, .reflection, .entry],
+                title: String = "From a moment to a reflection") {
+        self.screens = screens
+        self.title = title
+    }
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            BrandWordmark(size: 30)
+            Text(title).font(BrandDemoFont.font(24, .semibold)).tracking(-0.6)
+            HStack(alignment: .top, spacing: 24) {
+                ForEach(screens) { screen in
+                    VStack(alignment: .leading, spacing: 12) {
+                        BrandFixture.eyebrow(screen.eyebrow)
+                        BrandJourneyPreview(screen: screen)
+                    }
+                }
+            }
+            BrandFixture.detail("Brand demo 04 · Static fixtures · No typing, saving or navigation runs", size: 12)
+        }
+        .padding(32).foregroundStyle(BrandDemoColor.ink).background(.white)
+        .environment(\.colorScheme, .light)
+    }
+}
+
+#Preview("Capture · branded", traits: .sizeThatFitsLayout) { BrandJourneyPreview(screen: .capture) }
+#Preview("Reflection · branded", traits: .sizeThatFitsLayout) { BrandJourneyPreview(screen: .reflection) }
+#Preview("Saved entry · branded", traits: .sizeThatFitsLayout) { BrandJourneyPreview(screen: .entry) }
+#Preview("Reflection journey · branded", traits: .sizeThatFitsLayout) { BrandJourneyGallery() }
