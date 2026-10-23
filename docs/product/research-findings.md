@@ -75,8 +75,10 @@ Proposed first-round criterion: no unresolved critical data-loss/privacy misunde
 
 ## Sequence and next outputs
 
+24 October planning update: the intended Figma account and Draft 02 were established in the earlier session; reconnecting is no longer a pending task. The documented prototype has connected flow/recovery scenarios, while the branded SwiftUI specimens remain static. The [review brief](../design/prototype-review-brief.md) and [bounded milestone plan](../superpowers/plans/2026-10-24-prototype-review-milestone.md) select what to review next. No participant evidence has been collected.
+
 1. Review the [MVP proposal](mvp-definition.md) and model fallback. Guest/local storage is now owner-approved; validate participant understanding of its recovery limits and complete the [transition inventory](../superpowers/plans/2026-10-23-local-first-transition.md).
-2. Correct the Figma connection, verify the intended account, and inspect the owner's file or agree a new prototype destination.
+2. Reuse the established Figma source and accepted brand specimens; finish only the missing core-route specimens and explicitly document interactive limitations.
 3. Recruit and run the first interview batch; summarize evidence and counterevidence.
 4. Prototype the core route and direct-practice alternative, including errors and permissions. Test, revise and freeze a narrow beta scope.
 5. Write separate implementation plans for build/CI, data lifecycle, design consolidation and the core journey. Start product coding only after scope approval.

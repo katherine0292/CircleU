@@ -71,5 +71,5 @@ Collect the design-file URL, prototype URL, file owner, approved version, page/n
 - Proposed next milestone: validate a prototype of the individual journey, then define a private beta.
 - Guest-first local storage is now owner-approved. Resolve legacy TestFlight recovery and validate the [device scope](supported-devices.md) before implementation; see the [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md).
 - Which prototype/design version is authoritative.
-- Whether cloud AI belongs in the first release, and its consent/data-handling contract.
+- Feasibility of the approved on-device/manual direction and its model/speech fallbacks. CircleU cloud AI is already excluded from the proposed first guest-local beta; the remaining question is implementation capability, not permission for a silent cloud fallback.
 - Who can participate in initial research and how they will be recruited. No outreach has been authorized or sent.

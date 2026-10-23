@@ -74,6 +74,8 @@ Draft 02 reuses the 20 draft variables, five text styles, three-variant button a
 
 ## Verification and next review
 
+The [24 October review brief](prototype-review-brief.md) and [milestone plan](../superpowers/plans/2026-10-24-prototype-review-milestone.md) now select a bounded next pass: reflection, direct/linked practice and Journal retrieval. Reuse existing Figma recovery states; complete missing branded core-route specimens before multiplying visual variants. The new plan is for review, not started implementation.
+
 The [user-flow review](flow-review-2026-10-23.md) records the original gaps, Draft 02 follow-up and beginner-friendly exercises. The core correction/message-edit/save/discard/reopen paths are now represented, alongside the earlier simplifications.
 
 The earlier edit pass passed 300 structural assertions across 49 states. The recovery pass visually reviewed all eight new sections and changed core screens, then passed 480 live structural assertions across all 95 states. Checks cover connections, six timers, corrected-source preservation, retained-message scope, failure recovery, history reopening, screen/scroll bounds and reachability from starting points. No missing fonts, text extending outside its parent, dangling destinations or unreachable state frames were found. Long content scrolls above fixed actions/tabs. This is connection and screenshot inspection, not browser-driven timing/cancellation testing, a usability study or accessibility certification. No application code or runtime tests were changed/run.
