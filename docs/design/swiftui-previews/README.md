@@ -17,6 +17,8 @@ Generated 23 October 2026 from the [standalone preview package](../../../Prototy
 
 ## Editing previews and Xcode
 
+[Asset library expansion 01](../brand-demo/asset-library.md) adds [a catalog](brand-assets-expansion-01.png) of three new Pingu poses and four illustrated icons, including 32/48-point light/dark specimens.
+
 [Demo 05 — lighter copy and rounded icons](../brand-demo/lighter-icon-journeys.md) responds to the latest owner feedback with [reflection](brand-05-reflection-journey.png), [Practice](brand-05-practice-journey.png) and [linked-context](brand-05-linked-contexts.png) variants. Earlier renders remain comparison references.
 
 [Brand demo 04 core journeys](../brand-demo/core-journeys.md) adds [reflection](brand-04-reflection-journey.png), [direct Practice](brand-04-practice-journey.png) and [original/changed linked context](brand-04-linked-contexts.png). The [two-entry calendar day](brand-03-journal-multiple.png) complements the prior saved/empty samples. [Walkthrough worksheet](../prototype-review-results.md): prepared, not run. All fields/actions remain static.

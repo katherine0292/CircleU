@@ -58,6 +58,7 @@ struct RenderPreviews {
         try render(BrandJourneyPreview(screen: .practiceContext, linkedContext: true, iconLed: true), to: output.appendingPathComponent("brand-05-linked-context.png"), size: CGSize(width: 390, height: 844))
         try render(BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true, iconLed: true), to: output.appendingPathComponent("brand-05-updated-context.png"), size: CGSize(width: 390, height: 844))
         try render(BrandLinkedContextGallery(iconLed: true), to: output.appendingPathComponent("brand-05-linked-contexts.png"))
+        try render(BrandAssetLibraryPreview(), to: output.appendingPathComponent("brand-assets-expansion-01.png"))
         try render(
             PrototypeScreenView(screen: .today).frame(width: 320, height: 844),
             to: output.appendingPathComponent("today-compact.png")

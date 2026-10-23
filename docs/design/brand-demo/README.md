@@ -6,6 +6,8 @@
 
 The authorized follow-up is now available as [Demo 02 — Journal, Practice and editor previews](flow-previews.md), including a softer Practice icon. The original board below remains the Demo 01 comparison.
 
+[Asset library expansion 01](asset-library.md) adds three Pingu poses and four illustrated icons in project storage; original Demo 01 artwork remains available.
+
 ![Coordinated brand board](../swiftui-previews/brand-demo.png)
 
 [View Today at phone size](../swiftui-previews/brand-today.png) · [Branding guideline](../branding-guideline.md) · [SwiftUI source](../../../Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/BrandDemo.swift)

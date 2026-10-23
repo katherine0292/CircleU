@@ -21,9 +21,11 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run \
   ../../docs/design/swiftui-previews
 ```
 
-The executable currently writes forty-four PNGs, including the previous thirty-three specimens and eleven `brand-05-` icon/copy variants. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
+The executable currently writes forty-five PNGs, including the previous thirty-three specimens, eleven `brand-05-` icon/copy variants and one artwork-library catalog. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
 
 ## Brand demo 01
+
+[Asset library expansion 01](../../docs/design/brand-demo/asset-library.md) stores three new Pingu poses and four illustrated icons under `Resources/BrandArtwork/Expansion01/`, with `BrandAssetLibraryPreview` showing large and small light/dark specimens. Earlier resources and app assets remain intact.
 
 [Demo 05](../../docs/design/brand-demo/lighter-icon-journeys.md) responds to the owner's text-density feedback. For example, `BrandJourneyPreview(screen: .reflection, iconLed: true)` selects the lighter view. New named Canvas galleries show the variant. Default calls still render Demo 04.
 
