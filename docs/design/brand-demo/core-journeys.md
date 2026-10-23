@@ -2,6 +2,8 @@
 
 24 October 2026. Owner approved continuing the [prototype milestone plan](../../superpowers/plans/2026-10-24-prototype-review-milestone.md). These are immutable SwiftUI sample screens, extending the accepted brand with the existing font/colors/helpers. Actions and fields are static. No actual user content is included.
 
+Latest owner feedback requested less interface text and some icons. [Demo 05](lighter-icon-journeys.md) applies that refinement; Demo 04 below remains the earlier comparison.
+
 ## Reflection route
 
 ![Capture, reflection review and saved detail](../swiftui-previews/brand-04-reflection-journey.png)

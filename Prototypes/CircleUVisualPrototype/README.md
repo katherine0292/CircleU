@@ -21,9 +21,11 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run \
   ../../docs/design/swiftui-previews
 ```
 
-The executable currently writes thirty-three PNGs, including six core-route screens, two linked-context variants, three journey/context galleries under `brand-04-`, and the additional multiple-entry calendar specimen. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
+The executable currently writes forty-four PNGs, including the previous thirty-three specimens and eleven `brand-05-` icon/copy variants. The Xcode evidence screenshot is captured separately. No dependency downloads, signing account or Firebase configuration are required.
 
 ## Brand demo 01
+
+[Demo 05](../../docs/design/brand-demo/lighter-icon-journeys.md) responds to the owner's text-density feedback. For example, `BrandJourneyPreview(screen: .reflection, iconLed: true)` selects the lighter view. New named Canvas galleries show the variant. Default calls still render Demo 04.
 
 [Demo 04 core journeys](../../docs/design/brand-demo/core-journeys.md) extends reflection and Practice in `BrandJourneyPreview.swift`, including original/updated linked context. These are sample fields/actions and have named Canvas previews; they do not implement navigation or storage.
 

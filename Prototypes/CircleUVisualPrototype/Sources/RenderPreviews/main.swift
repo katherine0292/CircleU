@@ -50,6 +50,14 @@ struct RenderPreviews {
         try render(BrandJourneyPreview(screen: .practiceContext, linkedContext: true), to: output.appendingPathComponent("brand-04-linked-context.png"), size: CGSize(width: 390, height: 844))
         try render(BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true), to: output.appendingPathComponent("brand-04-updated-context.png"), size: CGSize(width: 390, height: 844))
         try render(BrandLinkedContextGallery(), to: output.appendingPathComponent("brand-04-linked-contexts.png"))
+        for screen in BrandJourneyScreen.allCases {
+            try render(BrandJourneyPreview(screen: screen, iconLed: true), to: output.appendingPathComponent("brand-05-\(screen.rawValue).png"), size: CGSize(width: 390, height: 844))
+        }
+        try render(BrandJourneyGallery(title: "Less explaining. More room for your words.", iconLed: true), to: output.appendingPathComponent("brand-05-reflection-journey.png"))
+        try render(BrandJourneyGallery(screens: [.practiceContext, .wording, .practiceDetail], title: "Find your words", iconLed: true), to: output.appendingPathComponent("brand-05-practice-journey.png"))
+        try render(BrandJourneyPreview(screen: .practiceContext, linkedContext: true, iconLed: true), to: output.appendingPathComponent("brand-05-linked-context.png"), size: CGSize(width: 390, height: 844))
+        try render(BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true, iconLed: true), to: output.appendingPathComponent("brand-05-updated-context.png"), size: CGSize(width: 390, height: 844))
+        try render(BrandLinkedContextGallery(iconLed: true), to: output.appendingPathComponent("brand-05-linked-contexts.png"))
         try render(
             PrototypeScreenView(screen: .today).frame(width: 320, height: 844),
             to: output.appendingPathComponent("today-compact.png")

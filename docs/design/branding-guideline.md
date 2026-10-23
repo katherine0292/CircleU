@@ -63,6 +63,8 @@ Keep text-editing surfaces calm. Evaluate glass/gradient effects as supporting t
 
 ## 6. Voice and usage
 
+24 October refinement: owner requested less interface text and more icons. [Demo 05](brand-demo/lighter-icon-journeys.md) uses concise helpers, native rounded-style functional symbols, compact context tags and pencil editing affordances. Keep labels for primary actions and meaning-critical states. The earlier instruction to omit the extra decorative calendar-header icon still applies.
+
 Use concise, supportive language with clear actions. Give people room to disagree with an interpretation and edit their own words. Avoid exaggerated praise, streak pressure, clinical claims or promises of privacy/recovery that the current app does not yet implement.
 
 Mascot placements: welcome, empty states and occasional supportive transitions. Keep illustrations modest in busy lists and out of the main text-editing area. Expressions should fit the context; avoid celebration on error or distress states.

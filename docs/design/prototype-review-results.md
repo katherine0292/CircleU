@@ -18,6 +18,8 @@ For operations missing from a specimen, record **not testable here**. A moderato
 
 ## Open calendar decisions
 
+Design feedback received before a formal walkthrough: the owner found the core screens text-heavy and requested some icons. [Demo 05](brand-demo/lighter-icon-journeys.md) provides a lighter comparison. This is a design request, not a completed task, usability session or approval of icon-only editing discoverability.
+
 | Proposal from the brief | Owner decision |
 | --- | --- |
 | Default to Today; dots/counts represent saved Journal content only | Pending specific review |

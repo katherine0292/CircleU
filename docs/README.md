@@ -33,6 +33,7 @@ This folder holds the current project knowledge the team should follow while bui
 - [Next prototype-review milestone](superpowers/plans/2026-10-24-prototype-review-milestone.md): proposed reflection/practice/retrieval review tasks, reuse boundaries and scoped subagent roles.
 - [Core-journey review brief](design/prototype-review-brief.md): missing branded route specimens, calendar interaction proposals and five neutral walkthrough tasks.
 - [Branded core journeys](design/brand-demo/core-journeys.md): capture/reflection/detail, direct Practice and changed-source context specimens.
+- [Lighter copy and rounded icons](design/brand-demo/lighter-icon-journeys.md): latest owner-requested refinement with compact tags and icon-supported actions.
 - [Prototype walkthrough worksheet](design/prototype-review-results.md): prepared tasks and pending calendar decisions; no participant results yet.
 - [MVP reuse and dependency map](engineering/mvp-reuse-map.md): existing code to retain/adapt and the safe order toward a manual local vertical slice.
 
