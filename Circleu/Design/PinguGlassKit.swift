@@ -382,7 +382,23 @@ struct PinguEmotionMeta {
 
 // MARK: - Pingu mascot with mood animations
 
-enum PinguMood { case idle, think, celebrate, pop }
+enum PinguMood {
+    case idle, think, celebrate, pop
+    case waving, reading, thumbsUp, calm, watering, explorer
+
+    var assetName: String {
+        switch self {
+        // PinguWaves is an abstract background, so retain the existing mascot.
+        case .waving: "PinguMascot"
+        case .reading: "PinguReading"
+        case .thumbsUp: "PinguThumbsUp"
+        case .calm: "PinguCalm"
+        case .watering: "PinguWatering"
+        case .explorer: "PinguExplorer"
+        case .idle, .think, .celebrate, .pop: "PinguMascot"
+        }
+    }
+}
 
 struct PinguMascot: View {
     var size: CGFloat = 100
@@ -421,7 +437,7 @@ struct PinguMascot: View {
                 .frame(width: size * 0.85, height: size * 0.85)
                 .blur(radius: 12)
 
-            Image("PinguMascot")
+            Image(mood.assetName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: size, height: size)
@@ -439,7 +455,7 @@ struct PinguMascot: View {
         case .idle: bob ? 1.5 : -1.5
         case .think: think ? 3 : -3
         case .celebrate: celebrate ? 6 : -6
-        case .pop: 0
+        case .pop, .waving, .reading, .thumbsUp, .calm, .watering, .explorer: 0
         }
     }
     private var bobOffset: CGFloat {
@@ -468,6 +484,9 @@ struct PinguMascot: View {
             withAnimation(.easeInOut(duration: 0.55).repeatForever(autoreverses: true)) { celebrate = true }
         case .pop:
             withAnimation(.spring(response: 0.5, dampingFraction: 0.55)) { pop = true }
+        case .waving, .reading, .thumbsUp, .calm, .watering, .explorer:
+            // These are complete illustrated poses, not animation frames.
+            return
         }
         if ring {
             withAnimation(.easeOut(duration: 1.8).repeatForever(autoreverses: false)) { ringPulse = true }

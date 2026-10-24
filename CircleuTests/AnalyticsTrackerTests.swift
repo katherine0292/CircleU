@@ -54,7 +54,7 @@ final class AnalyticsTrackerTests: XCTestCase {
             createdAt: Date().addingTimeInterval(-86400 * 2) // 2 days ago
         )
         let store = QuestStore(userDefaults: makeDefaults())
-        store.quests = [quest]
+        store.replaceAll(with: [quest])
 
         store.complete(quest)
 

@@ -41,6 +41,6 @@ Record model, OS/build, app build, model availability, locale, scenario, result 
 
 - Xcode **27.1 (27A9275)** was verified with a command-specific developer directory. No app build/test was run for this planning pass.
 - CI currently selects Xcode 16.0 on `macos-15`; plan a verified runner/SDK/runtime combination before using CI as a release gate.
-- The latest sandboxed simulator inventory attempt failed to connect to CoreSimulatorService. Earlier inventory is recorded in the discovery plan; available runtimes must be rechecked before testing.
+- A sandboxed simulator inventory previously failed to connect to CoreSimulatorService. A 24 October check with normal developer-service access confirmed iPhone 18 Pro/iOS 27.0 and iPhone 17 profiles on iOS 26.5/27.0. Device Hub was located and the original app built/launched on the iPhone 18 Pro Simulator during a [scoped build repair](../qa/simulator-build-repair-2026-10-24.md). This is not physical-device support certification or validation of the proposed OS floor.
 - Freeze the OS floor after tester inventory and a bounded local-storage/model/speech feasibility spike. Record unsupported capabilities as fallbacks, not blockers to the core app.
 - Release only after the matrix, legacy recovery route, privacy/network checks and P0 acceptance criteria pass. No minimum OS or project settings were changed by this document.
