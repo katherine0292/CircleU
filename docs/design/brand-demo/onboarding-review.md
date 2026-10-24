@@ -4,6 +4,8 @@ Status: local interactive design proposal, now extended with earlier-data choice
 
 ## What to review now
 
+The [24 October research follow-up](../onboarding-patterns-research-2026-10-24.md) supersedes the local copy below where noted: v3 uses **Find your words**, shorter privacy/earlier-data text, no repeated Today helper and finite Pingu greeting/navigation motion with a still alternative. The tables below retain the v2 review baseline; Figma/SwiftUI adoption is still pending.
+
 Review the clickable first-use proposal in the conversation first. Check whether the purpose is clear, Get started reaches an empty Today only when the simulated storage result is Ready, Privacy returns to the originating screen, and earlier-data recovery can be reviewed or postponed. Screen selectors, Restart review, Reopen preview and Storage outcome are review controls outside the depicted app; they do not reset app data or test real storage.
 
 - **Figma:** connected journeys, branches, editing/recovery and proposed screen structure. The existing [Draft 02](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-81) remains a wireframe.

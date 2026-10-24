@@ -30,6 +30,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 ## Project Reviews
 
+- [Mobile onboarding and content research](design/onboarding-patterns-research-2026-10-24.md): publisher examples, concise screen-copy proposals, actual font audit and the local motion refinement.
 - [Flow and delivery checklist](product/flow-status-checklist.md): all MVP journeys, prepared artifacts, pending prototype work and separate production/device/release gates.
 - [Focused onboarding review](qa/onboarding-flow-review-2026-10-24.md): local earlier-data choices, safe-opening/error states, re-entry checks and remaining owner/Figma/runtime gates.
 - [Next prototype-review milestone](superpowers/plans/2026-10-24-prototype-review-milestone.md): proposed reflection/practice/retrieval review tasks, reuse boundaries and scoped subagent roles.

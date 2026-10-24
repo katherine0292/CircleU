@@ -65,6 +65,7 @@ These are intended routes, not a claim that every transition runs in the product
 
 ### Prototype finish
 
+- [x] Complete publisher-based [onboarding/content research and font audit](../design/onboarding-patterns-research-2026-10-24.md); shorter copy and finite motion are in the local onboarding review. Other-screen copy, owner comprehension and native accessibility remain pending.
 - [ ] Review the local onboarding's purpose, Get started, optional Privacy and earlier-data link.
 - [x] Complete the coordinator's [focused onboarding checks](../qa/onboarding-flow-review-2026-10-24.md); owner comprehension review and production verification remain pending.
 - [ ] Resolve Figma MCP access before attempting canvas work. The focused onboarding pass rechecked a known node and still received the Starter-plan tool-call limit.
