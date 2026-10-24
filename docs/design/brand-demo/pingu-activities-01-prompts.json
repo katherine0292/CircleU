@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "created": "2026-10-24",
+  "status": "review-candidates",
+  "tool": "built-in image_gen",
+  "format": "transparent PNG, copied without pixel editing; static artwork, not animation frames",
+  "assets": [
+    {
+      "name": "PinguWritingV1.png",
+      "label": "Writing",
+      "use": "Journal introduction",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable transparent CircleU Pingu activity illustration. Reference image is the character identity master, not a pose to copy. Preserve the exact recognizable navy penguin, white heart-shaped face and belly, one curved crest, tiny dark oval eyes, closed warm orange beak, orange feet, icy blue scarf and same plump proportions. Match its modern softly shaded matte 2D editorial illustration: clean smooth precise rounded silhouettes, gentle restrained tonal gradients, no sketch lines or hatching, no grain, no glossy 3D/clay, no heavy outlines, no blush or eyebrows, no new clothing. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF and small orange #FF8538 accents. One character centered in square with generous equal transparent margins, full body and feet visible. Genuine transparent background, no background scene, floor, cast shadow, tile, text, lettering, symbols, watermark or additional characters. Activity: Pingu seated comfortably, actively writing in an OPEN plain royal-blue journal resting on its lap. One flipper supports the open book, the other holds one short orange pencil whose tip touches the pale pages. Head tilted down to look at the page, open focused eyes. Pages contain no marks or lettering. Clear readable silhouette of writing, not holding a closed book. No desk or chair.",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguWritingV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 831638,
+      "sha256": "93d812e1b68ca061136100db19f0bd62606ec473db5fd1a3802260d086cb3509"
+    },
+    {
+      "name": "PinguReadingV1.png",
+      "label": "Reading",
+      "use": "Revisiting saved entries",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable transparent CircleU Pingu activity illustration. Reference image is the character identity master, not a pose to copy. Preserve the exact recognizable navy penguin, white heart-shaped face and belly, one curved crest, tiny dark oval eyes, closed warm orange beak, orange feet, icy blue scarf and same plump proportions. Match its modern softly shaded matte 2D editorial illustration: clean smooth precise rounded silhouettes, gentle restrained tonal gradients, no sketch lines or hatching, no grain, no glossy 3D/clay, no heavy outlines, no blush or eyebrows, no new clothing. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF and small orange #FF8538 accents. One character centered in square with generous equal transparent margins, full body and feet visible. Genuine transparent background, no background scene, floor, cast shadow, tile, text, lettering, symbols, watermark or additional characters. Activity: Pingu standing, holding an OPEN plain royal-blue journal with both flippers, reading its pale blank pages. Book spread is visibly open and curved, head gently angled down, eyes focused on the pages, patient curious expression. No pencil, no desk, no glasses, no lettering or marks. A distinct reading pose, not the original closed-book hug.",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguReadingV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 860253,
+      "sha256": "773fbb0176d1ab3c6a08530616ebc1b523ed1232dc498cc5ae2adc26b7017336"
+    },
+    {
+      "name": "PinguPractisingV1.png",
+      "label": "Practising",
+      "use": "Practice introduction",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable transparent CircleU Pingu activity illustration. Reference image is the character identity master, not a pose to copy. Preserve the exact recognizable navy penguin, white heart-shaped face and belly, one curved crest, tiny dark oval eyes, closed warm orange beak, orange feet, icy blue scarf and same plump proportions. Match its modern softly shaded matte 2D editorial illustration: clean smooth precise rounded silhouettes, gentle restrained tonal gradients, no sketch lines or hatching, no grain, no glossy 3D/clay, no heavy outlines, no blush or eyebrows, no new clothing. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF and small orange #FF8538 accents. One character centered in square with generous equal transparent margins, full body and feet visible. Genuine transparent background, no background scene, floor, cast shadow, tile, text, lettering, symbols, watermark or additional characters. Activity: Pingu rehearsing a conversation aloud to itself, one flipper holding a small blank pale-blue rounded message cue card at belly height, the other flipper extended in a small open conversational gesture. Slight three-quarter body stance, head toward viewer, attentive open eyes. Keep closed small orange beak shape recognizable, no open gaping mouth. One small empty royal-blue speech bubble floats close to head as a single supporting prop, no punctuation or text. No phone, sending arrow or another character.",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguPractisingV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 916613,
+      "sha256": "e755d6219cb7b26311a7d4b0036d88ba9c9ce938fae6df27eaed810118d0e3af"
+    },
+    {
+      "name": "PinguStretchingV1.png",
+      "label": "Stretching",
+      "use": "Optional quiet interlude artwork",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable transparent CircleU Pingu activity illustration. Reference image is the character identity master, not a pose to copy. Preserve the exact recognizable navy penguin, white heart-shaped face and belly, one curved crest, tiny dark oval eyes, closed warm orange beak, orange feet, icy blue scarf and same plump proportions. Match its modern softly shaded matte 2D editorial illustration: clean smooth precise rounded silhouettes, gentle restrained tonal gradients, no sketch lines or hatching, no grain, no glossy 3D/clay, no heavy outlines, no blush or eyebrows, no new clothing. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF and small orange #FF8538 accents. One character centered in square with generous equal transparent margins, full body and feet visible. Genuine transparent background, no background scene, floor, cast shadow, tile, text, lettering, symbols, watermark or additional characters. Activity: Pingu taking a gentle stretch: both short flippers lifted and reaching outward/upward, body tilted slightly sideways, feet planted apart and fully visible. Scarf drapes naturally; retain exact scarf style. Calm open eyes and tiny closed beak. No book, no props, no sweat or sparkle symbols, no exercise equipment. A relaxed friendly full-body pose, not jumping or celebrating.",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguStretchingV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 854465,
+      "sha256": "b3710109deaed2a33cb3db12a615fb4bde245d1019e47308c66f4bbcb512ed19"
+    },
+    {
+      "name": "PinguQuietBreathV1.png",
+      "label": "Quiet breath",
+      "use": "Optional quiet interlude artwork",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable transparent CircleU Pingu activity illustration. Reference image is the character identity master, not a pose to copy. Preserve the exact recognizable navy penguin, white heart-shaped face and belly, one curved crest, tiny dark oval eyes, closed warm orange beak, orange feet, icy blue scarf and same plump proportions. Match its modern softly shaded matte 2D editorial illustration: clean smooth precise rounded silhouettes, gentle restrained tonal gradients, no sketch lines or hatching, no grain, no glossy 3D/clay, no heavy outlines, no blush or eyebrows, no new clothing. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF and small orange #FF8538 accents. One character centered in square with generous equal transparent margins, full body and feet visible. Genuine transparent background, no background scene, floor, cast shadow, tile, text, lettering, symbols, watermark or additional characters. Activity: Pingu seated comfortably at rest, eyes softly closed in two simple curved arcs, flippers resting lightly over its white belly, head upright, relaxed posture and feet visible. Scarf drapes naturally. Convey a quiet pause or natural relaxed breath through posture alone, no expanding rings, breath clouds, symbols, tears, hearts, halo, yoga outfit or medical context. No journal, no props, no extra effects.",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguQuietBreathV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 901258,
+      "sha256": "8bb06c5a44b41640a234ec632da79d08b6dbce80c19a675c6b0306add1fd8821"
+    }
+  ]
+}

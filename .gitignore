@@ -8,6 +8,15 @@ xcuserdata/
 # Swift Package Manager / Xcode generated files
 .build/
 DerivedData/
+.swiftpm/
+
+# Local credentials and signing material; commit templates without real values.
+.env
+.env.*
+!.env.example
+*.p8
+*.p12
+*.mobileprovision
 
 # Local agent workspace artifacts
 .superpowers/

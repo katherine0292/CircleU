@@ -1,87 +1,60 @@
-# Circleu Git Workflow
+# CircleU Git workflow
 
-Use small, reviewable commits. Each commit should represent one working feature slice, fix, refactor, test addition, or documentation update.
+Follow [project coding standards](../0_coding_standards.md) and [team coordination](team-standards.md). These instructions describe the workflow; they do not automatically commit, push, merge or release work.
 
-For complete team rules, see [team-standards.md](team-standards.md).
+## Inspect before changing branches
 
-## Daily Start
-
-```bash
-git checkout main
-git fetch origin
-git merge origin/main
-git checkout -b feat/short-description
-```
-
-If you are already on a feature branch:
-
-```bash
-git fetch origin
-git merge origin/main
-```
-
-Resolve conflicts locally before pushing.
-
-## Commit Scope
-
-Good commits:
-
-- `feat: add journal circle sharing`
-- `fix: handle empty transcript fallback`
-- `refactor: move profile qa tools into feature folder`
-- `test: cover CloudKit schema mapping`
-- `docs: refine project documentation`
-
-Avoid:
-
-- `update files`
-- `final changes`
-- `fix stuff`
-- `commit all`
-
-If a commit description needs "and also," split it.
-
-## Before Committing
-
-Review status and diff:
-
-```bash
-git status --short
+```sh
+git status --short --branch
+git diff --stat
 git diff
 ```
 
-Stage by function:
+Read new/untracked files separately: ordinary `git diff` does not include them. Preserve unrelated edits. Reuse an appropriate feature branch/worktree; for new agent work, use `codex/<topic>`. Do not switch to main, reset, stash or merge over a dirty checkout as an automatic startup step.
 
-```bash
-git add docs/engineering/cloudkit-data-model.md
-git add Circleu/Services/CloudKitDataModel.swift CircleuTests/CloudKitSchemaTests.swift
-git commit -m "feat: add CloudKit data model foundation"
+When a new branch is appropriate and the starting point is verified:
+
+```sh
+git switch -c codex/short-description
 ```
 
-Avoid `git add .` unless every changed file has been reviewed.
+This starts from the current commit; inspect it first. Fetch and integrate upstream when needed for the task, resolve conflicts deliberately, and rerun checks affected by integration. Do not force-push shared history.
 
-## Verification
+## Verify and stage a coherent change
 
-Run the smallest useful check:
+Use the [verification matrix](../0_coding_standards.md#4-verification-and-evidence), then inspect the final diff and record results in the [agent log](../agent-collaboration-log/README.md).
 
-- Docs only: review `git diff -- docs README.md` and scan for stale paths.
-- ViewModel, Store, Engine, backend contract, or mapping behavior: run unit tests.
-- SwiftUI or app integration: run a simulator build.
-- Signing, microphone, speech recognition, Apple Intelligence, or full flow: run the phone checklist.
-
-Useful commands:
-
-```bash
-xcodebuild build -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
-xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```sh
+git diff --check
+git status --short
 ```
 
-## Push Rule
+Stage explicit files or hunks. For example, only when these changes form the intended reviewed scope:
 
-Push after a coherent set of commits is ready for teammate review:
-
-```bash
-git push origin HEAD
+```sh
+git add AGENTS.md CLAUDE.md docs/0_coding_standards.md
+git diff --cached --stat
+git diff --cached
 ```
 
-Do not push broken builds or unrelated cleanup mixed with feature work.
+Include related documentation/log entries deliberately; the example is not a complete staging list. Avoid `git add .` or `git add -A` in a shared working tree. Check credentials, local configuration, generated files and unrelated work are absent from the staged diff.
+
+## Commit and push within task scope
+
+Use `<type>(<scope>): <imperative summary>`, for example:
+
+- `docs(process): add agent collaboration records`
+- `fix(journal): preserve draft after failed save`
+- `test(storage): cover interrupted migration recovery`
+
+One coherent change per commit. Explain material behavior, verification and limitations in the body; no invented passing checks. Do not amend another contributor's history without authorization.
+
+When committing/pushing is part of the authorized task, confirm the target remote/branch, push without force and verify the result:
+
+```sh
+git status --short --branch
+git remote -v
+git push -u origin HEAD
+```
+
+A clean push is not a CI pass. Inspect actual check results before claiming validation. A draft PR may record incomplete validation clearly; do not merge or release while required checks remain unresolved.

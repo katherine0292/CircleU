@@ -1,157 +1,43 @@
-# Circleu Team Standards
+# CircleU team standards
 
-These rules keep the repo understandable for teammates and future contributors.
+Updated 23 October 2026 to apply the shared coding standard to this SwiftUI project. Coding and verification rules live in [project coding standards](../0_coding_standards.md); this document covers how contributors coordinate.
 
-## Branch Rules
+## Start and finish each meaningful task
 
-Use `main` as the stable branch. Do feature work on a personal or feature branch.
+Read [AGENTS.md](../../AGENTS.md), the latest relevant [agent records](../agent-collaboration-log/README.md), and the active product/implementation plan. Inspect the working tree before editing and preserve other contributors' changes.
 
-```bash
-git checkout main
-git fetch origin
-git merge origin/main
-git checkout -b feat/journal-circle-sharing
-```
+Before handoff, record what changed, the evidence checked, decisions and remaining work in a new dated log entry. Include actual review feedback and its resolution. Never claim independent review if none occurred, and never treat an unverified handoff claim as fact.
 
-Before pushing a feature branch, merge the latest `main` and resolve conflicts locally:
+The existing milestone is research/planning before feature coding. Follow explicit owner scope changes, recording them in the product decision tables and log. A plan, mockup or prototype does not itself authorize a release or prove implementation.
 
-```bash
-git fetch origin
-git merge origin/main
-```
+## Ownership and coordination
 
-## Commit By Function
+| Area | Responsibility |
+| --- | --- |
+| `Circleu/App/` | Composition, lifecycle and navigation; nominate one integration owner when work overlaps |
+| `Circleu/Features/` | Feature screens and ViewModels |
+| `Circleu/Components/`, `Circleu/Design/`, assets | Shared UI and visual foundations |
+| `Circleu/Models/`, `Stores/`, `Engines/`, `Services/` | Data contracts, state/persistence, business logic and system/provider boundaries |
+| `CircleuTests/` and QA docs | Behavior evidence and device validation |
+| Project file, package resolution and CI | Shared integration changes; coordinate rather than edit concurrently |
+| Product/design/process docs | Update the existing source of truth, with links from the log |
 
-Commit one working function, fix, refactor, test addition, or doc update at a time.
+These are responsibility boundaries, not permanent assignments to named people. For authorized multi-agent work, specify owned files, dependencies and integration order. Use distinct log filenames; the integration owner reviews the combined diff and records final verification. Do not launch or message other agents merely because the process supports collaboration.
 
-Good messages:
+## Review and Git
 
-```text
-feat: add journal circle sharing
-fix: handle empty transcript fallback
-refactor: move profile qa tools into feature folder
-test: add tips practice flow coverage
-docs: reorganize project documentation
-```
+Use small, coherent changes and scoped Conventional Commits. Prefer `codex/<topic>` for new agent branches. Inspect and stage only intended files/hunks; never gather unrelated work with a blanket add. See [Git workflow](git-workflow.md) for the sequence.
 
-Bad messages:
+Reviews should state the concrete behavior/risk, affected path, evidence and proposed resolution. Record accepted, rejected and unresolved findings in the log, including failed hypotheses that could otherwise be repeated later. Append corrections; preserve historical conclusions as history.
 
-```text
-update files
-final changes
-fix stuff
-commit all
-```
+## Documentation and evidence
 
-## Professional Commit Commands
+- Product/user-flow decisions: `docs/product/`.
+- Architecture/domain/backend contracts: `docs/engineering/`.
+- Figma reference and review history: `docs/design/`.
+- Device/manual checks: `docs/qa/`.
+- Current implementation plans: `docs/superpowers/plans/`.
+- Agent work/review handoffs: `docs/agent-collaboration-log/`.
+- Superseded plans/specs: `docs/archive/`; do not treat them as current instructions.
 
-Review before staging:
-
-```bash
-git status --short
-git diff
-```
-
-Stage only the files for the function:
-
-```bash
-git add Circleu/Features/Journal
-git add Circleu/Stores/ReflectionJournalStore.swift
-git commit -m "feat: add journal circle sharing"
-```
-
-Docs-only example:
-
-```bash
-git diff -- docs README.md
-git add docs README.md
-git commit -m "docs: refine project documentation"
-```
-
-Bug-fix example:
-
-```bash
-git diff -- Circleu/Features/Recording Circleu/Engines/TranscriptQuality.swift
-git add Circleu/Features/Recording Circleu/Engines/TranscriptQuality.swift
-git commit -m "fix: handle short transcript validation"
-```
-
-Avoid `git add .` unless every changed file has been reviewed.
-
-## Verification Before Commit
-
-Run the smallest useful check:
-
-- Docs only: review `git diff -- docs README.md` and scan for stale links or placeholders.
-- ViewModel, Store, Engine, backend contract, or CloudKit mapping behavior: run unit tests.
-- SwiftUI or app integration: run an iPhone simulator build.
-- Microphone, speech, signing, Apple Intelligence, or full user flow: run the phone checklist.
-
-Useful commands:
-
-```bash
-xcodebuild build -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
-xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
-```
-
-## File Ownership
-
-- `Circleu/Features/`: user-facing screens and feature-specific ViewModels.
-- `Circleu/Components/`: reusable UI shared by multiple features.
-- `Circleu/Design/`: colors, spacing, typography, and layout constants.
-- `Circleu/Models/`: Codable domain models and value types.
-- `Circleu/Stores/`: shared app state and local persistence.
-- `Circleu/Engines/`: business logic and AI/reflection logic.
-- `Circleu/Services/`: device APIs and future backend/provider boundaries.
-- `CircleuTests/`: behavior tests for ViewModels, Stores, Engines, backend contracts, and data flow.
-- `docs/`: living project knowledge and archived planning history.
-
-## Ownership Split
-
-Backend/engine owner:
-
-- `Circleu/Engines/`
-- `Circleu/Stores/`
-- `Circleu/Services/`
-- `Circleu/Models/`
-- `CircleuTests/`
-- `docs/engineering/`
-
-UI owners:
-
-- `Circleu/Features/`
-- `Circleu/Components/`
-- `Circleu/Design/`
-- `Circleu/Assets.xcassets/`
-
-Coordinate before changing another person's ownership area.
-
-## Documentation Rules
-
-Update docs in the same commit as the behavior or process change when the docs would otherwise become misleading.
-
-Use these locations:
-
-- Product/user-flow docs: `docs/product/`
-- Architecture/domain/backend docs: `docs/engineering/`
-- Manual QA docs: `docs/qa/`
-- Team process docs: `docs/process/`
-- Historical plans/specs: `docs/archive/`
-
-Keep archived docs unchanged unless fixing links for readability. Current rules belong in active docs.
-
-## Pull And Push Rules
-
-Check status before pushing:
-
-```bash
-git status --short --branch
-```
-
-Push the current branch:
-
-```bash
-git push origin HEAD
-```
-
-Do not push broken builds or unrelated cleanup mixed with feature work. If a commit includes app code, be ready to say what verification you ran.
+Update affected docs with the corresponding behavior/process change. Keep code, prototype and release claims separate. Use the verification matrix in the project standards; documentation changes do not require a simulator build, while speech/AI claims need hardware evidence.

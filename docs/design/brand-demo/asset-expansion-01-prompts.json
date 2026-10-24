@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "created": "2026-10-24",
+  "status": "review-candidates",
+  "tool": "built-in image_gen",
+  "format": "transparent PNG, copied without pixel editing",
+  "assets": [
+    {
+      "name": "PinguWelcomeV1.png",
+      "kind": "avatar",
+      "role": "Welcome and introduction",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Full body occupies about 80% of square, feet visible. Pose: welcoming Pingu, calm open eyes and a tiny gentle smile implied by the closed beak, one flipper raised in a small friendly wave, other flipper relaxed against body. No journal, no speech bubble, no floating decorations. Avoid exuberant celebration.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguWelcomeV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 782354,
+      "sha256": "98e2c8d30327623c440bf076bb44c3598c778712e2cbec4d387d61e0e7a45472"
+    },
+    {
+      "name": "PinguThoughtfulV1.png",
+      "kind": "avatar",
+      "role": "Reflection prompts and quiet pauses",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Full body occupies about 80% of square, feet visible. Pose: thoughtful Pingu, head tilted very slightly, one flipper gently touching the scarf/chin area, other flipper holding its familiar plain royal-blue journal against its belly. Tiny open eyes look slightly upward, composed curious expression, no sadness or worried eyebrows. No thought bubble, no question mark, no floating decoration.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 840859,
+      "sha256": "5b48616247b02226a484fb249e4b7a8aeb451317ade6d56797b9fa62f18ce970"
+    },
+    {
+      "name": "PinguListeningV1.png",
+      "kind": "avatar",
+      "role": "Supportive introduction and listening prompts",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Full body occupies about 80% of square, feet visible. Pose: quietly listening Pingu, head tilted slightly toward the viewer, relaxed open attentive eyes, closed small beak, flippers gently together near its belly. No journal or other props. Warm, patient and calm, not grinning or celebrating. No headphones, no tears, no speech bubble, no floating decoration.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguListeningV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 827530,
+      "sha256": "edeb12c74fe2ed45a519d6f07bc408b28bdf9d1ebcd4b33c70978fa0a2744481"
+    },
+    {
+      "name": "BrandReflectionV1.png",
+      "kind": "icon",
+      "role": "Reflection brand accent",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandJournal.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandJournal.png. This is an illustrated brand accent, not a functional toolbar glyph. Simple silhouette readable at 32\u201348 points, about 65% canvas coverage. Subject: one small rounded handheld mirror with royal-blue thick rounded frame and short rounded handle, pale ice/sky reflective center, one small simple warm-orange four-point glint in the upper right of the mirror surface. Predominantly front-facing, minimal depth. No face reflected, no scenic reflection, no additional objects. Calm clear silhouette, not a magnifying glass.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandReflectionV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 551682,
+      "sha256": "85809486c5868a10ead56df84c2b1749cfc62d942e11c79a15464ffd0dce9421"
+    },
+    {
+      "name": "BrandFeelingsV1.png",
+      "kind": "icon",
+      "role": "Feelings brand accent",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandJournal.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandJournal.png. This is an illustrated brand accent, not a functional toolbar glyph. Simple silhouette readable at 32\u201348 points, about 65% canvas coverage. Subject: one plump clean heart silhouette in pale sky blue with one subtle royal-blue lower-left shade. One tiny warm-orange accent dash near the upper-right outer edge, separated but visually integrated. No face, no hands, no pulse line, no other objects. Adult calm affectionate feeling, not a sticker with heavy shine.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandFeelingsV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 696807,
+      "sha256": "ae63bb7085a2540e754ea417daed21c3cd52857c52081e0ac270e8b9eece90f3"
+    },
+    {
+      "name": "BrandNextStepV1.png",
+      "kind": "icon",
+      "role": "Optional next step brand accent",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandJournal.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandJournal.png. This is an illustrated brand accent, not a functional toolbar glyph. Simple silhouette readable at 32\u201348 points, about 65% canvas coverage. Subject: three simple ascending rounded step blocks forming one compact staircase from bottom-left to top-right. Royal-blue lower step, mid-blue middle step, pale-sky top step, small warm-orange softly rounded right/up arrow resting above the top step and pointing gently forward. Clean front/very slight three-quarter view. No trophy, flag, badge, stars or reward imagery. One optional progress metaphor, no pressure or celebration.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandNextStepV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 637619,
+      "sha256": "6cd7131eaf7b191400124bf6a5a2d735531984a6f098c72874597711ea3c30e9"
+    },
+    {
+      "name": "BrandPrivacyV1.png",
+      "kind": "icon",
+      "role": "Privacy information brand accent; not proof of security",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandJournal.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandJournal.png. This is an illustrated brand accent, not a functional toolbar glyph. Simple silhouette readable at 32\u201348 points, about 65% canvas coverage. Subject: one softly rounded royal-blue shield, simple pale ice-blue closed padlock centered on its face with small navy keyhole, minimal depth, one quiet blue shadow shape. Front-facing, no tick/checkmark, no text, no badge rays or surrounding objects. Friendly clear privacy information motif, calm rather than militaristic.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandPrivacyV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 758466,
+      "sha256": "3712f24d7afb082b7706781befd415d7675422814875c87323ac0378b71ab5cd"
+    }
+  ]
+}

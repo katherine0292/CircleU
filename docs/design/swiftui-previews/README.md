@@ -1,0 +1,58 @@
+# Draft 02 SwiftUI design renders
+
+Generated 23 October 2026 from the [standalone preview package](../../../Prototypes/CircleUVisualPrototype/README.md), using SwiftUI ImageRenderer on macOS at 2× scale. These are **static design renders with sample content**, not screenshots of the running app or Simulator. No real user data is included.
+
+![Today, Journal and Practice comparison](gallery.png)
+
+| Image | Point size | Pixel size | Figma source |
+| --- | --- | --- | --- |
+| [Today](today.png) | 390 × 844 | 780 × 1688 | [11:100](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-100) |
+| [Journal](journal.png) | 390 × 844 | 780 × 1688 | [11:104](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-104) |
+| [Practice](practice.png) | 390 × 844 | 780 × 1688 | [11:107](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-107) |
+| [Compact-width Today](today-compact.png) | 320 × 844 | 640 × 1688 | Same Today content |
+| [Gallery](gallery.png) | 1266 × 1029 | 2532 × 2058 | All three |
+| [Reflection editor proposal](edit-reflection.png) | 390 × 844 | 780 × 1688 | Proposed from agreed flow; Figma verification pending |
+| [Message editor](edit-message.png) | 390 × 844 | 780 × 1688 | [27:1671](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=27-1671) |
+| [Editor comparison](editors.png) | 852 × 1029 | 1704 × 2058 | Both editors |
+
+## Editing previews and Xcode
+
+[Native login/reset/recovery](../brand-demo/native-recovery.md): [core board](brand-09-recovery.png), [password states](brand-09-password.png), [errors](brand-09-errors.png) and [compact login](brand-09-login-compact.png). PNG controls are static representations; actual native inputs live in the Simulator/Canvas.
+
+[Current concise Welcome](brand-08-welcome.png), [compact width](brand-08-welcome-compact.png) and [comparison](brand-08-onboarding.png): larger Pingu, Find your words, Get started and optional Log in. Built/rendered and inspected; selected routes checked in the isolated iPhone 18 Pro Simulator. See the [current brief](../account-onboarding.md). Native login/recovery and larger-text gestures remain pending.
+
+[Owner-selected Pingu upper scene](brand-07-welcome-scene.png) and [compact-width variant](brand-07-welcome-scene-compact.png) add a still sky/snow setting behind the existing mascot, leaving the copy/actions on a quiet surface. See the [native interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) for actual Simulator checks and unresolved scrolling/recovery coverage.
+
+[Native onboarding — original layout, new brand](../brand-demo/native-onboarding.md) adds [regular Welcome](brand-06-welcome.png), [compact-width Welcome](brand-06-welcome-compact.png) and [comparison](brand-06-onboarding.png). These new exports are macOS ImageRenderer specimens. The corresponding Welcome, Privacy and larger-text views were also visually displayed in iPhone Xcode Canvas; native interaction and real readiness/storage are not certified.
+
+[Full Pingu collection](../brand-demo/pingu-collection.md): [all 21 avatars](brand-pingu-collection-21.png) and [the 12 new additions](brand-pingu-collection-12-new.png). Each pose is a separate transparent source asset.
+
+[Pingu activity set 01](../brand-demo/pingu-activities.md) adds [an activity catalog](brand-pingu-activities-01.png): writing, reading, practising, stretching and a quiet breath beside the existing avatar reference. These are still images, not animation frames.
+
+[Asset library expansion 01](../brand-demo/asset-library.md) adds [a catalog](brand-assets-expansion-01.png) of three new Pingu poses and four illustrated icons, including 32/48-point light/dark specimens.
+
+[Demo 05 — lighter copy and rounded icons](../brand-demo/lighter-icon-journeys.md) responds to the latest owner feedback with [reflection](brand-05-reflection-journey.png), [Practice](brand-05-practice-journey.png) and [linked-context](brand-05-linked-contexts.png) variants. Earlier renders remain comparison references.
+
+[Brand demo 04 core journeys](../brand-demo/core-journeys.md) adds [reflection](brand-04-reflection-journey.png), [direct Practice](brand-04-practice-journey.png) and [original/changed linked context](brand-04-linked-contexts.png). The [two-entry calendar day](brand-03-journal-multiple.png) complements the prior saved/empty samples. [Walkthrough worksheet](../prototype-review-results.md): prepared, not run. All fields/actions remain static.
+
+[Journal calendar — demo 03](../brand-demo/journal-calendar.md) shows [saved and empty selected dates](brand-03-calendar.png). Dates and entry dots are fixed October 2026 sample data; the calendar is not interactive.
+
+[Brand demo 02](../brand-demo/flow-previews.md) carries the accepted identity into [all three hubs](brand-02-hubs.png) and [both editors](brand-02-editors.png), with a softer Practice icon. The new layouts are static visual proposals; the original Draft 02 renders below remain reference evidence.
+
+The subsequent [brand demo 01](../brand-demo/README.md) explores a coordinated new Pingu logo, avatar and illustrated icons with actual Plus Jakarta Sans: [brand board](brand-demo.png) and [Today sample](brand-today.png). It is a separate visual proposal, not a change to the Draft 02 Figma frames or original renders.
+
+The [outline icon/logo/type comparison](outline-icon-direction.png) uses original app-icon pixels and real native fonts/SF Symbols. See the [matching review](../icon-direction/outline-review.md) for the two typography options and proposed icon mapping.
+
+![Reflection and message editors](editors.png)
+
+The reflection layout is a labelled proposal from the agreed flow because the Figma connector reached its plan limit. The message editor's context and screenshot were retrieved successfully. Both reuse draft components and native typography, with static fields/actions and invented content. See the [hub review and asset recommendations](../preview-review-2026-10-23.md).
+
+Xcode Canvas now works with the **CircleUVisualPrototype** library scheme and **My Mac** destination. [Captured message-editor Canvas](xcode-message-preview.jpg). The whole-package scheme produced an executable debug-library error; selecting the library scheme resolved it. This supersedes the earlier opening-timeout limitation.
+
+Live Figma contexts/screenshots were read for all three source frames. Native rounded system fonts intentionally replace Figma's Inter fallback; the fake status-bar time is omitted. Cards, copy, colors and tab selection follow the draft. Actions and tabs are noninteractive visual labels. The Figma footer retains its original simulated-actions wording; in these SwiftUI boards actions are entirely static.
+
+The initial renderer omitted ScrollView contents. Direct static layout resolved the missing cards/text; all three boards and the compact-width render were visually inspected afterward. This checks the declared fixed sizes only, not short-screen scrolling, Dynamic Type, VoiceOver, keyboard handling or iOS behavior.
+
+Use the [interactive Figma prototype](https://www.figma.com/proto/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-100&starting-point-node-id=11%3A100) for navigation and editing flows. Current design decisions remain in the [design reference](../README.md).
+
+- [Largest-text native Log in keyboard](brand-10-login-keyboard-largest-simulator.png): iPhone 18 Pro/iOS 27.0 Simulator capture after focused-field scrolling corrections; [verification and limits](../../qa/native-recovery-keyboard-accessibility-2026-10-24.md).

@@ -45,6 +45,20 @@
 
 ---
 
+## Contributor workflow
+
+Start with [AGENTS.md](AGENTS.md) and the [project coding standards](docs/0_coding_standards.md). Record meaningful work, actual review discussions and handoffs in the [agent collaboration log](docs/agent-collaboration-log/README.md). The same instructions are available to Claude through `CLAUDE.md`.
+
+## Next MVP planning
+
+Use the [flow and delivery checklist](docs/product/flow-status-checklist.md) for the current status of every MVP journey, completed prototype work and pending validation/implementation. Earlier feature descriptions above do not establish production readiness for the new guest-local direction.
+
+The [legacy release/Firebase inventory](docs/engineering/legacy-data-inventory.md) records verified backend findings and outstanding TestFlight checks. Review the [previous-data recovery prototype](docs/design/legacy-recovery-flow.md) before implementing migration or retiring cloud features.
+
+The [legacy data-format catalog](docs/engineering/legacy-data-format.md) and [personal-account release options](docs/product/personal-account-release-plan.md) explain how existing data could move to an independently released app. The current TestFlight-only app is not yet eligible for Apple's standard transfer process.
+
+The owner-approved direction is guest-first Today, Journal and Practice, with circles and rewards deferred. This is a planned transition; the current implementation still contains Firebase and cloud features. Start with the [MVP definition](docs/product/mvp-definition.md), [privacy/storage plan](docs/product/privacy-storage-plan.md), [supported-device proposal](docs/product/supported-devices.md) and [legacy TestFlight transition plan](docs/superpowers/plans/2026-10-23-local-first-transition.md). Device validation and migration remain pending.
+
 ## 🛠️ Technical Stack & Architecture
 
 ```text

@@ -2,6 +2,12 @@
 
 This folder holds the current project knowledge the team should follow while building, testing, and presenting Circleu.
 
+## Contributor and agent entry points
+
+- [Project coding standards](0_coding_standards.md): Swift/iOS adaptations of the shared master standard, verification and data-preservation rules.
+- [Agent instructions](../AGENTS.md): concise starting context; `CLAUDE.md` imports the same source.
+- [Agent collaboration log](agent-collaboration-log/README.md): dated work records, review discussions, decisions and handoffs; includes a labelled retrospective of the planning so far.
+
 ## Start Here
 
 1. [Product overview](product/overview.md)
@@ -21,6 +27,48 @@ This folder holds the current project knowledge the team should follow while bui
 15. [TestFlight Firebase checklist](qa/testflight-firebase-checklist.md)
 16. [Git workflow](process/git-workflow.md)
 17. [Team standards](process/team-standards.md)
+
+## Project Reviews
+
+- [Original-layout reuse review](design/original-layout-reuse.md): owner's preferred native proportions, concrete layout findings and a focused color/content/branding refinement path.
+- [Original Simulator build repair](qa/simulator-build-repair-2026-10-24.md): missing Pingu pose compatibility, preserved asset originals, Device Hub selection, successful original-app launch and two remaining test failures.
+- [Native login, reset and recovery previews](design/brand-demo/native-recovery.md): branded native form/state fixtures, selected input/navigation checks and remaining backend/device limits.
+- [Recovery keyboard and accessibility review](qa/native-recovery-keyboard-accessibility-2026-10-24.md): native Next/Done, focused-field and hit-area fixes, Inspector warnings and physical VoiceOver handoff.
+- [Content standard](design/content.md): concise copy, punctuation, shared terms and truthful state/data language; draft for new/revised screens.
+- [Account-onboarding revision](design/account-onboarding.md): guest-first local use, concise Pingu Welcome and optional existing-account login/recovery; supersedes the required-account proposal.
+- [Mobile onboarding and content research](design/onboarding-patterns-research-2026-10-24.md): publisher examples, concise screen-copy proposals, actual font audit and the local motion refinement.
+- [Flow and delivery checklist](product/flow-status-checklist.md): all MVP journeys, prepared artifacts, pending prototype work and separate production/device/release gates.
+- [Focused onboarding review](qa/onboarding-flow-review-2026-10-24.md): local earlier-data choices, safe-opening/error states, re-entry checks and remaining owner/Figma/runtime gates.
+- [Next prototype-review milestone](superpowers/plans/2026-10-24-prototype-review-milestone.md): proposed reflection/practice/retrieval review tasks, reuse boundaries and scoped subagent roles.
+- [Core-journey review brief](design/prototype-review-brief.md): missing branded route specimens, calendar interaction proposals and five neutral walkthrough tasks.
+- [Branded core journeys](design/brand-demo/core-journeys.md): capture/reflection/detail, direct Practice and changed-source context specimens.
+- [Lighter copy and rounded icons](design/brand-demo/lighter-icon-journeys.md): latest owner-requested refinement with compact tags and icon-supported actions.
+- [Pingu and illustrated asset library](design/brand-demo/asset-library.md): reusable transparent artwork, pose/icon uses and generation provenance.
+- [Pingu activity collection](design/brand-demo/pingu-activities.md): five additional action poses, stored originals and static catalog.
+- [Full 21-avatar Pingu collection](design/brand-demo/pingu-collection.md): twelve further activities inspired by the owner's reference sheet, with all originals and provenance.
+- [Motion guideline](design/motion-guideline.md): proposed production rules, existing-source findings and Reduce Motion alternatives.
+- [Isolated native motion demo](design/brand-demo/motion-demo.md): owner-approved greeting/transitions/feedback comparison, compact/desktop instructions, native Mac interaction evidence and separate iPhone Simulator launch captures; iOS touch/keyboard checks pending, main app unchanged.
+- [Prototype walkthrough worksheet](design/prototype-review-results.md): prepared tasks and pending calendar decisions; no participant results yet.
+- [MVP reuse and dependency map](engineering/mvp-reuse-map.md): existing code to retain/adapt and the safe order toward a manual local vertical slice.
+
+- [23 October 2026 project inventory and improvement review](project-review-2026-10-23.md): source-backed feature/design inventory, documentation gaps, and proposed priorities. This is a dated review, not an approved implementation plan.
+- [Discovery brief](product/discovery-brief.md): selected audience A, circles deferred, and the research-first direction.
+- [MVP definition and user flow](product/mvp-definition.md): proposed features, acceptance criteria, navigation and failure states; detailed scope awaits review.
+- [Privacy, storage and recovery plan](product/privacy-storage-plan.md): reaffirmed guest/local direction, backup/export limits, retention/deletion rules and recovery acceptance criteria. Not yet implemented.
+- [Supported devices](product/supported-devices.md): proposed iPhone/iOS scope, optional AI and physical-device validation matrix.
+- [Local-first transition plan](superpowers/plans/2026-10-23-local-first-transition.md): staged legacy TestFlight recovery, Firebase isolation, migration and retirement gates.
+- [Legacy release and Firebase inventory](engineering/legacy-data-inventory.md): live Dev/Prod findings, current build mapping and unresolved TestFlight evidence.
+- [Legacy data-format catalog](engineering/legacy-data-format.md): current/historical JSON and Firestore shapes, ownership ambiguity, attachments and decoding risks.
+- [Personal Apple account release plan](product/personal-account-release-plan.md): transfer eligibility, recommended UTS recovery bridge and explicit import into a personal app; route not yet selected.
+- [Previous-data recovery prototype](design/legacy-recovery-flow.md): device migration, previous-account recovery, import/export and separate cloud-deletion scenarios.
+- [Figma prototype and design reference](design/README.md): Draft 02 with approved Today/Journal/Practice structure, shorter routes, entry details and known prototype limitations.
+- [SwiftUI visual previews](design/swiftui-previews/README.md): static Today/Journal/Practice comparison and Xcode package, using sample data; no app runtime or Firebase access.
+- [Branding guideline — demo draft](design/branding-guideline.md): modern Pingu-inspired logo/avatar/icons, font shortlist and open visual choices.
+- [Brand demo 01](design/brand-demo/README.md): coordinated artwork, actual Plus Jakarta Sans specimens and a static Today application.
+- [Brand demo 02](design/brand-demo/flow-previews.md): accepted branding across Today, Journal, Practice and both editing previews.
+- [Journal calendar — brand demo 03](design/brand-demo/journal-calendar.md): Pingu-styled monthly browsing with saved-day and empty-day specimens.
+- [Research findings and validation plan](product/research-findings.md): primary-source desk research, repository implications, interview questions and prototype tasks. No user study has been conducted yet.
+- [Discovery and planning plan](superpowers/plans/2026-10-23-project-discovery.md): verified Xcode/Git baseline and the steps toward an agreed product and design scope.
 
 ## Folder Map
 

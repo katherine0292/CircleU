@@ -1,0 +1,102 @@
+# Native onboarding interaction review
+
+24 October 2026. Owner requested button/scroll checks on the selected phone before Today, and asked about storage messaging, Privacy, Login and a Pingu background. Starting revision `17f8a3773f6af416d27a18e35e03ee3feee255b0`; clean `codex/journal-calendar-planning` branch.
+
+**Follow-up:** the native account previews are now implemented in isolation. See [new recovery QA](native-recovery-preview-2026-10-24.md); the handoff/form gaps recorded below describe the preceding version.
+
+## Latest larger-text and recovery review — 24 October
+
+Destination: isolated v08 host on **iPhone 18 Pro / iOS 27.0**, same UUID below. `--large-text` selects accessibility1; the newly added `--largest-text` selects accessibility5. The host rebuilt successfully with Xcode's compiler; no production UI, system preference or Firebase change.
+
+| Check | Evidence / outcome |
+| --- | --- |
+| Welcome at accessibility1 | Agent screenshot inspection: tagline and both buttons visible, no horizontal clipping; Get started and Privacy opened by accessibility-button presses |
+| Privacy at accessibility1 | Owner reports smooth scrolling, complete readable text, reachable Done and return to Opening |
+| Welcome at accessibility5 | Agent screenshot inspection: tagline wraps, both buttons remain visible; Log in → Earlier data and header Back → Welcome checked by accessibility-button presses. [Native capture](../design/swiftui-previews/brand-08-welcome-largest-simulator.png) |
+| Earlier data at accessibility5 | Owner reports readable scrolling, reachable Continue without importing and successful transition |
+| Privacy at accessibility5 | Owner reports readable scrolling, reachable Done and successful return |
+
+Gesture evidence is **owner-reported manual QA**, not agent-driven swipes or an automated test. The fresh Device Hub drag attempt failed with `noWindowsAvailable`. The post-report agent snapshot still showed Earlier data; it did not independently capture the reported scroll/Done endpoint. Treat the reported endpoints as manual QA; accessibility-button presses and screenshots alone do not establish a successful swipe. Returned the host to normal-text Welcome afterward.
+
+### Recovery prototype review
+
+Read-only browser walkthrough of existing Figma Draft 02, using invented scenarios. No canvas edits or real account/backend requests. Checked these actual destinations:
+
+- Entry `65:663` → original-account methods `65:790` → timed read-only check `65:849` → backup review `65:926`.
+- Conflict `65:957` → keep the current reflection → explicit cloud-only message selection `65:991` → simulated saving `65:1017` → completion `65:1038` → matching saved message `27:1679`.
+- Review guide `65:1436` → login failure `65:824` → help `65:1407`; service failure `65:870`; completed no-backup check `65:898`. Failure and empty-backup explanations remain distinct. Local-use/Back choices are visible; not every exit was tapped in this pass.
+
+Findings before native onboarding is complete:
+
+1. Native Log in still opens an introduction followed by an external Figma chooser. It has no native email/password/provider form, keyboard validation or actual authentication. Keep it classified as a handoff, not completed login.
+2. Password-reset and support are descriptive help only; no request/pending/expired-link/retry UI or verified recovery contact. Google is a simulated option; provider/backend identity needs resolution against the shipped app.
+3. The Figma handoff adds a second recovery chooser. In the next native pass, account login should lead directly to account methods; keep device-data recovery separately accessible in Privacy. Preserve unknown-ownership and portable-archive gaps from the format/release research.
+4. Legacy frames still show Draft/sample notes, older Sign in wording and headline full stops. Apply the content/brand standard during the next native/Figma refinement, retaining real errors and data disclosures.
+
+The design demonstrates explicit selection, accepted-edit preservation and a separate cloud-copy boundary. It does not verify any import, deduplication, backup lookup or data preservation at runtime. No Today redesign or production integration was started. Compact-height/landscape, VoiceOver and physical-device validation remain open.
+
+## Subsequent owner decision
+
+The owner answered the gesture request with a design change, briefly chose required accounts, then approved returning to guest-first use with Get started and optional Log in. See the [current brief](../design/account-onboarding.md). This is not a successful swipe/Done check. All interaction passes below apply to the prior version; v08 gestures and native login/recovery remain pending.
+
+## v08 concise-Welcome verification
+
+Built the SwiftPM renderer and existing isolated Simulator host, then installed/launched `com.circleu.prototype.motionsimulator --onboarding` on the same **iPhone 18 Pro / iOS 27.0**. Initial host compilation was blocked by sandboxed macro-plugin execution; the authorized unsandboxed build passed without source workaround. Normal/compact PNGs and comparison were visually inspected; native screenshot confirmed the phone and layout.
+
+Fresh Device Hub accessibility-button checks passed: Welcome Get started → Opening; Opening Privacy and data → Privacy; Done → Opening; Back to welcome → Welcome; Log in → Earlier data; Back → Welcome. Left the running prototype on Welcome. The new labels removed redundant prose, not the preservation or privacy paths. No external recovery link was opened, no authentication/import/readiness work ran, and no native gesture/keyboard/hardware pass is claimed. Earlier cases below remain historical evidence.
+
+## Review setup
+
+Xcode Canvas displayed the correct view but its accessibility button press did not navigate; direct coordinate/scroll input returned `noWindowsAvailable`. These are automation limits, not passing interaction checks or proof of an app defect.
+
+Extended the existing isolated Simulator host with `--onboarding` and `--large-text` launch options. Its default motion-demo path remains available. The host compiles the existing onboarding view directly, copies only the existing logo/Pingu/font resources and uses `com.circleu.prototype.motionsimulator`; it does not import the production app or Firebase. Installed and launched on **iPhone 18 Pro / iOS 27.0**, UUID `C7B63706-4D1C-4B7F-A161-8A2339D14E2B`. This is a Simulator app run, separate from Canvas and physical-device validation.
+
+```sh
+bash Prototypes/CircleUVisualPrototype/scripts/build-motion-simulator.sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun simctl install \
+  C7B63706-4D1C-4B7F-A161-8A2339D14E2B '/tmp/CircleU Motion Simulator.app'
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun simctl launch \
+  C7B63706-4D1C-4B7F-A161-8A2339D14E2B com.circleu.prototype.motionsimulator --onboarding
+```
+
+Terminate only this prototype process before relaunching with `--onboarding --large-text` to exercise accessibility1 text. These flags select fixtures, not app storage. No Today destination is added.
+
+## Cases and results
+
+| Case | Result / evidence |
+| --- | --- |
+| Welcome → Privacy | Pass: Device Hub button press changed the heading to Your words, your choice |
+| Privacy → Manage earlier CircleU data | Pass: earlier-data introduction and both choices appeared |
+| Earlier data → Back from Privacy origin | Pass: returned to Privacy, not Welcome |
+| Privacy → Done | Pass: returned to Welcome |
+| Welcome → Used CircleU before? → Back | Pass: returned to Welcome |
+| Earlier data → Continue without importing | Pass: reached the static Opening fixture; no data work or automatic Today transition |
+| Opening → Back to welcome | Pass: returned to Welcome |
+| Welcome → Get started | Pass: reached static Opening; no real readiness success claimed |
+| Privacy → header Back | Source-reviewed; not separately tapped in this pass |
+| Review earlier data | Existing external Figma handoff. Not opened in this pass; no native sign-in/import flow is implemented in this specimen |
+| Retry in locked/read-error fixtures | Intentionally inert, as documented; not a working storage retry |
+| Privacy scrolling / bottom Done visibility | Automated scroll returned `noWindowsAvailable`; owner gesture check requested, pending |
+| Larger-text Welcome scrolling / lower actions | accessibility1 layout visibly wraps and exceeds viewport; owner gesture check requested, pending |
+| Compact-height phone / hardware / VoiceOver | Not run |
+
+The successful cases used the actual running Simulator host before the scene-only visual update. After the update the iPhone host was rebuilt and launched with larger text; gesture checks remain pending. Do not turn a visible accessibility element into proof it can be reached by a physical swipe/tap.
+
+## Owner-selected background and discussion
+
+Owner selected **Pingu scene in the upper area, with a quiet lower area for text and buttons**. Implemented a still native sky/snow backdrop around the existing transparent waving Pingu. Its art slot stays 172pt; text/actions keep the original composition. Scenery ignores hit testing and is hidden from accessibility. No new bitmap generation, icon family, font, palette or backend work. The old plain comparison remains available via `illustratedWelcome: false`; new review exports use `brand-07-*` filenames.
+
+Both normal and compact-width scene exports were built/rendered and visually inspected. These are 390 × 844 and 375 × 844 ImageRenderer specimens, not short-height gesture tests. Historical PNGs remain unchanged.
+
+| Question | Rationale / recommendation; not an approved feature change |
+| --- | --- |
+| Why say Saved on this device? | It communicates the approved local guest plan's recovery tradeoff. People should not mistake local entries for account-synced data. The current banner can become a shorter, quieter line; retain a clear deletion/recovery explanation before meaningful input. |
+| Do we need Privacy as a button? | Keep easy access to the data explanation, but a small text link is enough on Welcome. Detailed backup/export/voice information can stay in the optional panel and later Settings; no mandatory privacy slide is needed. |
+| Why no Login like the old version? | Guest-first means no account is required for new local use. Existing users still need an explicit old-account recovery route. Recommend a clearer Sign in to recover earlier data label there, without implying ongoing sync or wiring live auth into the prototype. Restoring ordinary account/sync features would be a separate product decision. |
+| Why a quiet lower area? | It keeps illustration away from text/control reading surfaces while adding character to the upper scene. This was the owner's chosen visual option, not approval of broader login/storage changes. |
+
+Apple recommends brief onboarding, teaching through interaction and optional contextual help ([Onboarding](https://developer.apple.com/design/human-interface-guidelines/onboarding)). Its [Accessibility guidance](https://developer.apple.com/design/human-interface-guidelines/accessibility) supports auditing text/contrast in context. Our specific scene, copy and control hierarchy are project recommendations, not Apple requirements.
+
+## Before Today
+
+Complete and record the owner gesture check, then resolve the native earlier-data handoff and static readiness endpoint scope. The current prototype is useful for visual and limited navigation review; it is not a complete production onboarding/recovery implementation. Storage, backup, authentication, migration and deletion remain governed by the existing transition plan.

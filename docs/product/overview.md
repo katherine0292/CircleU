@@ -1,5 +1,7 @@
 # Circleu Product Overview
 
+Status, 24 October 2026: this page describes the broader existing implementation. The approved next direction is guest-first Today / Journal / Practice, with circles and rewards deferred; see the [MVP definition](mvp-definition.md). That transition remains unimplemented. The [next prototype-review milestone](../superpowers/plans/2026-10-24-prototype-review-milestone.md) precedes production integration and legacy distribution work.
+
 Circleu is an iOS reflection app for voice journaling, AI-assisted insight, and small daily actions. A user can record or type a reflection, receive a structured AI summary, save it into a private journal, start a suggested tip, and optionally share a selected insight into a supportive circle.
 
 ## Current Beta Loop
@@ -44,13 +46,13 @@ Circleu/
 
 See [project-structure.md](../engineering/project-structure.md) for folder ownership rules.
 
-## Product Direction
+## Earlier cloud-beta direction
 
-The immediate priority is a reliable TestFlight beta. Backend work should grow in small, reviewable slices:
+The earlier beta roadmap prioritized a Firebase-backed TestFlight experience in these slices:
 
 1. identity,
 2. Firebase-backed sync,
 3. privacy-safe analytics,
 4. optional external AI providers.
 
-Firebase is the current backend direction because it works well for the team beta and does not depend on CloudKit capability access. See [firebase-backend-plan.md](../engineering/firebase-backend-plan.md). CloudKit remains documented as an Apple-first reference in [cloudkit-data-model.md](../engineering/cloudkit-data-model.md).
+Firebase remains in the current source. The earlier [backend plan](../engineering/firebase-backend-plan.md) and [CloudKit reference](../engineering/cloudkit-data-model.md) are implementation/history references; they do not override the approved guest-local direction or prove current runtime correctness.
