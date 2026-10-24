@@ -40,7 +40,7 @@ These are intended routes, not a claim that every transition runs in the product
 
 | ID | Flow | Prepared / checked so far | Next / pending |
 | --- | --- | --- | --- |
-| F01 | Welcome and optional login | Simplified native Welcome: larger Pingu, Get started, Log in; data details moved after Welcome | Verify revised routes/large-text gestures; native login/recovery and actual readiness remain pending. Production still has signup/signin/Skip |
+| F01 | Welcome and optional login | Simplified native Welcome and routes checked; accessibility1/5 layouts inspected and Privacy/recovery gestures reported working by owner | Native login/reset/recovery, real readiness, compact-height/VoiceOver/hardware validation. Production still has signup/signin/Skip |
 | F02 | Privacy before/after starting | Draft 02 states; local optional details and nested return paths checked, including earlier-data choice and storage failures | Review understanding of device backups, data-loss limits and earlier-account separation; reconcile release copy with actual behavior |
 | F03 | Today and main navigation | Three-tab structure approved; wireframes, branded hub and empty-Today proposal | Consolidate branded Figma; distinguish first visit, retained draft and returning saved history |
 | F04 | Typed situation capture | Wireframe and branded capture, including words-only exit | Walk through input clarity, validation and route choices; real capture is not implemented in static boards |
@@ -68,7 +68,8 @@ These are intended routes, not a claim that every transition runs in the product
 ### Prototype finish
 
 - [x] Complete publisher-based [onboarding/content research and font audit](../design/onboarding-patterns-research-2026-10-24.md); shorter copy and finite motion are in the local onboarding review. Other-screen copy, owner comprehension and native accessibility remain pending.
-- [ ] Review simplified Welcome, Get started, optional Log in, privacy access and earlier-data recovery; complete native keyboard/scroll and recovery checks.
+- [x] Review larger-text Welcome and record owner-reported Privacy/recovery scrolling and bottom-action checks at accessibility1/5. See [native QA](../qa/native-onboarding-interaction-review-2026-10-24.md).
+- [ ] Replace the external login/recovery handoff with reviewed native forms, validation/reset/error/Back states; keyboard and real authentication remain unverified.
 - [x] Complete the coordinator's [focused onboarding checks](../qa/onboarding-flow-review-2026-10-24.md); owner comprehension review and production verification remain pending.
 - [ ] Resolve Figma MCP access before attempting canvas work. The focused onboarding pass rechecked a known node and still received the Starter-plan tool-call limit.
 - [ ] Bring accepted Pingu artwork, Plus Jakarta Sans and brand colors into the connected editable Figma screens, preserving the existing recovery coverage.

@@ -9,7 +9,9 @@ struct CircleUMotionSimulatorApp: App {
             NavigationStack {
                 Group {
                     if ProcessInfo.processInfo.arguments.contains("--onboarding") {
-                        if ProcessInfo.processInfo.arguments.contains("--large-text") {
+                        if ProcessInfo.processInfo.arguments.contains("--largest-text") {
+                            BrandOnboardingPreview().environment(\.dynamicTypeSize, .accessibility5)
+                        } else if ProcessInfo.processInfo.arguments.contains("--large-text") {
                             BrandOnboardingPreview().environment(\.dynamicTypeSize, .accessibility1)
                         } else {
                             BrandOnboardingPreview()

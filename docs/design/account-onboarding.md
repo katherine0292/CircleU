@@ -14,7 +14,7 @@
 
 Scope: `BrandOnboardingPreview.swift`, renderer exports and supporting docs only. Production app, Firebase, signing, history and existing user data remain unchanged.
 
-Check the SwiftPM build and normal/compact exports, then rebuild the existing isolated Simulator host. Review the selected iPhone 18 Pro Welcome and both routes. Native login/recovery, real readiness, short-height/larger-text scrolling and physical-device checks remain separate gaps; static images do not establish those results.
+Check the SwiftPM build and normal/compact exports, then rebuild the existing isolated Simulator host. Review the selected iPhone 18 Pro Welcome and both routes. Larger-text review is recorded in [QA](../qa/native-onboarding-interaction-review-2026-10-24.md): Welcome inspected at accessibility1/5, Privacy/recovery scrolling and bottom actions reported working by the owner. Native login/recovery, real readiness, short-height/landscape and physical-device checks remain open; manual reports are separate from automated evidence.
 
 Current artifacts: [Welcome](swiftui-previews/brand-08-welcome.png), [compact width](swiftui-previews/brand-08-welcome-compact.png), [comparison](swiftui-previews/brand-08-onboarding.png). Historical v06/v07 files stay unchanged.
 

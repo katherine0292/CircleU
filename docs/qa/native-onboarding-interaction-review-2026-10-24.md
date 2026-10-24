@@ -2,6 +2,37 @@
 
 24 October 2026. Owner requested button/scroll checks on the selected phone before Today, and asked about storage messaging, Privacy, Login and a Pingu background. Starting revision `17f8a3773f6af416d27a18e35e03ee3feee255b0`; clean `codex/journal-calendar-planning` branch.
 
+## Latest larger-text and recovery review — 24 October
+
+Destination: isolated v08 host on **iPhone 18 Pro / iOS 27.0**, same UUID below. `--large-text` selects accessibility1; the newly added `--largest-text` selects accessibility5. The host rebuilt successfully with Xcode's compiler; no production UI, system preference or Firebase change.
+
+| Check | Evidence / outcome |
+| --- | --- |
+| Welcome at accessibility1 | Agent screenshot inspection: tagline and both buttons visible, no horizontal clipping; Get started and Privacy opened by accessibility-button presses |
+| Privacy at accessibility1 | Owner reports smooth scrolling, complete readable text, reachable Done and return to Opening |
+| Welcome at accessibility5 | Agent screenshot inspection: tagline wraps, both buttons remain visible; Log in → Earlier data and header Back → Welcome checked by accessibility-button presses. [Native capture](../design/swiftui-previews/brand-08-welcome-largest-simulator.png) |
+| Earlier data at accessibility5 | Owner reports readable scrolling, reachable Continue without importing and successful transition |
+| Privacy at accessibility5 | Owner reports readable scrolling, reachable Done and successful return |
+
+Gesture evidence is **owner-reported manual QA**, not agent-driven swipes or an automated test. The fresh Device Hub drag attempt failed with `noWindowsAvailable`. The post-report agent snapshot still showed Earlier data; it did not independently capture the reported scroll/Done endpoint. Treat the reported endpoints as manual QA; accessibility-button presses and screenshots alone do not establish a successful swipe. Returned the host to normal-text Welcome afterward.
+
+### Recovery prototype review
+
+Read-only browser walkthrough of existing Figma Draft 02, using invented scenarios. No canvas edits or real account/backend requests. Checked these actual destinations:
+
+- Entry `65:663` → original-account methods `65:790` → timed read-only check `65:849` → backup review `65:926`.
+- Conflict `65:957` → keep the current reflection → explicit cloud-only message selection `65:991` → simulated saving `65:1017` → completion `65:1038` → matching saved message `27:1679`.
+- Review guide `65:1436` → login failure `65:824` → help `65:1407`; service failure `65:870`; completed no-backup check `65:898`. Failure and empty-backup explanations remain distinct. Local-use/Back choices are visible; not every exit was tapped in this pass.
+
+Findings before native onboarding is complete:
+
+1. Native Log in still opens an introduction followed by an external Figma chooser. It has no native email/password/provider form, keyboard validation or actual authentication. Keep it classified as a handoff, not completed login.
+2. Password-reset and support are descriptive help only; no request/pending/expired-link/retry UI or verified recovery contact. Google is a simulated option; provider/backend identity needs resolution against the shipped app.
+3. The Figma handoff adds a second recovery chooser. In the next native pass, account login should lead directly to account methods; keep device-data recovery separately accessible in Privacy. Preserve unknown-ownership and portable-archive gaps from the format/release research.
+4. Legacy frames still show Draft/sample notes, older Sign in wording and headline full stops. Apply the content/brand standard during the next native/Figma refinement, retaining real errors and data disclosures.
+
+The design demonstrates explicit selection, accepted-edit preservation and a separate cloud-copy boundary. It does not verify any import, deduplication, backup lookup or data preservation at runtime. No Today redesign or production integration was started. Compact-height/landscape, VoiceOver and physical-device validation remain open.
+
 ## Subsequent owner decision
 
 The owner answered the gesture request with a design change, briefly chose required accounts, then approved returning to guest-first use with Get started and optional Log in. See the [current brief](../design/account-onboarding.md). This is not a successful swipe/Done check. All interaction passes below apply to the prior version; v08 gestures and native login/recovery remain pending.

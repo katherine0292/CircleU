@@ -6,7 +6,7 @@
 
 ## Current concise Welcome (v08)
 
-[Regular](../swiftui-previews/brand-08-welcome.png), [compact width](../swiftui-previews/brand-08-welcome-compact.png), [comparison](../swiftui-previews/brand-08-onboarding.png). Existing Pingu is now 260pt; the helper paragraph and Welcome storage/privacy/earlier-data actions are removed. Get started and Log in are the two actions. Privacy and a short storage explanation remain in Opening; optional login still leads to the recovery introduction/Figma handoff. SwiftPM renderer and isolated Simulator host built successfully. The iPhone 18 Pro/iOS 27.0 Simulator displayed the result; Get started, Privacy/Done, Log in and Back routes were checked. Opening remains static, login is not implemented, and scrolling/hardware checks remain pending.
+[Regular](../swiftui-previews/brand-08-welcome.png), [compact width](../swiftui-previews/brand-08-welcome-compact.png), [comparison](../swiftui-previews/brand-08-onboarding.png). Existing Pingu is now 260pt; the helper paragraph and Welcome storage/privacy/earlier-data actions are removed. Get started and Log in are the two actions. Privacy and a short storage explanation remain in Opening; optional login still leads to the recovery introduction/Figma handoff. SwiftPM renderer and isolated Simulator host built successfully. The iPhone 18 Pro/iOS 27.0 Simulator displayed the result; Get started, Privacy/Done, Log in and Back routes were checked. Opening remains static and login is not implemented. Later QA records owner-reported Privacy/recovery scrolling at accessibility1/5 and agent inspection of maximum-text Welcome; compact-height/hardware checks remain pending.
 
 ## Earlier v06/v07 evidence
 
