@@ -30,6 +30,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 ## Project Reviews
 
+- [Original-layout reuse review](design/original-layout-reuse.md): owner's preferred native proportions, concrete layout findings and a focused color/content/branding refinement path.
 - [Original Simulator build repair](qa/simulator-build-repair-2026-10-24.md): missing Pingu pose compatibility, preserved asset originals, Device Hub selection, successful original-app launch and two remaining test failures.
 - [Mobile onboarding and content research](design/onboarding-patterns-research-2026-10-24.md): publisher examples, concise screen-copy proposals, actual font audit and the local motion refinement.
 - [Flow and delivery checklist](product/flow-status-checklist.md): all MVP journeys, prepared artifacts, pending prototype work and separate production/device/release gates.

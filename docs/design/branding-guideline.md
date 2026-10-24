@@ -4,6 +4,8 @@ Updated 24 October 2026. The owner responded positively to [Brand demo 01](brand
 
 ## 1. Direction and status
 
+**24 October layout refinement:** the owner prefers the original app's proportions/layout and requests concentrating on color, concise content and the new branding assets. The [original-layout reuse review](original-layout-reuse.md) makes native composition/navigation the baseline for subsequent specimens. The accepted brand demos remain references for identity; their fixed phone-board dimensions are not the runtime layout specification. No production integration is inferred from this preference.
+
 The authorized [Demo 02 continuation](brand-demo/flow-previews.md) applies this direction to Journal, Practice and the reflection/message editors. It includes a softer Practice illustration, preserves original artwork and keeps editing surfaces free of mascots.
 
 **Owner direction:** prefer Pingu-inspired illustrated artwork; modernize the logo, avatar and icons together; remove the sketchy treatment; discuss fonts and design choices. This supersedes the earlier recommendation to keep the logo unchanged or adopt outline-only brand icons. Earlier boards remain historical comparisons.

@@ -18,6 +18,7 @@ Example: a student feels frustrated about a groupmate missing a deadline. They d
 | Circles later | Owner-approved | No social feed, invitations, posting or replies in the MVP journey |
 | Today / Journal / Practice; rewards later | Owner-approved | Three main destinations, optional next steps inside entries, no separate rewards or quest dashboard |
 | Research and planning before coding | Owner-approved | This milestone produces scope, research tasks and a prototype brief |
+| Original native layout/proportions as the visual baseline | Owner-approved, 24 October | Refine colors, concise content and accepted branding assets using the existing composition; detailed integration remains separate. See the [reuse review](../design/original-layout-reuse.md) |
 | Adults 18+, English, iPhone for the first study/beta | Proposed | Narrow recruitment and evaluation; do not infer that all university students are adults |
 | Prototype validation, then a small private beta | Proposed | Test usefulness before investing in release infrastructure |
 | Guest-first, app-managed local storage for the first beta | Owner-approved | Avoid signup friction; device loss/reinstallation recovery is limited; disclose OS backup behavior accurately |
