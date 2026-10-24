@@ -1,10 +1,10 @@
 # Onboarding review — 24 October 2026
 
-Status: local interactive design proposal prepared for owner review. Figma was inspected, but no canvas edits were made: its Starter-plan MCP call limit blocked further reads/writes. This is not implemented onboarding, verified storage behavior or production approval.
+Status: local interactive design proposal, now extended with earlier-data choices, simulated storage gates and re-entry rules. The [focused onboarding review](../../qa/onboarding-flow-review-2026-10-24.md) records the new checks and remaining gates. Figma access was rechecked and still returned its Starter-plan MCP call limit; no canvas edits were made. This is not implemented onboarding, verified storage behavior or production approval.
 
 ## What to review now
 
-Review the clickable first-use proposal in the conversation first. Check whether the purpose is clear, Get started reaches an empty Today, Privacy returns to the originating screen, and earlier-data recovery is easy to find. The local Welcome, Privacy and Today switches are review controls outside the depicted app.
+Review the clickable first-use proposal in the conversation first. Check whether the purpose is clear, Get started reaches an empty Today only when the simulated storage result is Ready, Privacy returns to the originating screen, and earlier-data recovery can be reviewed or postponed. Screen selectors, Restart review, Reopen preview and Storage outcome are review controls outside the depicted app; they do not reset app data or test real storage.
 
 - **Figma:** connected journeys, branches, editing/recovery and proposed screen structure. The existing [Draft 02](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-81) remains a wireframe.
 - **PNGs:** visual composition, artwork, font, spacing and hierarchy. They do not establish interaction behavior.
@@ -31,24 +31,32 @@ One short welcome leads directly to an empty Today. Privacy is available before 
 | Purpose | Reflect on a difficult moment, or practise what to say. |
 | Storage summary | **Saved on this device.** No CircleU sync. Deleting the app can lose your entries. |
 | Privacy & data | Opens optional details; Back/Done returns to Welcome |
-| Get started | Opens Today with no fabricated saved history or resume card |
-| Used CircleU before? | Handoff to existing earlier-data recovery, `65:663`; do not clear or automatically import legacy data |
+| Get started | Checks workspace readiness before Today; no fabricated saved history or resume card |
+| Used CircleU before? | Opens a local explanation/choice before the existing recovery handoff `65:663`; offer Continue without importing; never clear or automatically import legacy data |
 
 The storage copy depicts the approved guest-local direction, not current code. A real release must not use it until the transition/privacy plan's runtime and recovery requirements pass. Keep that implementation disclaimer outside the depicted phone during design review.
 
 ### Optional privacy details
 
-- **On this device:** Reflections and practice are kept in the app on this device. No signup or automatic CircleU sync.
+- **On this device:** Your entries stay in this app. No signup, CircleU cloud AI or automatic sync. On-device suggestions are optional and depend on availability.
 - **Recovery has limits:** Device backups may include app data. Recovery after losing your phone or deleting the app is not guaranteed.
 - **You’re in control:** Export what you want to keep. Deleting an entry won’t remove copies you exported or data in existing device backups.
-- **Voice is optional:** Start by typing. Microphone access is requested only when you choose to record.
+- **Voice is optional:** Start by typing. Voice permissions are requested only when you choose to record.
 - Keep Manage earlier CircleU data. Back and Done return to the originating screen, including Today.
 
 ### First Today
 
 “What’s on your mind?” with “Make sense of a moment. Choose what comes next.” Show Work through a moment, Practice a message and Today / Journal / Practice navigation. Existing Pingu-with-journal artwork is reused. No fake first-run entries, rewards, circles or resume-draft card.
 
-The local proposal links onward to known Draft 02 nodes: Capture `11:101`, direct Practice context `11:108`, Journal `11:104`, Practice `11:107` and legacy recovery `65:663`. These are handoffs to existing wireframes, not newly branded or reverified branches. In particular, the existing Journal handoff has fictional history; an actual first-use Journal must be empty. The local proposal is not a second persistence implementation.
+The local proposal links onward to known Draft 02 nodes: Capture `11:101`, direct Practice context `11:108`, Journal `11:104`, Practice `11:107` and legacy recovery `65:663`. These are handoffs to existing wireframes, not newly branded or reverified branches. In particular, the existing Journal handoff has fictional history; an actual first-use Journal must be empty. The local proposal is not a second persistence implementation. Other screens were not refined during the focused onboarding pass.
+
+## Earlier-data choice and safe opening
+
+Used CircleU before? and Manage earlier CircleU data open the same local choice. Explain that nothing is imported automatically, earlier data is preserved, and old-account recovery may require internet/sign-in. Review earlier data hands off explicitly to the existing recovery wireframe; Continue without importing opens the separate workspace only after readiness succeeds. Back returns to the actual origin, including nested Privacy → Earlier data → Back → Privacy → Done → Welcome/Today/error.
+
+The local proposal also includes Opening your space, Storage locked and Could not open storage. Their outcomes are chosen using the external review control; no disk read or asynchronous work is performed. Pending opening can be canceled; retry remains blocked when the chosen failure remains. A failed read never opens empty Today. Back to welcome always goes to Welcome, including after a previously completed introduction. Readiness must pass again before entering Today.
+
+Reopen preview demonstrates the proposed routing contract: incomplete first use returns to Welcome; completed first use rechecks storage before Today. This is review-state simulation, not actual process-death/relaunch or saved-data recovery. Production must persist completion only after workspace readiness and required metadata writes succeed, and return existing data/drafts rather than initialize an empty store. Those implementation checks remain pending.
 
 ## UI copy cleanup rule
 
@@ -62,7 +70,7 @@ This rule is reflected in the new local first-use proposal only. Existing Figma 
 2. Reuse or clone local button/card/tab components; complete the interrupted library/component discovery before creating replacements. No library-unavailability finding was established by the rate-limit response.
 3. Reconcile only the needed foundations with the accepted brand values from [BrandDemo.swift](../../../Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/BrandDemo.swift): ink `#0D1421`, blue `#054FC9`, ice `#F5FAFF`, muted `#4F6077`, Plus Jakarta Sans. Do not mutate the draft collection globally without inspecting dependents.
 4. Build editable Welcome, Privacy details and empty Today, with instance-based controls and discrete existing artwork. Put prototype/storage limitations on the review canvas outside the phone. Do not import a flattened screenshot as the UI.
-5. Connect Get started, optional privacy return and earlier-data recovery. Carry the accepted styling into the already planned core journeys incrementally; do not silently claim all recovery states have been rebranded.
+5. Connect Get started through the readiness states, nested privacy return and earlier-data choice/recovery handoff. Cover cancel/retry and completed/incomplete re-entry without bypassing storage failures. Carry the accepted styling into the already planned core journeys incrementally; do not silently claim all recovery states have been rebranded.
 6. Check fonts, wrapping, bounds, first-run history, reachable controls, actual prototype connections and screenshots before declaring the Figma update done.
 
 ## Swift architecture recommendation
@@ -76,3 +84,5 @@ Do not add a ViewModel to every static component or perform a blanket `Observabl
 ## Evidence and limits
 
 The local proposal uses derivative display renditions of existing transparent assets and the bundled font, leaving originals intact. Local Welcome → Privacy → Back/Done → Welcome and Welcome → Today were exercised in the browser; actual font loading, image loading and Today horizontal fit at approximately 390 points were inspected. These browser checks are not SwiftUI, iPhone, VoiceOver or real storage checks. External Figma handoff branches were not rerun. Owner feedback is still pending.
+
+The focused follow-up checked nested earlier-data returns, deferral, simulated completed/incomplete re-entry, pending cancellation, locked/read-error retry and the failed-read back-route regression. See the [case-by-case evidence](../../qa/onboarding-flow-review-2026-10-24.md). No owner comprehension study, Figma migration or runtime storage implementation was completed.

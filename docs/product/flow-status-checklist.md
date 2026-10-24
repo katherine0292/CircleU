@@ -1,6 +1,6 @@
 # CircleU flow and delivery checklist
 
-Updated 24 October 2026, Australia/Sydney. Snapshot based on repository evidence through `255e610` and the current documentation review. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
+Updated 24 October 2026, Australia/Sydney. Snapshot based on repository evidence through `e8e148b` and the current focused onboarding review. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
 
 **Prepared** means the named plan, wireframe or preview exists. **Partial** means some design or verification is still missing. **Pending** means the stated outcome has not been established. No percentage-complete estimate is used: a screen image, connected Figma state and working app feature are different deliverables.
 
@@ -12,6 +12,7 @@ Updated 24 October 2026, Australia/Sydney. Snapshot based on repository evidence
 - [x] Store the accepted Pingu direction, logo/font references, illustrated icons and 21-avatar collection.
 - [x] Build an isolated native motion comparison and check selected Mac interactions; capture initial layouts on two iPhone Simulators.
 - [x] Prepare a clean local onboarding proposal and its copy/flow handoff.
+- [x] Extend local onboarding with earlier-data choices, simulated opening/locked/read-error states and checked nested return/re-entry routes; correct the failed-read back-route bypass.
 - [ ] Apply that onboarding and accepted branding to an editable Figma prototype; remove review-only text from the depicted screens.
 - [ ] Complete owner walkthroughs and record observations. The existing worksheet contains no completed sessions.
 - [ ] Approve the detailed implementation scope and validate the guest-local runtime/storage/recovery boundaries before production coding.
@@ -22,7 +23,7 @@ The existing Swift app has MVVM and account/Firebase/cloud paths. The new guest-
 
 These are intended routes, not a claim that every transition runs in the production app:
 
-1. **First use:** Welcome → Today. Privacy details are optional; earlier-data recovery remains accessible.
+1. **First use:** Welcome → workspace readiness → Today. Privacy details are optional; earlier-data recovery remains accessible.
 2. **Reflection:** Today → type a situation → review/edit reflection → save → Journal entry detail. Save only my words is an alternative; Practice and a next step are optional.
 3. **Voice:** explicit recording action → permission/capability check → record → review/edit transcript → reflection or words-only save. Typing remains available.
 4. **Direct Practice:** Today / Practice → situation, goal and optional draft → wording → edit → Copy and/or Save → Practice detail/history.
@@ -37,8 +38,8 @@ These are intended routes, not a claim that every transition runs in the product
 
 | ID | Flow | Prepared / checked so far | Next / pending |
 | --- | --- | --- | --- |
-| F01 | Welcome and guest start | Clean local Welcome → empty Today proposal; browser navigation checked | Owner review; editable Figma screens and connections; production still has signup/signin/Skip |
-| F02 | Privacy before/after starting | Draft 02 privacy states; local optional details and return behavior | Review understanding of device backups, data-loss limits and earlier-account separation; reconcile release copy with actual behavior |
+| F01 | Welcome and guest start | Local Welcome → readiness gate → Today; earlier-data deferral and simulated incomplete/completed re-entry checked; failed-read back-route corrected | Owner review; editable Figma; actual readiness/completion writes, returning data/drafts and device checks; production still has signup/signin/Skip |
+| F02 | Privacy before/after starting | Draft 02 states; local optional details and nested return paths checked, including earlier-data choice and storage failures | Review understanding of device backups, data-loss limits and earlier-account separation; reconcile release copy with actual behavior |
 | F03 | Today and main navigation | Three-tab structure approved; wireframes, branded hub and empty-Today proposal | Consolidate branded Figma; distinguish first visit, retained draft and returning saved history |
 | F04 | Typed situation capture | Wireframe and branded capture, including words-only exit | Walk through input clarity, validation and route choices; real capture is not implemented in static boards |
 | F05 | Voice, permissions and transcript | Wireframe recording/transcript/denied/interruption scenarios | Review optional entry and interruption recovery; verify actual microphone, on-device recognition and text fallback on devices later |
@@ -65,7 +66,8 @@ These are intended routes, not a claim that every transition runs in the product
 ### Prototype finish
 
 - [ ] Review the local onboarding's purpose, Get started, optional Privacy and earlier-data link.
-- [ ] Restore Figma MCP access before attempting canvas work. The last attempt hit the Starter-plan tool-call limit; no new access check is claimed here.
+- [x] Complete the coordinator's [focused onboarding checks](../qa/onboarding-flow-review-2026-10-24.md); owner comprehension review and production verification remain pending.
+- [ ] Resolve Figma MCP access before attempting canvas work. The focused onboarding pass rechecked a known node and still received the Starter-plan tool-call limit.
 - [ ] Bring accepted Pingu artwork, Plus Jakarta Sans and brand colors into the connected editable Figma screens, preserving the existing recovery coverage.
 - [ ] Move Sample / Draft / Brand demo / preset-state instructions outside depicted phone screens. Keep genuine validation, capability, storage and error messages. Existing Figma/SwiftUI boards have not received this file-wide cleanup.
 - [ ] Settle F15 calendar behavior and connect the approved cases; static tiles are not interaction evidence.
