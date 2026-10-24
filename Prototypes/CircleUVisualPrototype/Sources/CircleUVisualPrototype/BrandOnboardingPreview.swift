@@ -56,7 +56,7 @@ public struct BrandOnboardingPreview: View {
 
             VStack(spacing: 0) {
                 BrandArtwork(name: "PinguWelcomeV1")
-                    .frame(width: 172, height: 172)
+                    .frame(width: 260, height: 260)
                     .frame(maxWidth: .infinity)
                     .background {
                         if illustratedWelcome {
@@ -66,38 +66,21 @@ public struct BrandOnboardingPreview: View {
                         }
                     }
                     .accessibilityHidden(true)
-                Text("Find your words.")
+                Text("Find your words")
                     .font(font(32, .bold, relativeTo: .largeTitle))
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 32)
                     .accessibilityAddTraits(.isHeader)
-                Text("Reflect on a difficult conversation.\nPractise what to say next.")
-                    .font(font(17))
-                    .lineSpacing(4)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(BrandDemoColor.muted)
-                    .frame(maxWidth: 280)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 16)
+
             }
 
             Spacer(minLength: 24)
 
             VStack(spacing: 4) {
-                VStack(spacing: 5) {
-                    Label("Saved on this device", systemImage: "lock.shield")
-                        .font(font(14, .semibold, relativeTo: .subheadline))
-                    Text("No CircleU sync. Deleting the app\ncan lose your entries.")
-                        .font(font(14, relativeTo: .subheadline))
-                        .foregroundStyle(BrandDemoColor.muted)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.bottom, 4)
-                quietButton("Privacy & data") { navigate(to: .privacy) }
                 primaryButton("Get started") { navigate(to: .opening) }
-                quietButton("Used CircleU before?") { navigate(to: .earlierData) }
+                quietButton("Log in") { navigate(to: .earlierData) }
+                    .accessibilityHint("Opens earlier-account recovery options")
             }
             .padding(.top, 12)
             .padding(.bottom, 40)
@@ -107,8 +90,8 @@ public struct BrandOnboardingPreview: View {
     }
 
     private var privacy: some View {
-        panel(title: "Your words, your choice.") {
-            information("Saved here", symbol: "iphone", text: "No signup, CircleU sync or cloud AI. Suggestions run on-device when available. You can always write without them.")
+        panel(title: "Privacy and data") {
+            information("Saved here", symbol: "iphone", text: "No account needed. New entries stay on this device, with no CircleU sync or cloud AI.")
             information("Backups & recovery", symbol: "arrow.counterclockwise", text: "Device backups may include entries. Recovery after losing your phone or deleting the app isn’t guaranteed.")
             information("Export & delete", symbol: "square.and.arrow.up", text: "Export entries you want to keep. Deleting here won’t remove exported copies or entries in existing device backups.")
             information("Optional voice", symbol: "mic", text: "Type anytime. Permission is requested only when you choose to record.")
@@ -118,13 +101,13 @@ public struct BrandOnboardingPreview: View {
     }
 
     private var earlierData: some View {
-        panel(title: "Your earlier words.") {
-            Text("Choose whether to bring earlier CircleU entries into this space.")
+        panel(title: "Earlier data") {
+            Text("Recover entries from your earlier CircleU account.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
-            information("Your choice", symbol: "hand.raised", text: "Nothing is imported automatically or erased. You can return from Privacy & data anytime.")
-            information("Old account recovery", symbol: "person.crop.circle", text: "This separate step may need internet access and sign-in.")
+            information("Your choice", symbol: "hand.raised", text: "Logging in won’t automatically import or erase entries.")
+            information("Old account recovery", symbol: "person.crop.circle", text: "Account recovery needs an internet connection.")
             // Recovery remains in Draft 02; this pass only reviews its introduction.
-            Link("Review earlier data", destination: URL(string: "https://www.figma.com/proto/RVLtfmIVcO8gNk5fam0Vjd?node-id=65-663&starting-point-node-id=65%3A663")!)
+            Link("Log in to recover data", destination: URL(string: "https://www.figma.com/proto/RVLtfmIVcO8gNk5fam0Vjd?node-id=65-663&starting-point-node-id=65%3A663")!)
                 .font(font(17, .semibold)).frame(minHeight: 44)
                 .accessibilityHint("Opens the existing recovery design in Figma; does not import data")
             primaryButton("Continue without importing") { navigate(to: .opening) }
@@ -138,19 +121,22 @@ public struct BrandOnboardingPreview: View {
                 .foregroundStyle(BrandDemoColor.blue).accessibilityHidden(true)
             Text("Checking that your saved words can be opened safely.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
+            Text("Entries stay on this device. Device backups may include them.")
+                .font(font(14, relativeTo: .subheadline)).foregroundStyle(BrandDemoColor.muted)
+            quietButton("Privacy and data") { navigate(to: .privacy) }
             quietButton("Back to welcome") { history = [.welcome] }
         }
     }
 
     private func failure(locked: Bool) -> some View {
-        panel(title: locked ? "Your space is locked." : "Couldn’t open your space.") {
+        panel(title: locked ? "Your space is locked" : "Couldn’t open your space") {
             Text(locked
                  ? "Unlock your iPhone, then try again. Your saved words haven’t been changed."
                  : "Your saved words couldn’t be read. Nothing has been erased or replaced with an empty journal.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
             // Static failure fixtures remain failed; retry cannot manufacture readiness.
             primaryButton("Try again") { }
-            quietButton("Privacy & data") { navigate(to: .privacy) }
+            quietButton("Privacy and data") { navigate(to: .privacy) }
             quietButton("Back to welcome") { history = [.welcome] }
         }
     }
@@ -215,7 +201,7 @@ public struct BrandOnboardingGallery: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Welcome · Original composition, new identity")
+            Text("Welcome · Simple guest entry")
                 .font(BrandDemoFont.font(24, .bold))
             Text("Visual prototype · No storage check, import or account access · Opening is a static endpoint")
                 .font(BrandDemoFont.font(13)).foregroundStyle(BrandDemoColor.muted)
@@ -230,7 +216,7 @@ public struct BrandOnboardingGallery: View {
     private func specimen(_ title: String, width: CGFloat, height: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title).font(BrandDemoFont.font(13, .medium))
-            BrandOnboardingPreview(illustratedWelcome: false).frame(width: width, height: height)
+            BrandOnboardingPreview().frame(width: width, height: height)
         }
     }
 }

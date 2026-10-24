@@ -2,7 +2,13 @@
 
 24 October 2026. Owner-authorized isolated SwiftUI prototype. The production app and Figma remain unchanged.
 
-**Account-direction revision:** the owner now requires accounts and requests a larger artwork-led Welcome with Sign up and Log in. See the [new brief](../account-onboarding.md) and [content standard](../content.md). The v06/v07 images and checks below describe the previous guest-first implementation; they do not show the revised design.
+**Latest revision:** the owner reaffirmed guest entry and approved a concise artwork-led Welcome: larger Pingu, Find your words (no full stop), Get started and optional Log in. See the [current brief](../account-onboarding.md) and [content standard](../content.md). The v06/v07 images/checks below remain historical evidence; v08 uses the simplified composition.
+
+## Current concise Welcome (v08)
+
+[Regular](../swiftui-previews/brand-08-welcome.png), [compact width](../swiftui-previews/brand-08-welcome-compact.png), [comparison](../swiftui-previews/brand-08-onboarding.png). Existing Pingu is now 260pt; the helper paragraph and Welcome storage/privacy/earlier-data actions are removed. Get started and Log in are the two actions. Privacy and a short storage explanation remain in Opening; optional login still leads to the recovery introduction/Figma handoff. SwiftPM renderer and isolated Simulator host built successfully. The iPhone 18 Pro/iOS 27.0 Simulator displayed the result; Get started, Privacy/Done, Log in and Back routes were checked. Opening remains static, login is not implemented, and scrolling/hardware checks remain pending.
+
+## Earlier v06/v07 evidence
 
 Follow-up: the owner selected an illustrated Pingu upper area with quiet reading/action space. The [new scene preview](../swiftui-previews/brand-07-welcome-scene.png) now uses the existing Pingu asset and native sky/snow shapes; the old plain comparison below remains a reference. The [interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) records actual Simulator button checks and remaining gesture/recovery gaps.
 

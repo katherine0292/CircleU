@@ -4,7 +4,13 @@
 
 ## Subsequent owner decision
 
-The owner answered the gesture request by proposing a larger artwork-led Welcome and then explicitly required accounts before entry. That is a design change, not a successful swipe/Done check. The [account-onboarding brief](../design/account-onboarding.md) supersedes guest-entry recommendations below. All recorded interaction passes remain evidence for the prior version only; scrolling, new account forms and legacy recovery are still pending.
+The owner answered the gesture request with a design change, briefly chose required accounts, then approved returning to guest-first use with Get started and optional Log in. See the [current brief](../design/account-onboarding.md). This is not a successful swipe/Done check. All interaction passes below apply to the prior version; v08 gestures and native login/recovery remain pending.
+
+## v08 concise-Welcome verification
+
+Built the SwiftPM renderer and existing isolated Simulator host, then installed/launched `com.circleu.prototype.motionsimulator --onboarding` on the same **iPhone 18 Pro / iOS 27.0**. Initial host compilation was blocked by sandboxed macro-plugin execution; the authorized unsandboxed build passed without source workaround. Normal/compact PNGs and comparison were visually inspected; native screenshot confirmed the phone and layout.
+
+Fresh Device Hub accessibility-button checks passed: Welcome Get started → Opening; Opening Privacy and data → Privacy; Done → Opening; Back to welcome → Welcome; Log in → Earlier data; Back → Welcome. Left the running prototype on Welcome. The new labels removed redundant prose, not the preservation or privacy paths. No external recovery link was opened, no authentication/import/readiness work ran, and no native gesture/keyboard/hardware pass is claimed. Earlier cases below remain historical evidence.
 
 ## Review setup
 

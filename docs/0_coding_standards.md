@@ -16,7 +16,7 @@ CircleU follows the master standard's **app/product Shape B**. Swift source and 
 | Viridis chart palette | Applies only if suitable for an analytical chart; not a new UI palette. Reuse existing app tokens and reviewed design references |
 | Agent collaboration log | Dated entries in `agent-collaboration-log/`, with explicit evidence and append-only corrections |
 
-Current approved scope and remaining proposals live in the [MVP definition](product/mvp-definition.md). The owner approved planning before coding, Today/Journal/Practice and deferring circles/rewards. On 24 October required accounts replaced guest entry; see [account onboarding](design/account-onboarding.md). Local-first content remains the previous storage direction pending reconciliation with authentication; sync/cloud AI are not newly approved. Follow later explicit owner changes and record them.
+Current approved scope and remaining proposals live in the [MVP definition](product/mvp-definition.md). The owner approved planning before coding, Today/Journal/Practice and deferring circles/rewards. The latest 24 October decision restores guest-first local use, with optional Log in for earlier-account recovery; see [onboarding](design/account-onboarding.md). Sync/cloud AI are not newly approved. Follow later explicit owner changes and record them.
 
 ## 2. Architecture and Swift style
 

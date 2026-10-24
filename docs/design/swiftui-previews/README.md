@@ -17,6 +17,8 @@ Generated 23 October 2026 from the [standalone preview package](../../../Prototy
 
 ## Editing previews and Xcode
 
+[Current concise Welcome](brand-08-welcome.png), [compact width](brand-08-welcome-compact.png) and [comparison](brand-08-onboarding.png): larger Pingu, Find your words, Get started and optional Log in. Built/rendered and inspected; selected routes checked in the isolated iPhone 18 Pro Simulator. See the [current brief](../account-onboarding.md). Native login/recovery and larger-text gestures remain pending.
+
 [Owner-selected Pingu upper scene](brand-07-welcome-scene.png) and [compact-width variant](brand-07-welcome-scene-compact.png) add a still sky/snow setting behind the existing mascot, leaving the copy/actions on a quiet surface. See the [native interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) for actual Simulator checks and unresolved scrolling/recovery coverage.
 
 [Native onboarding — original layout, new brand](../brand-demo/native-onboarding.md) adds [regular Welcome](brand-06-welcome.png), [compact-width Welcome](brand-06-welcome-compact.png) and [comparison](brand-06-onboarding.png). These new exports are macOS ImageRenderer specimens. The corresponding Welcome, Privacy and larger-text views were also visually displayed in iPhone Xcode Canvas; native interaction and real readiness/storage are not certified.

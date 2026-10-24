@@ -1,15 +1,14 @@
 # CircleU flow and delivery checklist
 
-Updated 24 October 2026, Australia/Sydney. Core-flow snapshot through `e8e148b`, subsequent native-onboarding evidence through `84476ba`, and the required-account planning revision. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
+Updated 24 October 2026, Australia/Sydney. Core-flow snapshot through `e8e148b`, subsequent native-onboarding evidence through `84476ba`, and the approved return to concise guest-first onboarding. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
 
 **Prepared** means the named plan, wireframe or preview exists. **Partial** means some design or verification is still missing. **Pending** means the stated outcome has not been established. No percentage-complete estimate is used: a screen image, connected Figma state and working app feature are different deliverables.
 
 ## Current position
 
-**Latest access decision:** required accounts replace guest entry. See [account onboarding](../design/account-onboarding.md) and [content rules](../design/content.md). Existing guest-entry specimens remain historical evidence; the new Welcome/account routes are planned, not implemented. Cloud content sync/AI/backup is not newly approved.
+**Latest access decision:** guest-first local use, with Get started and optional Log in for existing-account recovery. The required-account proposal is superseded. See [onboarding](../design/account-onboarding.md) and [content rules](../design/content.md). Signup remains deferred; no new cloud service is approved.
 
-- [x] Agree Today / Journal / Practice and deferring circles/rewards; replace guest entry with required accounts (24 October).
-- [ ] Reconcile authentication, account-scoped local content, offline sessions and recovery before implementation.
+- [x] Agree Today / Journal / Practice, guest-first local use and deferring circles/rewards.
 - [x] Prepare connected core and recovery wireframes in Draft 02; the earlier audit documents 125 reachable screen states. This is historical prototype evidence, not real authentication, storage or deletion.
 - [x] Prepare branded SwiftUI hubs, editors, reflection/direct-practice journeys and Journal calendar specimens.
 - [x] Store the accepted Pingu direction, logo/font references, illustrated icons and 21-avatar collection.
@@ -20,13 +19,13 @@ Updated 24 October 2026, Australia/Sydney. Core-flow snapshot through `e8e148b`,
 - [ ] Complete owner walkthroughs and record observations. The existing worksheet contains no completed sessions.
 - [ ] Approve the detailed implementation scope and validate authentication, local-content and recovery boundaries before production coding.
 
-The existing Swift app has MVVM and account/Firebase/cloud paths. Neither the prior guest-local proposal nor the revised required-account experience is implemented or verified by these specimens.
+The existing Swift app has MVVM and account/Firebase/cloud paths. The guest-local production behavior is not implemented or verified by these specimens.
 
 ## Main journeys
 
 These are intended routes, not a claim that every transition runs in the production app:
 
-1. **First use:** Welcome → Sign up / Log in → authenticated workspace readiness → Today. No guest route. Privacy and earlier-data recovery remain accessible before entry; forms and session policy are pending.
+1. **First use:** Welcome → Get started → local workspace readiness → Today. Log in opens optional earlier-account recovery; no account required. Privacy details are accessible before meaningful input.
 2. **Reflection:** Today → type a situation → review/edit reflection → save → Journal entry detail. Save only my words is an alternative; Practice and a next step are optional.
 3. **Voice:** explicit recording action → permission/capability check → record → review/edit transcript → reflection or words-only save. Typing remains available.
 4. **Direct Practice:** Today / Practice → situation, goal and optional draft → wording → edit → Copy and/or Save → Practice detail/history.
@@ -41,7 +40,7 @@ These are intended routes, not a claim that every transition runs in the product
 
 | ID | Flow | Prepared / checked so far | Next / pending |
 | --- | --- | --- | --- |
-| F01 | Welcome and required account | Previous guest-entry specimens/checks retained; new account/artwork/copy brief prepared, not implemented | Review and build account Welcome/forms, reset/error/session/recovery routes; verify readiness and large-text gestures. Production still has signup/signin/Skip |
+| F01 | Welcome and optional login | Simplified native Welcome: larger Pingu, Get started, Log in; data details moved after Welcome | Verify revised routes/large-text gestures; native login/recovery and actual readiness remain pending. Production still has signup/signin/Skip |
 | F02 | Privacy before/after starting | Draft 02 states; local optional details and nested return paths checked, including earlier-data choice and storage failures | Review understanding of device backups, data-loss limits and earlier-account separation; reconcile release copy with actual behavior |
 | F03 | Today and main navigation | Three-tab structure approved; wireframes, branded hub and empty-Today proposal | Consolidate branded Figma; distinguish first visit, retained draft and returning saved history |
 | F04 | Typed situation capture | Wireframe and branded capture, including words-only exit | Walk through input clarity, validation and route choices; real capture is not implemented in static boards |
@@ -69,7 +68,7 @@ These are intended routes, not a claim that every transition runs in the product
 ### Prototype finish
 
 - [x] Complete publisher-based [onboarding/content research and font audit](../design/onboarding-patterns-research-2026-10-24.md); shorter copy and finite motion are in the local onboarding review. Other-screen copy, owner comprehension and native accessibility remain pending.
-- [ ] Review artwork-led Welcome, Sign up / Log in forms, reset/validation/error states, privacy access and earlier-data recovery under the new required-account brief.
+- [ ] Review simplified Welcome, Get started, optional Log in, privacy access and earlier-data recovery; complete native keyboard/scroll and recovery checks.
 - [x] Complete the coordinator's [focused onboarding checks](../qa/onboarding-flow-review-2026-10-24.md); owner comprehension review and production verification remain pending.
 - [ ] Resolve Figma MCP access before attempting canvas work. The focused onboarding pass rechecked a known node and still received the Starter-plan tool-call limit.
 - [ ] Bring accepted Pingu artwork, Plus Jakarta Sans and brand colors into the connected editable Figma screens, preserving the existing recovery coverage.
@@ -81,9 +80,9 @@ These are intended routes, not a claim that every transition runs in the product
 ### Swift and production readiness
 
 - [x] Identify the existing MVVM structure and feature folders; a wholesale architecture conversion is unnecessary.
-- [ ] Approve the detailed first production slice. Proposed order remains manual typed capture → reliable local save → Journal/detail → edit/reopen, after the revised authentication/local-storage feasibility work.
+- [ ] Approve the detailed first production slice. Proposed order remains manual typed capture → reliable local save → Journal/detail → edit/reopen, after the guest-runtime/local-storage feasibility work.
 - [ ] Validate versioned/protected storage, draft retention, interrupted writes, disk-full/read errors, stable IDs and linked operations.
-- [ ] Revise the dependency graph for required authentication and account-scoped local content, without automatically activating legacy sync/cloud AI/backup. Define offline/session behavior; verify launch, background/resume and late callbacks. Keep explicit legacy management separate.
+- [ ] Establish a guest dependency graph without automatic Firebase/cloud AI/backup; verify launch, background/resume and late callbacks. Keep explicit legacy login/recovery separate.
 - [ ] Verify on-device model and speech availability, cancellation and useful manual fallbacks; do not infer availability from a Simulator or mock.
 - [ ] Test original versus accepted edits, stale suggestions, retries, duplicate saves, Copy independent of Save, deletion and relaunch recovery.
 - [ ] Keep small Views, screen-level ViewModels and injected Store/Engine/Service boundaries; refactor the authorized slice rather than migrating every observable type at once.

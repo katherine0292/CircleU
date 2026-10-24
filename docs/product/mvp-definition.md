@@ -1,6 +1,6 @@
 # CircleU MVP definition and user flow
 
-Status: planning draft, 23 October 2026. Audience A, Today/Journal/Practice navigation, removing duplicated steps, deferring circles/rewards, and planning before coding are owner-approved. On 24 October the owner replaced guest entry with required accounts. This changes access, not approval for cloud content/sync; the account/storage contract needs reconciliation before implementation. Detailed interaction behavior and release gates remain proposals; this is not an approved implementation specification.
+Status: planning draft, 23 October 2026. Audience A, Today/Journal/Practice navigation, removing duplicated steps, deferring circles/rewards, and planning before coding are owner-approved. The latest 24 October decision reaffirms guest-first local storage with optional existing-account login; the intervening required-account proposal is superseded. Detailed interaction behavior and release gates remain proposals; this is not an approved implementation specification.
 
 ## Purpose and first use
 
@@ -21,10 +21,10 @@ Example: a student feels frustrated about a groupmate missing a deadline. They d
 | Original native layout/proportions as the visual baseline | Owner-approved, 24 October | Refine colors, concise content and accepted branding assets using the existing composition; detailed integration remains separate. See the [reuse review](../design/original-layout-reuse.md) |
 | Adults 18+, English, iPhone for the first study/beta | Proposed | Narrow recruitment and evaluation; do not infer that all university students are adults |
 | Prototype validation, then a small private beta | Proposed | Test usefulness before investing in release infrastructure |
-| Required account before entering CircleU | Owner-approved, 24 October; replaces guest entry | Welcome offers Sign up and Log in. Authentication providers, session/offline policy and account-scoped local storage still need specification; no new sync approval |
+| Guest-first local use; optional existing-account login | Owner-approved, reaffirmed 24 October | Welcome offers Get started and Log in. No account required for local writing. Signup is deferred until a clear account benefit is specified; no new sync approval |
 | No CircleU cloud AI or automatic CircleU backup in that initial beta | Owner-approved direction | Simplifies the initial data flow but limits model/device availability; needs a usable guided fallback |
 
-The [privacy/storage and recovery plan](privacy-storage-plan.md) records the earlier guest/local approach and the required-account revision and specifies its retention, export, linked-deletion, backup and migration boundaries. “No cloud backup” here means no CircleU-managed backup/sync; OS device backups may still include user-created app data. The direction is approved, but not implemented. Explicit legacy-account recovery is still planned separately. Required login must not trigger automatic import or imply that old and new identities/data are interchangeable. See the [account-onboarding brief](../design/account-onboarding.md).
+The [privacy/storage and recovery plan](privacy-storage-plan.md) records the reaffirmed guest/local approach and specifies its retention, export, linked-deletion, backup and migration boundaries. “No cloud backup” here means no CircleU-managed backup/sync; OS device backups may still include user-created app data. The direction is approved, but not implemented. Explicit legacy-account recovery is still planned separately. Optional login must not trigger automatic import or imply that old and new identities/data are interchangeable. See the [account-onboarding brief](../design/account-onboarding.md).
 
 The current app already has accounts, Firebase backup and circles. The proposed local experience does not exist just because its UI hides those features. The [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) defines network isolation, migration and existing-account recovery gates before making a local-only claim. Do not erase existing accounts or data as part of narrowing scope.
 
@@ -34,7 +34,7 @@ P0 means necessary for the proposed private beta, not necessarily a new feature 
 
 | ID | Priority / feature | Observable acceptance criteria |
 | --- | --- | --- |
-| M01 | P0 — Short introduction and privacy explanation | A first-time user understands the purpose, where their input goes and how to start. An account is required before entry under the revised direction. Account/data explanations, validation and recovery must be accessible before successful authentication; microphone permission remains optional and contextual. |
+| M01 | P0 — Short introduction and privacy explanation | A first-time user understands the purpose, where their input goes and how to start. No account is required for local use. Welcome is concise; the data explanation is reachable before meaningful input, and earlier-account recovery remains optional. Microphone permission is requested only when chosen. |
 | M02 | P0 — Describe a situation by text or voice | Text always works. Recording starts only after an explicit action and permission; stop is visible. The transcript is editable before reflection. Denied/unavailable speech offers text without losing the draft. |
 | M03 | P0 — Review a grounded reflection | Separate the user's account from suggested interpretations. Offer a concise summary, tentative feeling/need and one useful question. Users can edit or reject interpretations and save without AI. Do not invent motives, diagnoses or verbatim quotes. |
 | M04 | P0 — Practice what to say | Accept a situation, intended outcome and optional draft message. Offer up to three editable wording options with plain-language tone choices. Users can copy chosen wording; nothing is sent to another person. A reflection handoff previews the selected context and preserves its source link. |
@@ -45,7 +45,7 @@ P0 means necessary for the proposed private beta, not necessarily a new feature 
 
 ## Main user flow
 
-1. **Welcome → account → Today:** artwork-led Welcome offers Sign up and Log in; no guest route. Authentication then workspace readiness precede Today. Today starts “Work through a moment” or “Practice a message.” Returning-session, offline and draft-resume behavior need specification. Privacy and earlier-data recovery must remain reachable before entry.
+1. **Welcome → local workspace → Today:** artwork-led Welcome offers Get started, with optional Log in for existing-account recovery. Local readiness, not authentication, gates the main experience. Today starts “Work through a moment” or “Practice a message.” Privacy/storage details remain reachable before meaningful input; drafts and previous data must be preserved.
 2. **Describe:** type or record what happened. A small optional prompt asks what help they want: understand it, find words, or decide a next step. Avoid a long intake form.
 3. **Review input:** typed text is reviewed and edited in the capture screen, without a duplicate review destination. Voice input retains a separate transcript review. Either route can save the original account without generated feedback.
 4. **Reflect:** read and correct the suggested summary/interpretation. “Save reflection” completes a useful journey here. “Practice what to say” is optional.
@@ -101,7 +101,7 @@ Figma is connected to the owner's account and Draft 02 is available. Loading/can
 
 - Circles, community feeds, invitations, social reactions and moderation workflows.
 - Elaborate points, streaks, badges, trend dashboards and recurring reminder campaigns.
-- Cross-device content sync/backup remains deferred. Required authentication is now in scope; it does not itself approve those services.
+- Cross-device content sync/backup remains deferred. Optional account creation is deferred until a clear benefit and data contract are specified; existing-account recovery remains in scope.
 - Image/screenshot understanding, live conversation recording, multi-turn AI roleplay and automatic message sending.
 - Broad provider selection or a general-purpose AI chat companion.
 

@@ -14,7 +14,7 @@ Shared baseline: `~/Documents/GitHub/coding-standards/coding_standards.md`. The 
 ## Current direction — 24 October 2026
 
 - Research/planning before feature coding; do not infer implementation approval from a prototype or plan.
-- Approved: Today / Journal / Practice; circles and rewards deferred. On 24 October the owner replaced guest entry with required accounts. See [account onboarding](docs/design/account-onboarding.md); authentication/storage details need review. This does not approve sync, cloud AI or automatic recovery.
+- Approved: Today / Journal / Practice; circles and rewards deferred. The owner reaffirmed guest-first local use on 24 October after reviewing the account tradeoff. Welcome: Get started and optional Log in for existing-account recovery. See [onboarding](docs/design/account-onboarding.md). No new sync, cloud AI or automatic recovery approval.
 - Existing code still contains Firebase, accounts, cloud AI and automatic backup paths. Local-only behavior is not implemented or verified.
 - Previous TestFlight releases exist. Follow the [transition plan](docs/superpowers/plans/2026-10-23-local-first-transition.md); do not erase legacy data or remove recovery access.
 - Proposed new device scope is separate from existing iOS 17/iPhone+iPad settings. See [device validation](docs/product/supported-devices.md).
