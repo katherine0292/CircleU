@@ -1,6 +1,6 @@
 # CircleU flow and delivery checklist
 
-Updated 24 October 2026, Australia/Sydney. Core-flow snapshot through `e8e148b`, subsequent native-onboarding evidence through `84476ba`, and the approved return to concise guest-first onboarding. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
+Updated 25 October 2026, Australia/Sydney. Core-flow snapshot through `e8e148b`, subsequent native-onboarding evidence through `84476ba`, and the approved return to concise guest-first onboarding. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
 
 **Prepared** means the named plan, wireframe or preview exists. **Partial** means some design or verification is still missing. **Pending** means the stated outcome has not been established. No percentage-complete estimate is used: a screen image, connected Figma state and working app feature are different deliverables.
 
@@ -40,7 +40,7 @@ These are intended routes, not a claim that every transition runs in the product
 
 | ID | Flow | Prepared / checked so far | Next / pending |
 | --- | --- | --- | --- |
-| F01 | Welcome and optional login | Simplified native Welcome and routes checked; accessibility1/5 layouts inspected; owner reported Privacy/recovery gestures and new Log in/reset-request scrolling and controls working at accessibility5 | Native login/reset/recovery fixtures added; real authentication/readiness, remaining keyboard/gesture coverage, Inspector warnings and compact-height/VoiceOver/hardware validation remain. Production still has signup/signin/Skip |
+| F01 | Welcome and optional login | Simplified native Welcome and routes checked; accessibility1/5 layouts inspected; owner reported Privacy/recovery gestures and new Log in/reset-request scrolling and controls working at accessibility5 | Selected physical login/reset keyboard, VoiceOver labels/error/Back and largest-text Welcome/Privacy/earlier-data reachability passed by owner report; see the [25 October review](../qa/native-onboarding-final-review-2026-10-25.md). New password Next/mismatch/completion passed in Simulator; the owner reported completing the phone check without per-check results. Inspector warnings and broader gesture/compact-height coverage remain. Real authentication/readiness is unimplemented; production still has signup/signin/Skip |
 | F02 | Privacy before/after starting | Draft 02 states; local optional details and nested return paths checked, including earlier-data choice and storage failures | Review understanding of device backups, data-loss limits and earlier-account separation; reconcile release copy with actual behavior |
 | F03 | Today and main navigation | Three-tab structure approved; wireframes, branded hub and empty-Today proposal | Consolidate branded Figma; distinguish first visit, retained draft and returning saved history |
 | F04 | Typed situation capture | Wireframe and branded capture, including words-only exit | Walk through input clarity, validation and route choices; real capture is not implemented in static boards |
@@ -72,7 +72,9 @@ These are intended routes, not a claim that every transition runs in the product
 - [x] Replace the external handoff with [native login/reset/recovery previews](../design/brand-demo/native-recovery.md), validation/error/Back states and selected Simulator input/button checks.
 - [x] Record the owner-reported Log in/reset-request walkthrough at accessibility5: both forms scroll; text, fields and controls are readable/reachable; Forgot password?, Send reset link and Back are reachable. See [recovery QA](../qa/native-recovery-preview-2026-10-24.md).
 - [x] Exercise selected native software-keyboard focus, Next/Done, validation, reset submission and Back routes; fix focused-field visibility, route scroll reset and secondary-action hit regions. See [keyboard/accessibility QA](../qa/native-recovery-keyboard-accessibility-2026-10-24.md).
-- [ ] Resolve remaining Inspector warnings and complete physical VoiceOver, swipe-to-dismiss, other-size gestures and hardware coverage; later integrate real authentication/reset/recovery under the transition plan.
+- [x] Record selected physical login/reset keyboard, VoiceOver labels/error/Back and largest-text regular onboarding/Privacy/earlier-data reachability by owner report. See the [25 October review](../qa/native-onboarding-final-review-2026-10-25.md).
+- [x] Exercise New password Next/mismatch/completion in Simulator and restore the normal Log in entry point. The physical New password check was reported completed without per-check results; on-phone confirmation of the restored entry is pending. See the [25 October review](../qa/native-onboarding-final-review-2026-10-25.md).
+- [ ] Resolve remaining Inspector warnings and broader VoiceOver, swipe-to-dismiss, other-size/rotation and hardware coverage. Real authentication/reset/recovery remains a later transition-plan task.
 - [x] Complete the coordinator's [focused onboarding checks](../qa/onboarding-flow-review-2026-10-24.md); owner comprehension review and production verification remain pending.
 - [ ] Resolve Figma MCP access before attempting canvas work. The focused onboarding pass rechecked a known node and still received the Starter-plan tool-call limit.
 - [ ] Bring accepted Pingu artwork, Plus Jakarta Sans and brand colors into the connected editable Figma screens, preserving the existing recovery coverage.

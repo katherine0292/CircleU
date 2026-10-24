@@ -19,3 +19,15 @@ Check the SwiftPM build and normal/compact exports, then rebuild the existing is
 Current artifacts: [Welcome](swiftui-previews/brand-08-welcome.png), [compact width](swiftui-previews/brand-08-welcome-compact.png), [comparison](swiftui-previews/brand-08-onboarding.png). Historical v06/v07 files stay unchanged.
 
 Use the [content standard](content.md) for headings and actions. The [privacy plan](../product/privacy-storage-plan.md) and [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) govern actual data handling and legacy preservation; the production guest-local path is not implemented yet.
+
+## Account-provider discussion — 25 October
+
+**Recommendation, not an approved implementation change.** The owner asked why the preview says Used Google? and whether Google, X or Facebook could be used.
+
+Used Google? currently opens help, not Google authentication. The [legacy inventory](../engineering/legacy-data-inventory.md) records Email/Password and Google enabled in the inspected development Firebase project, while explicitly leaving shipped Google support unverified. The current production `FirebaseAuthService` adapter implements email/password. The isolated preview authenticates with no provider at all.
+
+Proposed content change: rename the link **Account help**, retaining the explanation for people who used an earlier provider. Do not replace it with Continue with Google until the provider works and its identity/recovery mapping is verified.
+
+Firebase documents [Google](https://firebase.google.com/docs/auth/ios/google-signin), [Facebook](https://firebase.google.com/docs/auth/ios/facebook-login) and [Twitter/X](https://firebase.google.com/docs/auth/ios/twitter-login) integration on Apple platforms. Their availability in Firebase does not mean CircleU has configured them. A future optional-account proposal should begin with Apple and Google if a concrete account benefit is approved; defer X/Facebook unless user research establishes demand. Each provider adds configuration, account-linking, cancellation and recovery cases. Preserve the existing account identity and verify ownership rather than inferring the same account from a matching email.
+
+For social login used to establish/authenticate the primary app account, [Apple guideline 4.8](https://developer.apple.com/app-store/review/guidelines/) requires an equivalent privacy-preserving login option unless an exception applies. Plan Sign in with Apple alongside Google and verify the final service against that rule. Guest-first local use and optional legacy recovery remain the approved direction. No provider enablement, Firebase setting, social-login screen or production auth change was made in this review.
