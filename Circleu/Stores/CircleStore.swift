@@ -23,7 +23,9 @@ final class CircleStore: ObservableObject {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    private let firebase: FirebaseCircleService
+    /// Nil when Firebase isn't configured (missing or mismatched GoogleService-Info.plist);
+    /// `Firestore.firestore()` throws in that case, so circles then stay local-only.
+    private let firebase: FirebaseCircleService?
     private var isObservingFirebase = false
     private var observedPostCircleIDs: Set<UUID> = []
 
@@ -48,7 +50,7 @@ final class CircleStore: ObservableObject {
         firebase: FirebaseCircleService? = nil
     ) {
         self.userDefaults = userDefaults
-        self.firebase = firebase ?? FirebaseCircleService()
+        self.firebase = firebase ?? (FirebaseRuntime.canUseLiveFirebase ? FirebaseCircleService() : nil)
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
@@ -71,7 +73,7 @@ final class CircleStore: ObservableObject {
     func teardownBackend() {
         currentUserID = nil
         currentUserName = "You"
-        firebase.stopAll()
+        firebase?.stopAll()
         isObservingFirebase = false
         observedPostCircleIDs.removeAll()
     }
@@ -81,7 +83,7 @@ final class CircleStore: ObservableObject {
     func observePosts(for circleID: UUID) {
         guard currentUserID != nil, !observedPostCircleIDs.contains(circleID) else { return }
         observedPostCircleIDs.insert(circleID)
-        firebase.observePosts(for: circleID) { [weak self] incomingPosts in
+        firebase?.observePosts(for: circleID) { [weak self] incomingPosts in
             Task { @MainActor in
                 self?.applyRemotePosts(incomingPosts, for: circleID)
             }
@@ -90,7 +92,7 @@ final class CircleStore: ObservableObject {
 
     func stopObservingPosts(for circleID: UUID) {
         guard observedPostCircleIDs.remove(circleID) != nil else { return }
-        firebase.stopObservingPosts(for: circleID)
+        firebase?.stopObservingPosts(for: circleID)
     }
 
     // MARK: - Circles
@@ -131,7 +133,7 @@ final class CircleStore: ObservableObject {
         saveCircles()
         if let uid = currentUserID {
             Task {
-                try? await firebase.setMembership(circleID: id, uid: uid, joined: true)
+                try? await firebase?.setMembership(circleID: id, uid: uid, joined: true)
             }
         }
     }
@@ -150,7 +152,7 @@ final class CircleStore: ObservableObject {
         }
         saveCircles()
         Task { [firebase] in
-            try? await firebase.setCircleLike(circleID: id, uid: uid, liked: nowLiked)
+            try? await firebase?.setCircleLike(circleID: id, uid: uid, liked: nowLiked)
         }
     }
 
@@ -168,7 +170,7 @@ final class CircleStore: ObservableObject {
         }
         saveCircles()
         Task { [firebase] in
-            try? await firebase.setCircleFavorite(circleID: id, uid: uid, favorited: nowFavorited)
+            try? await firebase?.setCircleFavorite(circleID: id, uid: uid, favorited: nowFavorited)
         }
     }
 
@@ -191,7 +193,7 @@ final class CircleStore: ObservableObject {
         posts.removeAll { $0.circleID == circle.id }
         saveCircles()
         savePosts()
-        Task { try? await firebase.deleteCircle(circle.id) }
+        Task { try? await firebase?.deleteCircle(circle.id) }
     }
 
     // MARK: - Posts
@@ -267,7 +269,7 @@ final class CircleStore: ObservableObject {
         guard let owned = posts.first(where: { $0.id == post.id })?.isAuthoredBy(uid: currentUserID), owned else { return }
         posts.removeAll { $0.id == post.id }
         savePosts()
-        Task { try? await firebase.deletePost(circleID: post.circleID, postID: post.id) }
+        Task { try? await firebase?.deletePost(circleID: post.circleID, postID: post.id) }
     }
 
     func updatePost(_ id: UUID, text: String) {
@@ -480,7 +482,7 @@ final class CircleStore: ObservableObject {
     private func startObservingCirclesIfNeeded() {
         guard !isObservingFirebase else { return }
         isObservingFirebase = true
-        firebase.observeAllCircles { [weak self] remoteCircles in
+        firebase?.observeAllCircles { [weak self] remoteCircles in
             Task { @MainActor in
                 self?.applyRemoteCircles(remoteCircles)
             }
@@ -545,7 +547,7 @@ final class CircleStore: ObservableObject {
         guard let uid = currentUserID, !uid.isEmpty else { return }
         Task { [firebase] in
             let members = isCreator ? [uid] : []
-            try? await firebase.upsertCircle(circle, memberUserIDs: members)
+            try? await firebase?.upsertCircle(circle, memberUserIDs: members)
         }
     }
 
@@ -553,7 +555,7 @@ final class CircleStore: ObservableObject {
         guard let uid = currentUserID, !uid.isEmpty else { return }
         _ = uid
         Task { [firebase] in
-            try? await firebase.upsertPost(post)
+            try? await firebase?.upsertPost(post)
         }
     }
 }
