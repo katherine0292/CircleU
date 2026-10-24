@@ -4,6 +4,8 @@
 
 **Latest revision:** the owner reaffirmed guest entry and approved a concise artwork-led Welcome: larger Pingu, Find your words (no full stop), Get started and optional Log in. See the [current brief](../account-onboarding.md) and [content standard](../content.md). The v06/v07 images/checks below remain historical evidence; v08 uses the simplified composition.
 
+**Native recovery follow-up:** Log in now opens native form/reset/recovery previews. The [v09 guide](native-recovery.md) and [QA](../../qa/native-recovery-preview-2026-10-24.md) supersede the external-handoff limitations below; the earlier evidence remains version-specific.
+
 ## Current concise Welcome (v08)
 
 [Regular](../swiftui-previews/brand-08-welcome.png), [compact width](../swiftui-previews/brand-08-welcome-compact.png), [comparison](../swiftui-previews/brand-08-onboarding.png). Existing Pingu is now 260pt; the helper paragraph and Welcome storage/privacy/earlier-data actions are removed. Get started and Log in are the two actions. Privacy and a short storage explanation remain in Opening; optional login still leads to the recovery introduction/Figma handoff. SwiftPM renderer and isolated Simulator host built successfully. The iPhone 18 Pro/iOS 27.0 Simulator displayed the result; Get started, Privacy/Done, Log in and Back routes were checked. Opening remains static and login is not implemented. Later QA records owner-reported Privacy/recovery scrolling at accessibility1/5 and agent inspection of maximum-text Welcome; compact-height/hardware checks remain pending.

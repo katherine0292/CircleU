@@ -31,6 +31,13 @@ struct RenderPreviews {
         try render(BrandOnboardingPreview(), to: output.appendingPathComponent("brand-08-welcome.png"), size: CGSize(width: 390, height: 844))
         try render(BrandOnboardingPreview(), to: output.appendingPathComponent("brand-08-welcome-compact.png"), size: CGSize(width: 375, height: 844))
         try render(BrandOnboardingGallery(), to: output.appendingPathComponent("brand-08-onboarding.png"))
+        for screen in BrandRecoveryScreen.allCases {
+            try render(BrandRecoveryPreview(initialScreen: screen, advancesProgress: false, renderingSnapshot: true), to: output.appendingPathComponent("brand-09-\(screen.rawValue).png"), size: CGSize(width: 390, height: 844))
+        }
+        try render(BrandRecoveryPreview(renderingSnapshot: true), to: output.appendingPathComponent("brand-09-login-compact.png"), size: CGSize(width: 375, height: 844))
+        try render(BrandRecoveryGallery(screens: [.loginError, .resetError, .recoveryError]), to: output.appendingPathComponent("brand-09-errors.png"))
+        try render(BrandRecoveryGallery(screens: [.resetSent, .linkExpired, .newPassword]), to: output.appendingPathComponent("brand-09-password.png"))
+        try render(BrandRecoveryGallery(), to: output.appendingPathComponent("brand-09-recovery.png"))
         try render(BrandDemoBoard(), to: output.appendingPathComponent("brand-demo.png"))
         try render(BrandTodayPreview(), to: output.appendingPathComponent("brand-today.png"))
         for screen in PrototypeScreen.allCases {

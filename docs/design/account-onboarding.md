@@ -7,14 +7,14 @@
 - Welcome: CircleU wordmark, existing Pingu enlarged from 172pt to 260pt in the upper scene, live **Find your words** tagline without a full stop, then **Get started** and **Log in**. Keep Plus Jakarta Sans and the existing palette.
 - Remove the repeated explanatory paragraph, storage banner, Privacy action and Used CircleU before? from Welcome. Keep native flexible spacing, readable controls and a scrolling fallback for larger text/short heights.
 - Get started → local Opening fixture. Put the short device-storage explanation and Privacy and data access here, before meaningful input. Privacy retains detailed backup/export/voice and earlier-data information; Back/Done returns to its actual origin.
-- Log in → existing earlier-data/recovery introduction. Its account-recovery link still opens the Figma flow. This specimen does not contain a native login form, real authentication or import. Preserve Continue without importing and Back.
+- Log in → native email/password form, password reset and explicit earlier-data recovery previews. No external Figma chooser. Keep Back, Privacy and local exits. All account/reset/import outcomes are simulated; see [native recovery](brand-demo/native-recovery.md).
 - Do not add mandatory signup. Optional account creation can be revisited when a concrete account benefit exists; no cloud sync/backup is promised by login.
 
 ## Implementation and review
 
-Scope: `BrandOnboardingPreview.swift`, renderer exports and supporting docs only. Production app, Firebase, signing, history and existing user data remain unchanged.
+Scope: isolated `BrandOnboardingPreview.swift`, `BrandRecoveryPreview.swift`, existing Simulator host, renderer exports and supporting docs only. Production app, Firebase, signing, history and existing user data remain unchanged.
 
-Check the SwiftPM build and normal/compact exports, then rebuild the existing isolated Simulator host. Review the selected iPhone 18 Pro Welcome and both routes. Larger-text review is recorded in [QA](../qa/native-onboarding-interaction-review-2026-10-24.md): Welcome inspected at accessibility1/5, Privacy/recovery scrolling and bottom actions reported working by the owner. Native login/recovery, real readiness, short-height/landscape and physical-device checks remain open; manual reports are separate from automated evidence.
+Check the SwiftPM build and normal/compact exports, then rebuild the existing isolated Simulator host. Review the selected iPhone 18 Pro Welcome and both routes. Larger-text review is recorded in [QA](../qa/native-onboarding-interaction-review-2026-10-24.md): Welcome inspected at accessibility1/5, Privacy/recovery scrolling and bottom actions reported working by the owner. Native login/reset/recovery previews are now present, with [separate verification](../qa/native-recovery-preview-2026-10-24.md). Real auth/readiness, new-form keyboard/gesture coverage, short-height/landscape and physical-device checks remain open; manual reports are separate from automated evidence.
 
 Current artifacts: [Welcome](swiftui-previews/brand-08-welcome.png), [compact width](swiftui-previews/brand-08-welcome-compact.png), [comparison](swiftui-previews/brand-08-onboarding.png). Historical v06/v07 files stay unchanged.
 

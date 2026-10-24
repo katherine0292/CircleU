@@ -2,6 +2,8 @@
 
 24 October 2026. Owner requested button/scroll checks on the selected phone before Today, and asked about storage messaging, Privacy, Login and a Pingu background. Starting revision `17f8a3773f6af416d27a18e35e03ee3feee255b0`; clean `codex/journal-calendar-planning` branch.
 
+**Follow-up:** the native account previews are now implemented in isolation. See [new recovery QA](native-recovery-preview-2026-10-24.md); the handoff/form gaps recorded below describe the preceding version.
+
 ## Latest larger-text and recovery review — 24 October
 
 Destination: isolated v08 host on **iPhone 18 Pro / iOS 27.0**, same UUID below. `--large-text` selects accessibility1; the newly added `--largest-text` selects accessibility5. The host rebuilt successfully with Xcode's compiler; no production UI, system preference or Firebase change.

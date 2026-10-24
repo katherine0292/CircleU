@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Design fixtures only. Opening never reads storage or advances automatically.
 public enum BrandOnboardingScreen: String, CaseIterable {
-    case welcome, privacy, earlierData, opening, locked, readError
+    case welcome, privacy, earlierData, logIn, opening, locked, readError
 }
 
 /// Original Welcome composition, with the accepted identity and in-memory panel navigation.
@@ -11,10 +11,15 @@ public struct BrandOnboardingPreview: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var history: [BrandOnboardingScreen]
     private let illustratedWelcome: Bool
+    private let recoveryScreen: BrandRecoveryScreen
+    private let recoveryScenario: BrandRecoveryScenario
 
-    public init(initialScreen: BrandOnboardingScreen = .welcome, illustratedWelcome: Bool = true) {
+    public init(initialScreen: BrandOnboardingScreen = .welcome, illustratedWelcome: Bool = true,
+                recoveryScreen: BrandRecoveryScreen = .logIn, recoveryScenario: BrandRecoveryScenario = .available) {
         _history = State(initialValue: [.welcome] + (initialScreen == .welcome ? [] : [initialScreen]))
         self.illustratedWelcome = illustratedWelcome
+        self.recoveryScreen = recoveryScreen
+        self.recoveryScenario = recoveryScenario
     }
 
     private var screen: BrandOnboardingScreen { history.last ?? .welcome }
@@ -25,6 +30,7 @@ public struct BrandOnboardingPreview: View {
             case .welcome: welcome
             case .privacy: privacy
             case .earlierData: earlierData
+            case .logIn: BrandRecoveryPreview(initialScreen: recoveryScreen, scenario: recoveryScenario, onBack: { back() }, onContinue: { navigate(to: .opening) })
             case .opening: opening
             case .locked: failure(locked: true)
             case .readError: failure(locked: false)
@@ -79,8 +85,8 @@ public struct BrandOnboardingPreview: View {
 
             VStack(spacing: 4) {
                 primaryButton("Get started") { navigate(to: .opening) }
-                quietButton("Log in") { navigate(to: .earlierData) }
-                    .accessibilityHint("Opens earlier-account recovery options")
+                quietButton("Log in") { navigate(to: .logIn) }
+                    .accessibilityHint("Opens account login")
             }
             .padding(.top, 12)
             .padding(.bottom, 40)
@@ -106,10 +112,7 @@ public struct BrandOnboardingPreview: View {
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
             information("Your choice", symbol: "hand.raised", text: "Logging in won’t automatically import or erase entries.")
             information("Old account recovery", symbol: "person.crop.circle", text: "Account recovery needs an internet connection.")
-            // Recovery remains in Draft 02; this pass only reviews its introduction.
-            Link("Log in to recover data", destination: URL(string: "https://www.figma.com/proto/RVLtfmIVcO8gNk5fam0Vjd?node-id=65-663&starting-point-node-id=65%3A663")!)
-                .font(font(17, .semibold)).frame(minHeight: 44)
-                .accessibilityHint("Opens the existing recovery design in Figma; does not import data")
+            primaryButton("Log in") { navigate(to: .logIn) }
             primaryButton("Continue without importing") { navigate(to: .opening) }
         }
     }

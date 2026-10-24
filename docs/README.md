@@ -32,6 +32,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 - [Original-layout reuse review](design/original-layout-reuse.md): owner's preferred native proportions, concrete layout findings and a focused color/content/branding refinement path.
 - [Original Simulator build repair](qa/simulator-build-repair-2026-10-24.md): missing Pingu pose compatibility, preserved asset originals, Device Hub selection, successful original-app launch and two remaining test failures.
+- [Native login, reset and recovery previews](design/brand-demo/native-recovery.md): branded native form/state fixtures, selected input/navigation checks and remaining backend/device limits.
 - [Content standard](design/content.md): concise copy, punctuation, shared terms and truthful state/data language; draft for new/revised screens.
 - [Account-onboarding revision](design/account-onboarding.md): guest-first local use, concise Pingu Welcome and optional existing-account login/recovery; supersedes the required-account proposal.
 - [Mobile onboarding and content research](design/onboarding-patterns-research-2026-10-24.md): publisher examples, concise screen-copy proposals, actual font audit and the local motion refinement.

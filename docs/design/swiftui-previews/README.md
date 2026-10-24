@@ -17,6 +17,8 @@ Generated 23 October 2026 from the [standalone preview package](../../../Prototy
 
 ## Editing previews and Xcode
 
+[Native login/reset/recovery](../brand-demo/native-recovery.md): [core board](brand-09-recovery.png), [password states](brand-09-password.png), [errors](brand-09-errors.png) and [compact login](brand-09-login-compact.png). PNG controls are static representations; actual native inputs live in the Simulator/Canvas.
+
 [Current concise Welcome](brand-08-welcome.png), [compact width](brand-08-welcome-compact.png) and [comparison](brand-08-onboarding.png): larger Pingu, Find your words, Get started and optional Log in. Built/rendered and inspected; selected routes checked in the isolated iPhone 18 Pro Simulator. See the [current brief](../account-onboarding.md). Native login/recovery and larger-text gestures remain pending.
 
 [Owner-selected Pingu upper scene](brand-07-welcome-scene.png) and [compact-width variant](brand-07-welcome-scene-compact.png) add a still sky/snow setting behind the existing mascot, leaving the copy/actions on a quiet surface. See the [native interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) for actual Simulator checks and unresolved scrolling/recovery coverage.
