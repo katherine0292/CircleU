@@ -32,6 +32,8 @@ This folder holds the current project knowledge the team should follow while bui
 
 - [Original-layout reuse review](design/original-layout-reuse.md): owner's preferred native proportions, concrete layout findings and a focused color/content/branding refinement path.
 - [Original Simulator build repair](qa/simulator-build-repair-2026-10-24.md): missing Pingu pose compatibility, preserved asset originals, Device Hub selection, successful original-app launch and two remaining test failures.
+- [Content standard](design/content.md): concise copy, punctuation, shared terms and truthful state/data language; draft for new/revised screens.
+- [Account-onboarding revision](design/account-onboarding.md): required accounts, large Pingu Welcome and pending forms/recovery/session decisions; supersedes guest entry.
 - [Mobile onboarding and content research](design/onboarding-patterns-research-2026-10-24.md): publisher examples, concise screen-copy proposals, actual font audit and the local motion refinement.
 - [Flow and delivery checklist](product/flow-status-checklist.md): all MVP journeys, prepared artifacts, pending prototype work and separate production/device/release gates.
 - [Focused onboarding review](qa/onboarding-flow-review-2026-10-24.md): local earlier-data choices, safe-opening/error states, re-entry checks and remaining owner/Figma/runtime gates.
@@ -50,7 +52,7 @@ This folder holds the current project knowledge the team should follow while bui
 - [23 October 2026 project inventory and improvement review](project-review-2026-10-23.md): source-backed feature/design inventory, documentation gaps, and proposed priorities. This is a dated review, not an approved implementation plan.
 - [Discovery brief](product/discovery-brief.md): selected audience A, circles deferred, and the research-first direction.
 - [MVP definition and user flow](product/mvp-definition.md): proposed features, acceptance criteria, navigation and failure states; detailed scope awaits review.
-- [Privacy, storage and recovery plan](product/privacy-storage-plan.md): approved guest/local direction, backup/export limits, retention/deletion rules and recovery acceptance criteria. Not yet implemented.
+- [Privacy, storage and recovery plan](product/privacy-storage-plan.md): local content proposal with the required-account revision, backup/export limits, retention/deletion rules and recovery acceptance criteria. Not yet implemented.
 - [Supported devices](product/supported-devices.md): proposed iPhone/iOS scope, optional AI and physical-device validation matrix.
 - [Local-first transition plan](superpowers/plans/2026-10-23-local-first-transition.md): staged legacy TestFlight recovery, Firebase isolation, migration and retirement gates.
 - [Legacy release and Firebase inventory](engineering/legacy-data-inventory.md): live Dev/Prod findings, current build mapping and unresolved TestFlight evidence.

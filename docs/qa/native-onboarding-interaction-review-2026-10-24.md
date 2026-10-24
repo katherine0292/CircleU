@@ -2,6 +2,10 @@
 
 24 October 2026. Owner requested button/scroll checks on the selected phone before Today, and asked about storage messaging, Privacy, Login and a Pingu background. Starting revision `17f8a3773f6af416d27a18e35e03ee3feee255b0`; clean `codex/journal-calendar-planning` branch.
 
+## Subsequent owner decision
+
+The owner answered the gesture request by proposing a larger artwork-led Welcome and then explicitly required accounts before entry. That is a design change, not a successful swipe/Done check. The [account-onboarding brief](../design/account-onboarding.md) supersedes guest-entry recommendations below. All recorded interaction passes remain evidence for the prior version only; scrolling, new account forms and legacy recovery are still pending.
+
 ## Review setup
 
 Xcode Canvas displayed the correct view but its accessibility button press did not navigate; direct coordinate/scroll input returned `noWindowsAvailable`. These are automation limits, not passing interaction checks or proof of an app defect.

@@ -16,7 +16,7 @@ CircleU follows the master standard's **app/product Shape B**. Swift source and 
 | Viridis chart palette | Applies only if suitable for an analytical chart; not a new UI palette. Reuse existing app tokens and reviewed design references |
 | Agent collaboration log | Dated entries in `agent-collaboration-log/`, with explicit evidence and append-only corrections |
 
-Current approved scope and remaining proposals live in the [MVP definition](product/mvp-definition.md). The owner approved planning before coding, Today/Journal/Practice, guest-first local storage and deferring circles/rewards. Follow later explicit owner changes and record them; do not freeze this date's choices forever.
+Current approved scope and remaining proposals live in the [MVP definition](product/mvp-definition.md). The owner approved planning before coding, Today/Journal/Practice and deferring circles/rewards. On 24 October required accounts replaced guest entry; see [account onboarding](design/account-onboarding.md). Local-first content remains the previous storage direction pending reconciliation with authentication; sync/cloud AI are not newly approved. Follow later explicit owner changes and record them.
 
 ## 2. Architecture and Swift style
 
@@ -79,6 +79,8 @@ Xcode 27.1 was verified in the planning session; the existing CI workflow still 
 - For authorized parallel work, agree file ownership and integration order; each agent writes a unique log file rather than racing on a shared ledger. Shared coordinator/project files need one integration owner. The log records coordination; it is not a scheduler or lock.
 
 ## 6. Documentation ownership
+
+Use the [content standard](design/content.md) for new/revised interface copy; it records the proposed sentence-case and punctuation rules separately from coding conventions.
 
 Keep this file authoritative for coding rules, [team standards](process/team-standards.md) for working agreements, and the [log protocol](agent-collaboration-log/README.md) for history. Root `AGENTS.md` points agents here; `CLAUDE.md` only imports `AGENTS.md`.
 

@@ -2,6 +2,8 @@
 
 24 October 2026. Owner-authorized isolated SwiftUI prototype. The production app and Figma remain unchanged.
 
+**Account-direction revision:** the owner now requires accounts and requests a larger artwork-led Welcome with Sign up and Log in. See the [new brief](../account-onboarding.md) and [content standard](../content.md). The v06/v07 images and checks below describe the previous guest-first implementation; they do not show the revised design.
+
 Follow-up: the owner selected an illustrated Pingu upper area with quiet reading/action space. The [new scene preview](../swiftui-previews/brand-07-welcome-scene.png) now uses the existing Pingu asset and native sky/snow shapes; the old plain comparison below remains a reference. The [interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) records actual Simulator button checks and remaining gesture/recovery gaps.
 
 Open the existing `Prototypes/CircleUVisualPrototype` package in Xcode, select the **CircleUVisualPrototype library** scheme and an iPhone destination, then open `Sources/CircleUVisualPrototype/BrandOnboardingPreview.swift`. Select **Onboarding · Welcome · phone** in Canvas. This was visually displayed on the iPhone 17 destination during this pass; it is Canvas evidence, not a newly installed Simulator app or a physical-device check.

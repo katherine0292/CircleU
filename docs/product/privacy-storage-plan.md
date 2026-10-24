@@ -1,8 +1,14 @@
 # Privacy, storage and recovery plan
 
-Status: guest-first local-storage direction approved by the owner on 23 October 2026. Detailed safeguards and release gates below remain an implementation plan, not claims about the current app. The owner confirmed a previous TestFlight release; treat legacy data as potentially real. No runtime behavior, existing account, cloud record or public privacy notice was changed.
+Status: local-storage direction approved on 23 October 2026; guest entry replaced by required accounts on 24 October. Read the revision below before using the earlier proposal. Detailed safeguards and release gates below remain an implementation plan, not claims about the current app. The owner confirmed a previous TestFlight release; treat legacy data as potentially real. No runtime behavior, existing account, cloud record or public privacy notice was changed.
 
-## Approved direction and alternatives considered
+## 24 October access decision — supersedes guest entry
+
+The owner now requires an account before entering CircleU, replacing the guest-entry decision. The [account-onboarding brief](../design/account-onboarding.md) records the new Welcome and missing authentication/session/recovery states. The earlier no-signup wording below is historical rationale, not the current access contract. Do not execute its guest-only startup assumptions unchanged.
+
+Required authentication does **not** approve syncing journal content, remote AI, automatic backup, automatic legacy restore or merging account scopes. Retain the previous local-first content direction while reviewing provider choice, authentication network/data disclosure, account-scoped local storage, offline session access, logout/deletion and continuing legacy recovery. Distinguish authentication traffic from private-content traffic in later verification. Existing production behavior is unchanged and remains unverified against this proposed policy.
+
+## Earlier approved direction and alternatives considered
 
 The [live legacy inventory](../engineering/legacy-data-inventory.md) and [previous-data recovery prototype](../design/legacy-recovery-flow.md) now record verified Firebase observations and proposed migration/account-management routes. The previously uploaded TestFlight build and its backend mapping still need verification; existing cloud records are preserved.
 

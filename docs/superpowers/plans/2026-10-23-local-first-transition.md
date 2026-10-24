@@ -2,7 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This is a planning deliverable; implementation has not started.
 
-**Goal:** Deliver the approved guest-first Today/Journal/Practice MVP without stranding previous TestFlight users or misrepresenting the handling of their Firebase data.
+**24 October revision notice:** the owner replaced guest entry with required accounts. This plan is not executable unchanged: no-signup/no-Firebase-startup assumptions must be reconciled with the new authentication boundary. See [account onboarding](../../design/account-onboarding.md) and [privacy revision](../../product/privacy-storage-plan.md). Authentication does not approve cloud content sync/AI/backup. Preserve every legacy source, ownership and recovery safeguard while revising the implementation tasks. No implementation has started.
+
+**Original goal (guest-entry assumption superseded):** Deliver the approved guest-first Today/Journal/Practice MVP without stranding previous TestFlight users or misrepresenting the handling of their Firebase data.
 
 **Architecture:** App-managed local persistence behind a repository boundary; explicit on-device generation with manual fallback. A proposed same-bundle UTS transition build preserves legacy access through a separate, user-invoked recovery flow. A personal-account release may instead use a new app identity plus explicit portable import; an official transfer is conditional on eligibility. See the [release-route research](../../product/personal-account-release-plan.md) before selecting implementation tasks. Retire cloud dependencies only after recovery/deletion obligations have an established continuing path.
 
