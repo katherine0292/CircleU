@@ -38,7 +38,7 @@ This folder holds the current project knowledge the team should follow while bui
 - [Pingu activity collection](design/brand-demo/pingu-activities.md): five additional action poses, stored originals and static catalog.
 - [Full 21-avatar Pingu collection](design/brand-demo/pingu-collection.md): twelve further activities inspired by the owner's reference sheet, with all originals and provenance.
 - [Motion guideline](design/motion-guideline.md): proposed production rules, existing-source findings and Reduce Motion alternatives.
-- [Isolated native motion demo](design/brand-demo/motion-demo.md): owner-approved greeting/transitions/feedback comparison, instructions and native interaction evidence; main app unchanged.
+- [Isolated native motion demo](design/brand-demo/motion-demo.md): owner-approved greeting/transitions/feedback comparison, compact/desktop instructions, native Mac interaction evidence and separate iPhone Simulator launch captures; iOS touch/keyboard checks pending, main app unchanged.
 - [Prototype walkthrough worksheet](design/prototype-review-results.md): prepared tasks and pending calendar decisions; no participant results yet.
 - [MVP reuse and dependency map](engineering/mvp-reuse-map.md): existing code to retain/adapt and the safe order toward a manual local vertical slice.
 

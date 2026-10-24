@@ -5,46 +5,78 @@ public struct BrandMotionDemo: View {
     @Environment(\.accessibilityReduceMotion) private var systemReducedMotion
     @State private var previewReducedMotion = false
     @State private var resetToken = 0
+    @State private var selectedComparison = 0
 
     public init() {}
 
     public var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                BrandWordmark(size: 26)
-                Text("Small moves. A quieter app.")
-                    .font(BrandDemoFont.font(28, .bold)).tracking(-0.8)
-                Text("Sample only: Save and Copy show feedback. Nothing is stored, copied or sent.")
-                    .font(BrandDemoFont.font(13)).foregroundStyle(BrandDemoColor.muted)
-                HStack(spacing: 20) {
-                    Toggle("Preview reduced motion", isOn: $previewReducedMotion).toggleStyle(.switch)
-                    Spacer()
-                    Button("Reset both samples") { resetToken += 1 }
+        GeometryReader { geometry in
+            let compact = geometry.size.width < 800
+            let panelWidth = min(350, max(280, geometry.size.width - 32))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    BrandWordmark(size: 26)
+                    Text("Small moves. A quieter app.")
+                        .font(BrandDemoFont.font(28, .bold)).tracking(-0.8)
+                    Text("Sample only: Save and Copy show feedback. Nothing is stored, copied or sent.")
+                        .font(BrandDemoFont.font(13)).foregroundStyle(BrandDemoColor.muted)
+                    if compact {
+                        Picker("Motion comparison", selection: $selectedComparison) {
+                            Text("Motion").tag(0)
+                            Text("Reduced Motion").tag(1)
+                        }
+                        .pickerStyle(.segmented)
+                        Toggle("Preview reduced motion", isOn: $previewReducedMotion).toggleStyle(.switch)
+                            .font(BrandDemoFont.font(13))
+                            .disabled(selectedComparison == 1)
+                        Button("Reset both samples") { resetToken += 1 }
+                            .font(BrandDemoFont.font(13))
+                    } else {
+                        HStack(spacing: 20) {
+                            Toggle("Preview reduced motion", isOn: $previewReducedMotion).toggleStyle(.switch)
+                            Spacer()
+                            Button("Reset both samples") { resetToken += 1 }
+                        }
+                        .font(BrandDemoFont.font(13))
+                    }
+                    // AnyLayout keeps each panel's state when width or comparison changes.
+                    let layout = compact
+                        ? AnyLayout(ZStackLayout(alignment: .top))
+                        : AnyLayout(HStackLayout(alignment: .top, spacing: 24))
+                    layout {
+                        specimen(title: "Motion", forceReduced: previewReducedMotion, width: panelWidth,
+                                 visible: !compact || selectedComparison == 0, compact: compact)
+                        specimen(title: "Reduced Motion", forceReduced: true, width: panelWidth,
+                                 visible: !compact || selectedComparison == 1, compact: compact)
+                    }
+                    .id(resetToken)
+                    Text(systemReducedMotion
+                         ? "System Reduce Motion is on: both specimens stay still."
+                         : "Motion follows the system setting. Reduced Motion always stays still.")
+                        .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
+                    Text("Independent samples · Finite greeting · Still editors · No app data")
+                        .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
                 }
-                .font(BrandDemoFont.font(13))
-                HStack(alignment: .top, spacing: 24) {
-                    specimen(title: "Motion", forceReduced: previewReducedMotion)
-                    specimen(title: "Reduced Motion", forceReduced: true)
-                }
-                .id(resetToken)
-                Text(systemReducedMotion
-                     ? "System Reduce Motion is on: both specimens stay still."
-                     : "Left follows the system setting; the right comparison always stays still.")
-                    .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
-                Text("Independent samples · Finite greeting · Still editors · No app data")
-                    .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
+                .padding(compact ? 16 : 28).frame(maxWidth: .infinity, alignment: .center)
             }
-            .padding(28).frame(maxWidth: .infinity, alignment: .center)
+            #if os(iOS)
+            .scrollDismissesKeyboard(.interactively)
+            #endif
         }
         .foregroundStyle(BrandDemoColor.ink).background(.white)
         .environment(\.colorScheme, .light)
     }
 
-    private func specimen(title: String, forceReduced: Bool) -> some View {
+    private func specimen(title: String, forceReduced: Bool, width: CGFloat,
+                          visible: Bool, compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(BrandDemoFont.font(15, .semibold))
-            BrandMotionPanel(forceReducedMotion: forceReduced)
+            if !compact { Text(title).font(BrandDemoFont.font(15, .semibold)) }
+            BrandMotionPanel(forceReducedMotion: forceReduced, panelWidth: width, isVisible: visible)
         }
+        .opacity(visible ? 1 : 0)
+        .disabled(!visible)
+        .allowsHitTesting(visible)
+        .accessibilityHidden(!visible)
     }
 }
 
@@ -52,6 +84,8 @@ private enum MotionDemoPage { case today, reflection, message }
 
 private struct BrandMotionPanel: View {
     let forceReducedMotion: Bool
+    let panelWidth: CGFloat
+    let isVisible: Bool
     @Environment(\.accessibilityReduceMotion) private var systemReducedMotion
     @Environment(\.scenePhase) private var scenePhase
     @State private var page = MotionDemoPage.today
@@ -61,9 +95,10 @@ private struct BrandMotionPanel: View {
     @State private var reflectionSaved = false
     @State private var messageSaved = false
     @State private var messageCopied = false
+    @FocusState private var editorFocused: Bool
 
     private var motionEnabled: Bool {
-        !systemReducedMotion && !forceReducedMotion && scenePhase == .active
+        isVisible && !systemReducedMotion && !forceReducedMotion && scenePhase == .active
     }
 
     var body: some View {
@@ -92,7 +127,7 @@ private struct BrandMotionPanel: View {
             .transition(.opacity)
             Spacer(minLength: 0)
         }
-        .padding(24).frame(width: 350, height: 660, alignment: .topLeading)
+        .padding(24).frame(width: panelWidth, height: 660, alignment: .topLeading)
         .background(BrandDemoColor.ice, in: RoundedRectangle(cornerRadius: 32))
         .animation(motionEnabled ? .easeOut(duration: 0.18) : nil, value: page)
         .transaction { if !motionEnabled { $0.disablesAnimations = true } }
@@ -101,6 +136,18 @@ private struct BrandMotionPanel: View {
             messageSaved = false
             messageCopied = false
         }
+        .onChange(of: isVisible) { _, visible in if !visible { editorFocused = false } }
+        .onChange(of: page) { _, _ in editorFocused = false }
+        #if os(iOS)
+        .toolbar {
+            if isVisible && editorFocused {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { editorFocused = false }
+                }
+            }
+        }
+        #endif
     }
 
     private var today: some View {
@@ -170,6 +217,7 @@ private struct BrandMotionPanel: View {
 
     private func editor(_ label: String, text: Binding<String>) -> some View {
         TextEditor(text: text).font(BrandDemoFont.font(17)).lineSpacing(5)
+            .focused($editorFocused)
             .scrollContentBackground(.hidden).padding(12)
             .frame(height: 230).background(.white, in: RoundedRectangle(cornerRadius: 20))
             .accessibilityLabel(label)

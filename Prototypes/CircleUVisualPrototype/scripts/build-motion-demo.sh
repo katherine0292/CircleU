@@ -29,4 +29,5 @@ cat > "$app_path/Contents/Info.plist" <<'PLIST'
 <key>NSPrincipalClass</key><string>NSApplication</string>
 </dict></plist>
 PLIST
+codesign --force --sign - "$app_path"
 printf '\nBuilt isolated review app: %s\n' "$app_path"
