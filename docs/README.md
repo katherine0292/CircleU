@@ -30,6 +30,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 ## Project Reviews
 
+- [Flow and delivery checklist](product/flow-status-checklist.md): all MVP journeys, prepared artifacts, pending prototype work and separate production/device/release gates.
 - [Next prototype-review milestone](superpowers/plans/2026-10-24-prototype-review-milestone.md): proposed reflection/practice/retrieval review tasks, reuse boundaries and scoped subagent roles.
 - [Core-journey review brief](design/prototype-review-brief.md): missing branded route specimens, calendar interaction proposals and five neutral walkthrough tasks.
 - [Branded core journeys](design/brand-demo/core-journeys.md): capture/reflection/detail, direct Practice and changed-source context specimens.
