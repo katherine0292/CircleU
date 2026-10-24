@@ -38,6 +38,12 @@ Installed/launched only `com.circleu.prototype.motionsimulator` on **iPhone 18 P
 
 Happy-path form/selection checks preceded the offline/domain corrections; corrected error routes and cancellation were exercised on the rebuilt host. Password-update success, invalid/expired link and additional error states were source/render-reviewed; not every fixture's full tap journey was repeated. Device Hub accessibility value-setting verified input/state changes; it does not prove software-keyboard or swipe behavior.
 
+## Owner-reported maximum-text walkthrough
+
+On 24 October 2026, the owner confirmed the new Log in and password-reset request forms scroll and their text, fields and controls are readable and reachable on the selected **iPhone 18 Pro / iOS 27.0** prototype at **accessibility5** (`--recovery --largest-text`). The requested route was Log in → scroll to Forgot password? → reset request → scroll to Send reset link → Back. The owner reported both forms and controls work.
+
+This is a manual owner report against preview revision `fcb9969fdc21667a41a60686c0a46c82f7964fb5`, separate from automated input/button checks. It does not establish reset-link delivery, software-keyboard behavior or physical-device validation.
+
 ## Independent source review and resolution
 
 `/root/native_recovery_review` reviewed uncommitted source read-only under the requesting-code-review skill. No critical issue found. One important issue: offline reset/update could report success. Fixed all reset/update/recovery operation mappings for offline and checked both reset/update failures natively. Two minor issues also fixed: recovery now honors `--large-text`, and empty/invalid domain labels are rejected. No reviewer build/UI/test claims were adopted as independent runtime evidence. The review was not repeated after fixes.
@@ -46,4 +52,4 @@ The coordinator also made completed password-update Back return to login, and co
 
 ## Limits
 
-No production authentication, mail delivery, URL/token validation, Google flow, storage/migration, data preservation guarantee or full-app XCTest/CI run. Real keyboard submit/avoidance, new-form gestures at all sizes, VoiceOver, compact-height/landscape and hardware remain unverified. Earlier manual larger-text scrolling reports apply to the previous panels, not automatically to these forms. No Today work or production integration is inferred from this preview completion.
+No production authentication, mail delivery, URL/token validation, Google flow, storage/migration, data preservation guarantee or full-app XCTest/CI run. Real keyboard submit/avoidance, new-form gesture coverage at other sizes, VoiceOver, compact-height/landscape and hardware remain unverified. The owner-reported accessibility5 walkthrough above covers the new Log in and reset-request forms only; it does not certify every recovery state. No Today work or production integration is inferred from this preview completion.
