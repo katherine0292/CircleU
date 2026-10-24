@@ -97,23 +97,21 @@ public struct BrandOnboardingPreview: View {
 
     private var privacy: some View {
         panel(title: "Privacy and data") {
-            information("Saved here", symbol: "iphone", text: "No account needed. New entries stay on this device, with no CircleU sync or cloud AI.")
-            information("Backups & recovery", symbol: "arrow.counterclockwise", text: "Device backups may include entries. Recovery after losing your phone or deleting the app isn’t guaranteed.")
-            information("Export & delete", symbol: "square.and.arrow.up", text: "Export entries you want to keep. Deleting here won’t remove exported copies or entries in existing device backups.")
-            information("Optional voice", symbol: "mic", text: "Type anytime. Permission is requested only when you choose to record.")
-            quietButton("Manage earlier CircleU data") { navigate(to: .earlierData) }
+            information("On this device", symbol: "iphone", text: "No account needed. No CircleU sync or cloud AI.")
+            information("Backups", symbol: "arrow.counterclockwise", text: "Device backups may include entries. Lost entries may not be recoverable.")
+            information("Export & delete", symbol: "square.and.arrow.up", text: "Deleting here doesn’t remove exports or device backups.")
+            information("Voice", symbol: "mic", text: "Microphone access is requested only when you record.")
+            quietButton("Earlier CircleU data") { navigate(to: .earlierData) }
             primaryButton("Done") { back() }
         }
     }
 
     private var earlierData: some View {
         panel(title: "Earlier data") {
-            Text("Recover entries from your earlier CircleU account.")
+            Text("Log in to choose what to recover. Nothing imports automatically.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
-            information("Your choice", symbol: "hand.raised", text: "Logging in won’t automatically import or erase entries.")
-            information("Old account recovery", symbol: "person.crop.circle", text: "Account recovery needs an internet connection.")
             primaryButton("Log in") { navigate(to: .logIn) }
-            primaryButton("Continue without importing") { navigate(to: .opening) }
+            quietButton("Continue without importing") { navigate(to: .opening) }
         }
     }
 
@@ -122,25 +120,21 @@ public struct BrandOnboardingPreview: View {
             Image(systemName: "lock.shield")
                 .font(.system(size: 40, weight: .light))
                 .foregroundStyle(BrandDemoColor.blue).accessibilityHidden(true)
-            Text("Checking that your saved words can be opened safely.")
+            Text("Checking your saved words can be opened safely.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
-            Text("Entries stay on this device. Device backups may include them.")
-                .font(font(14, relativeTo: .subheadline)).foregroundStyle(BrandDemoColor.muted)
             quietButton("Privacy and data") { navigate(to: .privacy) }
-            quietButton("Back to welcome") { history = [.welcome] }
         }
     }
 
     private func failure(locked: Bool) -> some View {
         panel(title: locked ? "Your space is locked" : "Couldn’t open your space") {
             Text(locked
-                 ? "Unlock your iPhone, then try again. Your saved words haven’t been changed."
-                 : "Your saved words couldn’t be read. Nothing has been erased or replaced with an empty journal.")
+                 ? "Unlock your iPhone, then try again. Nothing has changed."
+                 : "Your saved words couldn’t be read. Nothing has been erased.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
             // Static failure fixtures remain failed; retry cannot manufacture readiness.
             primaryButton("Try again") { }
             quietButton("Privacy and data") { navigate(to: .privacy) }
-            quietButton("Back to welcome") { history = [.welcome] }
         }
     }
 
