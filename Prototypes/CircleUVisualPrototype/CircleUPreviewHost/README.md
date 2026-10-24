@@ -1,6 +1,6 @@
 # CircleU native preview host
 
-Status: Simulator build and selected navigation verified, 24 October 2026. The owner confirmed Log in opens on the physical iPhone (25 October update); selected on-phone keyboard, VoiceOver labels/error/Back and maximum-text regular-route checks passed by owner report; the owner reported completing the New password checks without stating per-check results, and they passed in Simulator; broader accessibility coverage remains pending. ContentView is back on the normal Log in entry.
+Status: Simulator build and selected navigation verified, 24 October 2026. The owner confirmed Log in opens on the physical iPhone (25 October update); selected on-phone keyboard, VoiceOver labels/error/Back and maximum-text regular-route checks passed by owner report; the owner explicitly confirmed all three New password checks work with VoiceOver and maximum text, and the separate Simulator checks also passed; broader accessibility coverage remains pending. ContentView is back on the normal Log in entry.
 
 Open `CircleUPreviewHost.xcodeproj` in Xcode for a normal Run of the existing local `CircleUVisualPrototype` library. Close the standalone package window before adding/opening the same local dependency in this project; that resolved a disabled Add Package button during setup. The production Circleu project remains separate.
 

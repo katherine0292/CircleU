@@ -15,9 +15,9 @@ Destination: iPhone 11 Pro Max / iOS 26.6.1, separately signed CircleU Preview. 
 | VoiceOver labels and error | Owner reported VoiceOver reads the labels and error; exact speech/transcript and announcement timing were not independently captured |
 | VoiceOver Back | Owner reported Back works |
 | Largest text + VoiceOver | Owner confirmed Welcome Get started/Log in, Privacy scrolling/Done, and Earlier data Continue without importing are readable/reachable; no reported focus trap |
-| New password Next / mismatch / completion | Owner initially saw Log in despite Xcode Running status. Fresh explicit build/install/launch completed; owner confirmed New password is visible. The owner then replied “Done” to the three interaction checks without stating pass/fail for each; recorded as **completed by owner report, result not stated** |
+| New password Next / mismatch / completion | Owner initially saw Log in despite Xcode Running status. Fresh explicit build/install/launch completed; owner confirmed New password is visible. The initial handback only recorded completion without a result. The owner has now explicitly answered **“All three work”** to the VoiceOver/maximum-text Next, mismatch and completion checks; all three passed by owner report |
 
-The New password specimen was a temporary ContentView configuration for review, using existing fixture code; it has since been restored (see the gate below). Initial Xcode Running status did not prove the intended screen was delivered: the owner saw Log in. A fresh physical build in `/tmp/circleu-phone-password-review`, explicit install and launch succeeded, and the owner then confirmed New password appears. The earlier mismatch's precise cause was not established; it is not attributed to a source bug. No real password changes. Restore the usual Log in entry point and reinstall after that check. The phone's text-size and VoiceOver preferences can be restored by the owner after review.
+The New password specimen was a temporary ContentView configuration for review, using existing fixture code; it has since been restored (see the gate below). Initial Xcode Running status did not prove the intended screen was delivered: the owner saw Log in. A fresh physical build in `/tmp/circleu-phone-password-review`, explicit install and launch succeeded, and the owner then confirmed New password appears. The earlier mismatch's precise cause was not established; it is not attributed to a source bug. No real password changes. Claude has restored the usual Log in entry point and installed that build; confirmation of the restored on-phone opening screen remains pending. The phone's text-size and VoiceOver preferences can be restored by the owner after review.
 
 ## New password fixture: Simulator evidence (Claude, 25 October)
 
@@ -32,7 +32,7 @@ The Simulator MCP integration was unavailable (command-line tools selected) and 
 | Correct the confirmation → **Done** | Updating progress, then Password updated; keyboard dismissed and the error is gone |
 | Password updated → Log in | Log in returns with Email and Password showing only their placeholders (empty) and no keyboard |
 
-`xcodebuild test` reported `TEST SUCCEEDED` (1 test). Screenshots stayed in local scratch storage. Limits: this is Simulator evidence only. It does not show VoiceOver speech or announcement timing, maximum text size or the physical keyboard; the owner's phone run of the same fixture has no stated per-check result. No source fix was needed and no branding/layout changed.
+`xcodebuild test` reported `TEST SUCCEEDED` (1 test). Screenshots stayed in local scratch storage. Limits: this is Simulator evidence only. It does not show VoiceOver speech or announcement timing, maximum text size or the physical keyboard; the owner subsequently confirmed all three physical VoiceOver/maximum-text checks passed; that is separate owner-reported evidence, not evidence from this Simulator runner. No source fix was needed and no branding/layout changed.
 
 ## Additional native Simulator checks
 
@@ -66,7 +66,7 @@ Source-token contrast calculations on the unchanged colors yielded ink/ice 17.56
 - [x] Record selected physical keyboard, VoiceOver labels/error/Back and maximum-text route checks.
 - [x] Check expired/invalid-link and failed-backup exits natively in Simulator.
 - [x] Exercise New password Next / mismatch / completion in Simulator (Claude, above). Simulator evidence only.
-- [ ] Physical New password result: owner reported completing the checks; pass/fail for each not stated.
+- [x] Physical New password result: owner explicitly confirmed all three requested checks work with VoiceOver and maximum text (Next/visible confirmation, spoken/correctable mismatch, matching completion/keyboard dismissal/empty Password on Log in).
 - [x] Restore the `BrandOnboardingPreview(initialScreen: .logIn)` entry point; Simulator rebuild/launch shows Log in.
 - [ ] Physical normal-entry confirmation: rebuilt, signed and installed on the iPhone; launch was refused because the phone was locked. Owner confirmation of the Log in screen pending.
 
