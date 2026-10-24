@@ -2,6 +2,8 @@
 
 Status: Draft 02, updated 23 October 2026. The owner approved Today/Journal/Practice navigation, removing duplicated steps and deferring circles/rewards. This is a research prototype, not an approved visual specification or a working app. Draft 01 remains on its original page as a reference.
 
+24 October: the owner authorized a Figma refresh using the original native proportions and accepted new branding/content. The [refresh handoff](figma-brand-refresh-brief.md) defines the ordered screens and review checks. Fresh metadata and canvas-tool checks hit the Starter-plan MCP call limit; no canvas update was made. The links below still open Draft 02, not the newer local brand review.
+
 ## File and ownership
 
 - [CircleU — MVP Research & Prototype](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd)
