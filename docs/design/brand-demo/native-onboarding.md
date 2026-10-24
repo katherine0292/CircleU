@@ -2,6 +2,8 @@
 
 24 October 2026. Owner-authorized isolated SwiftUI prototype. The production app and Figma remain unchanged.
 
+Follow-up: the owner selected an illustrated Pingu upper area with quiet reading/action space. The [new scene preview](../swiftui-previews/brand-07-welcome-scene.png) now uses the existing Pingu asset and native sky/snow shapes; the old plain comparison below remains a reference. The [interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) records actual Simulator button checks and remaining gesture/recovery gaps.
+
 Open the existing `Prototypes/CircleUVisualPrototype` package in Xcode, select the **CircleUVisualPrototype library** scheme and an iPhone destination, then open `Sources/CircleUVisualPrototype/BrandOnboardingPreview.swift`. Select **Onboarding · Welcome · phone** in Canvas. This was visually displayed on the iPhone 17 destination during this pass; it is Canvas evidence, not a newly installed Simulator app or a physical-device check.
 
 **Device-selection correction:** the toolbar run destination above did not establish the Canvas hardware model. The owner subsequently identified the generic iPhone Duo frame. Canvas has a separate **Preview Device** menu at its lower right; select **More → iPhone 18 Pro** (or a specific iPhone 17 entry) there. Do not treat the earlier Canvas displays as model-specific iPhone 17 validation. After the owner brought the prototype window forward, the onboarding Canvas was explicitly changed from Automatic–iPhone Duo to iPhone 18 Pro. Welcome was visually confirmed in the resulting phone frame, then Zoom to Fit selected (63%). This is model-specific Canvas appearance evidence, not a Simulator installation, interaction or hardware test.

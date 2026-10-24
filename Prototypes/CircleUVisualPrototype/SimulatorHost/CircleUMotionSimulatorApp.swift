@@ -7,8 +7,18 @@ struct CircleUMotionSimulatorApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                BrandMotionDemo()
-                    .toolbar(.hidden, for: .navigationBar)
+                Group {
+                    if ProcessInfo.processInfo.arguments.contains("--onboarding") {
+                        if ProcessInfo.processInfo.arguments.contains("--large-text") {
+                            BrandOnboardingPreview().environment(\.dynamicTypeSize, .accessibility1)
+                        } else {
+                            BrandOnboardingPreview()
+                        }
+                    } else {
+                        BrandMotionDemo()
+                    }
+                }
+                .toolbar(.hidden, for: .navigationBar)
             }
         }
     }

@@ -17,6 +17,8 @@ Generated 23 October 2026 from the [standalone preview package](../../../Prototy
 
 ## Editing previews and Xcode
 
+[Owner-selected Pingu upper scene](brand-07-welcome-scene.png) and [compact-width variant](brand-07-welcome-scene-compact.png) add a still sky/snow setting behind the existing mascot, leaving the copy/actions on a quiet surface. See the [native interaction review](../../qa/native-onboarding-interaction-review-2026-10-24.md) for actual Simulator checks and unresolved scrolling/recovery coverage.
+
 [Native onboarding — original layout, new brand](../brand-demo/native-onboarding.md) adds [regular Welcome](brand-06-welcome.png), [compact-width Welcome](brand-06-welcome-compact.png) and [comparison](brand-06-onboarding.png). These new exports are macOS ImageRenderer specimens. The corresponding Welcome, Privacy and larger-text views were also visually displayed in iPhone Xcode Canvas; native interaction and real readiness/storage are not certified.
 
 [Full Pingu collection](../brand-demo/pingu-collection.md): [all 21 avatars](brand-pingu-collection-21.png) and [the 12 new additions](brand-pingu-collection-12-new.png). Each pose is a separate transparent source asset.

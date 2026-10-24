@@ -13,7 +13,7 @@ source_root="$prototype_root/Sources/CircleUVisualPrototype"
 mkdir -p "$app_path" "$module_cache"
 "$swift_path" -parse-as-library -swift-version 6 -module-name CircleUMotionSimulator \
     -sdk "$sdk_path" -target arm64-apple-ios17.0-simulator -module-cache-path "$module_cache" \
-    "$source_root/BrandDemo.swift" "$source_root/BrandMotionDemo.swift" \
+    "$source_root/BrandDemo.swift" "$source_root/BrandMotionDemo.swift" "$source_root/BrandOnboardingPreview.swift" \
     "$prototype_root/SimulatorHost/CircleUMotionSimulatorApp.swift" \
     -o "$app_path/CircleUMotionSimulator"
 cp "$source_root/Resources/BrandArtwork/BrandLogo.png" "$app_path/"

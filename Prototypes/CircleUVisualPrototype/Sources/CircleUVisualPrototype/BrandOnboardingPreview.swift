@@ -10,9 +10,11 @@ public enum BrandOnboardingScreen: String, CaseIterable {
 public struct BrandOnboardingPreview: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var history: [BrandOnboardingScreen]
+    private let illustratedWelcome: Bool
 
-    public init(initialScreen: BrandOnboardingScreen = .welcome) {
+    public init(initialScreen: BrandOnboardingScreen = .welcome, illustratedWelcome: Bool = true) {
         _history = State(initialValue: [.welcome] + (initialScreen == .welcome ? [] : [initialScreen]))
+        self.illustratedWelcome = illustratedWelcome
     }
 
     private var screen: BrandOnboardingScreen { history.last ?? .welcome }
@@ -55,6 +57,14 @@ public struct BrandOnboardingPreview: View {
             VStack(spacing: 0) {
                 BrandArtwork(name: "PinguWelcomeV1")
                     .frame(width: 172, height: 172)
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        if illustratedWelcome {
+                            WelcomeScene()
+                                .padding(.horizontal, -32)
+                                .padding(.vertical, -20)
+                        }
+                    }
                     .accessibilityHidden(true)
                 Text("Find your words.")
                     .font(font(32, .bold, relativeTo: .largeTitle))
@@ -220,8 +230,38 @@ public struct BrandOnboardingGallery: View {
     private func specimen(_ title: String, width: CGFloat, height: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title).font(BrandDemoFont.font(13, .medium))
-            BrandOnboardingPreview().frame(width: width, height: height)
+            BrandOnboardingPreview(illustratedWelcome: false).frame(width: width, height: height)
         }
+    }
+}
+
+/// Reuses the accepted transparent mascot above; scenery stays behind the art, never the copy.
+private struct WelcomeScene: View {
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                LinearGradient(colors: [BrandDemoColor.sky.opacity(0.22), BrandDemoColor.ice],
+                               startPoint: .top, endPoint: .bottom)
+                Ellipse().fill(.white.opacity(0.85))
+                    .frame(width: geometry.size.width * 0.95, height: 105)
+                    .offset(x: -geometry.size.width * 0.3, y: 32)
+                Ellipse().fill(BrandDemoColor.sky.opacity(0.12))
+                    .frame(width: geometry.size.width * 0.9, height: 85)
+                    .offset(x: geometry.size.width * 0.35, y: 24)
+                Capsule().fill(.white.opacity(0.8)).frame(width: 57, height: 14)
+                    .position(x: geometry.size.width * 0.16, y: 45)
+                Capsule().fill(.white.opacity(0.65)).frame(width: 40, height: 10)
+                    .position(x: geometry.size.width * 0.84, y: 72)
+            }
+            .mask(LinearGradient(stops: [.init(color: .clear, location: 0),
+                                         .init(color: .white, location: 0.15),
+                                         .init(color: .white, location: 0.75),
+                                         .init(color: .clear, location: 1)],
+                                 startPoint: .top, endPoint: .bottom))
+            .clipped()
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
