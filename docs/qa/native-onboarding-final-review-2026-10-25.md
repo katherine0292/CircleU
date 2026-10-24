@@ -68,6 +68,6 @@ Source-token contrast calculations on the unchanged colors yielded ink/ice 17.56
 - [x] Exercise New password Next / mismatch / completion in Simulator (Claude, above). Simulator evidence only.
 - [x] Physical New password result: owner explicitly confirmed all three requested checks work with VoiceOver and maximum text (Next/visible confirmation, spoken/correctable mismatch, matching completion/keyboard dismissal/empty Password on Log in).
 - [x] Restore the `BrandOnboardingPreview(initialScreen: .logIn)` entry point; Simulator rebuild/launch shows Log in.
-- [ ] Physical normal-entry confirmation: rebuilt, signed and installed on the iPhone; launch was refused because the phone was locked. Owner confirmation of the Log in screen pending.
+- [x] Physical normal-entry confirmation: the restored build was signed and installed on the iPhone. The first launch was refused while the phone was locked. After unlock, `devicectl` launched it, and the owner sent a phone screenshot showing Log in with empty Email and Password placeholders (25 October, 08:17 local). Owner-supplied screenshot; the image is not stored in Git.
 
 Unresolved Inspector warnings, rotation/compact-height, all text sizes, hardware keyboard and real Reduce Motion/lifecycle checks remain explicit accessibility/implementation follow-ups. Finishing this bounded owner walkthrough does not clear those gates or approve production feature coding. Today work would remain prototype review only.
