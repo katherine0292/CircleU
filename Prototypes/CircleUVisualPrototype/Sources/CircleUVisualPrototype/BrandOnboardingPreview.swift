@@ -177,10 +177,13 @@ public struct BrandOnboardingPreview: View {
     }
 
     private func quietButton(_ title: String, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
-            .font(font(14, .semibold, relativeTo: .subheadline))
-            .buttonStyle(.plain).foregroundStyle(BrandDemoColor.blue)
-            .frame(maxWidth: .infinity, minHeight: 44)
+        // The frame and content shape sit inside the label so the whole 44 pt row is tappable.
+        Button(action: action) {
+            Text(title).font(font(14, .semibold, relativeTo: .subheadline))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain).foregroundStyle(BrandDemoColor.blue)
     }
 
     private func font(_ size: CGFloat, _ weight: Font.Weight = .regular,
