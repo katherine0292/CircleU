@@ -4,6 +4,8 @@ Status: Draft 02, updated 23 October 2026. The owner approved Today/Journal/Prac
 
 24 October: the owner authorized a Figma refresh using the original native proportions and accepted new branding/content. The [refresh handoff](figma-brand-refresh-brief.md) defines the ordered screens and review checks. Fresh metadata and canvas-tool checks hit the Starter-plan MCP call limit; no canvas update was made. The links below still open Draft 02, not the newer local brand review.
 
+The owner then authorized the [native onboarding brand specimen](brand-demo/native-onboarding.md) while connector access is limited. It is available in the existing SwiftUI package and was visually displayed in Xcode's iPhone Canvas. This does not update Draft 02 or the production app.
+
 ## File and ownership
 
 - [CircleU — MVP Research & Prototype](https://www.figma.com/design/RVLtfmIVcO8gNk5fam0Vjd)

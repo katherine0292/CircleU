@@ -2,11 +2,13 @@
 
 Status: local interactive design proposal, now extended with earlier-data choices, simulated storage gates and re-entry rules. The [focused onboarding review](../../qa/onboarding-flow-review-2026-10-24.md) records the new checks and remaining gates. Figma access was rechecked and still returned its Starter-plan MCP call limit; no canvas edits were made. This is not implemented onboarding, verified storage behavior or production approval.
 
+Later 24 October: the owner authorized the isolated [native onboarding specimen](native-onboarding.md). It now applies the selected original composition, accepted branding and v3 copy in SwiftUI, with named optional/error fixtures. Welcome/Privacy/larger-text Canvas displays were visually checked. Native tap/scroll behavior, storage gating and Figma adoption remain pending; the HTML review retains its separate simulated flow coverage.
+
 ## What to review now
 
-Latest owner feedback selects the [original native composition](../original-layout-reuse.md) as the layout baseline. Carry the reviewed concise copy/artwork/palette into that structure in the next proposed specimen; the local HTML and earlier fixed-size boards remain comparison material. No native reskin has been applied yet.
+Latest owner feedback selects the [original native composition](../original-layout-reuse.md) as the layout baseline. The native specimen now carries the reviewed copy/artwork/palette into that structure. The local HTML and earlier fixed-size boards remain comparison material; no production reskin has been applied.
 
-The [24 October research follow-up](../onboarding-patterns-research-2026-10-24.md) supersedes the local copy below where noted: v3 uses **Find your words**, shorter privacy/earlier-data text, no repeated Today helper and finite Pingu greeting/navigation motion with a still alternative. The tables below retain the v2 review baseline; Figma/SwiftUI adoption is still pending.
+The [24 October research follow-up](../onboarding-patterns-research-2026-10-24.md) supersedes the local copy below where noted: v3 uses **Find your words**, shorter privacy/earlier-data text, no repeated Today helper and finite Pingu greeting/navigation motion with a still alternative. The tables below retain the v2 review baseline. The native onboarding specimen adopts the newer copy and a still mascot; Figma adoption and production behavior remain pending.
 
 Review the clickable first-use proposal in the conversation first. Check whether the purpose is clear, Get started reaches an empty Today only when the simulated storage result is Ready, Privacy returns to the originating screen, and earlier-data recovery can be reviewed or postponed. Screen selectors, Restart review, Reopen preview and Storage outcome are review controls outside the depicted app; they do not reset app data or test real storage.
 

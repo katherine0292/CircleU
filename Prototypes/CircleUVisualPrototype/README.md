@@ -57,3 +57,7 @@ The brand board and Today proposal have named Canvas previews. Their macOS Image
 - iOS 17/macOS 14 package declarations are preview-library compatibility only; they do not change CircleU's device-support plan. The render executable requires macOS.
 
 The [hub and asset review](../../docs/design/preview-review-2026-10-23.md) records proposed refinements. Reflection and message editors are now included; full app validation and legacy-data recovery remain separate work.
+
+## Native onboarding review
+
+The owner-approved original-layout brand pass is now in `Sources/CircleUVisualPrototype/BrandOnboardingPreview.swift`. Open this package in Xcode with the **CircleUVisualPrototype** library scheme and an iPhone destination, then select **Onboarding · Welcome · phone**. [Review guide, renders and verified limits](../../docs/design/brand-demo/native-onboarding.md). Optional panels use in-memory navigation; Opening is static, Retry is inert and earlier-data review links to the existing Figma flow. No storage or main-app integration.
