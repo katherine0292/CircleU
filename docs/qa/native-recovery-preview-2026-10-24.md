@@ -53,3 +53,7 @@ The coordinator also made completed password-update Back return to login, and co
 ## Limits
 
 No production authentication, mail delivery, URL/token validation, Google flow, storage/migration, data preservation guarantee or full-app XCTest/CI run. Real keyboard submit/avoidance, new-form gesture coverage at other sizes, VoiceOver, compact-height/landscape and hardware remain unverified. The owner-reported accessibility5 walkthrough above covers the new Log in and reset-request forms only; it does not certify every recovery state. No Today work or production integration is inferred from this preview completion.
+
+## Keyboard and accessibility follow-up
+
+See the [native keyboard/accessibility review](native-recovery-keyboard-accessibility-2026-10-24.md) for selected software-keyboard checks, focused-field and hit-area corrections, unresolved Inspector warnings and the pending physical VoiceOver walkthrough. The earlier limits above describe the initial preview pass; this follow-up narrows keyboard uncertainty without claiming full accessibility qualification.

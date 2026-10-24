@@ -48,12 +48,12 @@ public struct BrandRecoveryPreview: View {
                 .font(font(17, .medium)).buttonStyle(.plain)
                 .foregroundStyle(BrandDemoColor.blue).frame(minHeight: 44)
                 .padding(.horizontal, 24)
-            ViewThatFits(in: .vertical) {
-                content
-                ScrollView { content }
-                    .scrollDismissesKeyboard(.interactively)
+            if renderingSnapshot {
+                // ImageRenderer does not render this native scrolling container.
+                content.frame(maxHeight: .infinity, alignment: .top)
+            } else {
+                interactiveContent
             }
-            .frame(maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .foregroundStyle(BrandDemoColor.ink)
@@ -63,6 +63,27 @@ public struct BrandRecoveryPreview: View {
         .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: screen)
         .task(id: screen) { await advanceProgress() }
         .onDisappear { clearSecrets() }
+    }
+
+    private var interactiveContent: some View {
+        // Keep one field hierarchy while the keyboard changes available height.
+        ScrollViewReader { proxy in
+            ScrollView { content }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: focusedField) { _, field in
+                    if let field { proxy.scrollTo(field, anchor: .center) }
+                }
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { _ in
+                    if let focusedField { proxy.scrollTo(focusedField, anchor: .center) }
+                }
+#if os(iOS)
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
+                    if let focusedField { proxy.scrollTo(focusedField, anchor: .center) }
+                }
+#endif
+        }
+        .id(screen) // A new route starts at its heading, not the previous field's offset.
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     private var content: some View {
@@ -231,6 +252,7 @@ public struct BrandRecoveryPreview: View {
             }
             .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 14))
         }
+        .id(Field.email)
     }
 
     private func passwordField(_ label: String, text: Binding<String>, field: Field) -> some View {
@@ -244,7 +266,7 @@ public struct BrandRecoveryPreview: View {
                     SecureField(label, text: text)
                         .textContentType(field == .password ? .password : .newPassword)
                         .focused($focusedField, equals: field).privacySensitive()
-                        .submitLabel(.done).onSubmit {
+                        .submitLabel(field == .newPassword ? .next : .done).onSubmit {
                             if field == .password { submitLogin() }
                             else if field == .newPassword { focusedField = .confirmation }
                             else { submitNewPassword() }
@@ -253,6 +275,7 @@ public struct BrandRecoveryPreview: View {
             }
             .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 14))
         }
+        .id(field)
     }
 
     private var recoverySelection: some View {
@@ -319,9 +342,12 @@ public struct BrandRecoveryPreview: View {
     }
 
     private func secondary(_ title: String, perform: @escaping () -> Void) -> some View {
-        Button(title, action: perform).font(font(14, .semibold, relativeTo: .subheadline))
-            .buttonStyle(.plain).foregroundStyle(BrandDemoColor.blue)
-            .frame(maxWidth: .infinity, minHeight: 44)
+        Button(action: perform) {
+            Text(title).font(font(14, .semibold, relativeTo: .subheadline))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain).foregroundStyle(BrandDemoColor.blue)
     }
 
     private func font(_ size: CGFloat, _ weight: Font.Weight = .regular,

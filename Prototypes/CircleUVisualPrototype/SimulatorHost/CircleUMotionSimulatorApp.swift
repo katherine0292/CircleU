@@ -27,7 +27,7 @@ struct CircleUMotionSimulatorApp: App {
         }
     }
 
-    private var recovery: some View {
+    @ViewBuilder private var recovery: some View {
         let args = ProcessInfo.processInfo.arguments
         let initial = args.firstIndex(of: "--recovery-screen").flatMap { index in
             args.indices.contains(index + 1) ? BrandRecoveryScreen(rawValue: args[index + 1]) : nil
@@ -35,8 +35,15 @@ struct CircleUMotionSimulatorApp: App {
         let scenario = args.firstIndex(of: "--scenario").flatMap { index in
             args.indices.contains(index + 1) ? BrandRecoveryScenario(rawValue: args[index + 1]) : nil
         } ?? .available
-        return BrandOnboardingPreview(initialScreen: .logIn, recoveryScreen: initial, recoveryScenario: scenario)
-            .environment(\.dynamicTypeSize, args.contains("--largest-text") ? .accessibility5 : (args.contains("--large-text") ? .accessibility1 : .large))
+        let preview = BrandOnboardingPreview(initialScreen: .logIn, recoveryScreen: initial, recoveryScenario: scenario)
+        if args.contains("--largest-text") {
+            preview.environment(\.dynamicTypeSize, .accessibility5)
+        } else if args.contains("--large-text") {
+            preview.environment(\.dynamicTypeSize, .accessibility1)
+        } else {
+            // Inherit device settings so Accessibility Inspector can vary text size.
+            preview
+        }
     }
 
 }

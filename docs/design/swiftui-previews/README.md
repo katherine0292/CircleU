@@ -54,3 +54,5 @@ Live Figma contexts/screenshots were read for all three source frames. Native ro
 The initial renderer omitted ScrollView contents. Direct static layout resolved the missing cards/text; all three boards and the compact-width render were visually inspected afterward. This checks the declared fixed sizes only, not short-screen scrolling, Dynamic Type, VoiceOver, keyboard handling or iOS behavior.
 
 Use the [interactive Figma prototype](https://www.figma.com/proto/RVLtfmIVcO8gNk5fam0Vjd?node-id=11-100&starting-point-node-id=11%3A100) for navigation and editing flows. Current design decisions remain in the [design reference](../README.md).
+
+- [Largest-text native Log in keyboard](brand-10-login-keyboard-largest-simulator.png): iPhone 18 Pro/iOS 27.0 Simulator capture after focused-field scrolling corrections; [verification and limits](../../qa/native-recovery-keyboard-accessibility-2026-10-24.md).
