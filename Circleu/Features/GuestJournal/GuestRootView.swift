@@ -32,7 +32,12 @@ struct GuestRootView: View {
     }
 
     @State private var phase: Phase = .opening
-    var composition: GuestComposition = .live
+    private let composition: GuestComposition
+
+    init(composition: GuestComposition? = nil) {
+        self.composition = composition ?? .live
+        GuestBrand.applyNavigationBarFonts() // Before any navigation bar appears.
+    }
 
     var body: some View {
         switch phase {
@@ -45,7 +50,7 @@ struct GuestRootView: View {
             VStack(spacing: 16) {
                 Text(message).multilineTextAlignment(.center)
                 Button("Try again") { phase = .opening }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(GuestBrandButtonStyle())
             }
             .padding(24)
         }

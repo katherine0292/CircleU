@@ -25,3 +25,12 @@ Owner's reply: “all good, merge”. These are owner reports, not agent-observe
 ## Open
 
 Brand font, largest-text and VoiceOver passes, the on-device Data Protection test, and release qualification.
+
+## Brand polish follow-up (branch `codex/guest-brand-polish`)
+
+- Plus Jakarta Sans is bundled under the SIL Open Font License, with `OFL-PlusJakartaSans.txt` shipped beside it, and registered at runtime for the guest screens only. All text uses Dynamic Type styles; navigation titles use the bold weight, scaled with `UIFontMetrics`.
+- The approved preview colours (ink, blue, ice, muted) and the Today avatar illustration are used, plus brand buttons (filled and white, 54 pt). Decorative images are hidden from VoiceOver; the editors keep their labels.
+- `performAccessibilityAudit()` on Today, Write, Journal, Detail and Edit at default and accessibility-extra-extra-extra-large text, run during the UI flow. Both passed. Remaining findings:
+  - system controls: keyboard suggestion slots, and the navigation-bar Edit and Back buttons;
+  - at the largest size: the intentional three-line cut-off of long entries in Journal, and a contrast reading on a row passing under the floating tab bar.
+- **On-device encryption test passed** on the iPhone 11 Pro Max: `testRealDataProtectionOnDevice` confirmed `.completeUnlessOpen` on the store files. It ran under the separate test app ID `com.tuannm3812.circleu.guesttest.Circleu`, never the real app, and that temporary app was uninstalled afterwards.
