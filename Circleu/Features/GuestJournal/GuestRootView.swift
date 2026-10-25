@@ -37,6 +37,7 @@ struct GuestComposition {
 
     /// The journal and Practice, sharing one local store.
     func makeSession() async throws -> (journal: GuestJournalViewModel, practice: GuestPracticeViewModel) {
+        GuestSettingsViewModel.removeExports() // Never leave an export behind from an earlier run.
         let location = try location()
         let store = try await SwiftDataGuestJournalStore.open(location: location)
         let viewModel = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location))

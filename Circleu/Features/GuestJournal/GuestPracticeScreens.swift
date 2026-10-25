@@ -41,6 +41,7 @@ struct GuestPracticeHomeView: View {
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Practice")
             .searchable(text: $query, prompt: "Search messages")
+            .onChange(of: practice.dataGeneration) { path = [] } // Delete all closes open messages.
             .navigationDestination(for: GuestPracticeRoute.self) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
             }
@@ -113,10 +114,40 @@ struct GuestPracticeRouteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @State private var composer: GuestPracticeComposerViewModel?
 
+    /// A kept draft from somewhere else (on its own vs. another entry) is never replaced silently.
+    private var otherDraft: GuestPracticeDraft? {
+        guard composer == nil, case .new(let sourceEntryID) = route, let draft = practice.keptDraft,
+              draft.sourceEntryID != sourceEntryID else { return nil }
+        return draft
+    }
+
     var body: some View {
         Group {
             if let composer {
                 GuestPracticeMessageView(composer: composer, practice: practice, journal: journal)
+            } else if let draft = otherDraft {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("You have an unsaved practice draft")
+                        .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.ink)
+                        .accessibilityAddTraits(.isHeader)
+                    Text(GuestPracticeTag.label(sourceEntryID: draft.sourceEntryID, entries: journal.entries))
+                        .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+                    Text(draft.wording.isEmpty ? draft.situation : draft.wording).lineLimit(3)
+                        .foregroundStyle(GuestBrand.ink)
+                    Button("Continue that draft") {
+                        composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: draft.sourceEntryID,
+                                                                  suggester: practice.suggester, restoring: draft,
+                                                                  practice: practice)
+                    }
+                    .buttonStyle(GuestBrandButtonStyle())
+                    Button("Start new and discard it") {
+                        practice.clearDraft(id: draft.id)
+                        makeComposer()
+                    }
+                    .buttonStyle(GuestBrandButtonStyle(filled: false))
+                }
+                .padding(24)
+                .frame(maxHeight: .infinity, alignment: .top)
             } else if case .failed(let message) = practice.loadState {
                 VStack(spacing: 16) {
                     Text(message).multilineTextAlignment(.center)
@@ -136,7 +167,7 @@ struct GuestPracticeRouteView: View {
     }
 
     private func makeComposer() {
-        guard composer == nil else { return }
+        guard composer == nil, otherDraft == nil else { return }
         switch route {
         case .new(let sourceEntryID):
             // A kept draft for the same start (on its own, or the same entry) is restored.
@@ -215,6 +246,10 @@ struct GuestPracticeMessageView: View {
             Text("What would you like to say?")
                 .font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
+            if let warning = practice.draftWarning {
+                Label(warning, systemImage: "info.circle")
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            }
             field("Situation", text: $composer.situation, prompt: "What’s going on?")
             field("Goal", text: $composer.goal, prompt: "What do you hope happens?")
             VStack(alignment: .leading, spacing: 6) {
@@ -244,6 +279,8 @@ struct GuestPracticeMessageView: View {
             Text("Copying won’t save or send it.")
                 .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
         }
+        // Nothing changes while saving, so what's saved (and cleared from drafts) is what's shown.
+        .disabled(composer.isSaving)
     }
 
     @ViewBuilder private var suggestionsSection: some View {

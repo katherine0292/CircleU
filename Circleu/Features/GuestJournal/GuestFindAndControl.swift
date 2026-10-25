@@ -172,7 +172,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again. Nothing was removed."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let draftNotRemovedMessage = "Everything was deleted, but a draft couldn’t be removed. It’s still on this iPhone until you clear it."
+    static let draftNotRemovedMessage = "Your saved journal and practice were deleted, but an unsaved draft couldn’t be removed. Try Delete all data again."
 
     let journal: GuestJournalViewModel
     let practice: GuestPracticeViewModel
@@ -182,8 +182,21 @@ final class GuestSettingsViewModel: ObservableObject {
         self.practice = practice
     }
 
-    /// Writes the export to a protected temporary file for the share sheet; the caller removes it.
-    func makeExportFile(directory: URL = FileManager.default.temporaryDirectory) async -> URL? {
+    /// Where exports wait for the share sheet. Emptied after sharing, at launch and by Delete all.
+    nonisolated static var exportFolder: URL {
+        FileManager.default.temporaryDirectory.appendingPathComponent("CircleUExport", isDirectory: true)
+    }
+
+    nonisolated static func removeExports(in folder: URL = exportFolder) {
+        try? FileManager.default.removeItem(at: folder)
+    }
+
+    /// Writes the export to a protected file for the share sheet; the caller removes it. Runs
+    /// alone (no Delete all at the same time), and only exports a complete journal.
+    func makeExportFile(directory: URL = GuestSettingsViewModel.exportFolder) async -> URL? {
+        guard !isWorking else { return nil }
+        isWorking = true
+        defer { isWorking = false }
         message = nil
         await journal.load()
         await practice.load()
@@ -193,11 +206,12 @@ final class GuestSettingsViewModel: ObservableObject {
         }
         let url = directory.appendingPathComponent("CircleU export \(Date().formatted(.iso8601.year().month().day())).txt")
         do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let data = Data(GuestExport.text(entries: entries, messages: messages).utf8)
             #if os(iOS)
-            try GuestExport.text(entries: entries, messages: messages).write(to: url, atomically: true, encoding: .utf8)
-            try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: url.path)
+            try data.write(to: url, options: [.atomic, .completeFileProtection])
             #else
-            try GuestExport.text(entries: entries, messages: messages).write(to: url, atomically: true, encoding: .utf8)
+            try data.write(to: url, options: .atomic)
             #endif
             return url
         } catch {
@@ -207,8 +221,9 @@ final class GuestSettingsViewModel: ObservableObject {
         }
     }
 
-    /// Deletes everything in the guest journal (not the earlier app's data). Drafts go last, so a
-    /// failed delete leaves everything as it was.
+    /// Deletes everything in the guest journal, all or nothing: drafts are moved aside first, the
+    /// store is cleared in one transaction, then the drafts are deleted (or put back if the store
+    /// couldn't be cleared). The earlier app's data is never touched.
     func deleteAll() async {
         guard let data = practice.store as? any GuestDataStore, !isWorking else {
             message = Self.deleteFailedMessage
@@ -216,19 +231,36 @@ final class GuestSettingsViewModel: ObservableObject {
         }
         isWorking = true
         defer { isWorking = false }
+        message = nil
+        do {
+            try await journal.stageDraftRemoval()
+            try await practice.stageDraftRemoval()
+        } catch {
+            await restoreDrafts()
+            message = Self.deleteFailedMessage
+            return
+        }
         do {
             try await data.deleteAll()
         } catch GuestJournalError.savedButUnprotected {
             // Committed.
         } catch {
+            await restoreDrafts()
             message = Self.deleteFailedMessage
             return
         }
-        let draftsCleared = await journal.discardDraft()
-        let practiceDraftCleared = await practice.discardDraft()
+        var draftsRemoved = true
+        do { try await journal.finishDraftRemoval(commit: true) } catch { draftsRemoved = false }
+        do { try await practice.finishDraftRemoval(commit: true) } catch { draftsRemoved = false }
+        Self.removeExports()
         await journal.load()
         await practice.load()
-        message = draftsCleared && practiceDraftCleared ? Self.deletedMessage : Self.draftNotRemovedMessage
+        message = draftsRemoved ? Self.deletedMessage : Self.draftNotRemovedMessage
+    }
+
+    private func restoreDrafts() async {
+        try? await journal.finishDraftRemoval(commit: false)
+        try? await practice.finishDraftRemoval(commit: false)
     }
 }
 
@@ -245,7 +277,8 @@ struct GuestSettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 section("Privacy and data") {
-                    Text("Your journal and practice messages are kept on this iPhone. CircleU doesn’t upload or sync them, and suggestions are made on this iPhone. Your iPhone’s own backups (iCloud or a computer) may include them.")
+                    Text("Your journal and practice messages are kept on this iPhone. CircleU doesn’t upload or sync them, and suggestions are made on this iPhone.")
+                    Text("Your iPhone’s own backups (iCloud or a computer) may include them. Restoring an older backup can bring back things you deleted, and exports you saved elsewhere aren’t deleted here.")
                     Text("Recording is used only while you dictate; no audio is saved.")
                 }
                 section("Your data") {

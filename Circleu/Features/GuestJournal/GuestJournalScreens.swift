@@ -341,6 +341,7 @@ struct GuestJournalListView: View {
                 GuestEntryDetailView(entryID: id, journal: journal, practice: practice)
             }
         }
+        .id(practice.dataGeneration) // Delete all closes anything open in Journal.
     }
 }
 

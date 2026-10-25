@@ -350,10 +350,14 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
     }
 
     func deleteAll() throws {
-        for entry in try fetch(FetchDescriptor<Entry>()) { modelContext.delete(entry) }
-        for message in try fetch(FetchDescriptor<PracticeMessage>()) { modelContext.delete(message) }
-        for receipt in try fetch(FetchDescriptor<SavedDraft>()) { modelContext.delete(receipt) }
-        try commit(entryID: UUID()) // One transaction.
+        // Read everything first, so a failed read can't leave deletions pending in the context.
+        let entries = try fetch(FetchDescriptor<Entry>())
+        let messages = try fetch(FetchDescriptor<PracticeMessage>())
+        let receipts = try fetch(FetchDescriptor<SavedDraft>())
+        entries.forEach(modelContext.delete)
+        messages.forEach(modelContext.delete)
+        receipts.forEach(modelContext.delete)
+        try commit(entryID: UUID()) // One transaction; rolled back on failure.
     }
 
     func delete(id: UUID) throws {
@@ -371,8 +375,9 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
             .map(Self.value)
     }
 
-    func createPractice(situation: String, goal: String, wording: String,
-                        sourceEntryID: UUID?) throws -> GuestPracticeMessage {
+    func createPractice(situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+                        draftID: UUID?) throws -> GuestPracticeMessage {
+        if let draftID, try isDraftSaved(draftID) { throw GuestJournalError.draftAlreadySaved }
         // Never link to an entry that no longer exists.
         if let sourceEntryID, try fetch(FetchDescriptor<Entry>(predicate: #Predicate { $0.id == sourceEntryID })).isEmpty {
             throw GuestJournalError.notFound
@@ -381,6 +386,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         let row = PracticeMessage(id: UUID(), situation: situation, goal: goal, wording: wording,
                                   sourceEntryID: sourceEntryID, revision: 0, createdAt: now, updatedAt: now)
         modelContext.insert(row)
+        if let draftID { modelContext.insert(SavedDraft(id: draftID, savedAt: now)) } // Same transaction.
         try commit(entryID: row.id)
         return Self.value(row)
     }

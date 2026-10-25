@@ -18,6 +18,10 @@ nonisolated protocol GuestDraftStore: Sendable {
     func save(id: UUID, text: String) async throws
     /// Removes the kept draft only if it is still the draft with this ID.
     func remove(id: UUID) async throws
+    /// Delete all, step 1: moves any kept draft aside (reversibly). Throws if it can't.
+    func stageRemoval() async throws
+    /// Delete all, step 2: deletes the staged copy (`true`) or puts it back (`false`).
+    func finishRemoval(commit: Bool) async throws
 }
 
 /// One protected JSON file next to the journal store. An actor, so operations apply in order.
@@ -59,6 +63,31 @@ actor FileGuestDraftStore: GuestDraftStore {
         }
         do { try protection.apply(url) } catch {
             throw GuestJournalError.protectionFailed("draft") // The text is kept.
+        }
+    }
+
+    private var stagedURL: URL { url.appendingPathExtension("deleting") }
+
+    func stageRemoval() throws {
+        try finishRemoval(commit: false) // Put back anything left from an interrupted attempt first.
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+        do { try FileManager.default.moveItem(at: url, to: stagedURL) } catch {
+            throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
+        }
+    }
+
+    func finishRemoval(commit: Bool) throws {
+        guard FileManager.default.fileExists(atPath: stagedURL.path) else { return }
+        do {
+            if commit {
+                try FileManager.default.removeItem(at: stagedURL)
+            } else if !FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.moveItem(at: stagedURL, to: url)
+            } else {
+                try FileManager.default.removeItem(at: stagedURL) // A newer draft exists; keep that one.
+            }
+        } catch {
+            throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
         }
     }
 

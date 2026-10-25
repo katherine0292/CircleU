@@ -225,8 +225,10 @@ private actor MemoryPracticeStore: GuestPracticeStore {
 
     func loadPractice() throws -> [GuestPracticeMessage] { messages.sorted { $0.updatedAt > $1.updatedAt } }
 
-    func createPractice(situation: String, goal: String, wording: String,
-                        sourceEntryID: UUID?) throws -> GuestPracticeMessage {
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
+
+    func createPractice(situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+                        draftID: UUID?) throws -> GuestPracticeMessage {
         try check()
         writes += 1
         let message = GuestPracticeMessage(id: UUID(), situation: situation, goal: goal, wording: wording,
@@ -275,8 +277,10 @@ private actor SuspendedPracticeStore: GuestPracticeStore {
     func release() { pending?.resume(); pending = nil }
 
     func loadPractice() throws -> [GuestPracticeMessage] { [] }
-    func createPractice(situation: String, goal: String, wording: String,
-                        sourceEntryID: UUID?) async throws -> GuestPracticeMessage {
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
+
+    func createPractice(situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+                        draftID: UUID?) async throws -> GuestPracticeMessage {
         await withCheckedContinuation { pending = $0 }
         return GuestPracticeMessage(id: UUID(), situation: situation, goal: goal, wording: wording,
                                     sourceEntryID: sourceEntryID, revision: 0, createdAt: Date(), updatedAt: Date())

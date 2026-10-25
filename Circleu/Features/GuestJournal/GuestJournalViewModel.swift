@@ -59,6 +59,8 @@ final class GuestJournalViewModel: ObservableObject {
     /// False if a kept draft exists but couldn't be read: don't overwrite it.
     private var canKeepDraft: Bool
     private var settingDraftQuietly = false
+    /// True while Delete all runs, so no draft write can recreate a file mid-way.
+    private var draftsPaused = false
     /// Every draft write and removal runs in this order, one after another.
     private var lastDraftOperation: Task<Void, Never>?
 
@@ -178,20 +180,23 @@ final class GuestJournalViewModel: ObservableObject {
         return nil
     }
 
-    /// Clears the draft on screen and on this phone (Delete all data). Returns false if the kept
-    /// copy couldn't be removed.
-    func discardDraft() async -> Bool {
-        setDraftQuietly("")
-        draftID = UUID()
-        draftWarning = nil
-        guard let drafts else { return true }
+    /// Delete all: stops keeping the draft and moves the kept copy aside, reversibly.
+    func stageDraftRemoval() async throws {
+        draftsPaused = true
         await flushDraft()
-        do {
-            try await drafts.save(id: draftID, text: "") // Empty text removes the file.
-            canKeepDraft = true
-            return true
-        } catch {
-            return false
+        try await drafts?.stageRemoval()
+    }
+
+    /// Delete all: `commit` deletes the staged copy and clears the draft on screen; otherwise the
+    /// draft is put back as it was. Draft keeping resumes either way.
+    func finishDraftRemoval(commit: Bool) async throws {
+        defer { draftsPaused = false }
+        try await drafts?.finishRemoval(commit: commit)
+        if commit {
+            setDraftQuietly("")
+            draftID = UUID()
+            draftWarning = nil
+            canKeepDraft = drafts != nil
         }
     }
 
@@ -207,7 +212,7 @@ final class GuestJournalViewModel: ObservableObject {
     }
 
     private func keepDraft() {
-        guard let drafts, canKeepDraft else { return }
+        guard let drafts, canKeepDraft, !draftsPaused else { return }
         let id = draftID
         let text = draft
         enqueueDraftOperation { try await drafts.save(id: id, text: text) }

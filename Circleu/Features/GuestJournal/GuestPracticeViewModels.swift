@@ -35,28 +35,57 @@ final class GuestPracticeViewModel: ObservableObject {
     /// The unsaved new message, if there is one ("Continue your draft").
     @Published private(set) var keptDraft: GuestPracticeDraft?
     @Published private(set) var draftWarning: String?
+    /// Changes when Delete all runs; open Practice screens close, and their late draft writes are ignored.
+    @Published private(set) var dataGeneration = 0
     private let drafts: (any GuestDraftStore)?
     private var lastDraftOperation: Task<Void, Never>?
+    /// False when a kept draft exists but couldn't be read: it's left untouched, not overwritten.
+    private var canKeepDraft: Bool
+    private var draftsPaused = false
 
     static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
+    static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened, so it’s been left as it was. New writing here won’t be kept after you close the app."
 
     init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil, drafts: (any GuestDraftStore)? = nil) {
         self.store = store
         self.suggester = suggester
         self.drafts = drafts
+        canKeepDraft = drafts != nil
     }
 
+    /// Restores a kept draft. One that was already saved (cleanup didn't finish) is removed, not
+    /// offered again; one that can't be read is left untouched and never overwritten.
     func loadDraft() async {
-        guard let drafts, let kept = try? await drafts.load(), let data = kept.text.data(using: .utf8),
-              var draft = try? JSONDecoder().decode(GuestPracticeDraft.self, from: data) else { return }
+        guard let drafts else { return }
+        let kept: KeptDraft?
+        do {
+            kept = try await drafts.load()
+        } catch {
+            canKeepDraft = false
+            draftWarning = Self.draftUnreadableMessage
+            return
+        }
+        guard let kept else { return }
+        guard let data = kept.text.data(using: .utf8),
+              var draft = try? JSONDecoder().decode(GuestPracticeDraft.self, from: data) else {
+            canKeepDraft = false
+            draftWarning = Self.draftUnreadableMessage
+            return
+        }
+        if (try? await store.isDraftSaved(kept.id)) == true {
+            enqueue { try await drafts.remove(id: kept.id) }
+            return
+        }
         draft.id = kept.id
         keptDraft = draft.isEmpty ? nil : draft
     }
 
-    /// Keeps the latest version of a new message; empty text removes the kept copy.
-    func keepDraft(_ draft: GuestPracticeDraft) {
+    /// Keeps the latest version of a new message; empty text removes the kept copy. Writes from a
+    /// screen opened before Delete all (an older `generation`) are ignored.
+    func keepDraft(_ draft: GuestPracticeDraft, generation: Int? = nil) {
+        guard generation == nil || generation == dataGeneration, !draftsPaused else { return }
         keptDraft = draft.isEmpty ? nil : draft
-        guard let drafts else { return }
+        guard let drafts, canKeepDraft else { return }
         let text = draft.isEmpty ? "" : (try? JSONEncoder().encode(draft)).flatMap { String(data: $0, encoding: .utf8) } ?? ""
         enqueue { try await drafts.save(id: draft.id, text: text) }
     }
@@ -68,16 +97,23 @@ final class GuestPracticeViewModel: ObservableObject {
         enqueue { try await drafts.remove(id: id) }
     }
 
-    /// Delete all data: removes any kept practice draft. Returns false if it couldn't be removed.
-    func discardDraft() async -> Bool {
-        keptDraft = nil
-        guard let drafts else { return true }
+    /// Delete all: stops keeping drafts and moves the kept copy aside, reversibly.
+    func stageDraftRemoval() async throws {
+        draftsPaused = true
         await lastDraftOperation?.value
-        do {
-            try await drafts.save(id: UUID(), text: "")
-            return true
-        } catch {
-            return false
+        try await drafts?.stageRemoval()
+    }
+
+    /// Delete all: `commit` deletes the staged copy and closes open Practice screens; otherwise
+    /// the draft is put back. Draft keeping resumes either way.
+    func finishDraftRemoval(commit: Bool) async throws {
+        defer { draftsPaused = false }
+        try await drafts?.finishRemoval(commit: commit)
+        if commit {
+            keptDraft = nil
+            draftWarning = nil
+            canKeepDraft = drafts != nil
+            dataGeneration += 1
         }
     }
 
@@ -178,6 +214,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
 
     static let saveFailedMessage = "Couldn’t save. Try again. Your words are still here."
     static let staleMessage = "This message changed somewhere else. Go back and open it again. Your words are still here."
+    static let alreadySavedMessage = "This draft was already saved in Practice, so it wasn’t saved again."
     static let missingMessage = "This message or its journal entry no longer exists. Your words are still here to copy."
 
     let sourceEntryID: UUID?
@@ -200,12 +237,14 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         wording = draft?.wording ?? ""
         isEditing = true
         guard let practice, let draftID else { return }
+        let generation = practice.dataGeneration
         draftObserver = Publishers.CombineLatest3($situation, $goal, $wording)
             .dropFirst()
             .sink { [weak self, weak practice] situation, goal, wording in
                 guard let self, self.saved == nil else { return }
                 practice?.keepDraft(GuestPracticeDraft(id: draftID, situation: situation, goal: goal,
-                                                       wording: wording, sourceEntryID: sourceEntryID))
+                                                       wording: wording, sourceEntryID: sourceEntryID),
+                                    generation: generation)
             }
     }
 
@@ -302,7 +341,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
                                                             wording: fields.2, expectedRevision: saved.revision)
             } else {
                 self.saved = try await store.createPractice(situation: fields.0, goal: fields.1, wording: fields.2,
-                                                            sourceEntryID: sourceEntryID)
+                                                            sourceEntryID: sourceEntryID, draftID: draftID)
             }
         } catch GuestJournalError.savedButUnprotected(let id) {
             // Committed: record it so it isn't saved twice, and keep the warning visible.
@@ -313,6 +352,9 @@ final class GuestPracticeComposerViewModel: ObservableObject {
                                               createdAt: saved?.createdAt ?? now, updatedAt: now)
         } catch GuestJournalError.staleRevision {
             saveError = Self.staleMessage
+            return false
+        } catch GuestJournalError.draftAlreadySaved {
+            saveError = Self.alreadySavedMessage // Not saved twice.
             return false
         } catch GuestJournalError.notFound {
             saveError = Self.missingMessage

@@ -83,7 +83,7 @@ final class GuestFindAndControlTests: XCTestCase {
         XCTAssertTrue(text.contains("Wording:\nCan we talk?"))
     }
 
-    func testExportFileIsWrittenOnlyWhenEverythingCouldBeRead() async throws {
+    func testExportFileContainsTheJournal() async throws {
         let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
         journal.draft = "Exported words"
         _ = await journal.saveDraft()
@@ -185,6 +185,155 @@ final class GuestFindAndControlTests: XCTestCase {
         await relaunched.loadDraft()
         XCTAssertNil(relaunched.keptDraft, "saved, so no draft is offered again")
     }
+
+    func testExportIsRefusedWhenSomethingCantBeRead() async throws {
+        let reads = FetchCounter(failFrom: Int.max)
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: reads.faults)
+        let journal = GuestJournalViewModel(store: store)
+        let practice = GuestPracticeViewModel(store: store)
+        journal.draft = "Words"
+        _ = await journal.saveDraft()
+        reads.failFrom = reads.count + 2 // The journal reads; Practice fails.
+        let settings = GuestSettingsViewModel(journal: journal, practice: practice)
+        let made = await settings.makeExportFile(directory: root.appendingPathComponent("Export"))
+        XCTAssertNil(made, "never a partial export")
+        XCTAssertEqual(settings.message, GuestSettingsViewModel.exportFailedMessage)
+    }
+
+    func testDeleteAllWithAFailedReadRemovesNothingNowOrLater() async throws {
+        let reads = FetchCounter(failFrom: Int.max)
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: reads.faults)
+        _ = try await store.create(originalWords: "Kept")
+        _ = try await store.createPractice(situation: "", goal: "", wording: "Kept too", sourceEntryID: nil)
+        reads.failFrom = reads.count + 2 // Entries are read and marked; then reading messages fails.
+        do {
+            try await store.deleteAll()
+            XCTFail("expected a read failure")
+        } catch {}
+        reads.failFrom = Int.max
+        _ = try await store.create(originalWords: "A later save") // Must not commit stale deletions.
+        let entries = try await store.loadAll()
+        let messages = try await store.loadPractice()
+        XCTAssertEqual(Set(entries.map(\.originalWords)), ["Kept", "A later save"])
+        XCTAssertEqual(messages.map(\.wording), ["Kept too"])
+    }
+
+    func testDeleteAllThatCantMoveADraftRemovesNothing() async throws {
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in })
+        let journal = GuestJournalViewModel(store: store, drafts: StuckDraftStore())
+        let practice = GuestPracticeViewModel(store: store)
+        journal.draft = "Saved"
+        _ = await journal.saveDraft()
+        let settings = GuestSettingsViewModel(journal: journal, practice: practice)
+        await settings.deleteAll()
+        XCTAssertEqual(settings.message, GuestSettingsViewModel.deleteFailedMessage)
+        await journal.load()
+        XCTAssertEqual(journal.entries.map(\.originalWords), ["Saved"])
+    }
+
+    func testFailedStoreDeletePutsDraftsBack() async throws {
+        let failing = FailingSwitch()
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: failing.faults)
+        let journalDrafts = FileGuestDraftStore(location: location, protection: .init { _ in })
+        let practiceDrafts = FileGuestDraftStore(location: location, fileName: "PracticeDraft.json", protection: .init { _ in })
+        let journal = GuestJournalViewModel(store: store, drafts: journalDrafts)
+        let practice = GuestPracticeViewModel(store: store, drafts: practiceDrafts)
+        journal.draft = "Unsaved words"
+        practice.keepDraft(GuestPracticeDraft(wording: "Unsaved practice"))
+        await journal.flushDraft()
+        await practice.flushDraft()
+        failing.on = true
+        let settings = GuestSettingsViewModel(journal: journal, practice: practice)
+        await settings.deleteAll()
+        failing.on = false
+        XCTAssertEqual(settings.message, GuestSettingsViewModel.deleteFailedMessage)
+        XCTAssertEqual(journal.draft, "Unsaved words")
+        let journalKept = try await journalDrafts.load()
+        XCTAssertEqual(journalKept?.text, "Unsaved words", "draft put back")
+        let reloaded = GuestPracticeViewModel(store: store, drafts: practiceDrafts)
+        await reloaded.loadDraft()
+        XCTAssertEqual(reloaded.keptDraft?.wording, "Unsaved practice")
+        journal.draft = "Still kept after a failed delete"
+        await journal.flushDraft()
+        let afterwards = try await journalDrafts.load()
+        XCTAssertEqual(afterwards?.text, "Still kept after a failed delete", "drafts resume")
+    }
+
+    func testSavedPracticeDraftIsNeverOfferedAgain() async throws {
+        let (_, practice) = try await GuestComposition.local(at: location).makeSession()
+        let composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil, practice: practice)
+        composer.wording = "Saved once"
+        await practice.flushDraft()
+        let saved = await composer.save()
+        XCTAssertTrue(saved)
+        // Cleanup "didn't finish": the draft file is still there.
+        let drafts = FileGuestDraftStore(location: location, fileName: "PracticeDraft.json")
+        let kept = try await drafts.load()
+        XCTAssertNotNil(kept)
+        let relaunched = GuestPracticeViewModel(store: practice.store, drafts: drafts)
+        await relaunched.loadDraft()
+        XCTAssertNil(relaunched.keptDraft, "the saved-draft receipt stops it coming back")
+        await relaunched.flushDraft()
+        let afterCleanup = try await drafts.load()
+        XCTAssertNil(afterCleanup, "and the leftover file is removed")
+    }
+
+    func testUnreadablePracticeDraftIsLeftAlone() async throws {
+        let drafts = FileGuestDraftStore(location: location, fileName: "PracticeDraft.json", protection: .init { _ in })
+        try await drafts.save(id: UUID(), text: "not json")
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in })
+        let practice = GuestPracticeViewModel(store: store, drafts: drafts)
+        await practice.loadDraft()
+        XCTAssertEqual(practice.draftWarning, GuestPracticeViewModel.draftUnreadableMessage)
+        practice.keepDraft(GuestPracticeDraft(wording: "New text"))
+        await practice.flushDraft()
+        let kept = try await drafts.load()
+        XCTAssertEqual(kept?.text, "not json", "never overwritten")
+    }
+
+    func testDeleteAllIgnoresWritesFromScreensOpenedBefore() async throws {
+        let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
+        let openComposer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil, practice: practice)
+        openComposer.wording = "Typed before delete"
+        await practice.flushDraft()
+        await GuestSettingsViewModel(journal: journal, practice: practice).deleteAll()
+        openComposer.wording = "Typed after delete on a stale screen"
+        await practice.flushDraft()
+        XCTAssertNil(practice.keptDraft)
+        let kept = try await FileGuestDraftStore(location: location, fileName: "PracticeDraft.json").load()
+        XCTAssertNil(kept, "a stale screen can't write deleted text back")
+    }
+}
+
+/// Fails every fetch from the `failFrom`th onwards.
+private final class FetchCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var fetches = 0
+    private var threshold: Int
+    init(failFrom: Int) { threshold = failFrom }
+    var count: Int { lock.withLock { fetches } }
+    var failFrom: Int {
+        get { lock.withLock { threshold } }
+        set { lock.withLock { threshold = newValue } }
+    }
+    var faults: GuestJournalFaults {
+        GuestJournalFaults(beforeFetch: { [self] in
+            let shouldFail = lock.withLock { () -> Bool in fetches += 1; return fetches >= threshold }
+            if shouldFail { throw CocoaError(.fileReadUnknown) }
+        })
+    }
+}
+
+/// A draft store whose kept draft can't be moved aside.
+private actor StuckDraftStore: GuestDraftStore {
+    func load() throws -> KeptDraft? { nil }
+    func save(id: UUID, text: String) throws {}
+    func remove(id: UUID) throws {}
+    func stageRemoval() throws { throw GuestJournalError.saveFailed("stuck") }
+    func finishRemoval(commit: Bool) throws {}
 }
 
 /// Fails saves while `on`, inside the real store.
