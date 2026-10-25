@@ -4,7 +4,7 @@ A running list of Mike's UI feedback from phone checks. Items are collected here
 
 | # | Date | Screen | Feedback (Mike's words or a close summary) | Status |
 | --- | --- | --- | --- | --- |
-| 1 | 25 Oct 2026 | Whole guest app | "check codex assets folder, we can put some icon or avatar of pingus to improve our UI" | **Open, main item of the UI polish batch.** |
+| 1 | 25 Oct 2026 | Whole guest app | "check codex assets folder, we can put some icon or avatar of pingus to improve our UI" | **Done in the UI polish batch (26 Oct).** [Screenshots](../qa/screenshots/ui-polish-2026-10-26) |
 
 **Item 1 plan (UI polish batch, after batch B).** Review the full Codex-made asset set: Pingu poses and activities, the 21 Collection avatars, and the illustrated icons. Then use more of it:
 - Pingu on empty states: Today, Journal, Practice, search with no results, and an empty calendar day.

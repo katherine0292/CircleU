@@ -25,6 +25,8 @@ final class GuestJournalViewModel: ObservableObject {
     }
     @Published private(set) var saveError: String?
     @Published private(set) var isSaving = false
+    /// When an entry was last saved, for a brief "Saved" moment on Journal.
+    @Published private(set) var lastSavedAt: Date?
     /// Lasting messages shown above every screen until dismissed. They add up, never replace.
     @Published private(set) var notices: [String] = []
     /// Set when the draft couldn't be restored or kept; shown on the Write screen.
@@ -167,6 +169,7 @@ final class GuestJournalViewModel: ObservableObject {
         }
         // Clear only the exact version that was saved (same ID). Any edit while saving, even one
         // that returns to the same words, is a new version: it stays on screen and on the phone.
+        lastSavedAt = Date()
         if draftID == submittedID { setDraftQuietly("") }
         removeKeptDraft(id: submittedID)
         await load()

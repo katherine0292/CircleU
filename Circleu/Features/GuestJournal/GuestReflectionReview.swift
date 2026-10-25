@@ -164,7 +164,8 @@ struct GuestReflectionReviewView: View {
             }
         case .ready:
             VStack(alignment: .leading, spacing: 14) {
-                Text("A suggestion").font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.ink)
+                Label { Text("A suggestion") } icon: { GuestBrandIcon(asset: "GuestIconReflection", size: 30) }
+                    .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
                 if let source = review.source {
                     Text(source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)

@@ -78,9 +78,7 @@ struct GuestTodayView: View {
                     Text("What’s on your mind?")
                         .font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
-                    Image("GuestBrandAvatar").resizable().scaledToFit()
-                        .frame(maxWidth: .infinity).frame(height: 180)
-                        .accessibilityHidden(true)
+                    GuestAvatarButton() // Tap to choose your Pingu.
                     Button { isWriting = true } label: {
                         Label("Work through a moment", systemImage: "arrow.right")
                             .labelStyle(TrailingIconLabelStyle())
@@ -193,7 +191,7 @@ struct GuestWriteView: View {
                     dictation.stopForSave()
                     reviewing = true
                 } label: {
-                    Label("Get a suggestion", systemImage: "lightbulb")
+                    Label { Text("Get a suggestion") } icon: { GuestBrandIcon(asset: "GuestIconReflection") }
                 }
                 .buttonStyle(GuestBrandButtonStyle(filled: false))
                 Button {
@@ -270,6 +268,7 @@ struct GuestJournalListView: View {
     @ObservedObject var practice: GuestPracticeViewModel
     @State private var query = ""
     @State private var showsCalendar = false
+    @State private var showsSaved = false
     @State private var selectedDay: Date?
 
     var body: some View {
@@ -285,12 +284,8 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    VStack(spacing: 16) {
-                        Image("GuestPinguWriting").resizable().scaledToFit().frame(height: 160)
-                            .accessibilityHidden(true)
-                        Text("Nothing saved yet.").foregroundStyle(GuestBrand.muted)
-                    }
-                    .padding(24)
+                    GuestPinguMessage(asset: "GuestPinguWriting", text: "Nothing saved yet.", height: 160)
+                        .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
                     let entries = byDay.filter { GuestSearch.matches($0, query) }
@@ -311,8 +306,9 @@ struct GuestJournalListView: View {
                             .listRowBackground(Color.clear)
                         }
                         if entries.isEmpty {
-                            Text(query.isEmpty ? "Nothing written that day." : "No entries match “\(query)”.")
-                                .foregroundStyle(GuestBrand.muted)
+                            GuestPinguMessage(asset: query.isEmpty ? "GuestPinguSleeping" : "GuestPinguThoughtful",
+                                              text: query.isEmpty ? "Nothing written that day." : "No entries match “\(query)”.",
+                                              height: 110)
                                 .listRowBackground(Color.clear)
                         }
                         ForEach(entries) { entry in
@@ -331,6 +327,21 @@ struct GuestJournalListView: View {
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
+            // Pushes the list down rather than covering the entry that was just saved.
+            .safeAreaInset(edge: .top) {
+                if showsSaved {
+                    GuestSuccessBanner(text: "Saved to your journal")
+                        .padding(.horizontal, 16).padding(.bottom, 4)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            // Runs on first appearance too, so the moment shows when saving switches to this tab.
+            .task(id: journal.lastSavedAt) {
+                guard let saved = journal.lastSavedAt, Date().timeIntervalSince(saved) < 3 else { return }
+                withAnimation { showsSaved = true }
+                try? await Task.sleep(for: .seconds(2.5))
+                withAnimation { showsSaved = false }
+            }
             .toolbar {
                 Button { withAnimation { showsCalendar.toggle() } } label: {
                     Image(systemName: showsCalendar ? "list.bullet" : "calendar")
@@ -546,12 +557,14 @@ struct GuestEntryReflectionSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let reflection = entry.reflection {
-                Text("Reflection").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                Label { Text("Reflection") } icon: { GuestBrandIcon(asset: "GuestIconReflection", size: 24) }
+                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                     .padding(.top, 8)
                 VStack(alignment: .leading, spacing: 8) {
                     if !reflection.summary.isEmpty { Text(reflection.summary) }
                     if !reflection.feeling.isEmpty {
-                        Text("Feeling: \(reflection.feeling)").font(GuestBrand.font(.body, .semibold))
+                        Label { Text("Feeling: \(reflection.feeling)") } icon: { GuestBrandIcon(asset: "GuestIconFeelings", size: 22) }
+                            .font(GuestBrand.font(.body, .semibold))
                     }
                     if !reflection.insight.isEmpty { Text(reflection.insight) }
                 }
@@ -568,7 +581,8 @@ struct GuestEntryReflectionSection: View {
                 }
             }
             if let step = entry.nextStep {
-                Text("Next step").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                Label { Text("Next step") } icon: { GuestBrandIcon(asset: "GuestIconNextStep", size: 24) }
+                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                     .padding(.top, 8)
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: entry.nextStepDone ? "checkmark.circle.fill" : "circle")
