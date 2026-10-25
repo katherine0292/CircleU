@@ -1,0 +1,15 @@
+**2026-10-25 — Codex review of `b2342d9`**
+
+**Verdict: changes required.** Read-only review; no files changed.
+
+1. **BLOCKER — Old callbacks can corrupt a new dictation session.** [GuestDictationEngine.swift:118](<../../Circleu/Services/GuestJournal/GuestDictationEngine.swift:118>) checks only whether a continuation exists. Cancel session A → start B → receive A’s delayed callback: A’s transcript enters B’s stream, replacing B’s dictated words; A’s final/error can also tear down B. The ViewModel generation guard cannot distinguish these events. Capture and validate a session identifier in engine callbacks.
+
+2. **SHOULD-FIX — Permission-alert inactivity invalidates first-use authorization.** [GuestJournalScreens.swift:188](<../../Circleu/Features/GuestJournal/GuestJournalScreens.swift:188>) interrupts on every non-active phase. If a permission alert produces `.inactive`, the generation changes and authorization completion is discarded at `GuestDictationViewModel.swift:56`: granting access does not start listening; denial does not show the intended explanation/Settings action. Distinguish permission presentation from actual backgrounding. Independently flagged by the second reviewer; device reproduction remains pending.
+
+3. **SHOULD-FIX — Media-services reset does not rebuild audio objects.** [GuestDictationEngine.swift:140](<../../Circleu/Services/GuestJournal/GuestDictationEngine.swift:140>) handles reset as an interruption, but retains the same `let audioEngine` for subsequent starts. Recreate the invalidated engine before retrying; stopping it alone does not implement [Apple’s reset recovery requirements](https://developer.apple.com/library/archive/qa/qa1749/_index.html).
+
+4. **SHOULD-FIX — “Late callback” test delivers nothing.** [GuestDictationViewModelTests.swift:156](<../../CircleuTests/GuestDictationViewModelTests.swift:156>) sends after fake cancellation has cleared its continuation. The assertion therefore cannot demonstrate stale-event rejection. Add deterministic cancel/restart callback coverage and engine-level checks for off-main callbacks, teardown and the stop deadline; existing tests exercise only the fake.
+
+Static inspection found the on-device capability guard and required-recognition flag correctly paired, with no audio-file writer or cloud/Firebase call in the new engine. This matches [Apple’s documented network-prevention contract](https://developer.apple.com/documentation/speech/sfspeechrecognitionrequest/requiresondevicerecognition). The nonisolated callback factories avoid an obvious inherited-MainActor callback crash. Practice is a truthful placeholder; icons have accompanying names or explicit accessibility labels.
+
+**Verification/limits:** Reviewed commit, surrounding code, tests, usage strings and asset audit. Working tree remained clean. Diff check passed with existing CRLF handling enabled. No build/XCTest, simulator, physical-device, VoiceOver, asset-legibility, network-capture or audio-file runtime checks were performed. These findings are static analysis, not reproduced crashes.
