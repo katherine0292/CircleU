@@ -1,7 +1,28 @@
 import SwiftUI
 
-/// Composition root for the guest journal: opens the local store and nothing else. It never
-/// constructs Firebase, sync, backup or cloud services, and never reads legacy UserDefaults keys.
+/// Builds the guest journal's dependencies: the local store and nothing else. It never constructs
+/// Firebase, sync, backup or cloud services, and never reads legacy UserDefaults keys.
+@MainActor
+struct GuestComposition {
+    var openStore: () async throws -> any GuestJournalStore
+
+    static var live: GuestComposition {
+        GuestComposition { try await SwiftDataGuestJournalStore.open(location: try GuestJournalLocation.standard()) }
+    }
+
+    /// The live composition at another location (tests use a temporary folder).
+    static func local(at location: GuestJournalLocation) -> GuestComposition {
+        GuestComposition { try await SwiftDataGuestJournalStore.open(location: location) }
+    }
+
+    func makeViewModel() async throws -> GuestJournalViewModel {
+        let viewModel = GuestJournalViewModel(store: try await openStore())
+        await viewModel.load()
+        return viewModel
+    }
+}
+
+/// Composition root for the guest journal.
 struct GuestRootView: View {
     private enum Phase {
         case opening
@@ -10,6 +31,7 @@ struct GuestRootView: View {
     }
 
     @State private var phase: Phase = .opening
+    var composition: GuestComposition = .live
 
     var body: some View {
         switch phase {
@@ -30,10 +52,7 @@ struct GuestRootView: View {
 
     private func open() async {
         do {
-            let store = try await SwiftDataGuestJournalStore.open(location: try GuestJournalLocation.standard())
-            let viewModel = GuestJournalViewModel(store: store)
-            await viewModel.load()
-            phase = .ready(viewModel)
+            phase = .ready(try await composition.makeViewModel())
         } catch {
             phase = .failed(GuestJournalViewModel.openFailureMessage(for: error))
         }
