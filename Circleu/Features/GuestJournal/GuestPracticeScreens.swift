@@ -69,7 +69,7 @@ struct GuestPracticeHomeView: View {
         case .loaded(let all):
             let messages = all.filter { GuestSearch.matches($0, query) }
             if messages.isEmpty {
-                Text("No messages match “\(query)”.").foregroundStyle(GuestBrand.muted)
+                GuestPinguMessage(asset: "GuestPinguThoughtful", text: "No messages match “\(query)”.", height: 110)
             }
             Text("Saved messages").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
@@ -291,7 +291,11 @@ struct GuestPracticeMessageView: View {
                     Button {
                         Task { await composer.suggest() }
                     } label: {
-                        Label(composer.isSuggesting ? "Making suggestions…" : "Get a suggestion", systemImage: "lightbulb")
+                        Label {
+                            Text(composer.isSuggesting ? "Making suggestions…" : "Get a suggestion")
+                        } icon: {
+                            GuestBrandIcon(asset: "GuestIconReflection", size: 24)
+                        }
                     }
                     .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
                     .disabled(composer.isSuggesting)
@@ -339,7 +343,7 @@ struct GuestPracticeMessageView: View {
             Text(composer.wording).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
-            Label("Saved · not sent", systemImage: "checkmark.circle")
+            Label { Text("Saved · not sent") } icon: { GuestBrandIcon(asset: "GuestPinguWelcome", size: 34) }
                 .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
             copyButton(filled: true)
             Button("Edit") { composer.edit() }

@@ -173,6 +173,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
     static let deletedExportPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; it can’t come back into your journal, and CircleU will try again next time it opens."
+    static let exportedMessage = "Export done. The copy you shared is yours to keep or delete."
     static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
     let journal: GuestJournalViewModel
@@ -252,13 +253,18 @@ final class GuestSettingsViewModel: ObservableObject {
             return
         }
         let exportsRemoved = Self.removeExports()
+        GuestAvatars.reset() // The chosen Pingu goes back to the default too.
         await journal.load()
         await practice.load()
         message = exportsRemoved && !leftovers ? Self.deletedMessage : Self.deletedExportPendingMessage
     }
 
-    func noteExportCleanup(succeeded: Bool) {
-        if !succeeded { message = Self.exportCleanupMessage }
+    func noteExportCleanup(succeeded: Bool, shared: Bool) {
+        if !succeeded {
+            message = Self.exportCleanupMessage
+        } else if shared {
+            message = Self.exportedMessage
+        }
     }
 }
 
@@ -274,16 +280,21 @@ struct GuestSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                section("Privacy and data") {
+                section("Your Pingu", icon: "GuestPinguWelcome") {
+                    GuestAvatarButton(size: 110)
+                    Text("Tap to choose from 21 Pingus. Kept on this iPhone.")
+                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                }
+                section("Privacy and data", icon: "GuestIconPrivacy") {
                     Text("Your journal and practice messages are kept on this iPhone. CircleU doesn’t upload or sync them, and suggestions are made on this iPhone.")
                     Text("Your iPhone’s own backups (iCloud or a computer) may include them. Restoring an older backup can bring back things you deleted, and exports you saved elsewhere aren’t deleted here.")
                     Text("Recording is used only while you dictate; no audio is saved.")
                 }
-                section("Your data") {
+                section("Your data", icon: "GuestIconJournal") {
                     Button {
                         Task { exportURL = await settings.makeExportFile() }
                     } label: {
-                        Label("Export my data", systemImage: "square.and.arrow.up")
+                        Label { Text("Export my data") } icon: { GuestBrandIcon(asset: "GuestIconNextStep", size: 24) }
                     }
                     .buttonStyle(GuestBrandButtonStyle(filled: false))
                     .disabled(settings.isWorking)
@@ -295,11 +306,13 @@ struct GuestSettingsView: View {
                     .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
                     .disabled(settings.isWorking)
                 }
-                if let message = settings.message {
+                if settings.message == GuestSettingsViewModel.exportedMessage {
+                    GuestSuccessBanner(text: GuestSettingsViewModel.exportedMessage, asset: "GuestPinguBackpack")
+                } else if let message = settings.message {
                     Label(message, systemImage: "info.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
-                section("About") {
+                section("About", icon: "GuestIconLogo") {
                     Text("CircleU \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
                 }
             }
@@ -315,9 +328,9 @@ struct GuestSettingsView: View {
             Text("This deletes every journal entry, reflection, next step and practice message on this iPhone, and any drafts. It can’t be undone. Data from the earlier CircleU app isn’t affected.")
         }
         .sheet(item: Binding(get: { exportURL.map(ExportFile.init) }, set: { if $0 == nil { exportURL = nil } })) { file in
-            GuestShareSheet(url: file.url) {
+            GuestShareSheet(url: file.url) { completed in
                 // Don't leave a copy behind; say so if it can't be removed.
-                settings.noteExportCleanup(succeeded: GuestSettingsViewModel.removeExports())
+                settings.noteExportCleanup(succeeded: GuestSettingsViewModel.removeExports(), shared: completed)
                 exportURL = nil
             }
         }
@@ -328,9 +341,11 @@ struct GuestSettingsView: View {
         var id: String { url.path }
     }
 
-    private func section<Content: View>(_ title: String, @ViewBuilder _ content: () -> Content) -> some View {
+    private func section<Content: View>(_ title: String, icon: String,
+                                        @ViewBuilder _ content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
+            Label { Text(title) } icon: { GuestBrandIcon(asset: icon, size: 28) }
+                .font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
             content().font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
         }
@@ -340,14 +355,14 @@ struct GuestSettingsView: View {
     }
 }
 
-/// The system share sheet for one file; `onFinish` runs when it closes, shared or not.
+/// The system share sheet for one file; `onFinish(completed)` runs when it closes.
 struct GuestShareSheet: UIViewControllerRepresentable {
     let url: URL
-    let onFinish: () -> Void
+    let onFinish: (Bool) -> Void
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
         let controller = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        controller.completionWithItemsHandler = { _, _, _, _ in onFinish() }
+        controller.completionWithItemsHandler = { _, completed, _, _ in onFinish(completed) }
         return controller
     }
 

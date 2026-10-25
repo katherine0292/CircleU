@@ -7,7 +7,8 @@
 | Voice, three tabs, save while listening | #15 | 164 passed, 0 failed, 1 skipped | three entries with and without voice | Microphone works (Mike, 25 Oct). Three entries in a row: not yet confirmed. |
 | Practice | #16 | 183 passed, 0 failed, 1 skipped | Practice end to end | Pending |
 | A: suggestions, reflection review, next step | #18 | 199 passed, 0 failed, 1 skipped | suggestion flow, Practice options | **Owner-verified (Mike, 25 Oct): all three checks work.** This covers Get a suggestion → Save with reflection, Mark done / not done, and Practice Use this / Undo. |
-| B: search, calendar, Settings, export, delete all, Practice drafts | this PR | see the PR | search, calendar, Practice draft across relaunch, export share sheet, delete all with relaunch | Pending |
+| B: search, calendar, Settings, export, delete all, Practice drafts | #19 | 221 passed, 0 failed, 1 skipped | search, calendar, Practice draft across relaunch, export share sheet, delete all with relaunch | **Owner-verified (Mike, 25 Oct): "everything work".** |
+| UI polish: Pingu avatars, empty and success moments, illustrated icons | this PR | see the PR | avatar picker, saved moment, no-results Pingu, Settings, all earlier flows | Pending (screenshots in [ui-polish-2026-10-26](screenshots/ui-polish-2026-10-26)) |
 
 What these checks don't cover:
 - live Apple Intelligence (the phone has none, so it uses guided prompts);

@@ -69,26 +69,27 @@ struct GuestTodayView: View {
     let makeDictationEngine: () -> any GuestDictationEngine
     let suggester: any GuestSuggesting
     let onSaved: () -> Void
-    @State private var isWriting = false
+    /// Write, then optionally the reflection review. Saving clears the whole path at once.
+    @State private var path: [TodayRoute] = []
+
+    enum TodayRoute: Hashable { case write, review }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("What’s on your mind?")
                         .font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
-                    Image("GuestBrandAvatar").resizable().scaledToFit()
-                        .frame(maxWidth: .infinity).frame(height: 180)
-                        .accessibilityHidden(true)
-                    Button { isWriting = true } label: {
+                    GuestAvatarButton() // Tap to choose your Pingu.
+                    Button { path = [.write] } label: {
                         Label("Work through a moment", systemImage: "arrow.right")
                             .labelStyle(TrailingIconLabelStyle())
                     }
                     .buttonStyle(GuestBrandButtonStyle())
                     // Shown only when there is something to continue.
                     if !journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Button { isWriting = true } label: {
+                        Button { path = [.write] } label: {
                             Label {
                                 Text("Continue your draft")
                             } icon: {
@@ -109,13 +110,23 @@ struct GuestTodayView: View {
                 }
                 .accessibilityLabel("Settings")
             }
-            .navigationDestination(isPresented: $isWriting) {
-                GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(), suggester: suggester) {
-                    isWriting = false
-                    onSaved()
+            .navigationDestination(for: TodayRoute.self) { route in
+                switch route {
+                case .write:
+                    GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
+                                   onGetSuggestion: { path.append(.review) }, onSaved: finish)
+                case .review:
+                    GuestReflectionReviewView(journal: journal, suggester: suggester, onSaved: finish)
                 }
             }
         }
+    }
+}
+
+extension GuestTodayView {
+    fileprivate func finish() {
+        path = []
+        onSaved()
     }
 }
 
@@ -130,17 +141,16 @@ private struct TrailingIconLabelStyle: LabelStyle {
 struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
-    let suggester: any GuestSuggesting
+    let onGetSuggestion: () -> Void
     let onSaved: () -> Void
-    @State private var reviewing = false
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         suggester: any GuestSuggesting, onSaved: @escaping () -> Void) {
+         onGetSuggestion: @escaping () -> Void, onSaved: @escaping () -> Void) {
         self.journal = journal
-        self.suggester = suggester
+        self.onGetSuggestion = onGetSuggestion
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
     }
@@ -191,9 +201,9 @@ struct GuestWriteView: View {
                 // Opt-in: a suggestion is only made when asked for.
                 Button {
                     dictation.stopForSave()
-                    reviewing = true
+                    onGetSuggestion()
                 } label: {
-                    Label("Get a suggestion", systemImage: "lightbulb")
+                    Label { Text("Get a suggestion") } icon: { GuestBrandIcon(asset: "GuestIconReflection") }
                 }
                 .buttonStyle(GuestBrandButtonStyle(filled: false))
                 Button {
@@ -207,12 +217,6 @@ struct GuestWriteView: View {
             .disabled(empty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
             .background(GuestBrand.ice)
-        }
-        .navigationDestination(isPresented: $reviewing) {
-            GuestReflectionReviewView(journal: journal, suggester: suggester) {
-                reviewing = false
-                onSaved()
-            }
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
@@ -270,6 +274,8 @@ struct GuestJournalListView: View {
     @ObservedObject var practice: GuestPracticeViewModel
     @State private var query = ""
     @State private var showsCalendar = false
+    @State private var showsSaved = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedDay: Date?
 
     var body: some View {
@@ -285,12 +291,8 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    VStack(spacing: 16) {
-                        Image("GuestPinguWriting").resizable().scaledToFit().frame(height: 160)
-                            .accessibilityHidden(true)
-                        Text("Nothing saved yet.").foregroundStyle(GuestBrand.muted)
-                    }
-                    .padding(24)
+                    GuestPinguMessage(asset: "GuestPinguWriting", text: "Nothing saved yet.", height: 160)
+                        .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
                     let entries = byDay.filter { GuestSearch.matches($0, query) }
@@ -311,8 +313,9 @@ struct GuestJournalListView: View {
                             .listRowBackground(Color.clear)
                         }
                         if entries.isEmpty {
-                            Text(query.isEmpty ? "Nothing written that day." : "No entries match “\(query)”.")
-                                .foregroundStyle(GuestBrand.muted)
+                            GuestPinguMessage(asset: query.isEmpty ? "GuestPinguSleeping" : "GuestPinguThoughtful",
+                                              text: query.isEmpty ? "Nothing written that day." : "No entries match “\(query)”.",
+                                              height: 110)
                                 .listRowBackground(Color.clear)
                         }
                         ForEach(entries) { entry in
@@ -331,6 +334,22 @@ struct GuestJournalListView: View {
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
+            // Pushes the list down rather than covering the entry that was just saved.
+            .safeAreaInset(edge: .top) {
+                if showsSaved {
+                    GuestSuccessBanner(text: "Saved to your journal")
+                        .padding(.horizontal, 16).padding(.bottom, 4)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            // Runs on first appearance too, so the moment shows when saving switches to this tab.
+            .task(id: journal.lastSavedAt) {
+                guard let saved = journal.lastSavedAt, Date().timeIntervalSince(saved) < 3 else { return }
+                let motion: Animation? = reduceMotion ? nil : .default // No sliding with Reduce Motion.
+                withAnimation(motion) { showsSaved = true }
+                try? await Task.sleep(for: .seconds(2.5))
+                withAnimation(motion) { showsSaved = false }
+            }
             .toolbar {
                 Button { withAnimation { showsCalendar.toggle() } } label: {
                     Image(systemName: showsCalendar ? "list.bullet" : "calendar")
@@ -546,12 +565,14 @@ struct GuestEntryReflectionSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let reflection = entry.reflection {
-                Text("Reflection").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                Label { Text("Reflection") } icon: { GuestBrandIcon(asset: "GuestIconReflection", size: 24) }
+                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                     .padding(.top, 8)
                 VStack(alignment: .leading, spacing: 8) {
                     if !reflection.summary.isEmpty { Text(reflection.summary) }
                     if !reflection.feeling.isEmpty {
-                        Text("Feeling: \(reflection.feeling)").font(GuestBrand.font(.body, .semibold))
+                        Label { Text("Feeling: \(reflection.feeling)") } icon: { GuestBrandIcon(asset: "GuestIconFeelings", size: 22) }
+                            .font(GuestBrand.font(.body, .semibold))
                     }
                     if !reflection.insight.isEmpty { Text(reflection.insight) }
                 }
@@ -568,7 +589,8 @@ struct GuestEntryReflectionSection: View {
                 }
             }
             if let step = entry.nextStep {
-                Text("Next step").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                Label { Text("Next step") } icon: { GuestBrandIcon(asset: "GuestIconNextStep", size: 24) }
+                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                     .padding(.top, 8)
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: entry.nextStepDone ? "checkmark.circle.fill" : "circle")
