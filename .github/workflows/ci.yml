@@ -17,7 +17,11 @@ jobs:
 
       - name: Select newest installed Xcode
         run: |
-          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XCODE" ]; then
+            echo "::error::No /Applications/Xcode_*.app found on this runner image."
+            exit 1
+          fi
           echo "Using $XCODE"
           sudo xcode-select -s "$XCODE/Contents/Developer"
           xcodebuild -version
@@ -38,7 +42,13 @@ jobs:
               phones = [d for d in devices[runtime] if d["name"].startswith("iPhone")]
               if phones:
                   print(phones[0]["udid"]); break
+          else:
+              sys.exit("No available iPhone simulator on this runner.")
           ')
+          if [ -z "$SIM_ID" ]; then
+            echo "::error::No available iPhone simulator found; check the runner image's iOS runtimes."
+            exit 1
+          fi
           echo "SIM_ID=$SIM_ID" >> "$GITHUB_ENV"
           xcrun simctl list devices available | grep "$SIM_ID"
 
