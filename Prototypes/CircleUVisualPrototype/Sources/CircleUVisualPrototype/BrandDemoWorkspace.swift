@@ -27,8 +27,10 @@ public struct BrandDemoWorkspace: View {
                 board(JournalCalendarPreview(day: .multiple), scale: scale).tag(2)
                 board(BrandHubPreview(screen: .practice), scale: scale).tag(3)
             }
+#if os(iOS)
             // Page dots would cover each board's own tab bar, which already shows the location.
             .tabViewStyle(.page(indexDisplayMode: .never))
+#endif
         }
         .background(BrandDemoColor.ice.ignoresSafeArea())
         .accessibilityLabel("Demo workspace: swipe between Today, Journal, calendar and Practice")
