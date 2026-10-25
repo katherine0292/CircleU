@@ -93,14 +93,18 @@ struct GuestPinguMessage: View {
     }
 }
 
-/// A brief "Saved" moment with a small Pingu; announced for VoiceOver, then it goes.
+/// A brief "Saved" moment with a small Pingu; announced for VoiceOver, then it goes. The default
+/// pose is a neutral wave, so it never reads as approval of what was written.
 struct GuestSuccessBanner: View {
     let text: String
-    var asset = "GuestPinguThumbsUp"
+    var asset = "GuestPinguWelcome"
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(asset).resizable().scaledToFit().frame(width: 44, height: 44).accessibilityHidden(true)
+            if !typeSize.isAccessibilitySize {
+                Image(asset).resizable().scaledToFit().frame(width: 44, height: 44).accessibilityHidden(true)
+            }
             Text(text).font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
             Spacer(minLength: 0)
         }

@@ -69,24 +69,27 @@ struct GuestTodayView: View {
     let makeDictationEngine: () -> any GuestDictationEngine
     let suggester: any GuestSuggesting
     let onSaved: () -> Void
-    @State private var isWriting = false
+    /// Write, then optionally the reflection review. Saving clears the whole path at once.
+    @State private var path: [TodayRoute] = []
+
+    enum TodayRoute: Hashable { case write, review }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("What’s on your mind?")
                         .font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
                     GuestAvatarButton() // Tap to choose your Pingu.
-                    Button { isWriting = true } label: {
+                    Button { path = [.write] } label: {
                         Label("Work through a moment", systemImage: "arrow.right")
                             .labelStyle(TrailingIconLabelStyle())
                     }
                     .buttonStyle(GuestBrandButtonStyle())
                     // Shown only when there is something to continue.
                     if !journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Button { isWriting = true } label: {
+                        Button { path = [.write] } label: {
                             Label {
                                 Text("Continue your draft")
                             } icon: {
@@ -107,13 +110,23 @@ struct GuestTodayView: View {
                 }
                 .accessibilityLabel("Settings")
             }
-            .navigationDestination(isPresented: $isWriting) {
-                GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(), suggester: suggester) {
-                    isWriting = false
-                    onSaved()
+            .navigationDestination(for: TodayRoute.self) { route in
+                switch route {
+                case .write:
+                    GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
+                                   onGetSuggestion: { path.append(.review) }, onSaved: finish)
+                case .review:
+                    GuestReflectionReviewView(journal: journal, suggester: suggester, onSaved: finish)
                 }
             }
         }
+    }
+}
+
+extension GuestTodayView {
+    fileprivate func finish() {
+        path = []
+        onSaved()
     }
 }
 
@@ -128,17 +141,16 @@ private struct TrailingIconLabelStyle: LabelStyle {
 struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
-    let suggester: any GuestSuggesting
+    let onGetSuggestion: () -> Void
     let onSaved: () -> Void
-    @State private var reviewing = false
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         suggester: any GuestSuggesting, onSaved: @escaping () -> Void) {
+         onGetSuggestion: @escaping () -> Void, onSaved: @escaping () -> Void) {
         self.journal = journal
-        self.suggester = suggester
+        self.onGetSuggestion = onGetSuggestion
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
     }
@@ -189,7 +201,7 @@ struct GuestWriteView: View {
                 // Opt-in: a suggestion is only made when asked for.
                 Button {
                     dictation.stopForSave()
-                    reviewing = true
+                    onGetSuggestion()
                 } label: {
                     Label { Text("Get a suggestion") } icon: { GuestBrandIcon(asset: "GuestIconReflection") }
                 }
@@ -205,12 +217,6 @@ struct GuestWriteView: View {
             .disabled(empty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
             .background(GuestBrand.ice)
-        }
-        .navigationDestination(isPresented: $reviewing) {
-            GuestReflectionReviewView(journal: journal, suggester: suggester) {
-                reviewing = false
-                onSaved()
-            }
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
@@ -269,6 +275,7 @@ struct GuestJournalListView: View {
     @State private var query = ""
     @State private var showsCalendar = false
     @State private var showsSaved = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedDay: Date?
 
     var body: some View {
@@ -338,9 +345,10 @@ struct GuestJournalListView: View {
             // Runs on first appearance too, so the moment shows when saving switches to this tab.
             .task(id: journal.lastSavedAt) {
                 guard let saved = journal.lastSavedAt, Date().timeIntervalSince(saved) < 3 else { return }
-                withAnimation { showsSaved = true }
+                let motion: Animation? = reduceMotion ? nil : .default // No sliding with Reduce Motion.
+                withAnimation(motion) { showsSaved = true }
                 try? await Task.sleep(for: .seconds(2.5))
-                withAnimation { showsSaved = false }
+                withAnimation(motion) { showsSaved = false }
             }
             .toolbar {
                 Button { withAnimation { showsCalendar.toggle() } } label: {
