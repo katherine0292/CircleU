@@ -4,19 +4,20 @@ import SwiftUI
 /// Firebase, sync, backup or cloud services, and never reads legacy UserDefaults keys.
 @MainActor
 struct GuestComposition {
-    var openStore: () async throws -> any GuestJournalStore
+    var location: () throws -> GuestJournalLocation
 
-    static var live: GuestComposition {
-        GuestComposition { try await SwiftDataGuestJournalStore.open(location: try GuestJournalLocation.standard()) }
-    }
+    static var live: GuestComposition { GuestComposition(location: GuestJournalLocation.standard) }
 
     /// The live composition at another location (tests use a temporary folder).
     static func local(at location: GuestJournalLocation) -> GuestComposition {
-        GuestComposition { try await SwiftDataGuestJournalStore.open(location: location) }
+        GuestComposition(location: { location })
     }
 
     func makeViewModel() async throws -> GuestJournalViewModel {
-        let viewModel = GuestJournalViewModel(store: try await openStore())
+        let location = try location()
+        let store = try await SwiftDataGuestJournalStore.open(location: location)
+        let viewModel = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location))
+        await viewModel.restoreDraft()
         await viewModel.load()
         return viewModel
     }

@@ -3,24 +3,27 @@ import XCTest
 
 final class AppStartupTests: XCTestCase {
     func testDefaultStartsTheExistingAppWithFirebase() {
-        let startup = AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true)
+        let startup = AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true, isGuestJournalBuild: false)
         XCTAssertEqual(startup, .existingApp)
         XCTAssertTrue(startup.configuresFirebase, "the default path must stay exactly as before")
     }
 
     func testReleaseBuildsIgnoreTheHiddenSwitch() {
-        let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: false)
+        let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: false, isGuestJournalBuild: false)
         XCTAssertEqual(startup, .existingApp, "TestFlight and App Store builds can't open the guest journal")
     }
 
     func testPhoneTestBuildOpensGuestJournalOnlyInDebug() {
         XCTAssertEqual(AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true, isGuestJournalBuild: true), .guestJournal)
         XCTAssertEqual(AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: false, isGuestJournalBuild: true), .existingApp)
-        XCTAssertFalse(AppStartup.isGuestJournalBuild, "the project itself never sets the phone-test flag")
+        // The project's own configurations never set the flag; only the phone-test build command does.
+        #if !GUEST_JOURNAL_BUILD
+        XCTAssertFalse(AppStartup.isGuestJournalBuild)
+        #endif
     }
 
     func testDebugSwitchOpensGuestJournalWithoutFirebase() {
-        let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: true)
+        let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: true, isGuestJournalBuild: false)
         XCTAssertEqual(startup, .guestJournal)
         XCTAssertFalse(startup.configuresFirebase)
     }
@@ -33,7 +36,7 @@ final class AppStartupTests: XCTestCase {
         let before = FirebaseRuntime.debugCloudAccessCount
 
         // The same steps CircleuApp and GuestRootView run, with only the folder changed.
-        let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: true)
+        let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: true, isGuestJournalBuild: false)
         AppBootstrap.live.run(for: startup)
         let location = GuestJournalLocation(directory: root.appendingPathComponent("GuestJournal"),
                                             setupMarker: root.appendingPathComponent("Setup/initialized"))
@@ -48,7 +51,7 @@ final class AppStartupTests: XCTestCase {
         let previousTracker = AnalyticsService.shared
         defer { AnalyticsService.shared = previousTracker }
         let before = FirebaseRuntime.debugCloudAccessCount
-        AppBootstrap.live.run(for: AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true))
+        AppBootstrap.live.run(for: AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true, isGuestJournalBuild: false))
         XCTAssertEqual(FirebaseRuntime.debugCloudAccessCount, before + 2, "configure + analytics; proves the check can fail")
     }
     #endif
@@ -58,7 +61,7 @@ final class AppStartupTests: XCTestCase {
         var calls: [String] = []
         let bootstrap = AppBootstrap(configureFirebase: { calls.append("firebase") },
                                      installAnalytics: { calls.append("analytics") })
-        bootstrap.run(for: AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true))
+        bootstrap.run(for: AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true, isGuestJournalBuild: false))
         XCTAssertEqual(calls, ["firebase", "analytics"], "the default path keeps its original order")
     }
 

@@ -366,14 +366,27 @@ final class GuestJournalViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.saveError, GuestJournalViewModel.saveFailedMessage)
     }
 
-    func testSavedButUnprotectedClearsDraftSoItIsNotSavedTwice() async {
+    func testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal() async {
         let store = StubJournalStore()
         await store.configure(createError: .savedButUnprotected(entryID: UUID()))
         let viewModel = GuestJournalViewModel(store: store)
         viewModel.draft = "Saved once"
-        await viewModel.saveDraft()
+        let saved = await viewModel.saveDraft()
+        XCTAssertTrue(saved, "committed, so it isn't offered for saving again")
         XCTAssertEqual(viewModel.draft, "")
-        XCTAssertEqual(viewModel.saveError, GuestJournalViewModel.savedButUnprotectedMessage)
+        XCTAssertNil(viewModel.saveError)
+        XCTAssertEqual(viewModel.notice, GuestJournalViewModel.savedButUnprotectedMessage, "warning survives the move to Journal")
+        XCTAssertEqual(viewModel.entries.count, 1, "exactly one entry")
+    }
+
+    func testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal() async {
+        let store = StubJournalStore()
+        let viewModel = GuestJournalViewModel(store: store)
+        viewModel.draft = "kept"
+        await viewModel.saveDraft()
+        await store.configure(failLoad: true)
+        await viewModel.load()
+        XCTAssertEqual(viewModel.loadState, .failed(GuestJournalViewModel.loadFailedMessage))
     }
 
     func testFailedLoadIsAnErrorNotAnEmptyJournal() async {

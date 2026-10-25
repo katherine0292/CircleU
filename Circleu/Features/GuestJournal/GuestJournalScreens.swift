@@ -98,6 +98,10 @@ struct GuestWriteView: View {
                     Label(error, systemImage: "exclamationmark.circle")
                         .font(.subheadline).foregroundStyle(Pingu.ink)
                 }
+                if let warning = journal.draftWarning {
+                    Label(warning, systemImage: "info.circle")
+                        .font(.footnote).foregroundStyle(Pingu.slate)
+                }
             }
             .padding(24)
         }
@@ -152,6 +156,19 @@ struct GuestJournalListView: View {
                     }
                 }
             }
+            .safeAreaInset(edge: .top) {
+                if let notice = journal.notice {
+                    HStack(alignment: .top) {
+                        Label(notice, systemImage: "exclamationmark.shield")
+                            .font(.subheadline).foregroundStyle(Pingu.ink)
+                        Spacer()
+                        Button("OK") { journal.notice = nil }
+                    }
+                    .padding(12)
+                    .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                    .padding(.horizontal, 16)
+                }
+            }
             .navigationTitle("Journal")
             .navigationDestination(for: UUID.self) { id in
                 GuestEntryDetailView(entryID: id, journal: journal)
@@ -163,14 +180,41 @@ struct GuestJournalListView: View {
 struct GuestEntryDetailView: View {
     let entryID: UUID
     @ObservedObject var journal: GuestJournalViewModel
-    @State private var isEditing = false
+    /// Owned here, outside the content that refreshes, so an open editor survives list reloads.
+    @State private var editor: GuestEntryEditorViewModel?
 
     var body: some View {
-        // Read the entry from the journal each time, so a saved edit shows straight away.
-        if let entry = journal.entries.first(where: { $0.id == entryID }) {
-            detail(for: entry)
-        } else {
-            Text("This entry no longer exists.").foregroundStyle(Pingu.slate)
+        content
+            .background(Color("PinguIce").ignoresSafeArea())
+            .navigationTitle("Entry")
+            .navigationDestination(isPresented: Binding(get: { editor != nil },
+                                                        set: { if !$0 { editor = nil } })) {
+                if let editor {
+                    GuestEntryEditView(editor: editor) {
+                        self.editor = nil
+                        Task { await journal.load() }
+                    }
+                }
+            }
+    }
+
+    @ViewBuilder private var content: some View {
+        switch journal.loadState {
+        case .loading:
+            ProgressView()
+        case .failed(let message):
+            // A read problem is not a deleted entry.
+            VStack(spacing: 16) {
+                Text(message).multilineTextAlignment(.center)
+                Button("Try again") { Task { await journal.load() } }
+            }
+            .padding(24)
+        case .loaded(let entries):
+            if let entry = entries.first(where: { $0.id == entryID }) {
+                detail(for: entry)
+            } else {
+                Text("This entry no longer exists.").foregroundStyle(Pingu.slate)
+            }
         }
     }
 
@@ -186,20 +230,14 @@ struct GuestEntryDetailView: View {
             }
             .padding(24)
         }
-        .background(Color("PinguIce").ignoresSafeArea())
-        .navigationTitle("Entry")
-        .toolbar { Button("Edit") { isEditing = true } }
-        .navigationDestination(isPresented: $isEditing) {
-            GuestEntryEditView(editor: GuestEntryEditorViewModel(entry: entry, store: journal.store)) {
-                isEditing = false
-                Task { await journal.load() }
-            }
+        .toolbar {
+            Button("Edit") { editor = GuestEntryEditorViewModel(entry: entry, store: journal.store) }
         }
     }
 }
 
 struct GuestEntryEditView: View {
-    @StateObject var editor: GuestEntryEditorViewModel
+    @ObservedObject var editor: GuestEntryEditorViewModel
     let onDone: () -> Void
     @State private var confirmDiscard = false
 
@@ -215,7 +253,8 @@ struct GuestEntryEditView: View {
                     .font(.subheadline).foregroundStyle(Pingu.ink)
             }
             Button {
-                Task { if await editor.save() { onDone() } }
+                // Close only when everything typed is saved and there's no warning to read.
+                Task { if await editor.save() == .saved { onDone() } }
             } label: {
                 Text(editor.isSaving ? "Saving…" : "Save")
                     .frame(maxWidth: .infinity, minHeight: 54)
@@ -233,12 +272,13 @@ struct GuestEntryEditView: View {
                 Button("Back") {
                     if editor.hasChanges { confirmDiscard = true } else { onDone() }
                 }
+                .disabled(!editor.canLeave) // Can't discard while a save may still commit.
             }
         }
         // An alert shows both choices; on iOS 26 a confirmation dialog can hide the cancel button.
         .alert("Discard your changes?", isPresented: $confirmDiscard) {
             Button("Keep editing", role: .cancel) {}
-            Button("Discard", role: .destructive) { onDone() }
+            Button("Discard", role: .destructive) { if editor.canLeave { onDone() } }
         } message: {
             Text("Your edits haven’t been saved.")
         }
