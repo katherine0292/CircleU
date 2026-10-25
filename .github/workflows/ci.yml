@@ -1,10 +1,10 @@
 name: iOS CI
 
+# Started by hand only (Actions tab → iOS CI → Run workflow), e.g. before a TestFlight build.
+# Owner decision, 25 October 2026: macOS minutes on this private repo are billed at 10×, so
+# every merge relies on the full local test run instead. See docs/process/git-workflow.md.
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   test:

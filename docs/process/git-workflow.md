@@ -58,3 +58,5 @@ git push -u origin HEAD
 ```
 
 A clean push is not a CI pass. Inspect actual check results before claiming validation. A draft PR may record incomplete validation clearly; do not merge or release while required checks remain unresolved.
+
+**CI is manual (owner decision, 25 October 2026).** GitHub Actions macOS minutes on this private repository are billed at 10×, so `.github/workflows/ci.yml` runs only when started by hand (Actions tab → iOS CI → Run workflow). Before every merge, run the full test suite locally with a CI-equivalent signing configuration (`Config/Signing.xcconfig` generated from the example, `CODE_SIGNING_ALLOWED=NO`) and record the result in the PR. Trigger CI by hand before a TestFlight build, or when the owner asks.
