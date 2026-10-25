@@ -24,7 +24,7 @@ Owner's reply: “all good, merge”. These are owner reports, not agent-observe
 
 ## Open
 
-Brand font, largest-text and VoiceOver passes, the on-device Data Protection test, and release qualification.
+Full VoiceOver pass, live text-size changes without relaunch, dark mode (deferred), and release qualification. The brand font, largest-text audit and on-device protection check are covered in the follow-up below.
 
 ## Brand polish follow-up (branch `codex/guest-brand-polish`)
 

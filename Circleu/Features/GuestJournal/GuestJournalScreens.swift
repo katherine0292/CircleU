@@ -17,6 +17,7 @@ struct GuestHomeView: View {
                 .tag(Tab.journal)
         }
         .tint(GuestBrand.blue)
+        .preferredColorScheme(.light) // Dark mode is deferred; the palette is light-only for now.
         .font(GuestBrand.font(.body))
         .foregroundStyle(GuestBrand.ink)
         // Above every tab and pushed screen, so a warning can't hide behind an open entry.

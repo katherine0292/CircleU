@@ -18,8 +18,11 @@ enum GuestBrand {
         guard let url = Bundle.main.url(forResource: "PlusJakartaSans", withExtension: "ttf"),
               let descriptors = CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [CTFontDescriptor],
               let descriptor = descriptors.first else { return nil }
-        CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
-        return CTFontCopyPostScriptName(CTFontCreateWithFontDescriptor(descriptor, 17, nil)) as String
+        CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil) // Already-registered is fine.
+        let name = CTFontCopyPostScriptName(CTFontCreateWithFontDescriptor(descriptor, 17, nil)) as String
+        // Only use the name if it now resolves to the bundled family, not a fallback font.
+        let resolved = CTFontCreateWithName(name as CFString, 17, nil)
+        return CTFontCopyFamilyName(resolved) as String == "Plus Jakarta Sans" ? name : nil
     }()
 
     /// Whether the bundled brand font loaded (tests; the UI falls back to the system font).
@@ -48,7 +51,8 @@ enum GuestBrand {
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
 
-    /// A UIKit brand font at a weight on the variable font's `wght` axis (its default is ExtraLight).
+    /// A UIKit brand font at a weight on the variable font's `wght` axis (200–800). Without an
+    /// explicit value, the instance this descriptor selects renders ExtraLight.
     private static func uiFont(size: CGFloat, weight: Int) -> UIFont? {
         guard let fontName else { return nil }
         let wghtAxis = 0x7767_6874 // 'wght'
