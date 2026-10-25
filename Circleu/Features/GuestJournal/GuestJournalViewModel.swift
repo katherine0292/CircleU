@@ -180,24 +180,27 @@ final class GuestJournalViewModel: ObservableObject {
         return nil
     }
 
-    /// Delete all: stops keeping the draft and moves the kept copy aside, reversibly.
-    func stageDraftRemoval() async throws {
+    /// Delete all: stops keeping the draft and moves the kept copy aside, reversibly. Returns the
+    /// draft IDs to mark consumed (the kept copy's and the one on screen).
+    func stageDraftRemoval() async throws -> [UUID] {
         draftsPaused = true
         await flushDraft()
-        try await drafts?.stageRemoval()
+        let staged = try await drafts?.stageRemoval()
+        return [staged, draftID].compactMap { $0 }
     }
 
-    /// Delete all: `commit` deletes the staged copy and clears the draft on screen; otherwise the
-    /// draft is put back as it was. Draft keeping resumes either way.
+    /// Delete all: `commit` clears the draft on screen and deletes the staged copy (if that fails,
+    /// the copy is removed at next launch, because its ID is marked consumed); otherwise the
+    /// draft is put back. Draft keeping resumes either way.
     func finishDraftRemoval(commit: Bool) async throws {
         defer { draftsPaused = false }
-        try await drafts?.finishRemoval(commit: commit)
         if commit {
             setDraftQuietly("")
             draftID = UUID()
             draftWarning = nil
             canKeepDraft = drafts != nil
         }
+        try await drafts?.finishRemoval(commit: commit)
     }
 
     /// Waits for pending draft writes and removals (tests and relaunch checks).

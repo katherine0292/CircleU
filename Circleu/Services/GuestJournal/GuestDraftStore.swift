@@ -18,8 +18,9 @@ nonisolated protocol GuestDraftStore: Sendable {
     func save(id: UUID, text: String) async throws
     /// Removes the kept draft only if it is still the draft with this ID.
     func remove(id: UUID) async throws
-    /// Delete all, step 1: moves any kept draft aside (reversibly). Throws if it can't.
-    func stageRemoval() async throws
+    /// Delete all, step 1: moves any kept draft aside (reversibly) and returns its ID, so the
+    /// delete transaction can mark it consumed. Throws if it can't.
+    func stageRemoval() async throws -> UUID?
     /// Delete all, step 2: deletes the staged copy (`true`) or puts it back (`false`).
     func finishRemoval(commit: Bool) async throws
 }
@@ -42,6 +43,9 @@ actor FileGuestDraftStore: GuestDraftStore {
     }
 
     func load() throws -> KeptDraft? {
+        // A copy moved aside by an interrupted Delete all is put back; the journal's saved-draft
+        // receipts then decide whether it's offered (not deleted) or removed (deleted).
+        try? finishRemoval(commit: false)
         guard let file = try readFile() else { return nil }
         let isProtected = (try? protection.apply(url)) != nil
         return KeptDraft(id: file.id, text: file.text, isProtected: isProtected)
@@ -68,12 +72,14 @@ actor FileGuestDraftStore: GuestDraftStore {
 
     private var stagedURL: URL { url.appendingPathExtension("deleting") }
 
-    func stageRemoval() throws {
+    func stageRemoval() throws -> UUID? {
         try finishRemoval(commit: false) // Put back anything left from an interrupted attempt first.
-        guard FileManager.default.fileExists(atPath: url.path) else { return }
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        let id = try? readFile()?.id // An unreadable draft is still moved aside (and deleted).
         do { try FileManager.default.moveItem(at: url, to: stagedURL) } catch {
             throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
         }
+        return id
     }
 
     func finishRemoval(commit: Bool) throws {

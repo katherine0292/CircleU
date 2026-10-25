@@ -170,9 +170,9 @@ final class GuestSettingsViewModel: ObservableObject {
     @Published private(set) var message: String?
 
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
-    static let deleteFailedMessage = "Couldn’t delete. Try again. Nothing was removed."
+    static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let draftNotRemovedMessage = "Your saved journal and practice were deleted, but an unsaved draft couldn’t be removed. Try Delete all data again."
+    static let cleanupPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; it can’t be opened and is cleared the next time CircleU opens."
 
     let journal: GuestJournalViewModel
     let practice: GuestPracticeViewModel
@@ -187,8 +187,11 @@ final class GuestSettingsViewModel: ObservableObject {
         FileManager.default.temporaryDirectory.appendingPathComponent("CircleUExport", isDirectory: true)
     }
 
-    nonisolated static func removeExports(in folder: URL = exportFolder) {
-        try? FileManager.default.removeItem(at: folder)
+    /// Returns false if an export copy couldn't be removed.
+    @discardableResult
+    nonisolated static func removeExports(in folder: URL = exportFolder) -> Bool {
+        guard FileManager.default.fileExists(atPath: folder.path) else { return true }
+        return (try? FileManager.default.removeItem(at: folder)) != nil
     }
 
     /// Writes the export to a protected file for the share sheet; the caller removes it. Runs
@@ -198,9 +201,8 @@ final class GuestSettingsViewModel: ObservableObject {
         isWorking = true
         defer { isWorking = false }
         message = nil
-        await journal.load()
-        await practice.load()
-        guard case .loaded(let entries) = journal.loadState, case .loaded(let messages) = practice.loadState else {
+        guard let data = practice.store as? any GuestDataStore,
+              let (entries, messages) = try? await data.snapshot() else {
             message = Self.exportFailedMessage // Never export a partial journal as if it were complete.
             return nil
         }
@@ -232,16 +234,17 @@ final class GuestSettingsViewModel: ObservableObject {
         isWorking = true
         defer { isWorking = false }
         message = nil
+        var consumed: [UUID] = []
         do {
-            try await journal.stageDraftRemoval()
-            try await practice.stageDraftRemoval()
+            consumed += try await journal.stageDraftRemoval()
+            consumed += try await practice.stageDraftRemoval()
         } catch {
             await restoreDrafts()
             message = Self.deleteFailedMessage
             return
         }
         do {
-            try await data.deleteAll()
+            try await data.deleteAll(consumedDraftIDs: consumed)
         } catch GuestJournalError.savedButUnprotected {
             // Committed.
         } catch {
@@ -252,10 +255,10 @@ final class GuestSettingsViewModel: ObservableObject {
         var draftsRemoved = true
         do { try await journal.finishDraftRemoval(commit: true) } catch { draftsRemoved = false }
         do { try await practice.finishDraftRemoval(commit: true) } catch { draftsRemoved = false }
-        Self.removeExports()
+        let exportsRemoved = Self.removeExports()
         await journal.load()
         await practice.load()
-        message = draftsRemoved ? Self.deletedMessage : Self.draftNotRemovedMessage
+        message = draftsRemoved && exportsRemoved ? Self.deletedMessage : Self.cleanupPendingMessage
     }
 
     private func restoreDrafts() async {

@@ -349,7 +349,11 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         row.nextStepDoneAt = nextStep != nil && nextStepDone ? (row.nextStepDoneAt ?? Date()) : nil
     }
 
-    func deleteAll() throws {
+    func snapshot() throws -> (entries: [GuestJournalEntry], messages: [GuestPracticeMessage]) {
+        (try loadAll(), try loadPractice()) // One actor turn: nothing changes in between.
+    }
+
+    func deleteAll(consumedDraftIDs: [UUID]) throws {
         // Read everything first, so a failed read can't leave deletions pending in the context.
         let entries = try fetch(FetchDescriptor<Entry>())
         let messages = try fetch(FetchDescriptor<PracticeMessage>())
@@ -357,6 +361,8 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         entries.forEach(modelContext.delete)
         messages.forEach(modelContext.delete)
         receipts.forEach(modelContext.delete)
+        let now = Date()
+        for id in Set(consumedDraftIDs) { modelContext.insert(SavedDraft(id: id, savedAt: now)) }
         try commit(entryID: UUID()) // One transaction; rolled back on failure.
     }
 

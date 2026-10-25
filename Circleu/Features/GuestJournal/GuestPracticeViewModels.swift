@@ -44,6 +44,8 @@ final class GuestPracticeViewModel: ObservableObject {
     private var draftsPaused = false
 
     static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
+    static let otherDraftMessage = "Another practice draft is already kept, so this one isn’t being kept. Save it, or go back and choose which draft to keep."
+    static let draftUnprotectedMessage = "Your practice draft is kept, but this phone couldn’t fully secure it."
     static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened, so it’s been left as it was. New writing here won’t be kept after you close the app."
 
     init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil, drafts: (any GuestDraftStore)? = nil) {
@@ -72,18 +74,32 @@ final class GuestPracticeViewModel: ObservableObject {
             draftWarning = Self.draftUnreadableMessage
             return
         }
-        if (try? await store.isDraftSaved(kept.id)) == true {
-            enqueue { try await drafts.remove(id: kept.id) }
+        switch try? await store.isDraftSaved(kept.id) {
+        case true?:
+            enqueue { try await drafts.remove(id: kept.id) } // Saved (or deleted) already.
             return
+        case nil:
+            // Can't tell whether it was saved: don't offer it, and don't overwrite it.
+            canKeepDraft = false
+            draftWarning = Self.draftUnreadableMessage
+            return
+        case false?:
+            break
         }
         draft.id = kept.id
         keptDraft = draft.isEmpty ? nil : draft
+        if !kept.isProtected { draftWarning = Self.draftUnprotectedMessage }
     }
 
     /// Keeps the latest version of a new message; empty text removes the kept copy. Writes from a
     /// screen opened before Delete all (an older `generation`) are ignored.
     func keepDraft(_ draft: GuestPracticeDraft, generation: Int? = nil) {
         guard generation == nil || generation == dataGeneration, !draftsPaused else { return }
+        // One draft is kept at a time; another screen never replaces it silently.
+        if let current = keptDraft, current.id != draft.id {
+            draftWarning = Self.otherDraftMessage
+            return
+        }
         keptDraft = draft.isEmpty ? nil : draft
         guard let drafts, canKeepDraft else { return }
         let text = draft.isEmpty ? "" : (try? JSONEncoder().encode(draft)).flatMap { String(data: $0, encoding: .utf8) } ?? ""
@@ -97,24 +113,26 @@ final class GuestPracticeViewModel: ObservableObject {
         enqueue { try await drafts.remove(id: id) }
     }
 
-    /// Delete all: stops keeping drafts and moves the kept copy aside, reversibly.
-    func stageDraftRemoval() async throws {
+    /// Delete all: stops keeping drafts and moves the kept copy aside, reversibly. Returns the
+    /// draft IDs to mark consumed.
+    func stageDraftRemoval() async throws -> [UUID] {
         draftsPaused = true
         await lastDraftOperation?.value
-        try await drafts?.stageRemoval()
+        let staged = try await drafts?.stageRemoval()
+        return [staged, keptDraft?.id].compactMap { $0 }
     }
 
-    /// Delete all: `commit` deletes the staged copy and closes open Practice screens; otherwise
-    /// the draft is put back. Draft keeping resumes either way.
+    /// Delete all: `commit` closes open Practice screens and deletes the staged copy (removed at
+    /// next launch if that fails, since its ID is consumed); otherwise the draft is put back.
     func finishDraftRemoval(commit: Bool) async throws {
         defer { draftsPaused = false }
-        try await drafts?.finishRemoval(commit: commit)
         if commit {
             keptDraft = nil
             draftWarning = nil
             canKeepDraft = drafts != nil
             dataGeneration += 1
         }
+        try await drafts?.finishRemoval(commit: commit)
     }
 
     func flushDraft() async { await lastDraftOperation?.value }
@@ -124,7 +142,7 @@ final class GuestPracticeViewModel: ObservableObject {
         lastDraftOperation = Task { [weak self] in
             await previous?.value
             do { try await operation() } catch GuestJournalError.protectionFailed {
-                // Kept, though protection couldn't be confirmed.
+                self?.draftWarning = Self.draftUnprotectedMessage // Kept, but not fully secured.
             } catch {
                 self?.draftWarning = Self.draftNotKeptMessage
             }

@@ -193,7 +193,7 @@ final class GuestEntryEditorViewModelTests: XCTestCase {
 // MARK: - Draft identity and failure handling (Codex re-checks)
 
 private actor FakeDraftStore: GuestDraftStore {
-    func stageRemoval() throws {}
+    func stageRemoval() throws -> UUID? { nil }
     func finishRemoval(commit: Bool) throws {}
     var kept: KeptDraft?
     var failRemove = false
@@ -434,7 +434,7 @@ extension GuestDraftIdentityTests {
 }
 
 private actor FakeDraftStoreForIdentity: GuestDraftStore {
-    func stageRemoval() throws {}
+    func stageRemoval() throws -> UUID? { nil }
     func finishRemoval(commit: Bool) throws {}
     var kept: KeptDraft?
     init(kept: KeptDraft? = nil) { self.kept = kept }

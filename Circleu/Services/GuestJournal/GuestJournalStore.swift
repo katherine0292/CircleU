@@ -128,8 +128,12 @@ extension GuestPracticeStore {
 /// Data controls for everything in the guest store.
 nonisolated protocol GuestDataStore: Sendable {
     /// Deletes every entry, reflection, next step, practice message and saved-draft receipt, in
-    /// one transaction: all of it or none of it. Never touches the earlier app's data.
-    func deleteAll() async throws
+    /// one transaction: all of it or none of it. `consumedDraftIDs` are recorded as used in the
+    /// same transaction, so drafts moved aside for deletion can never come back after a crash.
+    /// Never touches the earlier app's data.
+    func deleteAll(consumedDraftIDs: [UUID]) async throws
+    /// Entries and practice messages read together, for a consistent export.
+    func snapshot() async throws -> (entries: [GuestJournalEntry], messages: [GuestPracticeMessage])
 }
 
 /// Entries with an optional reflection and next step. Same store, same rules.
