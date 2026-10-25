@@ -43,8 +43,8 @@ Keep: the "Save only my words" path, "Copy won't save or send" (once), linked/st
 
 Prototype boards only (`BrandDemo.swift`, `BrandFlowPreview.swift`, `BrandJourneyPreview.swift`); the renders in `swiftui-previews/` were regenerated. Differences from the table above:
 
-- **Hub headings:** Journal is "Your moments" and Practice is "Find your words", rather than repeating the tab names, because the small JOURNAL / PRACTICE label above already names the tab. The Journal Search field and the section labels stay.
-- **Eyebrows on journey screens** ("DESCRIBE A MOMENT", "SAMPLE SAVED ENTRY", …) are **kept for now**. The approved milestone plan requires a visible sample label on every static specimen. Removing them is Mike's call.
+- **Hub headings (owner decision, 25 October):** the plain tab names "Journal" and "Practice", replacing the small JOURNAL / PRACTICE label and the longer headline. The Journal Search field and the section labels stay.
+- **Sample/review labels (owner decision, 25 October):** "DESCRIBE A MOMENT", "SAMPLE SAVED ENTRY" and the others moved out of the phone screens. They are now captions above each screen in the comparison boards, so the screens read like the app. Individual screens stay marked as samples by the "Sample"/"Draft" chip and the "Brand demo · Static sample" footer, which satisfies the milestone's sample-label rule.
 - **Also removed:** "Back to Journal" / "Back to Practice" under the main action, because they duplicate the Back control (the onboarding rule).
 - **Reflection:** "A suggestion to consider. Change anything that doesn't fit." is kept, because the content standard requires suggestions to read as tentative.
 - **Demo 05 (icon-led) variant:** only the shared changes apply (Back links, capture prompt).
