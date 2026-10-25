@@ -161,15 +161,99 @@ nonisolated enum GuestJournalSchemaV3: VersionedSchema {
     }
 }
 
+/// Version 4 keeps unsaved drafts in the store too, so Delete all is one transaction.
+nonisolated enum GuestJournalSchemaV4: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(4, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Entry.self, SavedDraft.self, PracticeMessage.self, KeptDraftRecord.self] }
+
+    @Model final class Entry {
+        @Attribute(.unique) var id: UUID
+        var originalWords: String
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+        /// A suggestion the person accepted (and may have edited); nil when they saved only their words.
+        var reflectionSummary: String?
+        var reflectionFeeling: String?
+        var reflectionInsight: String?
+        /// `GuestSuggestionSource.rawValue`: on-device model or guided prompts.
+        var reflectionSource: String?
+        var reflectionBasedOn: String?
+        /// One optional next step; done is voluntary and reversible.
+        var nextStep: String?
+        var nextStepDoneAt: Date?
+
+        init(id: UUID, originalWords: String, revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.originalWords = originalWords
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+
+    @Model final class SavedDraft {
+        @Attribute(.unique) var id: UUID
+        var savedAt: Date
+
+        init(id: UUID, savedAt: Date) {
+            self.id = id
+            self.savedAt = savedAt
+        }
+    }
+
+    /// Wording practised in Practice. Saved here only; never sent anywhere.
+    @Model final class PracticeMessage {
+        @Attribute(.unique) var id: UUID
+        var situation: String
+        var goal: String
+        var wording: String
+        /// The journal entry it was practised from; nil when it stands on its own.
+        var sourceEntryID: UUID?
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+
+        init(id: UUID, situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+             revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.situation = situation
+            self.goal = goal
+            self.wording = wording
+            self.sourceEntryID = sourceEntryID
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+
+    /// One unsaved draft per slot ("write", "practice"), kept until it's saved or cleared.
+    @Model final class KeptDraftRecord {
+        @Attribute(.unique) var slot: String
+        var id: UUID
+        var text: String
+        var updatedAt: Date
+
+        init(slot: String, id: UUID, text: String, updatedAt: Date) {
+            self.slot = slot
+            self.id = id
+            self.text = text
+            self.updatedAt = updatedAt
+        }
+    }
+}
+
+
 nonisolated enum GuestJournalMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self]
+        [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self, GuestJournalSchemaV4.self]
     }
     /// V1 → V2 adds a model and V2 → V3 adds optional fields, so lightweight stages keep every
     /// entry, saved draft and practice message.
     static var stages: [MigrationStage] {
         [.lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self),
-         .lightweight(fromVersion: GuestJournalSchemaV2.self, toVersion: GuestJournalSchemaV3.self)]
+         .lightweight(fromVersion: GuestJournalSchemaV2.self, toVersion: GuestJournalSchemaV3.self),
+         .lightweight(fromVersion: GuestJournalSchemaV3.self, toVersion: GuestJournalSchemaV4.self)]
     }
 }
 
@@ -216,9 +300,10 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// Access from another process (for example an extension) is not supported.
 actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestReflectionStore, GuestDataStore,
     ModelActor {
-    typealias Entry = GuestJournalSchemaV3.Entry
-    typealias SavedDraft = GuestJournalSchemaV3.SavedDraft
-    typealias PracticeMessage = GuestJournalSchemaV3.PracticeMessage
+    typealias Entry = GuestJournalSchemaV4.Entry
+    typealias SavedDraft = GuestJournalSchemaV4.SavedDraft
+    typealias PracticeMessage = GuestJournalSchemaV4.PracticeMessage
+    typealias KeptDraftRecord = GuestJournalSchemaV4.KeptDraftRecord
 
     nonisolated let modelExecutor: any ModelExecutor
     nonisolated let modelContainer: ModelContainer
@@ -259,7 +344,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
 
         let container: ModelContainer
         do {
-            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV3.self),
+            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV4.self),
                                            migrationPlan: GuestJournalMigrationPlan.self,
                                            configurations: ModelConfiguration(url: location.storeURL, cloudKitDatabase: .none))
         } catch {
@@ -353,17 +438,56 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         (try loadAll(), try loadPractice()) // One actor turn: nothing changes in between.
     }
 
-    func deleteAll(consumedDraftIDs: [UUID]) throws {
+    func deleteAll() throws {
         // Read everything first, so a failed read can't leave deletions pending in the context.
         let entries = try fetch(FetchDescriptor<Entry>())
         let messages = try fetch(FetchDescriptor<PracticeMessage>())
         let receipts = try fetch(FetchDescriptor<SavedDraft>())
+        let drafts = try fetch(FetchDescriptor<KeptDraftRecord>())
         entries.forEach(modelContext.delete)
         messages.forEach(modelContext.delete)
         receipts.forEach(modelContext.delete)
-        let now = Date()
-        for id in Set(consumedDraftIDs) { modelContext.insert(SavedDraft(id: id, savedAt: now)) }
-        try commit(entryID: UUID()) // One transaction; rolled back on failure.
+        drafts.forEach(modelContext.delete)
+        try commit(entryID: UUID()) // One transaction, drafts included; rolled back on failure.
+    }
+
+    // MARK: Kept drafts
+
+    func keptDraft(slot: String) throws -> KeptDraft? {
+        try fetch(FetchDescriptor<KeptDraftRecord>(predicate: #Predicate { $0.slot == slot })).first
+            .map { KeptDraft(id: $0.id, text: $0.text, isProtected: true) } // Protected with the store.
+    }
+
+    /// Replaces the slot's draft; empty text removes it.
+    func keepDraft(slot: String, id: UUID, text: String) throws {
+        let existing = try fetch(FetchDescriptor<KeptDraftRecord>(predicate: #Predicate { $0.slot == slot })).first
+        if text.isEmpty {
+            guard let existing else { return }
+            modelContext.delete(existing)
+        } else if let existing {
+            existing.id = id
+            existing.text = text
+            existing.updatedAt = Date()
+        } else {
+            modelContext.insert(KeptDraftRecord(slot: slot, id: id, text: text, updatedAt: Date()))
+        }
+        try commitDraft()
+    }
+
+    /// Removes the slot's draft only if it's still the one with this ID.
+    func removeKeptDraft(slot: String, id: UUID) throws {
+        guard let existing = try fetch(FetchDescriptor<KeptDraftRecord>(predicate: #Predicate { $0.slot == slot })).first,
+              existing.id == id else { return }
+        modelContext.delete(existing)
+        try commitDraft()
+    }
+
+    private func commitDraft() throws {
+        do {
+            try commit(entryID: UUID())
+        } catch GuestJournalError.savedButUnprotected {
+            throw GuestJournalError.protectionFailed("draft") // Kept, but not fully secured.
+        }
     }
 
     func delete(id: UUID) throws {

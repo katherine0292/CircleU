@@ -48,6 +48,9 @@ final class GuestPracticeViewModel: ObservableObject {
     /// The newest screen opened for a new message takes over writing its draft.
     func claimDraft(by owner: ObjectIdentifier) { draftOwner = owner }
 
+    /// Whether this screen still owns the kept draft (an older screen doesn't).
+    func ownsDraft(_ owner: ObjectIdentifier) -> Bool { draftOwner == nil || draftOwner == owner }
+
     static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
     static let otherDraftMessage = "Another practice draft is already kept, so this one isn’t being kept. Save it, or go back and choose which draft to keep."
     static let draftUnprotectedMessage = "Your practice draft is kept, but this phone couldn’t fully secure it."
@@ -64,12 +67,8 @@ final class GuestPracticeViewModel: ObservableObject {
     /// offered again; one that can't be read is left untouched and never overwritten.
     func loadDraft() async {
         guard let drafts else { return }
-        let store = self.store
         let kept: KeptDraft?
         do {
-            guard try await drafts.recoverStaged(isConsumed: { try? await store.isDraftSaved($0) }) else {
-                throw GuestJournalError.storeUnavailable("unsettled draft")
-            }
             kept = try await drafts.load()
         } catch {
             canKeepDraft = false
@@ -127,26 +126,23 @@ final class GuestPracticeViewModel: ObservableObject {
         enqueue { try await drafts.remove(id: id) }
     }
 
-    /// Delete all: stops keeping drafts and moves the kept copy aside, reversibly. Returns the
-    /// draft IDs to mark consumed.
-    func stageDraftRemoval() async throws -> [UUID] {
+    /// Delete all, before: no draft writes until `resumeDrafts`, and pending ones finish first.
+    func pauseDrafts() async {
         draftsPaused = true
         await lastDraftOperation?.value
-        let staged = try await drafts?.stageRemoval()
-        return [staged, keptDraft?.id].compactMap { $0 }
     }
 
-    /// Delete all: `commit` closes open Practice screens and deletes the staged copy (removed at
-    /// next launch if that fails, since its ID is consumed); otherwise the draft is put back.
-    func finishDraftRemoval(commit: Bool) async throws {
-        defer { draftsPaused = false }
-        if commit {
+    /// Delete all, after: `deleted` closes open Practice screens, whose later writes are ignored
+    /// (the kept draft went in the same transaction). Draft keeping resumes either way.
+    func resumeDrafts(afterDeleting deleted: Bool) {
+        if deleted {
             keptDraft = nil
             draftWarning = nil
+            draftOwner = nil
             canKeepDraft = drafts != nil
             dataGeneration += 1
         }
-        try await drafts?.finishRemoval(commit: commit)
+        draftsPaused = false
     }
 
     func flushDraft() async { await lastDraftOperation?.value }
@@ -255,6 +251,11 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     /// A new message's draft identity; nil for saved messages (edits aren't drafted).
     let draftID: UUID?
     private var draftObserver: AnyCancellable?
+    private weak var practiceModel: GuestPracticeViewModel?
+
+    /// This screen still owns the kept draft, so saving records and clears it. An older screen
+    /// saves its text as its own message and leaves the newer draft alone.
+    var ownsDraft: Bool { practiceModel?.ownsDraft(ObjectIdentifier(self)) ?? true }
 
     /// A new message, on its own or practised from a journal entry, optionally restoring a kept
     /// draft. With `practice`, every change is kept on this phone until saved or discarded.
@@ -269,6 +270,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         wording = draft?.wording ?? ""
         isEditing = true
         guard let practice, let draftID else { return }
+        practiceModel = practice
         let generation = practice.dataGeneration
         let owner = ObjectIdentifier(self)
         practice.claimDraft(by: owner)
@@ -375,7 +377,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
                                                             wording: fields.2, expectedRevision: saved.revision)
             } else {
                 self.saved = try await store.createPractice(situation: fields.0, goal: fields.1, wording: fields.2,
-                                                            sourceEntryID: sourceEntryID, draftID: draftID)
+                                                            sourceEntryID: sourceEntryID,
+                                                            draftID: ownsDraft ? draftID : nil)
             }
         } catch GuestJournalError.savedButUnprotected(let id) {
             // Committed: record it so it isn't saved twice, and keep the warning visible.

@@ -18,19 +18,11 @@ nonisolated protocol GuestDraftStore: Sendable {
     func save(id: UUID, text: String) async throws
     /// Removes the kept draft only if it is still the draft with this ID.
     func remove(id: UUID) async throws
-    /// Delete all, step 1: moves any kept draft aside (reversibly) under an ID (its own, or a new
-    /// one if it can't be read) and returns that ID, so the delete transaction can mark it
-    /// consumed. Throws if it can't.
-    func stageRemoval() async throws -> UUID?
-    /// Delete all, step 2: deletes the staged copy (`true`) or puts it back (`false`).
-    func finishRemoval(commit: Bool) async throws
-    /// At launch, before `load`: settles copies left by an interrupted Delete all. `isConsumed`
-    /// returns true (deleted: remove the copy), false (not deleted: put it back) or nil (unknown:
-    /// leave it). Returns false if anything was left unsettled; then nothing may be written.
-    func recoverStaged(isConsumed: @escaping @Sendable (UUID) async -> Bool?) async throws -> Bool
 }
 
 /// One protected JSON file next to the journal store. An actor, so operations apply in order.
+/// The app now keeps drafts in the journal store (`StoreGuestDraftStore`); this file format is
+/// read once at launch to move an existing draft across.
 actor FileGuestDraftStore: GuestDraftStore {
     private struct File: Codable {
         let id: UUID
@@ -72,63 +64,6 @@ actor FileGuestDraftStore: GuestDraftStore {
         }
     }
 
-    private var stagePrefix: String { url.lastPathComponent + ".deleting-" }
-    private func stagedURL(_ id: UUID) -> URL {
-        url.deletingLastPathComponent().appendingPathComponent(stagePrefix + id.uuidString)
-    }
-    /// The copy staged in this run.
-    private var stagedID: UUID?
-
-    func stageRemoval() throws -> UUID? {
-        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
-        // An unreadable draft gets a new ID so the delete decision still covers it.
-        let id = (try? readFile()?.id) ?? UUID()
-        do { try FileManager.default.moveItem(at: url, to: stagedURL(id)) } catch {
-            throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
-        }
-        stagedID = id
-        return id
-    }
-
-    func finishRemoval(commit: Bool) throws {
-        guard let id = stagedID else { return }
-        try settle(stagedURL(id), delete: commit)
-        stagedID = nil
-    }
-
-    func recoverStaged(isConsumed: @escaping @Sendable (UUID) async -> Bool?) async throws -> Bool {
-        let folder = url.deletingLastPathComponent()
-        let names = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
-        var settled = true
-        for name in names where name.hasPrefix(stagePrefix) {
-            guard let id = UUID(uuidString: String(name.dropFirst(stagePrefix.count))) else { continue }
-            switch await isConsumed(id) {
-            case true?: try settle(folder.appendingPathComponent(name), delete: true)
-            case false?: try settle(folder.appendingPathComponent(name), delete: false)
-            case nil: settled = false // Unknown: leave it, and write nothing over it.
-            }
-        }
-        return settled
-    }
-
-    /// Deletes a staged copy, or puts it back. Never overwrites a draft that's already there.
-    private func settle(_ staged: URL, delete: Bool) throws {
-        guard FileManager.default.fileExists(atPath: staged.path) else { return }
-        do {
-            if delete {
-                try FileManager.default.removeItem(at: staged)
-            } else if FileManager.default.fileExists(atPath: url.path) {
-                throw GuestJournalError.saveFailed("draft: a newer draft is in the way")
-            } else {
-                try FileManager.default.moveItem(at: staged, to: url)
-            }
-        } catch let error as GuestJournalError {
-            throw error
-        } catch {
-            throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
-        }
-    }
-
     func remove(id: UUID) throws {
         // Leave a newer draft (another ID) alone. An unreadable file is also left alone.
         guard let file = try? readFile(), file.id == id else { return }
@@ -155,5 +90,33 @@ actor FileGuestDraftStore: GuestDraftStore {
         } catch {
             throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
         }
+    }
+}
+
+/// Drafts kept in the journal store itself (one row per slot), so they share its protection and
+/// Delete all removes them in the same transaction as everything else.
+nonisolated struct StoreGuestDraftStore: GuestDraftStore {
+    let store: SwiftDataGuestJournalStore
+    let slot: String
+
+    static let writeSlot = "write"
+    static let practiceSlot = "practice"
+
+    func load() async throws -> KeptDraft? { try await store.keptDraft(slot: slot) }
+    func save(id: UUID, text: String) async throws { try await store.keepDraft(slot: slot, id: id, text: text) }
+    func remove(id: UUID) async throws { try await store.removeKeptDraft(slot: slot, id: id) }
+
+    /// Moves a draft kept in an older file into the store once, then deletes the file. A file
+    /// that can't be read is left where it is, and this returns false so a warning can be shown.
+    @discardableResult
+    func adoptLegacyFile(_ file: FileGuestDraftStore) async -> Bool {
+        let kept: KeptDraft?
+        do { kept = try await file.load() } catch { return false }
+        guard let kept else { return true }
+        if (try? await load()) == nil {
+            guard (try? await save(id: kept.id, text: kept.text)) != nil else { return false }
+        }
+        try? await file.remove(id: kept.id)
+        return true
     }
 }

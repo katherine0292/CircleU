@@ -172,8 +172,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let cleanupPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; CircleU won’t show it and will try to remove it again next time it opens."
-    static let deleteFailedDraftAsideMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged; an unsaved draft was set aside and comes back next time CircleU opens."
+    static let deletedExportPendingMessage = "Everything was deleted. A temporary export copy couldn’t be removed yet; CircleU will try again next time it opens."
     static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
     let journal: GuestJournalViewModel
@@ -225,9 +224,8 @@ final class GuestSettingsViewModel: ObservableObject {
         }
     }
 
-    /// Deletes everything in the guest journal, all or nothing: drafts are moved aside first, the
-    /// store is cleared in one transaction, then the drafts are deleted (or put back if the store
-    /// couldn't be cleared). The earlier app's data is never touched.
+    /// Deletes everything in the guest journal, drafts included, in one store transaction: all
+    /// of it or none of it. Draft writes pause meanwhile. The earlier app's data is never touched.
     func deleteAll() async {
         guard let data = practice.store as? any GuestDataStore, !isWorking else {
             message = Self.deleteFailedMessage
@@ -236,37 +234,26 @@ final class GuestSettingsViewModel: ObservableObject {
         isWorking = true
         defer { isWorking = false }
         message = nil
-        var consumed: [UUID] = []
+        await journal.pauseDrafts()
+        await practice.pauseDrafts()
+        var deleted = true
         do {
-            consumed += try await journal.stageDraftRemoval()
-            consumed += try await practice.stageDraftRemoval()
-        } catch {
-            message = await restoreDrafts() ? Self.deleteFailedMessage : Self.deleteFailedDraftAsideMessage
-            return
-        }
-        do {
-            try await data.deleteAll(consumedDraftIDs: consumed)
+            try await data.deleteAll()
         } catch GuestJournalError.savedButUnprotected {
             // Committed.
         } catch {
-            message = await restoreDrafts() ? Self.deleteFailedMessage : Self.deleteFailedDraftAsideMessage
+            deleted = false
+        }
+        journal.resumeDrafts(afterDeleting: deleted)
+        practice.resumeDrafts(afterDeleting: deleted)
+        guard deleted else {
+            message = Self.deleteFailedMessage
             return
         }
-        var draftsRemoved = true
-        do { try await journal.finishDraftRemoval(commit: true) } catch { draftsRemoved = false }
-        do { try await practice.finishDraftRemoval(commit: true) } catch { draftsRemoved = false }
         let exportsRemoved = Self.removeExports()
         await journal.load()
         await practice.load()
-        message = draftsRemoved && exportsRemoved ? Self.deletedMessage : Self.cleanupPendingMessage
-    }
-
-    /// Returns false if a draft couldn't be put back yet (it comes back when CircleU next opens).
-    private func restoreDrafts() async -> Bool {
-        var restored = true
-        do { try await journal.finishDraftRemoval(commit: false) } catch { restored = false }
-        do { try await practice.finishDraftRemoval(commit: false) } catch { restored = false }
-        return restored
+        message = exportsRemoved ? Self.deletedMessage : Self.deletedExportPendingMessage
     }
 
     func noteExportCleanup(succeeded: Bool) {

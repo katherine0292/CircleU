@@ -85,7 +85,7 @@ final class GuestDictationViewModelTests: XCTestCase {
 
     /// Lets the view model's listening task handle what the fake sent.
     private func settle() async {
-        for _ in 0..<5 { await Task.yield() }
+        for _ in 0..<50 { await Task.yield() }
     }
 
     func testSpokenWordsAppearInTheDraftAsTheyAreRecognised() async {

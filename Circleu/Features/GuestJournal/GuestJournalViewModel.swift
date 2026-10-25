@@ -77,6 +77,9 @@ final class GuestJournalViewModel: ObservableObject {
 
     func dismissNotices() { notices.removeAll() }
 
+    /// An older draft couldn't be read; it's left as it was and new writing is kept separately.
+    func noteUnreadableDraft() { draftWarning = Self.draftUnreadableMessage }
+
     /// A lasting message from elsewhere in the guest app (for example Practice).
     func addNotice(_ notice: String) { notices.append(notice) }
 
@@ -85,13 +88,8 @@ final class GuestJournalViewModel: ObservableObject {
     /// the store can't be asked, the draft is left untouched and not shown (it fails closed).
     func restoreDraft() async {
         guard let drafts else { return }
-        let store = self.store
         let kept: KeptDraft?
         do {
-            // Copies left by an interrupted Delete all first: deleted ones go, others come back.
-            guard try await drafts.recoverStaged(isConsumed: { try? await store.isDraftSaved($0) }) else {
-                throw GuestJournalError.storeUnavailable("unsettled draft")
-            }
             kept = try await drafts.load()
         } catch {
             canKeepDraft = false
@@ -193,27 +191,22 @@ final class GuestJournalViewModel: ObservableObject {
         return nil
     }
 
-    /// Delete all: stops keeping the draft and moves the kept copy aside, reversibly. Returns the
-    /// draft IDs to mark consumed (the kept copy's and the one on screen).
-    func stageDraftRemoval() async throws -> [UUID] {
+    /// Delete all, before: no draft writes until `resumeDrafts`, and pending ones finish first.
+    func pauseDrafts() async {
         draftsPaused = true
         await flushDraft()
-        let staged = try await drafts?.stageRemoval()
-        return [staged, draftID].compactMap { $0 }
     }
 
-    /// Delete all: `commit` clears the draft on screen and deletes the staged copy (if that fails,
-    /// the copy is removed at next launch, because its ID is marked consumed); otherwise the
-    /// draft is put back. Draft keeping resumes either way.
-    func finishDraftRemoval(commit: Bool) async throws {
-        defer { draftsPaused = false }
-        if commit {
+    /// Delete all, after: `deleted` clears the draft on screen (the store already removed the kept
+    /// copy in the same transaction). Draft keeping resumes either way.
+    func resumeDrafts(afterDeleting deleted: Bool) {
+        if deleted {
             setDraftQuietly("")
             draftID = UUID()
             draftWarning = nil
             canKeepDraft = drafts != nil
         }
-        try await drafts?.finishRemoval(commit: commit)
+        draftsPaused = false
     }
 
     /// Waits for pending draft writes and removals (tests and relaunch checks).

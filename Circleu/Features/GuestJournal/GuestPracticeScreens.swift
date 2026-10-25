@@ -265,8 +265,9 @@ struct GuestPracticeMessageView: View {
             Button {
                 Task {
                     let wasNew = composer.saved == nil
+                    let owned = composer.ownsDraft
                     if await composer.save() {
-                        if wasNew, let id = composer.draftID { practice.clearDraft(id: id) }
+                        if wasNew, owned, let id = composer.draftID { practice.clearDraft(id: id) }
                         await practice.load()
                     }
                 }
