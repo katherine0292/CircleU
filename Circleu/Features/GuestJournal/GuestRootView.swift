@@ -40,7 +40,11 @@ struct GuestComposition {
         GuestSettingsViewModel.removeExports() // Never leave an export behind from an earlier run.
         #if DEBUG
         // UI tests only: realistic earlier-app data in this app's own defaults (launch argument).
-        if UserDefaults.standard.bool(forKey: "CircleUSeedLegacyFixture") { GuestLegacyFixture.write(to: .standard) }
+        if UserDefaults.standard.bool(forKey: "CircleUSeedLegacyFixture"),
+           let fixture = UserDefaults(suiteName: GuestLegacyFixture.suiteName) {
+            GuestLegacyFixture.write(to: fixture) // Its own suite: the real keys are never touched.
+            GuestLegacyImport.source = fixture
+        }
         #endif
         let location = try location()
         let store = try await SwiftDataGuestJournalStore.open(location: location)

@@ -2,14 +2,17 @@ import Foundation
 
 /// Finds the earlier CircleU app's local journal and practice on this iPhone, for a one-time,
 /// copy-only import. It only reads: nothing in the earlier app's storage is changed or removed,
-/// and nothing is sent anywhere. The earlier app kept both in UserDefaults, on this device and per
-/// signed-in account ("….user.<uid>"); every bucket is read and duplicates are merged.
+/// and nothing is sent anywhere. The earlier app kept data on this device (signed out) and
+/// separately per signed-in account ("….user.<uid>"). Only the on-device data is copied: account
+/// data can't be shown without signing in to that account, so it stays sealed and is only counted.
 struct GuestLegacyScan: Equatable {
     enum SkipReason: Equatable {
         /// The saved data couldn't be read (an unknown or damaged format).
         case unreadable
         /// No words were saved with it.
         case noWords
+        /// Saved under an account that signed in on this iPhone; it needs that account.
+        case belongsToAccount
     }
 
     struct Skip: Equatable {
@@ -28,14 +31,26 @@ enum GuestLegacyImport {
     static let journalKey = "circleu.saved.reflections.v1"
     static let practiceKey = "circleu.tipsPractice.sessions.v1"
 
-    static func scan(_ defaults: UserDefaults = .standard) -> GuestLegacyScan {
+    /// Where the earlier app's data is read from. Debug UI tests point this at an isolated suite,
+    /// so a fixture never touches the real keys.
+    static var source: UserDefaults = .standard
+
+    static func scan(_ defaults: UserDefaults = source) -> GuestLegacyScan {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601 // As the earlier stores wrote them.
         var scan = GuestLegacyScan()
         var seen = Set<UUID>()
         let keys = defaults.dictionaryRepresentation().keys.sorted()
 
-        for key in keys where key == journalKey || key.hasPrefix(journalKey + ".user.") {
+        // Account data stays sealed: count it, never decode or show it.
+        let accountBuckets = keys.filter { $0.hasPrefix(journalKey + ".user.") || $0.hasPrefix(practiceKey + ".user.") }
+        if !accountBuckets.isEmpty {
+            scan.skipped.append(.init(what: accountBuckets.count == 1 ? "Data saved under an account"
+                                          : "Data saved under \(accountBuckets.count) accounts",
+                                      reason: .belongsToAccount))
+        }
+
+        for key in keys where key == journalKey {
             guard let data = defaults.data(forKey: key),
                   let saved = try? decoder.decode([JournalReflectionEntry].self, from: data) else {
                 scan.skipped.append(.init(what: "A saved journal", reason: .unreadable))
@@ -50,7 +65,7 @@ enum GuestLegacyImport {
                 scan.entries.append(mapped)
             }
         }
-        for key in keys where key == practiceKey || key.hasPrefix(practiceKey + ".user.") {
+        for key in keys where key == practiceKey {
             guard let data = defaults.data(forKey: key),
                   let sessions = try? decoder.decode([TipsPracticeSession].self, from: data) else {
                 scan.skipped.append(.init(what: "Saved practice", reason: .unreadable))
@@ -98,8 +113,11 @@ enum GuestLegacyImport {
 
 #if DEBUG
 /// Realistic earlier-app data, written with the earlier app's own models and encoding, for tests
-/// and Simulator UI tests (launch argument `-CircleUSeedLegacyFixture YES`). Debug builds only.
+/// and Simulator UI tests (launch argument `-CircleUSeedLegacyFixture YES`, which writes to the
+/// isolated `suiteName` suite, never the real keys). Debug builds only.
 enum GuestLegacyFixture {
+    static let suiteName = "circleu.guest.legacyFixture"
+
     static func write(to defaults: UserDefaults, uid: String = "fixture-uid") {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -128,7 +146,7 @@ enum GuestLegacyFixture {
                                    transcript: "   ", engineName: "Local test engine", result: result("Unclear", "")),
         ]
         let account = [
-            shared, // The same entry under the signed-in account: merged, not duplicated.
+            shared, // The same entry under a signed-in account: sealed, not shown.
             JournalReflectionEntry(id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
                                    createdAt: base.addingTimeInterval(3 * day), durationSeconds: 25,
                                    transcript: "My sister and I sorted out the holiday plans.",

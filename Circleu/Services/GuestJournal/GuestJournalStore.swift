@@ -150,8 +150,14 @@ nonisolated protocol GuestImportStore: Sendable {
     /// Whether an item with this earlier-app ID was already imported.
     func isImported(_ legacyID: UUID) async throws -> Bool
     /// Adds everything not imported before, in one transaction (all or nothing), recording each
-    /// item's earlier-app ID so a re-run never duplicates. Returns how many were added.
-    func importLegacy(entries: [GuestImportedEntry], messages: [GuestImportedMessage]) async throws -> Int
+    /// item's earlier-app ID so a re-run never duplicates.
+    func importLegacy(entries: [GuestImportedEntry], messages: [GuestImportedMessage]) async throws -> GuestImportResult
+}
+
+nonisolated struct GuestImportResult: Equatable, Sendable {
+    var added: Int
+    /// False if the copy was saved but this phone couldn't fully secure the files.
+    var isProtected = true
 }
 
 /// Data controls for everything in the guest store.

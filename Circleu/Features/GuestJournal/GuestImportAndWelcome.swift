@@ -12,7 +12,7 @@ final class GuestImportViewModel: ObservableObject {
         /// What will be copied, what was imported before, and what will be skipped (and why).
         case preview(GuestLegacyScan, alreadyImported: Int)
         case importing
-        case done(added: Int, skipped: Int)
+        case done(added: Int, skipped: [GuestLegacyScan.Skip], isProtected: Bool)
         case failed(String)
     }
 
@@ -26,7 +26,7 @@ final class GuestImportViewModel: ObservableObject {
     private let practice: GuestPracticeViewModel
     private var pending = GuestLegacyScan()
 
-    init(defaults: UserDefaults = .standard, store: any GuestImportStore, journal: GuestJournalViewModel,
+    init(defaults: UserDefaults = GuestLegacyImport.source, store: any GuestImportStore, journal: GuestJournalViewModel,
          practice: GuestPracticeViewModel) {
         self.defaults = defaults
         self.store = store
@@ -67,10 +67,10 @@ final class GuestImportViewModel: ObservableObject {
         let scan = pending
         state = .importing
         do {
-            let added = try await store.importLegacy(entries: scan.entries, messages: scan.messages)
+            let result = try await store.importLegacy(entries: scan.entries, messages: scan.messages)
             await journal.load()
             await practice.load()
-            state = .done(added: added, skipped: scan.skipped.count)
+            state = .done(added: result.added, skipped: scan.skipped, isProtected: result.isProtected)
         } catch {
             state = .failed(Self.failedMessage)
         }
@@ -107,13 +107,14 @@ struct GuestImportView: View {
             Label(message, systemImage: "exclamationmark.circle").foregroundStyle(GuestBrand.ink)
             Button("Try again") { Task { await model.scan() } }
                 .buttonStyle(GuestBrandButtonStyle(filled: false))
-        case .done(let added, let skipped):
+        case .done(let added, let skipped, let isProtected):
             GuestSuccessBanner(text: added == 0 ? "Nothing new to copy." : "Copied \(added) \(added == 1 ? "item" : "items") into your journal.",
                                asset: "GuestPinguReading")
-            if skipped > 0 {
-                Text("\(skipped) \(skipped == 1 ? "item was" : "items were") left out (see above). They’re still in the earlier app.")
-                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            if !isProtected {
+                Label(GuestJournalViewModel.savedButUnprotectedMessage, systemImage: "exclamationmark.shield")
+                    .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
             }
+            leftOut(skipped)
         case .preview(let scan, let already):
             preview(scan, already: already)
         }
@@ -147,22 +148,38 @@ struct GuestImportView: View {
                     Text("and \(scan.entries.count - 3) more").font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
             }
-            if !scan.skipped.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
-                        .accessibilityAddTraits(.isHeader)
-                    ForEach(Array(scan.skipped.enumerated()), id: \.offset) { _, skip in
-                        Text("\(skip.what): \(skip.reason == .noWords ? "no words were saved with it" : "it couldn’t be read")")
-                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                    }
-                }
-            }
+            leftOut(scan.skipped)
             if model.canImport {
                 Button("Copy into this journal") { Task { await model.importAll() } }
                     .buttonStyle(GuestBrandButtonStyle())
-                Text("Reflections from the earlier app are kept apart from your words and marked as from the earlier app.")
+                Text("Reflections from the earlier app are kept apart from your words and marked as from the earlier app. Titles, tags, suggested quests and practice coaching aren’t copied; they stay in the earlier app. If you later delete all data here, you can copy the earlier journal in again.")
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
             }
+        }
+    }
+}
+
+extension GuestImportView {
+    @ViewBuilder fileprivate func leftOut(_ skipped: [GuestLegacyScan.Skip]) -> some View {
+        if !skipped.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
+                    .accessibilityAddTraits(.isHeader)
+                ForEach(Array(skipped.enumerated()), id: \.offset) { _, skip in
+                    Text("\(skip.what): \(Self.reason(skip.reason))")
+                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                }
+                Text("Left-out items stay in the earlier app.")
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            }
+        }
+    }
+
+    static func reason(_ reason: GuestLegacyScan.SkipReason) -> String {
+        switch reason {
+        case .noWords: "no words were saved with it"
+        case .unreadable: "it couldn’t be read"
+        case .belongsToAccount: "it belongs to an account, so it isn’t shown without signing in to it"
         }
     }
 }
@@ -189,7 +206,7 @@ struct GuestWelcomeView: View {
                         .accessibilityAddTraits(.isHeader)
                     Text("A private place to work through a moment and find your words.")
                         .multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
-                    Text("No account needed. Everything stays on this iPhone.")
+                    Text("No account needed. Your journal is kept on this iPhone.")
                         .font(GuestBrand.font(.footnote)).multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
                     Button("Get started", action: onDone)
                         .buttonStyle(GuestBrandButtonStyle())

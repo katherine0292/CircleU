@@ -28,11 +28,13 @@ final class GuestImportTests: XCTestCase {
             .filter { $0.key.hasPrefix("circleu.") }
     }
 
-    func testScanFindsEveryBucketMergesDuplicatesAndExplainsSkips() {
+    func testScanCopiesOnlyOnDeviceDataAndKeepsAccountDataSealed() {
         let scan = GuestLegacyImport.scan(defaults)
-        XCTAssertEqual(scan.entries.count, 3, "device and account buckets, the shared entry once")
+        XCTAssertEqual(scan.entries.count, 2, "on-device entries only")
         XCTAssertEqual(scan.messages.count, 1)
-        XCTAssertEqual(scan.skipped.map(\.reason).sorted { "\($0)" < "\($1)" }, [.noWords, .unreadable])
+        XCTAssertFalse(scan.entries.contains { $0.originalWords.contains("sister") }, "account data is never read")
+        XCTAssertEqual(scan.skipped.map(\.reason), [.belongsToAccount, .noWords])
+        XCTAssertEqual(scan.skipped.first?.what, "Data saved under 2 accounts")
 
         let interrupted = try? XCTUnwrap(scan.entries.first { $0.originalWords.hasPrefix("My manager") })
         XCTAssertEqual(interrupted?.originalWords, "My manager cut me off in the meeting again.\n\nMy note: Talk to her on Friday.")
@@ -52,11 +54,11 @@ final class GuestImportTests: XCTestCase {
         let model = GuestImportViewModel(defaults: defaults, store: store, journal: journal, practice: practice)
         await model.scan()
         guard case .preview(let scan, let already) = model.state else { return XCTFail("\(model.state)") }
-        XCTAssertEqual(scan.entries.count, 3)
+        XCTAssertEqual(scan.entries.count, 2)
         XCTAssertEqual(already, 0)
         await model.importAll()
-        XCTAssertEqual(model.state, .done(added: 4, skipped: 2))
-        XCTAssertEqual(journal.entries.count, 3)
+        XCTAssertEqual(model.state, .done(added: 3, skipped: scan.skipped, isProtected: true))
+        XCTAssertEqual(journal.entries.count, 2)
         XCTAssertEqual(practice.messages.count, 1)
         XCTAssertEqual(practice.messages.first?.sourceEntryID, nil, "on its own")
         XCTAssertEqual(journal.entries.map(\.createdAt).min(), Date(timeIntervalSince1970: 1_790_000_000))
@@ -66,12 +68,12 @@ final class GuestImportTests: XCTestCase {
         await model.scan()
         guard case .preview(let again, let alreadyAgain) = model.state else { return XCTFail("\(model.state)") }
         XCTAssertTrue(again.entries.isEmpty && again.messages.isEmpty)
-        XCTAssertEqual(alreadyAgain, 4)
+        XCTAssertEqual(alreadyAgain, 3)
         XCTAssertFalse(model.canImport)
         let added = try await store.importLegacy(entries: scan.entries, messages: scan.messages)
-        XCTAssertEqual(added, 0, "a direct re-run adds nothing")
+        XCTAssertEqual(added.added, 0, "a direct re-run adds nothing")
         await journal.load()
-        XCTAssertEqual(journal.entries.count, 3)
+        XCTAssertEqual(journal.entries.count, 2)
     }
 
     func testFailedImportAddsNothing() async throws {
@@ -90,8 +92,23 @@ final class GuestImportTests: XCTestCase {
         XCTAssertEqual(journal.entries, [])
         await model.scan()
         guard case .preview(let scan, let already) = model.state else { return XCTFail("\(model.state)") }
-        XCTAssertEqual(scan.entries.count, 3, "still offered")
+        XCTAssertEqual(scan.entries.count, 2, "still offered")
         XCTAssertEqual(already, 0)
+    }
+
+    func testAFailedReadDuringImportLeavesNothingPending() async throws {
+        let reads = ImportFetchCounter()
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: reads.faults)
+        let scan = GuestLegacyImport.scan(defaults)
+        reads.failNext = true
+        do {
+            _ = try await store.importLegacy(entries: scan.entries, messages: scan.messages)
+            XCTFail("expected a read failure")
+        } catch {}
+        _ = try await store.create(originalWords: "A later save") // Must not commit a half import.
+        let entries = try await store.loadAll()
+        XCTAssertEqual(entries.map(\.originalWords), ["A later save"])
     }
 
     func testNothingFoundIsSaidPlainly() async throws {
@@ -115,5 +132,20 @@ private final class ImportFailSwitch: @unchecked Sendable {
     }
     var faults: GuestJournalFaults {
         GuestJournalFaults(beforeSave: { [self] in if on { throw CocoaError(.fileWriteOutOfSpace) } })
+    }
+}
+
+private final class ImportFetchCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var fail = false
+    var failNext: Bool {
+        get { lock.withLock { fail } }
+        set { lock.withLock { fail = newValue } }
+    }
+    var faults: GuestJournalFaults {
+        GuestJournalFaults(beforeFetch: { [self] in
+            let shouldFail = lock.withLock { () -> Bool in defer { fail = false }; return fail }
+            if shouldFail { throw CocoaError(.fileReadUnknown) }
+        })
     }
 }
