@@ -77,15 +77,9 @@ public struct BrandTodayPreview: View {
             }
             .padding(.top, 12)
 
-            Text("TODAY").font(BrandDemoFont.font(11, .bold)).tracking(2)
-                .foregroundStyle(BrandDemoColor.blue).padding(.top, 30)
             Text("What’s on\nyour mind?")
                 .font(BrandDemoFont.font(33, .bold)).tracking(-1.2)
-                .lineSpacing(0).padding(.top, 8)
-                .fixedSize(horizontal: false, vertical: true)
-            Text("Make sense of a moment.\nFind words that feel like you.")
-                .font(BrandDemoFont.font(16)).lineSpacing(5)
-                .foregroundStyle(BrandDemoColor.muted).padding(.top, 12)
+                .lineSpacing(0).padding(.top, 38)
                 .fixedSize(horizontal: false, vertical: true)
 
             BrandArtwork(name: "BrandAvatar")
@@ -112,9 +106,6 @@ public struct BrandTodayPreview: View {
             }
             .padding(14).background(.white, in: RoundedRectangle(cornerRadius: 18)).padding(.top, 12)
 
-            Text("Or find your words in Practice.")
-                .font(BrandDemoFont.font(13)).foregroundStyle(BrandDemoColor.muted)
-                .frame(maxWidth: .infinity).padding(.top, 18)
             Spacer(minLength: 12)
 
             HStack(spacing: 8) {

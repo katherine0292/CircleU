@@ -92,11 +92,7 @@ public struct BrandHubPreview: View {
                         .frame(width: 48, height: 48)
                 }
                 .padding(.top, 12)
-                BrandFixture.title(screen == .journal ? "Your moments,\nready to revisit." : "Find words\nthat fit you.")
-                BrandFixture.detail(screen == .journal
-                    ? "Your words, reflections and next steps, together."
-                    : "Try a message on its own, or build on a reflection.")
-                    .padding(.top, 12)
+                BrandFixture.title(screen == .journal ? "Your moments" : "Find your words")
 
                 if screen == .journal {
                     HStack(spacing: 10) {
@@ -128,8 +124,6 @@ public struct BrandHubPreview: View {
                         title: "Making some space", subtitle: "Yesterday · Standalone message",
                         body: "I can’t take this on today. Could we talk tomorrow?"
                     ).padding(.top, 12)
-                    BrandFixture.detail("Copy a message when you’re ready. Nothing is sent for you.", size: 12)
-                        .padding(.horizontal, 4).padding(.top, 18)
                     Spacer(minLength: 12)
                 }
                 BrandFixture.tabs(selected: screen)
