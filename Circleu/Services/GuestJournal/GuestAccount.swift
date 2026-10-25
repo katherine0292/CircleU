@@ -25,22 +25,26 @@ protocol GuestAccountService: AnyObject {
     /// Whether Log in is set up in this build.
     var isAvailable: Bool { get }
     /// Signs out any session left from before (for example after a reinstall); never trusted.
-    func discardEarlierSession()
+    /// Throws if it couldn't, and then nothing else may happen.
+    func discardEarlierSession() throws
     /// Logs in and returns the account's uid and the Firebase project it belongs to.
     func logIn(email: String, password: String) async throws -> (uid: String, project: String)
     /// Always looks the same to the person, whether or not an account uses this email.
     func sendPasswordReset(email: String) async throws
-    /// Deletes the logged-in account itself (after its cloud backup).
-    func deleteAccount() async throws
-    func signOut()
+    /// Deletes the account with this uid, only if it is the one this service logged in to.
+    func deleteAccount(uid: String) async throws
+    /// Returns false if signing out failed.
+    @discardableResult
+    func signOut() -> Bool
 }
 
 /// The account's private cloud backup: read only its journal and practice, from the server.
 @MainActor
 protocol GuestCloudBackupReading: AnyObject {
     func readBackup(uid: String, project: String) async throws -> GuestCloudBackup
-    /// Deletes the account's private backup documents. Throws if any couldn't be deleted (retry).
-    func deleteBackup(uid: String) async throws
+    /// Deletes everything the account owns in the cloud: its private backup, circles it created,
+    /// posts it wrote and its circle memberships. Throws if any part couldn't be deleted (retry).
+    func deleteOwnedContent(uid: String) async throws
 }
 
 struct GuestCloudBackup: Equatable {
@@ -94,55 +98,67 @@ enum GuestCloudBackupMapper {
         if rejected > 0 {
             backup.skipped.append(.init(what: rejected == 1 ? "1 saved item" : "\(rejected) saved items", reason: .unreadable))
         }
-        backup.entries.sort { $0.createdAt > $1.createdAt }
-        backup.messages.sort { $0.createdAt > $1.createdAt }
+        // The same item twice: keep its latest edit, every time.
+        backup.entries = Dictionary(backup.entries.map { ($0.legacyID, $0) }, uniquingKeysWith: { $0.updatedAt >= $1.updatedAt ? $0 : $1 })
+            .values.sorted { $0.createdAt > $1.createdAt }
+        backup.messages = Dictionary(backup.messages.map { ($0.legacyID, $0) }, uniquingKeysWith: { $0.updatedAt >= $1.updatedAt ? $0 : $1 })
+            .values.sorted { $0.createdAt > $1.createdAt }
         return backup
     }
 }
 
 // MARK: - Live (Firebase, Dev project only)
 
-/// Firebase for the guest journal's Log in, configured only when Log in is first used, and only
-/// for the Dev project. It reuses the bundled Dev configuration under this app's own bundle ID
-/// (the Dev API key accepts the guest test app; checked 26 Oct with a non-existent account).
-/// Release builds carry the Prod configuration, so Log in reports itself unavailable there.
+/// Firebase for the guest journal's Log in: a separate, named Firebase app used only for
+/// recovery, so it never shares sign-in or cache with anything else. Configured only when Log in
+/// is first used, and only for the Dev project, reusing the bundled Dev configuration under this
+/// app's bundle ID (the Dev key accepts it; checked 26 Oct with a non-existent account). Release
+/// builds carry the Prod configuration, so Log in reports itself unavailable there.
 enum GuestFirebase {
     static let allowedProjects: Set<String> = ["circleu-45651"]
+    static let appName = "circleu-guest-recovery"
 
-    /// Returns the project ID if Firebase is ready for the guest Log in.
-    static func configure() -> String? {
+    /// The recovery app and its project, if Log in is possible in this build.
+    static func app() -> (app: FirebaseApp, project: String)? {
         FirebaseRuntime.noteGuestSignInAccess()
-        if let app = FirebaseApp.app() {
-            return allowedProjects.contains(app.options.projectID ?? "") ? app.options.projectID : nil
+        if let existing = FirebaseApp.app(name: appName), let project = existing.options.projectID {
+            return (existing, project)
         }
         guard let options = FirebaseOptions.defaultOptions(), let project = options.projectID,
               allowedProjects.contains(project) else { return nil } // Never Prod.
         options.bundleID = Bundle.main.bundleIdentifier ?? options.bundleID
-        FirebaseApp.configure(options: options)
-        // Recovery reads never leave a lasting copy on the phone.
+        FirebaseApp.configure(name: appName, options: options)
+        guard let app = FirebaseApp.app(name: appName) else { return nil }
+        // Set before any read: recovery data is held in memory only, never on disk.
         let settings = FirestoreSettings()
         settings.cacheSettings = MemoryCacheSettings()
-        Firestore.firestore().settings = settings
-        return project
+        Firestore.firestore(app: app).settings = settings
+        return (app, project)
     }
 }
 
 final class LiveGuestAccountService: GuestAccountService {
-    private let project: String?
+    private let firebase: (app: FirebaseApp, project: String)?
+    /// The user this service logged in to; deletion is bound to it, never to "whoever is current".
+    private var user: User?
 
-    init() { project = GuestFirebase.configure() }
+    init() { firebase = GuestFirebase.app() }
 
-    var isAvailable: Bool { project != nil }
+    var isAvailable: Bool { firebase != nil }
 
-    func discardEarlierSession() {
-        guard isAvailable else { return }
-        try? Auth.auth().signOut()
+    private var auth: Auth? { firebase.map { Auth.auth(app: $0.app) } }
+
+    func discardEarlierSession() throws {
+        guard let auth else { return }
+        do { try auth.signOut() } catch { throw GuestAccountError.failed }
+        user = nil
     }
 
     func logIn(email: String, password: String) async throws -> (uid: String, project: String) {
-        guard let project else { throw GuestAccountError.unavailable }
+        guard let auth, let project = firebase?.project else { throw GuestAccountError.unavailable }
         do {
-            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            let result = try await auth.signIn(withEmail: email, password: password)
+            user = result.user
             return (result.user.uid, project)
         } catch {
             throw Self.map(error)
@@ -150,22 +166,31 @@ final class LiveGuestAccountService: GuestAccountService {
     }
 
     func sendPasswordReset(email: String) async throws {
-        guard isAvailable else { throw GuestAccountError.unavailable }
+        guard let auth else { throw GuestAccountError.unavailable }
         do {
-            try await Auth.auth().sendPasswordReset(withEmail: email)
+            try await auth.sendPasswordReset(withEmail: email)
         } catch {
-            let mapped = Self.map(error)
-            // Only problems the person can act on are shown; "no such account" looks like success.
-            if mapped == .offline || mapped == .tooManyAttempts { throw mapped }
+            switch Self.map(error) {
+            case .couldNotLogIn: return // "No such account" must look like success.
+            case .offline: throw GuestAccountError.offline
+            case .tooManyAttempts: throw GuestAccountError.tooManyAttempts
+            default: throw GuestAccountError.failed // A real service problem is reported, generically.
+            }
         }
     }
 
-    func deleteAccount() async throws {
-        guard let user = Auth.auth().currentUser else { throw GuestAccountError.needsRecentLogIn }
+    func deleteAccount(uid: String) async throws {
+        guard let user, user.uid == uid, auth?.currentUser?.uid == uid else { throw GuestAccountError.needsRecentLogIn }
         do { try await user.delete() } catch { throw Self.map(error) }
+        self.user = nil
     }
 
-    func signOut() { try? Auth.auth().signOut() }
+    @discardableResult
+    func signOut() -> Bool {
+        user = nil
+        guard let auth else { return true }
+        return (try? auth.signOut()) != nil
+    }
 
     private static func map(_ error: Error) -> GuestAccountError {
         switch AuthErrorCode(rawValue: (error as NSError).code) {
@@ -182,12 +207,15 @@ final class LiveGuestCloudBackupReader: GuestCloudBackupReading {
     private static let privateCollections = ["journalEntries", "tipsPracticeSessions", "quests", "pointEntries",
                                              "activityEvents", "aiReflectionSessions"]
 
+    private var db: Firestore? { GuestFirebase.app().map { Firestore.firestore(app: $0.app) } }
+
     func readBackup(uid: String, project: String) async throws -> GuestCloudBackup {
+        guard let db else { throw GuestAccountError.unavailable }
         do {
-            let users = Firestore.firestore().collection("users").document(uid)
+            let user = db.collection("users").document(uid)
             // From the server only: never an old cached copy.
-            async let journal = users.collection("journalEntries").getDocuments(source: .server)
-            async let practice = users.collection("tipsPracticeSessions").getDocuments(source: .server)
+            async let journal = user.collection("journalEntries").getDocuments(source: .server)
+            async let practice = user.collection("tipsPracticeSessions").getDocuments(source: .server)
             return GuestCloudBackupMapper.map(journal: try await journal.documents.map { $0.data() },
                                               practice: try await practice.documents.map { $0.data() },
                                               uid: uid, project: project)
@@ -198,21 +226,43 @@ final class LiveGuestCloudBackupReader: GuestCloudBackupReading {
         }
     }
 
-    func deleteBackup(uid: String) async throws {
-        let user = Firestore.firestore().collection("users").document(uid)
+    func deleteOwnedContent(uid: String) async throws {
+        guard let db else { throw GuestAccountError.unavailable }
         var failures = 0
+        func delete(_ reference: DocumentReference) async { if (try? await reference.delete()) == nil { failures += 1 } }
+
+        // Circles: posts this account wrote, its memberships, and circles it created.
+        if let circles = try? await db.collection("circles").whereField("memberUserIDs", arrayContains: uid)
+            .getDocuments(source: .server).documents {
+            for circle in circles {
+                if let posts = try? await circle.reference.collection("posts").whereField("authorUserID", isEqualTo: uid)
+                    .getDocuments(source: .server).documents {
+                    for post in posts { await delete(post.reference) }
+                } else { failures += 1 }
+                if circle.data()["creatorUserID"] as? String == uid {
+                    await delete(circle.reference)
+                } else if (try? await circle.reference.updateData(["memberUserIDs": FieldValue.arrayRemove([uid])])) == nil {
+                    failures += 1
+                }
+            }
+        } else { failures += 1 }
+        if let created = try? await db.collection("circles").whereField("creatorUserID", isEqualTo: uid)
+            .getDocuments(source: .server).documents {
+            for circle in created { await delete(circle.reference) }
+        } else { failures += 1 }
+
+        // The private backup.
+        let user = db.collection("users").document(uid)
         for name in Self.privateCollections {
             guard let documents = try? await user.collection(name).getDocuments(source: .server).documents else {
                 failures += 1
                 continue
             }
-            for document in documents where (try? await document.reference.delete()) == nil { failures += 1 }
+            for document in documents { await delete(document.reference) }
         }
-        for path in ["profile/main", "rewardState/main"] where (try? await user.collection(String(path.split(separator: "/")[0]))
-            .document(String(path.split(separator: "/")[1])).delete()) == nil {
-            failures += 1
-        }
-        if (try? await user.delete()) == nil { failures += 1 }
+        await delete(user.collection("profile").document("main"))
+        await delete(user.collection("rewardState").document("main"))
+        await delete(user)
         if failures > 0 { throw GuestAccountError.failed } // Nothing is reported as done unless it is.
     }
 }
@@ -228,7 +278,7 @@ final class FakeGuestAccountService: GuestAccountService {
     private(set) var signedIn = false
     private(set) var deleted = false
 
-    func discardEarlierSession() { signedIn = false }
+    func discardEarlierSession() throws { signedIn = false }
 
     func logIn(email: String, password: String) async throws -> (uid: String, project: String) {
         guard !deleted, email.lowercased() == Self.email, password == Self.password else {
@@ -240,13 +290,14 @@ final class FakeGuestAccountService: GuestAccountService {
 
     func sendPasswordReset(email: String) async throws {}
 
-    func deleteAccount() async throws {
-        guard signedIn else { throw GuestAccountError.needsRecentLogIn }
+    func deleteAccount(uid: String) async throws {
+        guard signedIn, uid == "fake-uid" else { throw GuestAccountError.needsRecentLogIn }
         deleted = true
         signedIn = false
     }
 
-    func signOut() { signedIn = false }
+    @discardableResult
+    func signOut() -> Bool { signedIn = false; return true }
 }
 
 final class FakeGuestCloudBackupReader: GuestCloudBackupReading {
@@ -265,6 +316,6 @@ final class FakeGuestCloudBackupReader: GuestCloudBackupReading {
         return GuestCloudBackupMapper.map(journal: journal, practice: [], uid: uid, project: project)
     }
 
-    func deleteBackup(uid: String) async throws { deleted = true }
+    func deleteOwnedContent(uid: String) async throws { deleted = true }
 }
 #endif

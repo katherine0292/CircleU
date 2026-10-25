@@ -25,6 +25,26 @@ enum FakeAccounts {
 }
 #endif
 
+/// One account operation at a time across screens (log in and copy, or delete), so one can never
+/// act on the session another started.
+@MainActor
+enum GuestAccountGate {
+    private(set) static var isBusy = false
+    static let busyMessage = "Another account action is still running. Try again in a moment."
+
+    static func enter() -> Bool {
+        guard !isBusy else { return false }
+        isBusy = true
+        return true
+    }
+
+    static func leave() { isBusy = false }
+
+    #if DEBUG
+    static func resetForTesting() { isBusy = false }
+    #endif
+}
+
 enum GuestAccountMessages {
     static func text(for error: Error) -> String {
         switch error as? GuestAccountError {
@@ -47,7 +67,7 @@ final class GuestSignInViewModel: ObservableObject {
         case form
         case working
         case preview(GuestCloudBackup, alreadyCopied: Int)
-        case done(added: Int, skipped: [GuestLegacyScan.Skip], isProtected: Bool)
+        case done(added: Int, skipped: [GuestLegacyScan.Skip], isProtected: Bool, signedOut: Bool)
     }
 
     @Published var email = ""
@@ -65,6 +85,12 @@ final class GuestSignInViewModel: ObservableObject {
     private let practice: GuestPracticeViewModel
     private var services: (account: any GuestAccountService, reader: any GuestCloudBackupReading)?
     private var failures = 0
+    private var holdsGate = false
+
+    private func releaseGate() {
+        if holdsGate { GuestAccountGate.leave() }
+        holdsGate = false
+    }
     /// Results from an earlier request (cancelled, or replaced) are ignored.
     private var request = 0
     private let now: () -> Date
@@ -100,15 +126,23 @@ final class GuestSignInViewModel: ObservableObject {
             message = GuestAccountMessages.text(for: GuestAccountError.unavailable)
             return
         }
+        guard holdsGate || GuestAccountGate.enter() else {
+            message = GuestAccountGate.busyMessage
+            return
+        }
+        holdsGate = true
         request += 1
         let current = request
         message = nil
         step = .working
-        account.discardEarlierSession() // A leftover session is never trusted.
         do {
+            try account.discardEarlierSession() // A leftover session is never trusted.
             let session = try await account.logIn(email: email.trimmingCharacters(in: .whitespaces), password: password)
             password = ""
+            // Cancelled or replaced while logging in: undo the late log in, read nothing.
+            guard current == request else { account.signOut(); return }
             let backup = try await reader.readBackup(uid: session.uid, project: session.project)
+            guard current == request else { account.signOut(); return }
             var already = 0
             var fresh = GuestCloudBackup(skipped: backup.skipped)
             for entry in backup.entries {
@@ -124,6 +158,7 @@ final class GuestSignInViewModel: ObservableObject {
         } catch {
             guard current == request else { return }
             account.signOut()
+            releaseGate()
             password = ""
             if case GuestAccountError.couldNotLogIn = error {
                 failures += 1
@@ -145,13 +180,16 @@ final class GuestSignInViewModel: ObservableObject {
     func copy() async {
         guard case .preview(let backup, _) = step, canCopy else { return }
         step = .working
-        defer { services?.account.signOut() }
         do {
             let result = try await store.importLegacy(entries: backup.entries, messages: backup.messages)
+            let signedOut = services?.account.signOut() ?? true
+            releaseGate()
             await journal.load()
             await practice.load()
-            step = .done(added: result.added, skipped: backup.skipped, isProtected: result.isProtected)
+            step = .done(added: result.added, skipped: backup.skipped, isProtected: result.isProtected, signedOut: signedOut)
         } catch {
+            services?.account.signOut()
+            releaseGate()
             message = GuestImportViewModel.failedMessage
             step = .form
         }
@@ -161,6 +199,7 @@ final class GuestSignInViewModel: ObservableObject {
     func cancel() {
         request += 1
         services?.account.signOut()
+        releaseGate()
         password = ""
         if step != .form, !isDone { step = .form }
     }
@@ -187,7 +226,7 @@ struct GuestSignInView: View {
                 switch model.step {
                 case .form, .working: form
                 case .preview(let backup, let already): preview(backup, already: already)
-                case .done(let added, let skipped, let isProtected): done(added, skipped, isProtected)
+                case .done(let added, let skipped, let isProtected, let signedOut): done(added, skipped, isProtected, signedOut)
                 }
             }
             .padding(24)
@@ -258,18 +297,21 @@ struct GuestSignInView: View {
         }
         Button("Don’t copy, sign out") { model.cancel() }
             .buttonStyle(GuestBrandButtonStyle(filled: false))
-        Text("Titles, tags, suggested quests and practice coaching aren’t copied. The backup in your account isn’t changed.")
+        Text("Titles, tags, suggested quests, practice coaching and practice images aren’t copied. The backup in your account isn’t changed.")
             .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
     }
 
-    @ViewBuilder private func done(_ added: Int, _ skipped: [GuestLegacyScan.Skip], _ isProtected: Bool) -> some View {
+    @ViewBuilder private func done(_ added: Int, _ skipped: [GuestLegacyScan.Skip], _ isProtected: Bool,
+                                   _ signedOut: Bool) -> some View {
         GuestSuccessBanner(text: added == 0 ? "Nothing new to copy." : "Copied \(added) \(added == 1 ? "item" : "items") into your journal.",
                            asset: "GuestPinguReading")
         if !isProtected {
             Label(GuestJournalViewModel.savedButUnprotectedMessage, systemImage: "exclamationmark.shield")
                 .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
         }
-        Text("You’ve been signed out. Nothing syncs.").foregroundStyle(GuestBrand.muted)
+        Text(signedOut ? "You’ve been signed out. Nothing syncs."
+             : "Signing out didn’t finish. Close and reopen CircleU; nothing syncs either way.")
+            .foregroundStyle(GuestBrand.muted)
         GuestImportView.leftOut(skipped)
         if let onSkip {
             Button("Continue", action: onSkip).buttonStyle(GuestBrandButtonStyle())
@@ -349,8 +391,8 @@ final class GuestDeleteAccountViewModel: ObservableObject {
     @Published private(set) var step: Step = .form
     @Published private(set) var message: String?
 
-    static let backupNotDeletedMessage = "Couldn’t delete your cloud backup. Your account isn’t deleted yet. Try again."
-    static let accountNotDeletedMessage = "Your cloud backup was deleted, but the account itself couldn’t be. Try again."
+    static let backupNotDeletedMessage = "Couldn’t delete everything your account owns in the cloud. Your account isn’t deleted yet. Try again."
+    static let accountNotDeletedMessage = "Your cloud content was deleted, but the account itself couldn’t be. Try again."
 
     private let factory: GuestAccountFactory
 
@@ -365,15 +407,20 @@ final class GuestDeleteAccountViewModel: ObservableObject {
             message = GuestAccountMessages.text(for: GuestAccountError.unavailable)
             return
         }
+        guard GuestAccountGate.enter() else {
+            message = GuestAccountGate.busyMessage
+            return
+        }
         step = .working
         message = nil
-        account.discardEarlierSession()
         defer {
             account.signOut()
+            GuestAccountGate.leave()
             password = ""
         }
         let uid: String
         do {
+            try account.discardEarlierSession()
             uid = try await account.logIn(email: email.trimmingCharacters(in: .whitespaces), password: password).uid // Fresh log in.
         } catch {
             message = GuestAccountMessages.text(for: error)
@@ -381,14 +428,14 @@ final class GuestDeleteAccountViewModel: ObservableObject {
             return
         }
         do {
-            try await reader.deleteBackup(uid: uid)
+            try await reader.deleteOwnedContent(uid: uid)
         } catch {
             message = Self.backupNotDeletedMessage
             step = .form
             return
         }
         do {
-            try await account.deleteAccount()
+            try await account.deleteAccount(uid: uid) // Only the account just logged in to.
         } catch {
             message = Self.accountNotDeletedMessage
             step = .form
@@ -410,10 +457,10 @@ struct GuestDeleteAccountView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 if model.step == .done {
-                    GuestSuccessBanner(text: "Your earlier account and its cloud backup were deleted.", asset: "GuestPinguWelcome")
+                    GuestSuccessBanner(text: "Your earlier account and its cloud content were deleted.", asset: "GuestPinguWelcome")
                     Text("Your entries on this iPhone are still here.").foregroundStyle(GuestBrand.muted)
                 } else {
-                    Text("This deletes your earlier CircleU account and its private cloud backup. Your entries on this iPhone stay. Circle posts you shared in the earlier app aren’t deleted here.")
+                    Text("This deletes your earlier CircleU account and everything it owns in the cloud: its private backup, circles you created, posts you shared and your circle memberships. Replies and likes on other people’s posts can’t be removed here. Your entries on this iPhone stay.")
                         .foregroundStyle(GuestBrand.ink)
                     Text("Log in to confirm it’s you.").font(GuestBrand.font(.subheadline, .semibold))
                         .foregroundStyle(GuestBrand.muted)
@@ -440,6 +487,7 @@ struct GuestDeleteAccountView: View {
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Delete my account")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(model.step == .working) // Can't leave while it's deleting.
         .alert("Delete your earlier account?", isPresented: $confirm) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) { Task { await model.delete() } }

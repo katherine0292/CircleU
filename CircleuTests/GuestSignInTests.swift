@@ -16,7 +16,11 @@ private final class ScriptedAccount: GuestAccountService {
     var holdLogIn = false
     private var held: CheckedContinuation<Void, Never>?
 
-    func discardEarlierSession() { discards += 1; signedIn = false }
+    var discardFails = false
+    func discardEarlierSession() throws {
+        if discardFails { throw GuestAccountError.failed }
+        discards += 1; signedIn = false
+    }
 
     func logIn(email: String, password: String) async throws -> (uid: String, project: String) {
         if holdLogIn { await withCheckedContinuation { held = $0 } }
@@ -31,12 +35,15 @@ private final class ScriptedAccount: GuestAccountService {
 
     func sendPasswordReset(email: String) async throws { if let resetError { throw resetError } }
 
-    func deleteAccount() async throws {
+    private(set) var deletedUID: String?
+    func deleteAccount(uid: String) async throws {
         if let deleteError { throw deleteError }
         deletedAccount = true
+        deletedUID = uid
     }
 
-    func signOut() { signedIn = false; signOuts += 1 }
+    @discardableResult
+    func signOut() -> Bool { signedIn = false; signOuts += 1; return true }
 }
 
 @MainActor
@@ -53,7 +60,7 @@ private final class ScriptedReader: GuestCloudBackupReading {
         return backup
     }
 
-    func deleteBackup(uid: String) async throws {
+    func deleteOwnedContent(uid: String) async throws {
         if let deleteError { throw deleteError }
         deletedUIDs.append(uid)
     }
@@ -65,9 +72,11 @@ final class GuestSignInTests: XCTestCase {
 
     override func setUp() {
         root = FileManager.default.temporaryDirectory.appendingPathComponent("GuestSignIn-\(UUID())")
+        GuestAccountGate.resetForTesting()
     }
 
     override func tearDown() {
+        GuestAccountGate.resetForTesting() // A test may end while previewing (still holding it).
         try? FileManager.default.removeItem(at: root)
     }
 
@@ -114,7 +123,7 @@ final class GuestSignInTests: XCTestCase {
         XCTAssertTrue(journal.entries.isEmpty, "nothing copied until chosen")
 
         await model.copy()
-        guard case .done(1, _, true) = model.step else { return XCTFail("\(model.step)") }
+        guard case .done(1, _, true, true) = model.step else { return XCTFail("\(model.step)") }
         XCTAssertFalse(account.signedIn, "signed out automatically")
         XCTAssertEqual(journal.entries.first?.reflection?.source, .imported)
 
@@ -176,6 +185,51 @@ final class GuestSignInTests: XCTestCase {
         account.release()
         await task.value
         XCTAssertEqual(model.step, .form, "the late result is dropped")
+        XCTAssertFalse(account.signedIn, "a late log in is undone")
+        XCTAssertTrue(reader.readUIDs.isEmpty, "nothing is read for a cancelled log in")
+    }
+
+    func testOneAccountActionAtATime() async throws {
+        let account = ScriptedAccount(), reader = ScriptedReader()
+        reader.backup = backup()
+        let (model, _) = try await make(account, reader)
+        await model.logIn() // Holds the gate while previewing (signed in).
+        let deleter = GuestDeleteAccountViewModel(factory: GuestAccountFactory { (account, reader) })
+        deleter.email = "person@example.com"; deleter.password = "secret"
+        await deleter.delete()
+        XCTAssertEqual(deleter.message, GuestAccountGate.busyMessage)
+        XCTAssertFalse(account.deletedAccount)
+        model.cancel() // Signs out and lets go.
+        deleter.password = "secret"
+        await deleter.delete()
+        XCTAssertEqual(deleter.step, .done)
+        XCTAssertEqual(account.deletedUID, "uid-1", "deletes only the account just logged in to")
+    }
+
+    func testIfAnEarlierSessionCantBeClearedNothingHappens() async throws {
+        let account = ScriptedAccount(), reader = ScriptedReader()
+        account.discardFails = true
+        let (model, _) = try await make(account, reader)
+        await model.logIn()
+        XCTAssertEqual(model.step, .form)
+        XCTAssertTrue(reader.readUIDs.isEmpty)
+        XCTAssertNotNil(model.message)
+    }
+
+    func testTheSameItemTwiceKeepsItsLatestEdit() {
+        let id = "AAAAAAAA-0000-0000-0000-000000000009"
+        func doc(_ words: String, edited: TimeInterval) -> [String: Any] {
+            ["entryID": id, "transcript": words, "createdAt": Date(timeIntervalSince1970: 1_780_000_000),
+             "updatedAt": Date(timeIntervalSince1970: edited), "engineName": "x", "durationSeconds": 1,
+             "result": ["title": "", "emotion": "", "summary": "", "insight": "", "expressionMoment": "", "quote": "",
+                        "confidenceScore": 0.0, "suggestedQuest": ""]]
+        }
+        let mapped = GuestCloudBackupMapper.map(journal: [doc("Newer", edited: 1_790_000_000), doc("Older", edited: 1_785_000_000)],
+                                                practice: [], uid: "u", project: "p")
+        XCTAssertEqual(mapped.entries.map(\.originalWords), ["Newer"])
+        let reversed = GuestCloudBackupMapper.map(journal: [doc("Older", edited: 1_785_000_000), doc("Newer", edited: 1_790_000_000)],
+                                                  practice: [], uid: "u", project: "p")
+        XCTAssertEqual(reversed.entries.map(\.originalWords), ["Newer"], "whatever the order")
     }
 
     func testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries() async throws {
