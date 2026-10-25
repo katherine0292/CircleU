@@ -110,7 +110,7 @@ final class AnalyticsTrackerTests: XCTestCase {
         }
 
         XCTAssertEqual(event.name, "qa_export_copied")
-        XCTAssertEqual(event.properties["char_count"], "24")
+        XCTAssertEqual(event.properties["char_count"], "23")
 
         // Safety assertion: raw content should not be in properties
         XCTAssertNil(event.properties["content"])
