@@ -42,9 +42,11 @@ protocol GuestAccountService: AnyObject {
 @MainActor
 protocol GuestCloudBackupReading: AnyObject {
     func readBackup(uid: String, project: String) async throws -> GuestCloudBackup
-    /// Deletes everything the account owns in the cloud: its private backup, circles it created,
-    /// posts it wrote and its circle memberships. Throws if any part couldn't be deleted (retry).
-    func deleteOwnedContent(uid: String) async throws
+    /// Deletes everything the account owns in the cloud: its private backup, posts it wrote in any
+    /// circle, its memberships, and circles it created (kept only while other people's posts are
+    /// in them, which it can't delete). Returns how many such circles were kept. Throws if any part
+    /// couldn't be deleted; a retry finds everything that's left.
+    func deleteOwnedContent(uid: String) async throws -> Int
 }
 
 struct GuestCloudBackup: Equatable {
@@ -99,10 +101,13 @@ enum GuestCloudBackupMapper {
             backup.skipped.append(.init(what: rejected == 1 ? "1 saved item" : "\(rejected) saved items", reason: .unreadable))
         }
         // The same item twice: keep its latest edit, every time.
-        backup.entries = Dictionary(backup.entries.map { ($0.legacyID, $0) }, uniquingKeysWith: { $0.updatedAt >= $1.updatedAt ? $0 : $1 })
-            .values.sorted { $0.createdAt > $1.createdAt }
-        backup.messages = Dictionary(backup.messages.map { ($0.legacyID, $0) }, uniquingKeysWith: { $0.updatedAt >= $1.updatedAt ? $0 : $1 })
-            .values.sorted { $0.createdAt > $1.createdAt }
+        // (A tie on the edit time is broken by the words, so the result never depends on order.)
+        backup.entries = Dictionary(backup.entries.map { ($0.legacyID, $0) }, uniquingKeysWith: { a, b in
+            a.updatedAt != b.updatedAt ? (a.updatedAt > b.updatedAt ? a : b) : (a.originalWords >= b.originalWords ? a : b)
+        }).values.sorted { $0.createdAt > $1.createdAt }
+        backup.messages = Dictionary(backup.messages.map { ($0.legacyID, $0) }, uniquingKeysWith: { a, b in
+            a.updatedAt != b.updatedAt ? (a.updatedAt > b.updatedAt ? a : b) : (a.wording >= b.wording ? a : b)
+        }).values.sorted { $0.createdAt > $1.createdAt }
         return backup
     }
 }
@@ -226,30 +231,42 @@ final class LiveGuestCloudBackupReader: GuestCloudBackupReading {
         }
     }
 
-    func deleteOwnedContent(uid: String) async throws {
+    func deleteOwnedContent(uid: String) async throws -> Int {
         guard let db else { throw GuestAccountError.unavailable }
         var failures = 0
-        func delete(_ reference: DocumentReference) async { if (try? await reference.delete()) == nil { failures += 1 } }
+        var keptCircles = 0
 
-        // Circles: posts this account wrote, its memberships, and circles it created.
-        if let circles = try? await db.collection("circles").whereField("memberUserIDs", arrayContains: uid)
-            .getDocuments(source: .server).documents {
-            for circle in circles {
-                if let posts = try? await circle.reference.collection("posts").whereField("authorUserID", isEqualTo: uid)
-                    .getDocuments(source: .server).documents {
-                    for post in posts { await delete(post.reference) }
-                } else { failures += 1 }
-                if circle.data()["creatorUserID"] as? String == uid {
-                    await delete(circle.reference)
-                } else if (try? await circle.reference.updateData(["memberUserIDs": FieldValue.arrayRemove([uid])])) == nil {
-                    failures += 1
-                }
+        // Every circle is readable to signed-in people, so posts in circles left long ago are found
+        // too. A circle is only changed once all of this person's posts in it are gone, so a failed
+        // run is always found again by the retry.
+        guard let circles = try? await db.collection("circles").getDocuments(source: .server).documents else {
+            throw GuestAccountError.failed
+        }
+        for circle in circles {
+            guard let mine = try? await circle.reference.collection("posts").whereField("authorUserID", isEqualTo: uid)
+                .getDocuments(source: .server).documents else { failures += 1; continue }
+            var postsGone = true
+            for post in mine where (try? await post.reference.delete()) == nil {
+                postsGone = false
+                failures += 1
             }
-        } else { failures += 1 }
-        if let created = try? await db.collection("circles").whereField("creatorUserID", isEqualTo: uid)
-            .getDocuments(source: .server).documents {
-            for circle in created { await delete(circle.reference) }
-        } else { failures += 1 }
+            guard postsGone else { continue }
+            let data = circle.data()
+            let isMember = (data["memberUserIDs"] as? [String])?.contains(uid) == true
+            if data["creatorUserID"] as? String == uid {
+                // Other people's posts can't be deleted here; keep their circle rather than orphan them.
+                guard let others = try? await circle.reference.collection("posts").limit(to: 1)
+                    .getDocuments(source: .server).documents else { failures += 1; continue }
+                if others.isEmpty {
+                    if (try? await circle.reference.delete()) == nil { failures += 1 }
+                } else {
+                    keptCircles += 1
+                }
+            } else if isMember,
+                      (try? await circle.reference.updateData(["memberUserIDs": FieldValue.arrayRemove([uid])])) == nil {
+                failures += 1
+            }
+        }
 
         // The private backup.
         let user = db.collection("users").document(uid)
@@ -258,12 +275,13 @@ final class LiveGuestCloudBackupReader: GuestCloudBackupReading {
                 failures += 1
                 continue
             }
-            for document in documents { await delete(document.reference) }
+            for document in documents where (try? await document.reference.delete()) == nil { failures += 1 }
         }
-        await delete(user.collection("profile").document("main"))
-        await delete(user.collection("rewardState").document("main"))
-        await delete(user)
+        for (collection, document) in [("profile", "main"), ("rewardState", "main")]
+            where (try? await user.collection(collection).document(document).delete()) == nil { failures += 1 }
+        if (try? await user.delete()) == nil { failures += 1 }
         if failures > 0 { throw GuestAccountError.failed } // Nothing is reported as done unless it is.
+        return keptCircles
     }
 }
 
@@ -316,6 +334,6 @@ final class FakeGuestCloudBackupReader: GuestCloudBackupReading {
         return GuestCloudBackupMapper.map(journal: journal, practice: [], uid: uid, project: project)
     }
 
-    func deleteOwnedContent(uid: String) async throws { deleted = true }
+    func deleteOwnedContent(uid: String) async throws -> Int { deleted = true; return 0 }
 }
 #endif

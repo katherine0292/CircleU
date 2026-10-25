@@ -60,9 +60,11 @@ private final class ScriptedReader: GuestCloudBackupReading {
         return backup
     }
 
-    func deleteOwnedContent(uid: String) async throws {
+    var keptCircles = 0
+    func deleteOwnedContent(uid: String) async throws -> Int {
         if let deleteError { throw deleteError }
         deletedUIDs.append(uid)
+        return keptCircles
     }
 }
 
@@ -182,8 +184,10 @@ final class GuestSignInTests: XCTestCase {
         let task = Task { await model.logIn() }
         for _ in 0..<20 { await Task.yield() }
         model.cancel()
+        XCTAssertTrue(GuestAccountGate.isBusy, "the gate is held until the pending log in settles")
         account.release()
         await task.value
+        XCTAssertFalse(GuestAccountGate.isBusy)
         XCTAssertEqual(model.step, .form, "the late result is dropped")
         XCTAssertFalse(account.signedIn, "a late log in is undone")
         XCTAssertTrue(reader.readUIDs.isEmpty, "nothing is read for a cancelled log in")
@@ -202,7 +206,7 @@ final class GuestSignInTests: XCTestCase {
         model.cancel() // Signs out and lets go.
         deleter.password = "secret"
         await deleter.delete()
-        XCTAssertEqual(deleter.step, .done)
+        XCTAssertEqual(deleter.step, .done(keptCircles: 0))
         XCTAssertEqual(account.deletedUID, "uid-1", "deletes only the account just logged in to")
     }
 
@@ -240,8 +244,9 @@ final class GuestSignInTests: XCTestCase {
         let account = ScriptedAccount(), reader = ScriptedReader()
         let model = GuestDeleteAccountViewModel(factory: GuestAccountFactory { (account, reader) })
         model.email = "person@example.com"; model.password = "secret"
+        reader.keptCircles = 1
         await model.delete()
-        XCTAssertEqual(model.step, .done)
+        XCTAssertEqual(model.step, .done(keptCircles: 1), "a circle with others' posts is kept and said so")
         XCTAssertEqual(reader.deletedUIDs, ["uid-1"])
         XCTAssertTrue(account.deletedAccount)
         XCTAssertFalse(account.signedIn)
@@ -263,7 +268,7 @@ final class GuestSignInTests: XCTestCase {
         model.password = "secret"
         await model.delete()
         XCTAssertEqual(model.message, GuestDeleteAccountViewModel.accountNotDeletedMessage)
-        XCTAssertNotEqual(model.step, .done)
+        XCTAssertEqual(model.step, .form)
 
         account.logInResults = [.failure(.couldNotLogIn)]
         account.deleteError = nil

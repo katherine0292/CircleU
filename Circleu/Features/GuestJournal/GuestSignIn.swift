@@ -140,9 +140,9 @@ final class GuestSignInViewModel: ObservableObject {
             let session = try await account.logIn(email: email.trimmingCharacters(in: .whitespaces), password: password)
             password = ""
             // Cancelled or replaced while logging in: undo the late log in, read nothing.
-            guard current == request else { account.signOut(); return }
+            guard current == request else { settleCancelled(account); return }
             let backup = try await reader.readBackup(uid: session.uid, project: session.project)
-            guard current == request else { account.signOut(); return }
+            guard current == request else { settleCancelled(account); return }
             var already = 0
             var fresh = GuestCloudBackup(skipped: backup.skipped)
             for entry in backup.entries {
@@ -156,8 +156,8 @@ final class GuestSignInViewModel: ObservableObject {
             retryAfter = nil
             step = .preview(fresh, alreadyCopied: already)
         } catch {
-            guard current == request else { return }
-            account.signOut()
+            guard current == request else { settleCancelled(account); return }
+            noteSignOut(account.signOut())
             releaseGate()
             password = ""
             if case GuestAccountError.couldNotLogIn = error {
@@ -188,20 +188,40 @@ final class GuestSignInViewModel: ObservableObject {
             await practice.load()
             step = .done(added: result.added, skipped: backup.skipped, isProtected: result.isProtected, signedOut: signedOut)
         } catch {
-            services?.account.signOut()
+            let signedOut = services?.account.signOut() ?? true
             releaseGate()
             message = GuestImportViewModel.failedMessage
+            noteSignOut(signedOut)
             step = .form
         }
     }
 
-    /// Leaving without copying signs out too.
+    /// Leaving without copying signs out too. A log in still in progress keeps the gate until it
+    /// settles, so no other account action can start under it.
     func cancel() {
         request += 1
-        services?.account.signOut()
-        releaseGate()
         password = ""
+        if step == .working {
+            pendingCancel = true
+        } else {
+            if let account = services?.account { noteSignOut(account.signOut()) }
+            releaseGate()
+        }
         if step != .form, !isDone { step = .form }
+    }
+
+    private var pendingCancel = false
+
+    private func settleCancelled(_ account: any GuestAccountService) {
+        noteSignOut(account.signOut())
+        pendingCancel = false
+        releaseGate()
+    }
+
+    static let signOutUnfinishedMessage = "Signing out didn’t finish. Close and reopen CircleU; nothing syncs either way."
+
+    private func noteSignOut(_ succeeded: Bool) {
+        if !succeeded { message = Self.signOutUnfinishedMessage }
     }
 
     private var isDone: Bool { if case .done = step { true } else { false } }
@@ -384,7 +404,7 @@ struct GuestPasswordResetView: View {
 /// stay. Nothing is reported as deleted unless it was.
 @MainActor
 final class GuestDeleteAccountViewModel: ObservableObject {
-    enum Step: Equatable { case form, working, done }
+    enum Step: Equatable { case form, working, done(keptCircles: Int) }
 
     @Published var email = ""
     @Published var password = ""
@@ -419,6 +439,7 @@ final class GuestDeleteAccountViewModel: ObservableObject {
             password = ""
         }
         let uid: String
+        var keptCircles = 0
         do {
             try account.discardEarlierSession()
             uid = try await account.logIn(email: email.trimmingCharacters(in: .whitespaces), password: password).uid // Fresh log in.
@@ -428,7 +449,7 @@ final class GuestDeleteAccountViewModel: ObservableObject {
             return
         }
         do {
-            try await reader.deleteOwnedContent(uid: uid)
+            keptCircles = try await reader.deleteOwnedContent(uid: uid)
         } catch {
             message = Self.backupNotDeletedMessage
             step = .form
@@ -441,7 +462,7 @@ final class GuestDeleteAccountViewModel: ObservableObject {
             step = .form
             return
         }
-        step = .done
+        step = .done(keptCircles: keptCircles)
     }
 }
 
@@ -456,11 +477,15 @@ struct GuestDeleteAccountView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                if model.step == .done {
+                if case .done(let kept) = model.step {
                     GuestSuccessBanner(text: "Your earlier account and its cloud content were deleted.", asset: "GuestPinguWelcome")
                     Text("Your entries on this iPhone are still here.").foregroundStyle(GuestBrand.muted)
+                    if kept > 0 {
+                        Text("\(kept) \(kept == 1 ? "circle" : "circles") you created still \(kept == 1 ? "has" : "have") other people’s posts, so \(kept == 1 ? "it was" : "they were") kept for them. Your own posts in \(kept == 1 ? "it" : "them") were deleted.")
+                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    }
                 } else {
-                    Text("This deletes your earlier CircleU account and everything it owns in the cloud: its private backup, circles you created, posts you shared and your circle memberships. Replies and likes on other people’s posts can’t be removed here. Your entries on this iPhone stay.")
+                    Text("This deletes your earlier CircleU account and everything it owns in the cloud: its private backup, posts you shared, your circle memberships and circles you created (unless other people posted in them). Replies and likes on other people’s posts can’t be removed here. Your entries on this iPhone stay.")
                         .foregroundStyle(GuestBrand.ink)
                     Text("Log in to confirm it’s you.").font(GuestBrand.font(.subheadline, .semibold))
                         .foregroundStyle(GuestBrand.muted)
