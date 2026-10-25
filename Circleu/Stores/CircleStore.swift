@@ -27,6 +27,11 @@ final class CircleStore: ObservableObject {
     /// `Firestore.firestore()` throws in that case, so circles then stay local-only.
     private let firebase: FirebaseCircleService?
     private var isObservingFirebase = false
+
+    /// False when Firebase isn't configured. Circle changes would then stay on this device
+    /// without reaching anyone, so views disable create/join/post and show this explanation.
+    var isBackendAvailable: Bool { firebase != nil }
+    static let backendUnavailableMessage = "Circles aren’t available in this build, so nothing here can be shared yet."
     private var observedPostCircleIDs: Set<UUID> = []
 
     /// Only seed local "starter" demo circles in DEBUG builds. Release builds rely on
@@ -47,10 +52,11 @@ final class CircleStore: ObservableObject {
     init(
         userDefaults: UserDefaults = .standard,
         seedStarterSpaces: Bool = CircleStore.defaultSeedStarterSpaces,
-        firebase: FirebaseCircleService? = nil
+        firebase: FirebaseCircleService? = nil,
+        usesLiveFirebase: Bool = FirebaseRuntime.canUseLiveFirebase
     ) {
         self.userDefaults = userDefaults
-        self.firebase = firebase ?? (FirebaseRuntime.canUseLiveFirebase ? FirebaseCircleService() : nil)
+        self.firebase = firebase ?? (usesLiveFirebase ? FirebaseCircleService() : nil)
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()

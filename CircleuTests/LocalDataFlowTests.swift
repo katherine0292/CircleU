@@ -110,6 +110,18 @@ final class LocalDataFlowTests: XCTestCase {
         XCTAssertEqual(reloadedStore.posts(for: reloadedCircle).count, 1)
     }
 
+    func testCircleStoreReportsBackendUnavailableWithoutFirebase() {
+        let store = CircleStore(
+            userDefaults: UserDefaults(suiteName: "CircleUnavailable-\(UUID())")!,
+            seedStarterSpaces: false,
+            usesLiveFirebase: false
+        )
+
+        // Views read this to disable create/join/post and show the explanation instead.
+        XCTAssertFalse(store.isBackendAvailable)
+        XCTAssertFalse(CircleStore.backendUnavailableMessage.isEmpty)
+    }
+
     func testProgressEngineSummarizesReflectionQuestProgress() {
         let calendar = Calendar.current
         let today = Date()
