@@ -1,91 +1,103 @@
 # Plan: optional Log in to bring in your earlier journal
 
-26 October 2026. **Proposed plan only.** It contains no code, and it is not approved until Mike says so.
+26 October 2026. **Proposed plan only.** It contains no code, and it is not approved until Mike says so. It was revised after Codex's review ([log](../../agent-collaboration-log/2026-10-26-031500-codex-review-sign-in-plan.md)).
 
 Mike decided the earlier journal stays sealed until sign-in exists, and then only the signed-in account's own journal is imported ([decision](../../engineering/legacy-data-format.md#owner-decision-earlier-journal-in-the-guest-app-26-october-2026)). This plan says how.
 
 ## Goal and non-goals
 
-**Goal.** Someone who already has a CircleU email/password account can optionally **Log in** in the guest app. That proves they own the account, which lets them preview and copy **that account's** earlier journal and practice into the local journal.
+**Goal.** Someone with an existing CircleU email/password account can optionally **Log in** in the guest app. They can then preview and copy **that account's cloud backup** of their journal and practice into the local journal.
 
 **Non-goals:**
 - No sign-up and no new accounts.
 - No Google or Apple sign-in.
-- No ongoing sync or backup.
+- No ongoing sync or backup, and no uploads.
 - Guest-first stays the default: Get started never asks for an account.
 - No circles or rewards.
-- No legacy data is deleted or changed, locally or in the cloud.
+- Nothing is deleted or changed in legacy data unless the person explicitly asks to delete their account (decision 3).
 
 ## What signing in proves, and what it unseals
 
-Signing in with Firebase Auth proves control of **one account (its uid)**. It unseals only data that can be tied to that uid. Everything else stays sealed.
+Firebase Auth proves control of **one account (uid) in one Firebase project**. It does not certify where every historical record came from. So the plan unseals the least it can.
 
-| Source | Unsealed after Log in? | Why |
+| Source | After Log in | Why |
 | --- | --- | --- |
-| Firestore private backup at `users/<uid>/journalEntries`, `users/<uid>/tipsPracticeSessions` | **Yes**, read-only | Owned by the uid under security rules. Read with the original app's backup reader, without its merge step. |
-| On-device data saved under that account (`circleu.saved.reflections.v1.user.<uid>`, `circleu.tipsPractice.sessions.v1.user.<uid>`) | **Yes**, read-only | Written only while that uid was signed in on this iPhone. |
-| On-device data saved under **other** uids | No | It belongs to someone else. It is counted only, and never decoded. |
-| Unsuffixed on-device data (`circleu.saved.reflections.v1`, …) | No | Ownership is ambiguous (data from before accounts were separated, or a restored backup). See [legacy-data-format](../../engineering/legacy-data-format.md). It stays sealed. Decision 2 asks whether to offer more. |
+| Cloud backup `users/<uid>/journalEntries` and `users/<uid>/tipsPracticeSessions`, in the project this build uses | **Previewed and copied**, read-only, from the server | Owned by that uid under the project's security rules. The preview says it may include anything this account's earlier app ever backed up. |
+| On-device data under that uid (`….user.<uid>`) | **Sealed** | Not proof: the earlier app's restore could finish after an account switch and save account A's records into account B's bucket (`BackendSessionStore.swift:312`). Keys also carry no project. |
+| On-device data under other uids, and unsuffixed on-device data | **Sealed** | Unclear or someone else's. Never decoded. It can be revisited only if reliable provenance appears later. |
 
-Cloud and local copies of the same item share an ID. They are merged by that ID, keeping the newest `lastEditedAt`. Conflicts and rejected records are counted and shown, never silently dropped.
+**A new, narrow cloud reader.** It reads only the two collections. It keeps document IDs and source metadata, reads from the **server** (no cache), and reports rejected records with reasons and partial or unavailable reads. It does **not** reuse the lossy legacy reader (which uses `compactMap` and fetches extra categories), and never calls the legacy merge.
 
 ## Flow
 
-1. **Log in** from Welcome, or from Settings → Earlier CircleU app. The form has email, password and **Forgot password?**. Its wording comes from the approved [native recovery previews](../../design/brand-demo/native-recovery.md), including "Check your email and password. Your entries are unchanged."
-2. **Preview, nothing imported yet:** counts per source, a few sample entries with dates, and a left-out list with reasons. Reasons include unreadable, no words, another account's data, unclear ownership, and practice images that weren't backed up.
-3. **Copy into this journal:** one transaction, reusing batch C's tested import. It keeps original dates and earlier-app labels, and records receipts keyed by earlier IDs, so re-running never duplicates.
-4. **After copying:** the user chooses **Stay signed in** (to re-check later) or **Sign out** (recommended). Nothing syncs either way. The local journal never uploads.
+1. **Log in** from Welcome, or from Settings → Earlier CircleU app. The form has email, password and **Forgot password?**. Its wording comes from the approved [native recovery previews](../../design/brand-demo/native-recovery.md).
+   - Outcomes are generic ("Check your email and password. Your entries are unchanged."), so they never reveal whether an account exists.
+   - Duplicate taps are ignored, and repeated failures back off.
+   - The legacy local-password check in `BackendSessionStore.signIn` is not used.
+2. **Preview, nothing imported:** counts, a few samples with dates, and a left-out list with reasons. Reasons include rejected or unreadable records, no words, practice images that weren't backed up, and fields that aren't copied (titles, tags, turns, coaching).
+3. **Copy:** one transaction, reusing batch C's import. Receipts are **scoped by source** (for example `cloud:<project>:<uid>:<kind>:<id>`).
+   - Re-running never duplicates.
+   - It never brings back items the person edited or deleted locally after copying.
+   - Conflicts are settled the same way every time: journal items by `lastEditedAt`, practice by `updatedAt`.
+4. **Sign out automatically after copying** (decision 2). Nothing syncs, and the local journal never uploads.
 
-**Sign-out** clears the session and the in-memory preview. Copied entries stay; they're now the person's local entries. **Delete all** removes local data only; it never touches the account or the cloud backup.
+### Session, cache and offline
 
-**Offline:** Log in and the cloud preview say plainly that they need a connection. Local copying from that uid's on-device data works without one; whatever couldn't be checked is named. The guest journal itself never needs a network.
+- **A recovery session is explicit every time.** A Firebase session persisted in the Keychain, for example after a reinstall, is never trusted on launch; the guest app signs it out. Cancelled logins, account switching, revoked credentials and late callbacks discard any results that don't match the current request.
+- **No lasting Firestore cache.** Persistence is off for the recovery reader, and its data stays in memory. Sign-out clears it. Copied entries stay as the person's local entries.
+- **Delete all** affects local data only.
+- **Offline:** Log in and the preview say they need a connection. The guest journal itself never needs a network.
 
-**Password reset:** the Firebase reset email, using the approved preview states: "Check your email", an expired or invalid link, and Back to Log in. The in-app message never reveals whether an email has an account.
+### Password reset
+
+- Add `sendPasswordReset` to the auth adapter. It uses Firebase's hosted reset page, not in-app link handling, with the approved "Check your email" wording.
+- Verify **email-enumeration protection** is on in the project.
 
 ## What stays local, and privacy wording
 
-- Everything copied lives only in the local SwiftData store. There is no automatic sync, upload or cloud AI.
-- Privacy wording, before the person types anything:
-  > Logging in only lets CircleU fetch your earlier journal from your account so you can copy it here. Nothing new is uploaded.
-- Settings shows the signed-in state and a Sign out button.
-- Logs and analytics hold no content. Only counts are recorded.
+- Copied data lives only in the local SwiftData store.
+- Privacy wording, shown before typing:
+  > Logging in only fetches your earlier journal from your account so you can copy it here. Nothing new is uploaded, and you're signed out afterwards.
+- No content in logs or analytics; counts only.
 
 ## Firebase configuration and project boundaries
 
-- Reuse `FirebaseAuthService`/`LiveFirebaseAuthClient` (email/password `signIn` only), plus the Firestore backup reader.
-- The guest build must still construct **no** Firebase service until the person taps Log in. The existing test `testGuestStartupDoesNotConstructCloudServices` stays green.
-- **Dev and Prod are separate.** Debug builds and the CircleU Guest Test app use the **Dev** project. Release uses the project the shipped app used.
-  - Configuration lives in `GoogleService-Info.plist`, which stays out of the repo, as now.
-  - Dev and Prod are never merged, and users are never copied between projects.
-- Which project holds Mike's and testers' real accounts is unverified. See [legacy inventory](../../engineering/legacy-data-inventory.md) and decision 4.
+- **Today:** Release builds select **Prod** (`circleu-prod` / `circleu-45651`); non-Release builds select **Dev**. Both are registered to `edu.uts.tuannm3812.Circleu`. The Dev plist is tracked in the repo.
+- **Guest Test can't use either project as is.** It uses `com.tuannm3812.circleu.guesttest`, and `FirebaseRuntime` rejects a plist with a mismatched bundle ID (`FirebaseRuntime.swift:43`). The phone test needs a registered client (decision 4).
+- **Dev holds real legacy state.** It isn't disposable. Never merge Dev and Prod or copy users between them.
+- The guest build constructs **no** Firebase service before Log in. The test `testGuestStartupDoesNotConstructCloudServices` stays, plus a Release-configuration startup check.
 
-## App Review and policy risks
+## App Review and policy
 
-- **Guideline 4.8 (Sign in with Apple):** not triggered. There is only email/password for existing accounts, with no third-party or social login.
-- **Guideline 5.1.1(v) (account deletion):** if the app lets people log in to an account, it must also let them **start deleting the account in the app**.
-  - The original app has `deleteAccount()`.
-  - Scope it to the account and its cloud backup, with reauthentication and a clear statement that local entries are kept.
-  - Decision 3.
-- **Data:** the privacy label and privacy policy must cover email, and the backup content fetched on request.
+- **Guideline 4.8:** not triggered by a proprietary email/password login with no third-party or social login.
+- **Guideline 5.1.1(v):** explicitly triggered by **account creation**. This app doesn't create accounts, but anyone who can log in should still have an account-deletion route (decision 3). Reusing the legacy deletion is unsafe: it purges before checking for a recent login and hides purge failures.
+  - A new deletion would **reauthenticate first**.
+  - Cleanup would be verified and retryable, and cover the account's owned cloud content.
+  - Local entries would be kept, and the person told so.
+- **Privacy label and policy:** must cover email, and backup content fetched on request.
 
 ## Tests and review
 
-- **Unit tests with a fake auth client and a fake Firestore reader:**
-  - Sign-in success, wrong password, offline, and too many attempts.
-  - Only that uid's sources are read: other uids and unsuffixed data are never decoded.
-  - Merge by ID, keeping the newest.
-  - Idempotent re-import.
-  - Rejected-record counts.
-  - Sign-out clears state but keeps copied entries.
-  - Delete all keeps the account.
-- **Startup isolation:** no Firebase construction in the guest app before Log in.
-- **UI tests on the Simulator** against fakes: Log in → preview → copy → sign out, reset-request states, and offline.
-- **One manual check:** Mike's own account on his iPhone, against the **Dev** project only.
-- **Review:** the full local suite before every merge, plus one Codex pass per PR, as now.
+- **Unit tests with fake auth and a fake cloud reader:**
+  - sign-in success, wrong password, offline, throttled and duplicate submit;
+  - reset outcomes that look the same whether or not an account exists;
+  - a persisted session ignored at launch, an account switch mid-fetch, revoked credentials, late callbacks;
+  - only the uid's cloud collections read, with every local bucket still sealed;
+  - malformed nested records rejected and counted, and partial or denied reads;
+  - deterministic conflicts, scoped receipts, re-run idempotence, and local edits and deletions respected;
+  - interrupted import is all or nothing;
+  - automatic sign-out after copying;
+  - deletion: reauthentication required, and retry after failure.
+- **Startup isolation:** no Firebase in the guest app before Log in, in Debug and Release configurations.
+- **UI tests on the Simulator** against fakes: Log in → preview → copy, reset states, and offline.
+- **Real-account check:** only after decision 4, read-only, with isolated fixtures first.
+- **Review:** the full local suite before every merge, plus one Codex pass per PR.
 
 ## Decisions for Mike
 
-1. **Scope of what can be brought in:** (a) the cloud backup plus that account's on-device data *(recommended)*; (b) the cloud backup only.
-2. **Unsuffixed on-device data:** (a) keep it sealed permanently *(recommended)*; (b) after Log in, offer it with a clear "may include other accounts' data" choice per item.
-3. **Account deletion in the app (needed by 5.1.1(v)):** (a) build it in the same batch *(recommended)*; (b) a later batch, before any App Store submission.
-4. **Firebase project for the first phone test:** (a) Dev only *(recommended)*; (b) the shipped project, once its ownership and access are confirmed.
+1. **What can be brought in after Log in:** (a) the account's **cloud backup only** *(recommended)*; (b) also that account's on-device data, despite the known mix-up risk.
+2. **After copying:** (a) **sign out automatically** *(recommended)*; (b) stay signed in to re-check later.
+3. **Account deletion route:** (a) build **Delete my account** in the same batch, with reauthentication first and local entries kept *(recommended)*; (b) a later batch, before any App Store submission.
+4. **Phone test client:**
+   - (a) **register the Guest Test bundle as a new iOS app in the Dev project** *(recommended)*: read-only, using an account you choose;
+   - (b) test only in the Simulator against fakes until the guest journal ships inside the real app.
