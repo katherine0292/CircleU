@@ -19,8 +19,22 @@ final class AppStartupTests: XCTestCase {
         XCTAssertFalse(startup.configuresFirebase)
     }
 
-    func testThisTestRunStartsTheExistingApp() {
-        XCTAssertEqual(AppStartup.resolve(), .existingApp)
+    @MainActor
+    func testGuestStartupDoesNotConstructCloudServices() {
+        var calls: [String] = []
+        let bootstrap = AppBootstrap(configureFirebase: { calls.append("firebase") },
+                                     installAnalytics: { calls.append("analytics") })
+        bootstrap.run(for: AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: true))
+        XCTAssertEqual(calls, [], "guest startup must not configure Firebase or analytics")
+    }
+
+    @MainActor
+    func testExistingStartupStillConfiguresFirebaseThenAnalytics() {
+        var calls: [String] = []
+        let bootstrap = AppBootstrap(configureFirebase: { calls.append("firebase") },
+                                     installAnalytics: { calls.append("analytics") })
+        bootstrap.run(for: AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true))
+        XCTAssertEqual(calls, ["firebase", "analytics"], "the default path keeps its original order")
     }
 
     func testOpenFailureNeverReadsAsAnEmptyJournal() {

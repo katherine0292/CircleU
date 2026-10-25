@@ -13,10 +13,7 @@ struct CircleuApp: App {
 
     init() {
         // The hidden guest journal (DEBUG only) starts without Firebase or analytics.
-        if startup.configuresFirebase {
-            FirebaseRuntime.configureIfAvailable()
-            AnalyticsService.shared = FirebaseRuntime.makeAnalyticsTracker()
-        }
+        AppBootstrap.live.run(for: startup)
     }
 
     var body: some Scene {

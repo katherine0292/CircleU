@@ -27,3 +27,22 @@ nonisolated enum AppStartup: Equatable, Sendable {
     /// Only the existing app configures Firebase and analytics; the guest journal never does.
     var configuresFirebase: Bool { self == .existingApp }
 }
+
+/// Launch-time setup, run by `CircleuApp.init`. The steps are injectable so tests exercise this
+/// exact path: the guest journal must never configure Firebase or install analytics.
+@MainActor
+struct AppBootstrap {
+    var configureFirebase: () -> Void
+    var installAnalytics: () -> Void
+
+    static var live: AppBootstrap {
+        AppBootstrap(configureFirebase: { FirebaseRuntime.configureIfAvailable() },
+                     installAnalytics: { AnalyticsService.shared = FirebaseRuntime.makeAnalyticsTracker() })
+    }
+
+    func run(for startup: AppStartup) {
+        guard startup.configuresFirebase else { return }
+        configureFirebase()
+        installAnalytics()
+    }
+}
