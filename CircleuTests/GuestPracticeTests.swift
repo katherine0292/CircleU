@@ -140,6 +140,43 @@ final class GuestPracticeStoreTests: XCTestCase {
         XCTAssertEqual(messages.first?.sourceEntryID, entry.id)
     }
 
+    func testFailedWritesKeepEverythingAsItWas() async throws {
+        let fault = SaveFault()
+        var store: SwiftDataGuestJournalStore? = try await open(faults: fault.faults)
+        let entry = try await store!.create(originalWords: "Source")
+        let message = try await store!.createPractice(situation: "S", goal: "G", wording: "Original", sourceEntryID: entry.id)
+        fault.set(true)
+        for attempt in ["create", "update", "deleteMessage", "keepMessages"] {
+            do {
+                switch attempt {
+                case "create":
+                    _ = try await store!.createPractice(situation: "", goal: "", wording: "New", sourceEntryID: nil)
+                case "update":
+                    _ = try await store!.updatePractice(id: message.id, situation: "", goal: "", wording: "Changed",
+                                                        expectedRevision: 0)
+                case "deleteMessage":
+                    try await store!.deletePractice(id: message.id)
+                default:
+                    try await store!.deleteEntry(id: entry.id, linkedPractice: .keepMessages)
+                }
+                XCTFail("\(attempt) should fail")
+            } catch {
+                guard case .saveFailed = error as? GuestJournalError else { return XCTFail("\(attempt): \(error)") }
+            }
+        }
+        fault.set(false)
+        store = nil
+
+        let reopened = try await open()
+        let messages = try await reopened.loadPractice()
+        let entries = try await reopened.loadAll()
+        XCTAssertEqual(entries.map(\.id), [entry.id])
+        XCTAssertEqual(messages.count, 1, "no half-created message")
+        XCTAssertEqual(messages.first?.wording, "Original")
+        XCTAssertEqual(messages.first?.revision, 0)
+        XCTAssertEqual(messages.first?.sourceEntryID, entry.id, "Keep message rolled back, still linked")
+    }
+
     func testVersionOneJournalMigratesWithEntriesAndSavedDrafts() async throws {
         // A store written by the first slice (schema V1), before Practice existed.
         let entryID = UUID()
@@ -202,6 +239,9 @@ private actor MemoryPracticeStore: GuestPracticeStore {
                         expectedRevision: Int) throws -> GuestPracticeMessage {
         try check()
         guard let index = messages.firstIndex(where: { $0.id == id }) else { throw GuestJournalError.notFound }
+        guard messages[index].revision == expectedRevision else {
+            throw GuestJournalError.staleRevision(current: messages[index].revision, expected: expectedRevision)
+        }
         writes += 1
         let old = messages[index]
         let new = GuestPracticeMessage(id: id, situation: situation, goal: goal, wording: wording,
@@ -226,6 +266,25 @@ private actor MemoryPracticeStore: GuestPracticeStore {
             messages.removeAll { $0.sourceEntryID == id }
         }
     }
+}
+
+/// Holds the first create until released, to type while a message is saving.
+private actor SuspendedPracticeStore: GuestPracticeStore {
+    private var pending: CheckedContinuation<Void, Never>?
+    var isWaiting: Bool { pending != nil }
+    func release() { pending?.resume(); pending = nil }
+
+    func loadPractice() throws -> [GuestPracticeMessage] { [] }
+    func createPractice(situation: String, goal: String, wording: String,
+                        sourceEntryID: UUID?) async throws -> GuestPracticeMessage {
+        await withCheckedContinuation { pending = $0 }
+        return GuestPracticeMessage(id: UUID(), situation: situation, goal: goal, wording: wording,
+                                    sourceEntryID: sourceEntryID, revision: 0, createdAt: Date(), updatedAt: Date())
+    }
+    func updatePractice(id: UUID, situation: String, goal: String, wording: String,
+                        expectedRevision: Int) throws -> GuestPracticeMessage { throw GuestJournalError.notFound }
+    func deletePractice(id: UUID) throws {}
+    func deleteEntry(id: UUID, linkedPractice: GuestLinkedPracticeChoice) throws {}
 }
 
 /// Journal side for the entry-deletion flow.
@@ -339,7 +398,7 @@ final class GuestPracticeViewModelTests: XCTestCase {
         let practice = GuestPracticeViewModel(store: store)
         await practice.load()
         await store.fail(with: .saveFailed("injected"))
-        let result = await practice.deleteMessage(id: message!.id)
+        let result = await practice.deleteMessage(id: message!.id, journal: GuestJournalViewModel(store: EmptyJournalStore()))
         XCTAssertEqual(result, GuestPracticeViewModel.deleteFailedMessage)
         XCTAssertEqual(practice.messages.map(\.id), [message!.id])
     }
@@ -350,5 +409,47 @@ final class GuestPracticeViewModelTests: XCTestCase {
         XCTAssertEqual(GuestPracticeTag.label(sourceEntryID: entry.id, entries: [entry]),
                        "From: My groupmate missed the deadline again a…")
         XCTAssertEqual(GuestPracticeTag.label(sourceEntryID: nil, entries: [entry]), "On its own")
+    }
+
+    func testTextTypedWhileSavingIsKeptAndStillUnsaved() async {
+        let store = SuspendedPracticeStore()
+        let composer = GuestPracticeComposerViewModel(store: store, sourceEntryID: nil)
+        composer.wording = "First version"
+        let saving = Task { await composer.save() }
+        while !(await store.isWaiting) { await Task.yield() }
+        composer.wording = "First version, then more"
+        await store.release()
+        let saved = await saving.value
+        XCTAssertTrue(saved)
+        XCTAssertEqual(composer.saved?.wording, "First version")
+        XCTAssertEqual(composer.wording, "First version, then more", "newer typing is never overwritten")
+        XCTAssertTrue(composer.isEditing, "still editing, with unsaved changes")
+        XCTAssertTrue(composer.hasChanges)
+    }
+
+    func testStaleEditKeepsWordsAndExplains() async {
+        let store = MemoryPracticeStore()
+        let message = try? await store.createPractice(situation: "", goal: "", wording: "v0", sourceEntryID: nil)
+        _ = try? await store.updatePractice(id: message!.id, situation: "", goal: "", wording: "v1 elsewhere",
+                                            expectedRevision: 0)
+        let composer = GuestPracticeComposerViewModel(store: store, message: message!)
+        composer.edit()
+        composer.wording = "My edit"
+        let saved = await composer.save()
+        XCTAssertFalse(saved)
+        XCTAssertEqual(composer.wording, "My edit")
+        XCTAssertEqual(composer.saveError, GuestPracticeComposerViewModel.staleMessage)
+    }
+
+    func testSavedButUnprotectedIsSavedWithALastingWarning() async {
+        let store = MemoryPracticeStore()
+        await store.fail(with: .savedButUnprotected(entryID: UUID()))
+        let composer = GuestPracticeComposerViewModel(store: store, sourceEntryID: nil)
+        composer.wording = "Committed"
+        let saved = await composer.save()
+        XCTAssertTrue(saved)
+        XCTAssertNotNil(composer.saved, "not offered for saving again")
+        XCTAssertFalse(composer.canSave)
+        XCTAssertEqual(composer.saveError, GuestJournalViewModel.savedButUnprotectedMessage)
     }
 }

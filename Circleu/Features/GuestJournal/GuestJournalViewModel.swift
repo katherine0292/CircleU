@@ -74,6 +74,9 @@ final class GuestJournalViewModel: ObservableObject {
 
     func dismissNotices() { notices.removeAll() }
 
+    /// A lasting message from elsewhere in the guest app (for example Practice).
+    func addNotice(_ notice: String) { notices.append(notice) }
+
     /// Restores a kept draft. A draft that can't be read is left untouched on disk. A draft the
     /// store already saved (cleanup didn't finish) is removed rather than offered again; if the
     /// store can't be asked, the draft is restored and `create` refuses to save it twice.

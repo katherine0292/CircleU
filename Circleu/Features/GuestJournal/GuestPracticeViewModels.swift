@@ -44,11 +44,12 @@ final class GuestPracticeViewModel: ObservableObject {
     }
 
     /// Returns nil when deleted, or the message to show. A failed delete keeps the message.
-    func deleteMessage(id: UUID) async -> String? {
+    /// A committed delete whose files couldn't be fully secured adds a lasting notice.
+    func deleteMessage(id: UUID, journal: GuestJournalViewModel) async -> String? {
         do {
             try await store.deletePractice(id: id)
         } catch GuestJournalError.savedButUnprotected {
-            // Committed: the message is gone.
+            journal.addNotice(GuestJournalViewModel.savedButUnprotectedMessage) // Committed: it's gone.
         } catch {
             return Self.deleteFailedMessage
         }
@@ -63,7 +64,7 @@ final class GuestPracticeViewModel: ObservableObject {
         do {
             try await store.deleteEntry(id: id, linkedPractice: linkedPractice)
         } catch GuestJournalError.savedButUnprotected {
-            // Committed: the entry is gone.
+            journal.addNotice(GuestJournalViewModel.savedButUnprotectedMessage) // Committed: it's gone.
         } catch GuestJournalError.notFound {
             // Already gone; refresh below.
         } catch {
@@ -148,7 +149,9 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         guard canSave else { return false }
         isSaving = true
         defer { isSaving = false }
+        let submitted = (situation, goal, wording)
         let fields = (Self.trim(situation), Self.trim(goal), Self.trim(wording))
+        var warning: String?
         do {
             if let saved {
                 self.saved = try await store.updatePractice(id: saved.id, situation: fields.0, goal: fields.1,
@@ -158,7 +161,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
                                                             sourceEntryID: sourceEntryID)
             }
         } catch GuestJournalError.savedButUnprotected(let id) {
-            // Committed: record it so it isn't saved twice.
+            // Committed: record it so it isn't saved twice, and keep the warning visible.
+            warning = GuestJournalViewModel.savedButUnprotectedMessage
             let now = Date()
             self.saved = GuestPracticeMessage(id: id, situation: fields.0, goal: fields.1, wording: fields.2,
                                               sourceEntryID: sourceEntryID, revision: (saved?.revision ?? -1) + 1,
@@ -173,12 +177,15 @@ final class GuestPracticeComposerViewModel: ObservableObject {
             saveError = Self.saveFailedMessage
             return false
         }
-        saveError = nil
-        situation = fields.0
-        goal = fields.1
-        wording = fields.2
-        isEditing = false
+        saveError = warning
         didCopy = false
+        // Anything typed while saving is newer than what was saved: keep it, and keep editing.
+        if (situation, goal, wording) == submitted {
+            situation = fields.0
+            goal = fields.1
+            wording = fields.2
+            isEditing = false
+        }
         return true
     }
 }

@@ -354,7 +354,15 @@ struct GuestEntryDetailView: View {
                 Text(entry.updatedAt, format: .dateTime.day().month().year().hour().minute())
                     .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
                 let linked = practice.linkedMessages(to: entry.id)
-                if !linked.isEmpty {
+                if case .failed(let message) = practice.loadState {
+                    // Unknown is not "none": say so rather than hiding linked messages.
+                    HStack {
+                        Text(message).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                        Button("Try again") { Task { await practice.load() } }
+                            .font(GuestBrand.font(.footnote, .semibold))
+                    }
+                    .padding(.top, 8)
+                } else if !linked.isEmpty {
                     Text("Practice").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                         .padding(.top, 8)
                     ForEach(linked) { message in
@@ -377,7 +385,7 @@ struct GuestEntryDetailView: View {
                     Label(deleteError, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
-                Button("Delete entry", role: .destructive) { deleteError = nil; confirmDelete = true }
+                Button("Delete entry", role: .destructive) { Task { await askToDelete() } }
                     .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
                     .frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
                     .padding(.top, 8)
@@ -438,6 +446,17 @@ struct GuestEntryEditView: View {
 }
 
 extension GuestEntryDetailView {
+    /// The delete choices depend on linked messages, so make sure they're known first.
+    fileprivate func askToDelete() async {
+        deleteError = nil
+        if case .loaded = practice.loadState {} else { await practice.load() }
+        if case .loaded = practice.loadState {
+            confirmDelete = true
+        } else {
+            deleteError = GuestPracticeViewModel.loadFailedMessage
+        }
+    }
+
     /// A failed delete keeps the entry (and its messages) and says so.
     fileprivate func delete(_ choice: GuestLinkedPracticeChoice) async {
         if let error = await practice.deleteEntry(id: entryID, linkedPractice: choice, journal: journal) {

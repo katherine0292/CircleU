@@ -89,26 +89,44 @@ struct GuestPracticeRow: View {
     }
 }
 
-/// Resolves a route into a screen with its own composer, so each pushed screen keeps its text.
+/// Resolves a route into a screen. The composer is created once and kept for the screen's life,
+/// so a history refresh (or a failed one) never replaces what's being written.
 struct GuestPracticeRouteView: View {
     let route: GuestPracticeRoute
     @ObservedObject var practice: GuestPracticeViewModel
     @ObservedObject var journal: GuestJournalViewModel
+    @State private var composer: GuestPracticeComposerViewModel?
 
     var body: some View {
-        switch route {
-        case .new(let sourceEntryID):
-            GuestPracticeMessageView(composer: GuestPracticeComposerViewModel(store: practice.store,
-                                                                             sourceEntryID: sourceEntryID),
-                                     practice: practice, journal: journal)
-        case .message(let id):
-            if let message = practice.message(id: id) {
-                GuestPracticeMessageView(composer: GuestPracticeComposerViewModel(store: practice.store, message: message),
-                                         practice: practice, journal: journal)
+        Group {
+            if let composer {
+                GuestPracticeMessageView(composer: composer, practice: practice, journal: journal)
+            } else if case .failed(let message) = practice.loadState {
+                VStack(spacing: 16) {
+                    Text(message).multilineTextAlignment(.center)
+                    Button("Try again") { Task { await practice.load() } }
+                }
+                .padding(24)
+            } else if case .loading = practice.loadState {
+                ProgressView()
             } else {
                 Text("This message no longer exists.").foregroundStyle(GuestBrand.muted)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(GuestBrand.ice.ignoresSafeArea())
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(GuestBrand.ice.ignoresSafeArea())
+        .onAppear(perform: makeComposer)
+        .onChange(of: practice.loadState) { makeComposer() }
+    }
+
+    private func makeComposer() {
+        guard composer == nil else { return }
+        switch route {
+        case .new(let sourceEntryID):
+            composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: sourceEntryID)
+        case .message(let id):
+            if let message = practice.message(id: id) {
+                composer = GuestPracticeComposerViewModel(store: practice.store, message: message)
             }
         }
     }
@@ -117,20 +135,13 @@ struct GuestPracticeRouteView: View {
 // MARK: - Message
 
 struct GuestPracticeMessageView: View {
-    @StateObject private var composer: GuestPracticeComposerViewModel
+    @ObservedObject var composer: GuestPracticeComposerViewModel
     @ObservedObject var practice: GuestPracticeViewModel
     @ObservedObject var journal: GuestJournalViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var confirmDiscard = false
     @State private var confirmDelete = false
     @State private var deleteError: String?
-
-    init(composer: @autoclosure @escaping () -> GuestPracticeComposerViewModel,
-         practice: GuestPracticeViewModel, journal: GuestJournalViewModel) {
-        _composer = StateObject(wrappedValue: composer())
-        self.practice = practice
-        self.journal = journal
-    }
 
     var body: some View {
         ScrollView {
@@ -248,7 +259,7 @@ struct GuestPracticeMessageView: View {
 
     private func delete() async {
         guard let id = composer.saved?.id else { return }
-        if let error = await practice.deleteMessage(id: id) {
+        if let error = await practice.deleteMessage(id: id, journal: journal) {
             deleteError = error // Kept; nothing changed.
         } else {
             dismiss()
