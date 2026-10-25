@@ -114,7 +114,7 @@ struct GuestImportView: View {
                 Label(GuestJournalViewModel.savedButUnprotectedMessage, systemImage: "exclamationmark.shield")
                     .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
             }
-            leftOut(skipped)
+            Self.leftOut(skipped)
         case .preview(let scan, let already):
             preview(scan, already: already)
         }
@@ -148,7 +148,7 @@ struct GuestImportView: View {
                     Text("and \(scan.entries.count - 3) more").font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
             }
-            leftOut(scan.skipped)
+            Self.leftOut(scan.skipped)
             if model.canImport {
                 Button("Copy into this journal") { Task { await model.importAll() } }
                     .buttonStyle(GuestBrandButtonStyle())
@@ -160,7 +160,7 @@ struct GuestImportView: View {
 }
 
 extension GuestImportView {
-    @ViewBuilder fileprivate func leftOut(_ skipped: [GuestLegacyScan.Skip]) -> some View {
+    @ViewBuilder static func leftOut(_ skipped: [GuestLegacyScan.Skip]) -> some View {
         if !skipped.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
@@ -218,37 +218,8 @@ struct GuestWelcomeView: View {
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationDestination(isPresented: $showsLogin) {
-                GuestLoginInfoView(store: store, journal: journal, practice: practice, onDone: onDone)
+                GuestSignInView(factory: .live, store: store, journal: journal, practice: practice, onSkip: onDone)
             }
         }
-    }
-}
-
-struct GuestLoginInfoView: View {
-    let store: any GuestImportStore
-    let journal: GuestJournalViewModel
-    let practice: GuestPracticeViewModel
-    let onDone: () -> Void
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Used CircleU before?").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
-                    .accessibilityAddTraits(.isHeader)
-                Text("Signing in to an account isn’t part of this version, so nothing is fetched from the internet. If you used CircleU on this iPhone before, you can copy that journal in.")
-                    .foregroundStyle(GuestBrand.ink)
-                NavigationLink {
-                    GuestImportView(store: store, journal: journal, practice: practice)
-                } label: {
-                    Text("Find my earlier journal")
-                }
-                .buttonStyle(GuestBrandButtonStyle())
-                Button("Continue without it", action: onDone)
-                    .buttonStyle(GuestBrandButtonStyle(filled: false))
-            }
-            .padding(24)
-        }
-        .background(GuestBrand.ice.ignoresSafeArea())
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

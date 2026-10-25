@@ -17,6 +17,12 @@ enum FirebaseRuntime {
         #endif
     }
 
+    /// The guest journal's optional Log in configures Firebase itself (Dev only); counted the
+    /// same way, so tests can prove guest startup never gets here.
+    static func noteGuestSignInAccess() {
+        recordCloudAccess()
+    }
+
     static var expectedBundleID: String {
         Bundle.main.bundleIdentifier ?? ""
     }
