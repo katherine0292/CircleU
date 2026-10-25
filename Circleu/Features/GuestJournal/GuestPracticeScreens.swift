@@ -151,7 +151,8 @@ struct GuestPracticeMessageView: View {
                     .padding(.horizontal, 10).padding(.vertical, 5)
                     .background(.white, in: Capsule())
                 if composer.isEditing { form } else { savedMessage }
-                if let error = composer.saveError ?? deleteError {
+                // Both can apply: a save warning, then a failed delete.
+                ForEach([deleteError, composer.saveError].compactMap { $0 }, id: \.self) { error in
                     Label(error, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
