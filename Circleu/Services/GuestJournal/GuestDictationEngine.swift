@@ -39,7 +39,10 @@ protocol GuestDictationEngine: AnyObject {
 /// touches Firebase or any CircleU service.
 final class SpeechDictationEngine: GuestDictationEngine {
     private let recognizer: SFSpeechRecognizer?
-    private let audioEngine = AVAudioEngine()
+    /// A new engine for every dictation, so one invalidated by a media-services reset is never reused.
+    private var audioEngine: AVAudioEngine?
+    /// Identifies the current dictation; callbacks from an earlier one are ignored.
+    private var session = 0
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
     private var continuation: AsyncStream<GuestDictationEvent>.Continuation?
@@ -60,38 +63,43 @@ final class SpeechDictationEngine: GuestDictationEngine {
     func start() throws -> AsyncStream<GuestDictationEvent> {
         guard continuation == nil, let recognizer, recognizer.supportsOnDeviceRecognition,
               recognizer.isAvailable else { throw GuestDictationError.unavailable }
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: .duckOthers)
-        try session.setActive(true, options: .notifyOthersOnDeactivation)
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.requiresOnDeviceRecognition = true // Never fall back to server recognition.
         request.shouldReportPartialResults = true
         request.addsPunctuation = true
 
-        let input = audioEngine.inputNode
+        let engine = AVAudioEngine()
+        let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
         guard format.sampleRate > 0, format.channelCount > 0 else {
-            Self.deactivate(session)
+            Self.deactivate(audioSession)
             throw GuestDictationError.unavailable
         }
         input.installTap(onBus: 0, bufferSize: 1024, format: format, block: Self.tap(feeding: request))
-        audioEngine.prepare()
+        engine.prepare()
         do {
-            try audioEngine.start()
+            try engine.start()
         } catch {
             input.removeTap(onBus: 0)
-            Self.deactivate(session)
+            Self.deactivate(audioSession)
             throw error
         }
 
         let (stream, continuation) = AsyncStream.makeStream(of: GuestDictationEvent.self)
+        session += 1
+        let current = session
         self.continuation = continuation
         self.request = request
+        audioEngine = engine
         isFinishing = false
-        task = recognizer.recognitionTask(with: request,
-                                          resultHandler: Self.resultHandler { [weak self] in self?.receive($0) })
-        observeInterruptions()
+        task = recognizer.recognitionTask(with: request, resultHandler: Self.resultHandler { [weak self] in
+            self?.receive($0, from: current)
+        })
+        observeInterruptions(of: engine, session: current)
         return stream
     }
 
@@ -114,8 +122,9 @@ final class SpeechDictationEngine: GuestDictationEngine {
         tearDown()
     }
 
-    private func receive(_ event: GuestDictationEvent) {
-        guard let continuation else { return } // Late callbacks after teardown.
+    private func receive(_ event: GuestDictationEvent, from eventSession: Int) {
+        // Late callbacks after teardown, or from an earlier dictation, are ignored.
+        guard eventSession == session, let continuation else { return }
         switch event {
         case .transcript(let text, let isFinal):
             continuation.yield(.transcript(text, isFinal: isFinal))
@@ -129,22 +138,23 @@ final class SpeechDictationEngine: GuestDictationEngine {
         }
     }
 
-    private func observeInterruptions() {
+    private func observeInterruptions(of engine: AVAudioEngine, session current: Int) {
         let center = NotificationCenter.default
         let interrupted: @Sendable (Notification) -> Void = { [weak self] _ in
-            MainActor.assumeIsolated { self?.receive(.interrupted) }
+            MainActor.assumeIsolated { self?.receive(.interrupted, from: current) }
         }
         observers = [
             center.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main,
                                using: interrupted),
             center.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil,
                                queue: .main, using: interrupted),
-            center.addObserver(forName: .AVAudioEngineConfigurationChange, object: audioEngine, queue: .main,
+            center.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main,
                                using: interrupted),
         ]
     }
 
     private func stopAudio() {
+        guard let audioEngine else { return }
         if audioEngine.isRunning { audioEngine.stop() }
         audioEngine.inputNode.removeTap(onBus: 0)
     }
@@ -153,6 +163,7 @@ final class SpeechDictationEngine: GuestDictationEngine {
         finishDeadline?.cancel()
         finishDeadline = nil
         stopAudio()
+        audioEngine = nil
         observers.forEach(NotificationCenter.default.removeObserver)
         observers = []
         request = nil

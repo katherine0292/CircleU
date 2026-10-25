@@ -52,12 +52,16 @@ private final class FakeDictationEngine: GuestDictationEngine {
     }
 
     func finish() { finishCount += 1 }
+    /// Like the real recogniser, a cancelled stream may still deliver a late callback.
     func cancel() {
         cancelCount += 1
-        end()
+        cancelled = continuation
+        continuation = nil
     }
+    private var cancelled: AsyncStream<GuestDictationEvent>.Continuation?
 
     func send(_ event: GuestDictationEvent) { continuation?.yield(event) }
+    func sendLate(_ event: GuestDictationEvent) { cancelled?.yield(event) }
     func end() {
         continuation?.finish()
         continuation = nil
@@ -153,9 +157,33 @@ final class GuestDictationViewModelTests: XCTestCase {
         XCTAssertEqual(journal.draft, "Keep this.")
         XCTAssertEqual(dictation.state, .idle)
 
-        engine.send(.transcript("late words", isFinal: true)) // A late callback must be ignored.
+        engine.sendLate(.transcript("late words", isFinal: true)) // A late callback must be ignored.
+        engine.sendLate(.failed)
         await settle()
         XCTAssertEqual(journal.draft, "Keep this.")
+        XCTAssertNil(dictation.message)
+    }
+
+    func testLateEventsFromACancelledDictationDontReachTheNextOne() async {
+        let (journal, dictation, engine) = make()
+        await dictation.start()
+        engine.send(.transcript("First try", isFinal: false))
+        await settle()
+        dictation.cancel()
+
+        journal.draft = "Typed."
+        await dictation.start()
+        XCTAssertEqual(engine.startCount, 2)
+        engine.sendLate(.transcript("First try, late", isFinal: true))
+        engine.sendLate(.interrupted)
+        await settle()
+        XCTAssertEqual(journal.draft, "Typed.")
+        XCTAssertEqual(dictation.state, .listening, "the old stream can't end the new dictation")
+        XCTAssertNil(dictation.message)
+
+        engine.send(.transcript("Second try", isFinal: false))
+        await settle()
+        XCTAssertEqual(journal.draft, "Typed. Second try")
     }
 
     func testDeniedPermissionLeavesTypingAndOffersSettings() async {
@@ -227,6 +255,8 @@ final class GuestDictationViewModelTests: XCTestCase {
         await settle()
         dictation.interrupt()
         XCTAssertEqual(engine.cancelCount, 1, "the microphone is released at once")
+        engine.sendLate(.transcript("Halfway and more", isFinal: true))
+        await settle()
         XCTAssertEqual(journal.draft, "Halfway")
         XCTAssertEqual(dictation.message, GuestDictationViewModel.interruptedMessage)
         XCTAssertFalse(dictation.isActive)

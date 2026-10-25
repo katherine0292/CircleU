@@ -185,7 +185,9 @@ struct GuestWriteView: View {
         .navigationBarTitleDisplayMode(.inline)
         // No automatic keyboard: it would cover the microphone. Tap the text to type.
         // Leaving the app or this screen stops listening; the words so far stay in the draft.
-        .onChange(of: scenePhase) { _, phase in if phase != .active { dictation.interrupt() } }
+        // Only `.background`: the permission alert makes the app `.inactive`, and calls arrive
+        // as audio-session interruptions.
+        .onChange(of: scenePhase) { _, phase in if phase == .background { dictation.interrupt() } }
         .onDisappear { dictation.interrupt() }
     }
 
