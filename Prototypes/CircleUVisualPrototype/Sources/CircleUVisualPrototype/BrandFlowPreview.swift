@@ -132,8 +132,13 @@ public struct BrandHubPreview: View {
 /// Static editing specimens: original words and editable interpretation remain distinct.
 public struct BrandEditorPreview: View {
     public let kind: EditorPreviewKind
+    /// Static state for leaving with unsaved edits (walkthrough task 2); real behaviour is for the app.
+    public let showsLeavePrompt: Bool
 
-    public init(kind: EditorPreviewKind) { self.kind = kind }
+    public init(kind: EditorPreviewKind, showsLeavePrompt: Bool = false) {
+        self.kind = kind
+        self.showsLeavePrompt = showsLeavePrompt
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -173,9 +178,9 @@ public struct BrandEditorPreview: View {
                 .frame(maxWidth: .infinity, minHeight: 163, alignment: .topLeading)
                 .padding(18).background(.white, in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(BrandDemoColor.blue.opacity(0.2)))
-            BrandFixture.detail(kind == .reflection
-                ? "This updates the reflection only."
-                : "Saving this message creates no journal entry.", size: 12).padding(.top, 10)
+            if kind == .message {
+                BrandFixture.detail("Saving this message creates no journal entry.", size: 12).padding(.top, 10)
+            }
             Spacer(minLength: 14)
             BrandFixture.action(kind == .reflection ? "Save reflection" : "Save message")
             if kind == .message {
@@ -187,7 +192,25 @@ public struct BrandEditorPreview: View {
         .padding(.horizontal, 24).padding(.bottom, 22)
         .frame(width: 390, height: 844)
         .foregroundStyle(BrandDemoColor.ink).background(BrandDemoColor.ice)
+        .overlay { if showsLeavePrompt { leavePrompt } }
         .clipShape(RoundedRectangle(cornerRadius: 36)).environment(\.colorScheme, .light)
+    }
+
+    private var leavePrompt: some View {
+        ZStack {
+            BrandDemoColor.ink.opacity(0.28)
+            VStack(spacing: 14) {
+                Text("Discard your changes?").font(BrandDemoFont.font(18, .bold))
+                BrandFixture.detail("Your edits to this reflection haven’t been saved.", size: 14)
+                    .multilineTextAlignment(.center)
+                BrandFixture.action("Keep editing")
+                Text("Discard").font(BrandDemoFont.font(15, .semibold))
+                    .foregroundStyle(.red) // System destructive colour; no new brand token.
+                    .frame(maxWidth: .infinity).frame(height: 44)
+            }
+            .padding(22).background(.white, in: RoundedRectangle(cornerRadius: 24))
+            .padding(.horizontal, 28)
+        }
     }
 }
 

@@ -111,7 +111,15 @@ public struct BrandJourneyPreview: View {
         case .reflection:
             if !iconLed { BrandFixture.detail("A suggestion to consider. Change anything that doesn’t fit.") }
             block("My words", text: originalWords, edit: "Edit my words")
-            block("Suggested reflection", text: "You might feel frustrated and worried. A clear update and a shared plan may help.", edit: "Edit reflection")
+            block("Suggested reflection", text: "You might feel frustrated and worried. A clear update and a shared plan may help.",
+                  edit: iconLed ? "Edit reflection" : nil)
+            if !iconLed {
+                // Owner decision (walkthrough task 2): a full-width outlined button, not a small link.
+                Text("Edit reflection").font(BrandDemoFont.font(15, .semibold))
+                    .foregroundStyle(BrandDemoColor.blue)
+                    .frame(maxWidth: .infinity).frame(height: 46)
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(BrandDemoColor.blue.opacity(0.35), lineWidth: 1.5))
+            }
         case .entry:
             if iconLed { chip("Saved · 24 Oct · 10:30 am", symbol: "checkmark.circle") }
             else { BrandFixture.detail("24 October 2026 · 10:30 am", size: 12) }
