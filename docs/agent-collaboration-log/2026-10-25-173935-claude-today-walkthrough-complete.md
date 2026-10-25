@@ -4,7 +4,7 @@
 - Agent / role: Claude (Claude Code), walkthrough moderator.
 - Status: walkthrough complete; PR #7 awaiting owner merge go-ahead.
 - Base revision and branch: `codex/preview-assets-demo` (PR #7) on main `812b1ca`.
-- Related record: [walkthrough script](../design/today-walkthrough-script-2026-10-25.md), [worksheet and summary](../design/prototype-review-results.md#walkthrough-summary--25-october), [demo and assets](2026-10-25-165027-claude-preview-assets-demo.md).
+- Related record: [walkthrough script](../design/today-walkthrough-script-2026-10-25.md), [worksheet and summary](../design/prototype-review-results.md#walkthrough-summary--25-october), [demo and assets](2026-10-25-164848-claude-preview-assets-demo.md).
 
 ## Request and scope
 
