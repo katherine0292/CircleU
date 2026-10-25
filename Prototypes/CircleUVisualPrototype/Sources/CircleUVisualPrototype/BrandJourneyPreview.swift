@@ -75,9 +75,9 @@ public struct BrandJourneyPreview: View {
                 }
                 .padding(.bottom, 8)
             } else {
-                BrandFixture.eyebrow(linkedContext && screen == .practiceContext
-                    ? (updatedSource ? "UPDATED LINKED CONTEXT" : "PRACTICE FROM AN ENTRY") : screen.eyebrow)
-                BrandFixture.title(screen.title)
+                // Review labels (screen.eyebrow) are captions outside the phone frame, so the
+                // screen itself reads like the app; the Sample chip and footer still mark it.
+                BrandFixture.title(screen.title).padding(.top, 8)
             }
             VStack(alignment: .leading, spacing: 12) { content }
                 .fixedSize(horizontal: false, vertical: true)
@@ -335,8 +335,14 @@ public struct BrandLinkedContextGallery: View {
             Text("The reflection you choose, and the version you review")
                 .font(BrandDemoFont.font(21, .semibold)).tracking(-0.5)
             HStack(alignment: .top, spacing: 24) {
-                BrandJourneyPreview(screen: .practiceContext, linkedContext: true, iconLed: iconLed)
-                BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true, iconLed: iconLed)
+                VStack(alignment: .leading, spacing: 12) {
+                    BrandFixture.eyebrow("PRACTICE FROM AN ENTRY")
+                    BrandJourneyPreview(screen: .practiceContext, linkedContext: true, iconLed: iconLed)
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    BrandFixture.eyebrow("UPDATED LINKED CONTEXT")
+                    BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true, iconLed: iconLed)
+                }
             }
             BrandFixture.detail("Original and changed-source fixtures · Static review only · Earlier wording is not silently reused", size: 12)
         }

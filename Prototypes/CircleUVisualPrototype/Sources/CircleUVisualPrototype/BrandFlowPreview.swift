@@ -86,13 +86,12 @@ public struct BrandHubPreview: View {
                 }
                 .padding(.top, 12)
                 HStack(alignment: .center) {
-                    BrandFixture.eyebrow(screen.rawValue.uppercased())
+                    BrandFixture.title(screen.rawValue)
                     Spacer()
                     BrandArtwork(name: screen == .journal ? "BrandJournal" : "BrandPracticeV2")
                         .frame(width: 48, height: 48)
                 }
                 .padding(.top, 12)
-                BrandFixture.title(screen == .journal ? "Your moments" : "Find your words")
 
                 if screen == .journal {
                     HStack(spacing: 10) {
