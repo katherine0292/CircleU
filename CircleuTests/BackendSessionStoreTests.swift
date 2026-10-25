@@ -614,7 +614,7 @@ final class BackendSessionStoreTests: XCTestCase {
         XCTAssertTrue(authenticator.didDeleteAccount)
         XCTAssertEqual(restorer.purgedUserIDs, ["firebase-user-1"])
         XCTAssertFalse(authStore.isSignedIn)
-        XCTAssertEqual(profileStore.displayName, "Friend")
+        XCTAssertEqual(profileStore.displayName, "") // Deletion clears personal details; screens fall back to "Friend" when empty.
         XCTAssertFalse(hasCompletedOnboarding)
         XCTAssertNil(store.backendUserID)
     }
