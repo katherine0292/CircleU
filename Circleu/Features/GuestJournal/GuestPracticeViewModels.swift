@@ -52,9 +52,9 @@ final class GuestPracticeViewModel: ObservableObject {
     func ownsDraft(_ owner: ObjectIdentifier) -> Bool { draftOwner == nil || draftOwner == owner }
 
     static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
-    static let otherDraftMessage = "Another practice draft is already kept, so this one isn’t being kept. Save it, or go back and choose which draft to keep."
+    static let otherDraftMessage = "Another practice draft is kept. Save this one, or go back to choose."
     static let draftUnprotectedMessage = "Your practice draft is kept, but this phone couldn’t fully secure it."
-    static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened, so it’s been left as it was. New writing here won’t be kept after you close the app."
+    static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened and was left as it was."
 
     init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil, drafts: (any GuestDraftStore)? = nil) {
         self.store = store

@@ -35,12 +35,12 @@ final class GuestJournalViewModel: ObservableObject {
     static let saveFailedMessage = "Couldn’t save. Try again."
     static let loadFailedMessage = "Couldn’t open your journal. Try again."
     static let savedButUnprotectedMessage = "Saved, but this phone couldn’t fully secure it."
-    static let draftUnreadableMessage = "Your earlier draft couldn’t be opened, so it’s been left as it was. New writing won’t be kept after you close the app."
+    static let draftUnreadableMessage = "An earlier draft couldn’t be opened and was left as it was. New writing isn’t kept yet."
     static let draftNotKeptMessage = "Your draft couldn’t be kept on this phone. Save it before you close the app."
     static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
     static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, but it won’t be saved twice."
     static let draftAlreadySavedMessage = "This draft was already saved to your journal."
-    static let reflectionNotAddedMessage = "These words are already in your journal, so this reflection wasn’t added. Open the entry in Journal to see it."
+    static let reflectionNotAddedMessage = "These words are already in your journal, so this reflection wasn’t added."
 
     /// What the guest root shows when the store can't be opened. Never an empty journal.
     static func openFailureMessage(for error: Error) -> String {

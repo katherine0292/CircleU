@@ -87,7 +87,7 @@ struct GuestImportView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Copy your journal from the earlier CircleU app on this iPhone into this one. The earlier app’s data isn’t changed or deleted, and nothing is sent anywhere.")
+                Text("Copy your earlier journal from this iPhone.")
                     .foregroundStyle(GuestBrand.ink)
                 content
             }
@@ -152,7 +152,10 @@ struct GuestImportView: View {
             if model.canImport {
                 Button("Copy into this journal") { Task { await model.importAll() } }
                     .buttonStyle(GuestBrandButtonStyle())
-                Text("Reflections from the earlier app are kept apart from your words and marked as from the earlier app. Titles, tags, suggested quests and practice coaching aren’t copied; they stay in the earlier app. If you later delete all data here, you can copy the earlier journal in again.")
+                GuestLearnMore {
+                    Text("Reflections are kept apart from your words and marked as from the earlier app.")
+                    Text("Titles, tags, quests and coaching aren’t copied.")
+                }
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
             }
         }
@@ -179,7 +182,7 @@ extension GuestImportView {
         switch reason {
         case .noWords: "no words were saved with it"
         case .unreadable: "it couldn’t be read"
-        case .needsAccount: "it can’t be shown until you can sign in to confirm it’s yours, which this version can’t do yet. It stays safe in the earlier app"
+        case .needsAccount: "it can’t be shown to be yours yet, so it stays sealed"
         }
     }
 }
@@ -206,8 +209,6 @@ struct GuestWelcomeView: View {
                         .accessibilityAddTraits(.isHeader)
                     Text("A private place to work through a moment and find your words.")
                         .multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
-                    Text("No account needed. Your journal is kept on this iPhone.")
-                        .font(GuestBrand.font(.footnote)).multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
                     Button("Get started", action: onDone)
                         .buttonStyle(GuestBrandButtonStyle())
                         .padding(.top, 8)

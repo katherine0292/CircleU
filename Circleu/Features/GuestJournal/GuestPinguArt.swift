@@ -174,3 +174,35 @@ struct GuestAvatarPicker: View {
         }
     }
 }
+
+// MARK: - Copy helpers (docs/design/screen-content-guidelines.md)
+
+/// A collapsed "Learn more" for detail that honesty needs but the screen doesn't. Smaller
+/// secondary text that still scales with Dynamic Type.
+struct GuestLearnMore<Content: View>: View {
+    var title = "Learn more"
+    @ViewBuilder let content: () -> Content
+    @State private var isOpen = false
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $isOpen) {
+            VStack(alignment: .leading, spacing: 6) { content() }
+                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 4)
+        } label: {
+            Text(title).font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
+        }
+        .tint(GuestBrand.blue)
+    }
+}
+
+/// The one-line summary under a section heading: smaller, secondary, Dynamic Type.
+struct GuestSummary: View {
+    let text: String
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        Text(text).font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+    }
+}

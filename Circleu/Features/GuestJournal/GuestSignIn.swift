@@ -265,10 +265,9 @@ struct GuestSignInView: View {
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Used CircleU with an account before?").font(GuestBrand.font(.title2, .bold))
+            Text("Bring in your earlier journal").font(GuestBrand.font(.title2, .bold))
                 .foregroundStyle(GuestBrand.ink).accessibilityAddTraits(.isHeader)
-            Text("Logging in only fetches your earlier journal from your account so you can copy it here. Nothing new is uploaded, and you’re signed out afterwards.")
-                .foregroundStyle(GuestBrand.ink)
+            GuestSummary("Nothing new is uploaded, and you’re signed out after.")
             labelled("Email") {
                 TextField("Email", text: $model.email)
                     .textContentType(.username).keyboardType(.emailAddress)
@@ -292,8 +291,12 @@ struct GuestSignInView: View {
                 Button("Continue without logging in", action: onSkip)
                     .buttonStyle(GuestBrandButtonStyle(filled: false))
             }
-            Text("Accounts can’t be created here. A journal the earlier app kept only on this iPhone stays sealed, because it can’t be shown to be yours.")
-                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            GuestLearnMore {
+                Text("Logging in only fetches your account’s backup so you can copy it here.")
+                Text("Accounts can’t be created here.")
+                // copy: detail
+                Text("A journal the earlier app kept only on this iPhone stays sealed, because it can’t be shown to be yours.")
+            }
         }
         .disabled(model.step == .working)
     }
@@ -301,11 +304,7 @@ struct GuestSignInView: View {
     @ViewBuilder private func preview(_ backup: GuestCloudBackup, already: Int) -> some View {
         Text("Your account’s backup").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
             .accessibilityAddTraits(.isHeader)
-        Text("\(backup.entries.count) journal \(backup.entries.count == 1 ? "entry" : "entries") and \(backup.messages.count) practice \(backup.messages.count == 1 ? "message" : "messages") to copy. Nothing is copied until you choose.")
-        if already > 0 {
-            Text("\(already) already copied before; they won’t be copied again.")
-                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-        }
+        GuestSummary("\(backup.entries.count + backup.messages.count) to copy" + (already > 0 ? " · \(already) already copied" : ""))
         ForEach(Array(backup.entries.prefix(3).enumerated()), id: \.offset) { _, entry in
             VStack(alignment: .leading, spacing: 4) {
                 Text(entry.originalWords).lineLimit(2).foregroundStyle(GuestBrand.ink)
@@ -315,15 +314,17 @@ struct GuestSignInView: View {
             .padding(12).frame(maxWidth: .infinity, alignment: .leading)
             .background(.white, in: RoundedRectangle(cornerRadius: 14))
         }
-        GuestImportView.leftOut(backup.skipped)
         if model.canCopy {
             Button("Copy into this journal") { Task { await model.copy() } }
                 .buttonStyle(GuestBrandButtonStyle())
         }
-        Button("Don’t copy, sign out") { model.cancel() }
+        Button("Don’t copy") { model.cancel() }
             .buttonStyle(GuestBrandButtonStyle(filled: false))
-        Text("Titles, tags, suggested quests, practice coaching and practice images aren’t copied. The backup in your account isn’t changed.")
-            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+        GuestLearnMore {
+            Text("Your account’s backup isn’t changed.")
+            Text("Titles, tags, quests, coaching and images aren’t copied.")
+            GuestImportView.leftOut(backup.skipped)
+        }
     }
 
     @ViewBuilder private func done(_ added: Int, _ skipped: [GuestLegacyScan.Skip], _ isProtected: Bool,
@@ -334,10 +335,10 @@ struct GuestSignInView: View {
             Label(GuestJournalViewModel.savedButUnprotectedMessage, systemImage: "exclamationmark.shield")
                 .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
         }
-        Text(signedOut ? "You’ve been signed out. Nothing syncs."
-             : "Signing out didn’t finish. Close and reopen CircleU; nothing syncs either way.")
-            .foregroundStyle(GuestBrand.muted)
-        GuestImportView.leftOut(skipped)
+        GuestSummary(signedOut ? "You’re signed out." : "Signing out didn’t finish. Close and reopen CircleU.")
+        if !skipped.isEmpty {
+            GuestLearnMore(title: "Left out (\(skipped.count))") { GuestImportView.leftOut(skipped) }
+        }
         if let onSkip {
             Button("Continue", action: onSkip).buttonStyle(GuestBrandButtonStyle())
         }
@@ -366,11 +367,9 @@ struct GuestPasswordResetView: View {
                 if sent {
                     Text("Check your email").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
-                    Text("If an account uses this email, a reset link is on its way. Check spam if you can’t find it.")
-                    Text("After changing your password on the page the link opens, come back and log in.")
-                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    GuestSummary("If an account uses this email, a link is on its way.")
                 } else {
-                    Text("We’ll email you a reset link.").foregroundStyle(GuestBrand.ink)
+                    GuestSummary("We’ll email you a reset link.")
                     TextField("Email", text: $email)
                         .textContentType(.username).keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -416,7 +415,7 @@ final class GuestDeleteAccountViewModel: ObservableObject {
     @Published private(set) var step: Step = .form
     @Published private(set) var message: String?
 
-    static let backupNotDeletedMessage = "Couldn’t delete everything your account owns in the cloud. Your account isn’t deleted yet. Try again."
+    static let backupNotDeletedMessage = "Couldn’t delete your cloud data, so the account wasn’t deleted. Try again."
     static let accountNotDeletedMessage = "Your cloud content was deleted, but the account itself couldn’t be. Try again."
 
     private let factory: GuestAccountFactory
@@ -486,16 +485,17 @@ struct GuestDeleteAccountView: View {
             VStack(alignment: .leading, spacing: 14) {
                 if case .done(let kept) = model.step {
                     GuestSuccessBanner(text: "Your earlier account and its cloud content were deleted.", asset: "GuestPinguWelcome")
-                    Text("Your entries on this iPhone are still here.").foregroundStyle(GuestBrand.muted)
+                    GuestSummary("Your entries on this iPhone are still here.")
                     if kept > 0 {
-                        Text("\(kept) \(kept == 1 ? "circle" : "circles") you created still \(kept == 1 ? "has" : "have") other people’s posts, so \(kept == 1 ? "it was" : "they were") kept for them. Your own posts in \(kept == 1 ? "it" : "them") were deleted.")
-                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                        GuestSummary("\(kept) \(kept == 1 ? "circle" : "circles") kept for other people’s posts.")
                     }
                 } else {
-                    Text("This deletes your earlier CircleU account and everything it owns in the cloud: its private backup, posts you shared, your circle memberships and circles you created (unless other people posted in them). Replies and likes on other people’s posts can’t be removed here. Your entries on this iPhone stay.")
-                        .foregroundStyle(GuestBrand.ink)
-                    Text("Log in to confirm it’s you.").font(GuestBrand.font(.subheadline, .semibold))
-                        .foregroundStyle(GuestBrand.muted)
+                    GuestSummary("Deletes your earlier account and its cloud data. Entries on this iPhone stay.")
+                    GuestLearnMore {
+                        Text("Your backup, posts and circle memberships are deleted.")
+                        // copy: detail
+                        Text("Circles you made stay if others posted in them. Replies and likes on others’ posts can’t be removed here.")
+                    }
                     TextField("Email", text: $model.email)
                         .textContentType(.username).keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
