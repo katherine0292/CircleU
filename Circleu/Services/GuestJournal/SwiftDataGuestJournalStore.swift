@@ -93,11 +93,83 @@ nonisolated enum GuestJournalSchemaV2: VersionedSchema {
     }
 }
 
+/// Version 3 adds an optional reflection and next step to entries (all optional, so the
+/// lightweight stage leaves existing entries without one).
+nonisolated enum GuestJournalSchemaV3: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(3, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Entry.self, SavedDraft.self, PracticeMessage.self] }
+
+    @Model final class Entry {
+        @Attribute(.unique) var id: UUID
+        var originalWords: String
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+        /// A suggestion the person accepted (and may have edited); nil when they saved only their words.
+        var reflectionSummary: String?
+        var reflectionFeeling: String?
+        var reflectionInsight: String?
+        /// `GuestSuggestionSource.rawValue`: on-device model or guided prompts.
+        var reflectionSource: String?
+        var reflectionBasedOn: String?
+        /// One optional next step; done is voluntary and reversible.
+        var nextStep: String?
+        var nextStepDoneAt: Date?
+
+        init(id: UUID, originalWords: String, revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.originalWords = originalWords
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+
+    @Model final class SavedDraft {
+        @Attribute(.unique) var id: UUID
+        var savedAt: Date
+
+        init(id: UUID, savedAt: Date) {
+            self.id = id
+            self.savedAt = savedAt
+        }
+    }
+
+    /// Wording practised in Practice. Saved here only; never sent anywhere.
+    @Model final class PracticeMessage {
+        @Attribute(.unique) var id: UUID
+        var situation: String
+        var goal: String
+        var wording: String
+        /// The journal entry it was practised from; nil when it stands on its own.
+        var sourceEntryID: UUID?
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+
+        init(id: UUID, situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+             revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.situation = situation
+            self.goal = goal
+            self.wording = wording
+            self.sourceEntryID = sourceEntryID
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+}
+
 nonisolated enum GuestJournalMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] { [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self] }
-    /// V1 → V2 only adds a model, so a lightweight stage keeps every entry and saved draft.
+    static var schemas: [any VersionedSchema.Type] {
+        [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self]
+    }
+    /// V1 → V2 adds a model and V2 → V3 adds optional fields, so lightweight stages keep every
+    /// entry, saved draft and practice message.
     static var stages: [MigrationStage] {
-        [.lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self)]
+        [.lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self),
+         .lightweight(fromVersion: GuestJournalSchemaV2.self, toVersion: GuestJournalSchemaV3.self)]
     }
 }
 
@@ -142,10 +214,10 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// SwiftData-backed guest journal. One instance owns each store location (see
 /// `GuestJournalStoreRegistry`), and actor isolation serializes every read-check-write.
 /// Access from another process (for example an extension) is not supported.
-actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, ModelActor {
-    typealias Entry = GuestJournalSchemaV2.Entry
-    typealias SavedDraft = GuestJournalSchemaV2.SavedDraft
-    typealias PracticeMessage = GuestJournalSchemaV2.PracticeMessage
+actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestReflectionStore, ModelActor {
+    typealias Entry = GuestJournalSchemaV3.Entry
+    typealias SavedDraft = GuestJournalSchemaV3.SavedDraft
+    typealias PracticeMessage = GuestJournalSchemaV3.PracticeMessage
 
     nonisolated let modelExecutor: any ModelExecutor
     nonisolated let modelContainer: ModelContainer
@@ -186,7 +258,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, ModelAc
 
         let container: ModelContainer
         do {
-            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV2.self),
+            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV3.self),
                                            migrationPlan: GuestJournalMigrationPlan.self,
                                            configurations: ModelConfiguration(url: location.storeURL, cloudKitDatabase: .none))
         } catch {
@@ -213,9 +285,15 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, ModelAc
     }
 
     func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry {
+        try create(originalWords: originalWords, draftID: draftID, reflection: nil, nextStep: nil)
+    }
+
+    func create(originalWords: String, draftID: UUID?, reflection: GuestReflection?,
+                nextStep: String?) throws -> GuestJournalEntry {
         if let draftID, try isDraftSaved(draftID) { throw GuestJournalError.draftAlreadySaved }
         let now = Date()
         let row = Entry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: now, updatedAt: now)
+        Self.apply(reflection, nextStep: nextStep, nextStepDone: false, to: row)
         modelContext.insert(row)
         if let draftID { modelContext.insert(SavedDraft(id: draftID, savedAt: now)) } // Same transaction.
         try commit(entryID: row.id)
@@ -243,6 +321,31 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, ModelAc
         row.updatedAt = Date()
         try commit(entryID: id)
         return Self.value(row)
+    }
+
+    func updateReflection(id: UUID, reflection: GuestReflection?, nextStep: String?, nextStepDone: Bool,
+                          expectedRevision: Int) throws -> GuestJournalEntry {
+        guard let row = try fetch(FetchDescriptor<Entry>(predicate: #Predicate { $0.id == id })).first else {
+            throw GuestJournalError.notFound
+        }
+        guard row.revision == expectedRevision else {
+            throw GuestJournalError.staleRevision(current: row.revision, expected: expectedRevision)
+        }
+        Self.apply(reflection, nextStep: nextStep, nextStepDone: nextStepDone, to: row)
+        row.revision += 1
+        row.updatedAt = Date()
+        try commit(entryID: id)
+        return Self.value(row)
+    }
+
+    private static func apply(_ reflection: GuestReflection?, nextStep: String?, nextStepDone: Bool, to row: Entry) {
+        row.reflectionSummary = reflection?.summary
+        row.reflectionFeeling = reflection?.feeling
+        row.reflectionInsight = reflection?.insight
+        row.reflectionSource = reflection?.source.rawValue
+        row.reflectionBasedOn = reflection?.basedOnWords
+        row.nextStep = nextStep
+        row.nextStepDoneAt = nextStep != nil && nextStepDone ? (row.nextStepDoneAt ?? Date()) : nil
     }
 
     func delete(id: UUID) throws {
@@ -370,8 +473,14 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, ModelAc
     }
 
     private static func value(_ row: Entry) -> GuestJournalEntry {
-        GuestJournalEntry(id: row.id, originalWords: row.originalWords, revision: row.revision,
-                          createdAt: row.createdAt, updatedAt: row.updatedAt)
+        let reflection = row.reflectionSource.flatMap(GuestSuggestionSource.init(rawValue:)).map { source in
+            GuestReflection(summary: row.reflectionSummary ?? "", feeling: row.reflectionFeeling ?? "",
+                            insight: row.reflectionInsight ?? "", source: source,
+                            basedOnWords: row.reflectionBasedOn ?? row.originalWords)
+        }
+        return GuestJournalEntry(id: row.id, originalWords: row.originalWords, revision: row.revision,
+                                 createdAt: row.createdAt, updatedAt: row.updatedAt, reflection: reflection,
+                                 nextStep: row.nextStep, nextStepDone: row.nextStepDoneAt != nil)
     }
 }
 

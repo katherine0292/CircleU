@@ -6,13 +6,15 @@ struct GuestHomeView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @ObservedObject var practice: GuestPracticeViewModel
     let makeDictationEngine: () -> any GuestDictationEngine
+    let suggester: any GuestSuggesting
     @State private var tab: Tab = .today
 
     enum Tab: Hashable { case today, journal, practice }
 
     var body: some View {
         TabView(selection: $tab) {
-            GuestTodayView(journal: journal, makeDictationEngine: makeDictationEngine, onSaved: { tab = .journal })
+            GuestTodayView(journal: journal, makeDictationEngine: makeDictationEngine, suggester: suggester,
+                           onSaved: { tab = .journal })
                 .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
                 .tag(Tab.today)
             GuestJournalListView(journal: journal, practice: practice)
@@ -64,6 +66,7 @@ private struct GuestTabLabel: View {
 struct GuestTodayView: View {
     @ObservedObject var journal: GuestJournalViewModel
     let makeDictationEngine: () -> any GuestDictationEngine
+    let suggester: any GuestSuggesting
     let onSaved: () -> Void
     @State private var isWriting = false
 
@@ -98,7 +101,7 @@ struct GuestTodayView: View {
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationDestination(isPresented: $isWriting) {
-                GuestWriteView(journal: journal, dictationEngine: makeDictationEngine()) {
+                GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(), suggester: suggester) {
                     isWriting = false
                     onSaved()
                 }
@@ -118,14 +121,17 @@ private struct TrailingIconLabelStyle: LabelStyle {
 struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
+    let suggester: any GuestSuggesting
     let onSaved: () -> Void
+    @State private var reviewing = false
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         onSaved: @escaping () -> Void) {
+         suggester: any GuestSuggesting, onSaved: @escaping () -> Void) {
         self.journal = journal
+        self.suggester = suggester
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
     }
@@ -171,16 +177,33 @@ struct GuestWriteView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
-            Button {
-                dictation.stopForSave() // Saving while listening keeps the words so far.
-                Task { if await journal.saveDraft() { onSaved() } }
-            } label: {
-                Text(journal.isSaving ? "Saving…" : "Save only my words")
+            let empty = journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            VStack(spacing: 10) {
+                // Opt-in: a suggestion is only made when asked for.
+                Button {
+                    dictation.stopForSave()
+                    reviewing = true
+                } label: {
+                    Label("Get a suggestion", systemImage: "lightbulb")
+                }
+                .buttonStyle(GuestBrandButtonStyle(filled: false))
+                Button {
+                    dictation.stopForSave() // Saving while listening keeps the words so far.
+                    Task { if await journal.saveDraft() { onSaved() } }
+                } label: {
+                    Text(journal.isSaving ? "Saving…" : "Save only my words")
+                }
+                .buttonStyle(GuestBrandButtonStyle())
             }
-            .buttonStyle(GuestBrandButtonStyle())
-            .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
+            .disabled(empty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
             .background(GuestBrand.ice)
+        }
+        .navigationDestination(isPresented: $reviewing) {
+            GuestReflectionReviewView(journal: journal, suggester: suggester) {
+                reviewing = false
+                onSaved()
+            }
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
@@ -353,6 +376,7 @@ struct GuestEntryDetailView: View {
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
                 Text(entry.updatedAt, format: .dateTime.day().month().year().hour().minute())
                     .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                GuestEntryReflectionSection(entry: entry, journal: journal)
                 let linked = practice.linkedMessages(to: entry.id)
                 if case .failed(let message) = practice.loadState {
                     // Unknown is not "none": say so rather than hiding linked messages.
@@ -464,5 +488,81 @@ extension GuestEntryDetailView {
         } else {
             dismiss()
         }
+    }
+}
+
+/// A kept reflection and next step, apart from the person's own words. Both can be removed, and
+/// the next step can be marked done or not done at any time.
+struct GuestEntryReflectionSection: View {
+    let entry: GuestJournalEntry
+    @ObservedObject var journal: GuestJournalViewModel
+    @State private var error: String?
+    @State private var isUpdating = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let reflection = entry.reflection {
+                Text("Reflection").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                    .padding(.top, 8)
+                VStack(alignment: .leading, spacing: 8) {
+                    if !reflection.summary.isEmpty { Text(reflection.summary) }
+                    if !reflection.feeling.isEmpty {
+                        Text("Feeling: \(reflection.feeling)").font(GuestBrand.font(.body, .semibold))
+                    }
+                    if !reflection.insight.isEmpty { Text(reflection.insight) }
+                }
+                .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                Text(reflection.source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                if entry.isReflectionStale {
+                    Label("Based on an earlier version of your words.", systemImage: "clock.arrow.circlepath")
+                        .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
+                }
+                action("Remove reflection") {
+                    await update(reflection: nil, nextStep: entry.nextStep, done: entry.nextStepDone)
+                }
+            }
+            if let step = entry.nextStep {
+                Text("Next step").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                    .padding(.top, 8)
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: entry.nextStepDone ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(GuestBrand.blue).accessibilityHidden(true)
+                    Text(step).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                        .strikethrough(entry.nextStepDone)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .accessibilityElement(children: .combine)
+                .accessibilityValue(entry.nextStepDone ? "Done" : "Not done")
+                HStack(spacing: 20) {
+                    action(entry.nextStepDone ? "Mark not done" : "Mark done") {
+                        await update(reflection: entry.reflection, nextStep: step, done: !entry.nextStepDone)
+                    }
+                    action("Remove step") {
+                        await update(reflection: entry.reflection, nextStep: nil, done: false)
+                    }
+                }
+            }
+            if let error {
+                Label(error, systemImage: "exclamationmark.circle")
+                    .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+            }
+        }
+    }
+
+    private func action(_ title: String, _ perform: @escaping () async -> Void) -> some View {
+        Button { Task { await perform() } } label: {
+            Text(title).frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+        }
+        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+        .disabled(isUpdating)
+    }
+
+    private func update(reflection: GuestReflection?, nextStep: String?, done: Bool) async {
+        isUpdating = true
+        defer { isUpdating = false }
+        error = await journal.updateReflection(of: entry, reflection: reflection, nextStep: nextStep, nextStepDone: done)
     }
 }

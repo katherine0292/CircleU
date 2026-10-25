@@ -123,10 +123,12 @@ struct GuestPracticeRouteView: View {
         guard composer == nil else { return }
         switch route {
         case .new(let sourceEntryID):
-            composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: sourceEntryID)
+            composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: sourceEntryID,
+                                                      suggester: practice.suggester)
         case .message(let id):
             if let message = practice.message(id: id) {
-                composer = GuestPracticeComposerViewModel(store: practice.store, message: message)
+                composer = GuestPracticeComposerViewModel(store: practice.store, message: message,
+                                                          suggester: practice.suggester)
             }
         }
     }
@@ -200,6 +202,7 @@ struct GuestPracticeMessageView: View {
                     .background(.white, in: RoundedRectangle(cornerRadius: 18))
                     .accessibilityLabel("Your wording")
             }
+            suggestionsSection
             Button {
                 Task { if await composer.save() { await practice.load() } }
             } label: {
@@ -210,6 +213,54 @@ struct GuestPracticeMessageView: View {
             copyButton(filled: false)
             Text("Copying won’t save or send it.")
                 .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+        }
+    }
+
+    @ViewBuilder private var suggestionsSection: some View {
+        if composer.suggester != nil {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Button {
+                        Task { await composer.suggest() }
+                    } label: {
+                        Label(composer.isSuggesting ? "Making suggestions…" : "Get a suggestion", systemImage: "lightbulb")
+                    }
+                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                    .disabled(composer.isSuggesting)
+                    Spacer()
+                    if composer.wordingBeforeSuggestion != nil {
+                        Button("Undo") { composer.undoSuggestion() }
+                            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                            .accessibilityLabel("Undo suggestion")
+                    }
+                }
+                .frame(minHeight: 44)
+                if let error = composer.suggestionError {
+                    Text(error).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                }
+                if let suggestions = composer.suggestions {
+                    Text(suggestions.source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    if composer.suggestionsAreStale {
+                        Label("Based on earlier details or wording. Get a suggestion again to update.",
+                              systemImage: "clock.arrow.circlepath")
+                            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
+                    }
+                    ForEach(suggestions.options) { option in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(option.tone).font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+                            Text(option.text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                            Button { composer.use(option) } label: {
+                                Text("Use this").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+                            }
+                            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                                .accessibilityLabel("Use the \(option.tone.lowercased()) option")
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                    }
+                }
+            }
         }
     }
 

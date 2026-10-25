@@ -7,6 +7,37 @@ nonisolated struct GuestJournalEntry: Identifiable, Equatable, Sendable {
     let revision: Int
     let createdAt: Date
     var updatedAt: Date
+    /// A suggestion the person kept (and may have edited), shown apart from their own words.
+    var reflection: GuestReflection? = nil
+    /// One optional next step; nil when skipped.
+    var nextStep: String? = nil
+    var nextStepDone = false
+}
+
+/// Where a suggestion came from, so a template is never presented as a personal AI analysis.
+nonisolated enum GuestSuggestionSource: String, Sendable, Equatable {
+    /// Apple Intelligence's on-device model.
+    case onDevice
+    /// Built-in guided prompts (no model).
+    case guided
+}
+
+/// A short, tentative reflection: what happened, a possible feeling, and one thing to consider.
+nonisolated struct GuestReflection: Equatable, Sendable {
+    var summary: String
+    var feeling: String
+    var insight: String
+    var source: GuestSuggestionSource
+    /// The words it was made from. After an edit it's shown as based on an earlier version.
+    var basedOnWords: String
+}
+
+extension GuestJournalEntry {
+    /// The words changed after the reflection was made.
+    var isReflectionStale: Bool {
+        guard let reflection else { return false }
+        return reflection.basedOnWords != originalWords
+    }
 }
 
 nonisolated enum GuestJournalError: Error, Equatable, Sendable {
@@ -81,4 +112,14 @@ nonisolated protocol GuestPracticeStore: Sendable {
     func deletePractice(id: UUID) async throws
     /// Deletes a journal entry and, in the same transaction, unlinks or deletes its messages.
     func deleteEntry(id: UUID, linkedPractice: GuestLinkedPracticeChoice) async throws
+}
+
+/// Entries with an optional reflection and next step. Same store, same rules.
+nonisolated protocol GuestReflectionStore: Sendable {
+    /// Like `GuestJournalStore.create`, with an accepted reflection and next step saved alongside.
+    func create(originalWords: String, draftID: UUID?, reflection: GuestReflection?,
+                nextStep: String?) async throws -> GuestJournalEntry
+    /// Replaces the reflection and next step (nil removes them) if `expectedRevision` is current.
+    func updateReflection(id: UUID, reflection: GuestReflection?, nextStep: String?, nextStepDone: Bool,
+                          expectedRevision: Int) async throws -> GuestJournalEntry
 }

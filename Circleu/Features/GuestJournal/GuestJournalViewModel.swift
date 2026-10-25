@@ -38,6 +38,7 @@ final class GuestJournalViewModel: ObservableObject {
     static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
     static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, but it won’t be saved twice."
     static let draftAlreadySavedMessage = "This draft was already saved to your journal."
+    static let reflectionNotAddedMessage = "These words are already in your journal, so this reflection wasn’t added. Open the entry in Journal to see it."
 
     /// What the guest root shows when the store can't be opened. Never an empty journal.
     static func openFailureMessage(for error: Error) -> String {
@@ -112,19 +113,33 @@ final class GuestJournalViewModel: ObservableObject {
 
     /// Saves the draft as a new entry. On failure the draft stays and an error is shown.
     /// Returns true once the entry is saved (or was already saved before).
+    /// With a `reflection` or `nextStep`, they're saved with the words in the same transaction.
     @discardableResult
-    func saveDraft() async -> Bool {
+    func saveDraft(reflection: GuestReflection? = nil, nextStep: String? = nil) async -> Bool {
         let words = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !words.isEmpty, !isSaving else { return false }
         isSaving = true
         defer { isSaving = false }
         let submittedID = draftID
+        let draftIDToRecord = drafts == nil ? nil : submittedID
         do {
-            _ = try await store.create(originalWords: words, draftID: drafts == nil ? nil : submittedID)
+            if reflection != nil || nextStep != nil {
+                guard let reflections = store as? any GuestReflectionStore else {
+                    throw GuestJournalError.saveFailed("store can't keep reflections")
+                }
+                _ = try await reflections.create(originalWords: words, draftID: draftIDToRecord,
+                                                 reflection: reflection, nextStep: nextStep)
+            } else {
+                _ = try await store.create(originalWords: words, draftID: draftIDToRecord)
+            }
             saveError = nil
         } catch GuestJournalError.savedButUnprotected {
             saveError = nil
             notices.append(Self.savedButUnprotectedMessage) // Saved: retrying would duplicate it.
+        } catch GuestJournalError.draftAlreadySaved where reflection != nil || nextStep != nil {
+            // The words were saved before, but this reflection wasn't: say so and stay.
+            saveError = Self.reflectionNotAddedMessage
+            return false
         } catch GuestJournalError.draftAlreadySaved {
             saveError = nil
             notices.append(Self.draftAlreadySavedMessage)
@@ -138,6 +153,29 @@ final class GuestJournalViewModel: ObservableObject {
         removeKeptDraft(id: submittedID)
         await load()
         return true
+    }
+
+    /// Changes an entry's reflection or next step (nil removes it). Returns nil on success, or
+    /// the message to show; the entry is unchanged on failure.
+    func updateReflection(of entry: GuestJournalEntry, reflection: GuestReflection?, nextStep: String?,
+                          nextStepDone: Bool) async -> String? {
+        guard let reflections = store as? any GuestReflectionStore else { return Self.saveFailedMessage }
+        do {
+            _ = try await reflections.updateReflection(id: entry.id, reflection: reflection, nextStep: nextStep,
+                                                       nextStepDone: nextStepDone, expectedRevision: entry.revision)
+        } catch GuestJournalError.savedButUnprotected {
+            addNotice(Self.savedButUnprotectedMessage) // Committed.
+        } catch GuestJournalError.staleRevision {
+            await load()
+            return GuestEntryEditorViewModel.staleMessage
+        } catch GuestJournalError.notFound {
+            await load()
+            return GuestEntryEditorViewModel.deletedMessage
+        } catch {
+            return Self.saveFailedMessage
+        }
+        await load()
+        return nil
     }
 
     /// Waits for pending draft writes and removals (tests and relaunch checks).
