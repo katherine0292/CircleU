@@ -45,10 +45,9 @@ public struct JournalCalendarPreview: View {
             .padding(.top, 20).padding(.bottom, 12)
 
             if emptyDay {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("A little space, just for you.").font(BrandDemoFont.font(17, .semibold))
-                    BrandFixture.detail("No saved moments on this day. Browse another date or start a reflection for today.", size: 14)
-                }
+                // Owner decision (walkthrough task 4): one plain line that can't read as lost data.
+                Text("Nothing saved on this day.").font(BrandDemoFont.font(15, .medium))
+                    .foregroundStyle(BrandDemoColor.muted)
                 .padding(18).frame(maxWidth: .infinity, alignment: .leading)
                 .background(.white, in: RoundedRectangle(cornerRadius: 22))
             } else if day == .multiple {
