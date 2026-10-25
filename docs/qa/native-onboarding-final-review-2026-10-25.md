@@ -71,3 +71,16 @@ Source-token contrast calculations on the unchanged colors yielded ink/ice 17.56
 - [x] Physical normal-entry confirmation: the restored build was signed and installed on the iPhone. The first launch was refused while the phone was locked. After unlock, `devicectl` launched it, and the owner sent a phone screenshot showing Log in with empty Email and Password placeholders (25 October, 08:17 local). Owner-supplied screenshot; the image is not stored in Git.
 
 Unresolved Inspector warnings, rotation/compact-height, all text sizes, hardware keyboard and real Reduce Motion/lifecycle checks remain explicit accessibility/implementation follow-ups. Finishing this bounded owner walkthrough does not clear those gates or approve production feature coding. Today work would remain prototype review only.
+
+## Automated accessibility audit after the copy trim (Claude, 25 October)
+
+Branch `codex/onboarding-content-trim`. Destination: iPhone 18 Pro / iOS 27.0 Simulator, CircleU Preview host. The host now accepts review-only launch arguments (`--screen`, `--recovery-screen`, `--scenario`), so every fixture opens without editing ContentView. An out-of-repo XCUITest runner called `XCUIApplication.performAccessibilityAudit()` (all audit types) on 26 states: Welcome, Opening, Privacy, Earlier data, Locked, Read error and 18 Log in/reset/recovery fixtures. It ran once at the default text size and once with the Simulator set to accessibility-extra-extra-extra-large, then restored.
+
+| Finding | Result |
+| --- | --- |
+| Hit area too small: Welcome Log in, Opening/Privacy/Earlier data quiet links | **Fixed.** The onboarding `quietButton` now puts its 44 pt frame and content shape inside the button label, matching the recovery `secondary` links. No findings remain at either size |
+| Contrast | **None** on the CircleU Preview host at either size. A first run on the direct-compiled motion Simulator host reported contrast failures on text that calculates at 6–17:1, but they didn't reproduce on the review host, so they are treated as a host rendering/sampling artifact rather than a palette issue |
+| Old 1.09:1 `#F5FAFF` vs `#E8F0FC` | `#E8F0FC` matches the brand blue at about 5–6% opacity over ice, and it isn't defined anywhere in the source. The Inspector most likely compared the background with a faint blue highlight or anti-aliased tint around Forgot password?, not the text. Not reproduced; no palette change |
+| Dynamic Type unsupported: “CircleU” wordmark | Remains on every screen with the wordmark (21 states, both sizes). It is the fixed-size logo lockup; all other text scales (largest-size screenshot checked). **Accepted exception:** the owner chose on 25 October to keep the logo text fixed as branding |
+
+Limits: automated audits don't replace VoiceOver speech/gesture testing. **A full manual VoiceOver pass is deferred until before release**; selected owner-reported VoiceOver checks above remain the only physical evidence.

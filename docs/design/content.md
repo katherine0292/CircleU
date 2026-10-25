@@ -54,7 +54,7 @@ Keep the accepted Plus Jakarta Sans family and blue/ice/ink palette. New copy mu
 
 ## Review before accepting copy
 
-Read the screen at normal and larger text sizes: one clear purpose, explicit actions, no duplicated helper, no unexplained icon, consistent terms and accurate outcome/privacy claims. Check empty, loading, validation and error states, not only the happy path. Keep approved strings near their feature for now; a production String Catalog and a complete copy inventory belong to the implementation plan, not this documentation change.
+Read the screen at normal and larger text sizes: one clear purpose, explicit actions, no duplicated helper, no placeholder repeating a visible field label, no link duplicating the Back control, no unexplained icon, consistent terms and accurate outcome/privacy claims. Check empty, loading, validation and error states, not only the happy path. Keep approved strings near their feature for now; a production String Catalog and a complete copy inventory belong to the implementation plan, not this documentation change.
 
 ## References
 

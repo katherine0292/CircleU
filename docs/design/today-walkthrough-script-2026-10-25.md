@@ -1,0 +1,40 @@
+# Today review: walkthrough script
+
+Prepared 25 October 2026 for Mike's next review (about 15 minutes). It uses the existing static boards and the [walkthrough worksheet](prototype-review-results.md); nothing here is implemented or approved. Record answers in the worksheet, not here.
+
+**Before starting:** open the images below on a Mac or iPad. They are static, so typing, saving, copying and navigation can't be tested; mark those as *not testable here*.
+
+## The five tasks
+
+| # | Ask Mike | Look at | Note |
+| --- | --- | --- | --- |
+| 1 | "Something happened today. Keep just your own words, without the suggestions." | [Today](swiftui-previews/brand-today.png) → [Capture](swiftui-previews/brand-04-capture.png) → [Reflection](swiftui-previews/brand-04-reflection.png) | Does he find **Save only my words** without help? Does he think the reflection is required? |
+| 2 | "The reflection isn't quite right. Fix it, leave, and find your fixed version later." | [Reflection](swiftui-previews/brand-04-reflection.png) → [Edit reflection](swiftui-previews/brand-02-edit-reflection.png) → [Saved entry](swiftui-previews/brand-04-entry.png) | Is **Edit reflection** discoverable? Is it clear his original words don't change? |
+| 3 | "Practise what to say to your groupmate. Then make a separate message. Which one is saved?" | [Saved entry](swiftui-previews/brand-04-entry.png) → [Practice context](swiftui-previews/brand-04-practice-context.png) → [Wording](swiftui-previews/brand-04-wording.png) → [Saved message](swiftui-previews/brand-04-practice-detail.png); [linked vs changed source](swiftui-previews/brand-04-linked-contexts.png) | Does he understand Copy doesn't save or send? Can he tell a linked message from a standalone one? |
+| 4 | "Find what you wrote on 21 October. Now look at an empty day. Then find everything." | [Journal calendar](swiftui-previews/brand-03-calendar.png), [multiple entries](swiftui-previews/brand-03-journal-multiple.png), [empty day](swiftui-previews/brand-03-journal-empty.png) | Does an empty day look like missing data? Does he look for Search or All entries? |
+| 5 | "Where are your entries kept? What happens if you delete one?" | [Privacy and data](../qa/native-onboarding-final-review-2026-10-25.md) (preview app) | Any misunderstanding about cloud, backups or deletion is high severity |
+
+Then ask three quick questions: *What would you remove? What felt unclear? Would you use Today daily, or only when something happens?*
+
+Afterwards, decide on the [open calendar proposals](prototype-review-results.md#open-calendar-decisions), and whether a tappable prototype is needed before the first production slice (typed capture → local save → Journal → edit).
+
+## Copy trim suggestions (proposal)
+
+The same standard as the onboarding pass: one heading, at most one short line, one primary action. Not applied to the source yet; they await Mike's choices from the walkthrough.
+
+| Screen | Now | Suggested |
+| --- | --- | --- |
+| Today | "What's on your mind?" + "Make sense of a moment. Find words that feel like you." + "Or find your words in Practice." | "What's on your mind?" + one card **Work through a moment**; drop the two supporting lines (the Practice tab already exists) |
+| Today eyebrow | "TODAY" above the heading | Remove; the tab bar already says Today |
+| Capture | "What happened, and what matters to you?" + "You can keep just your words. A reflection and next step are optional." | "What happened?" Keep **Save only my words** visible as the second button instead of the sentence |
+| Capture voice | "Prefer to speak? Record your words." | Mic icon button labelled **Record** |
+| Reflection | Heading "Does this feel right?" + "Your words stay separate from this interpretation." | Keep the heading; drop the sentence (the separate "My words" card shows it) |
+| Saved entry | "Next step · optional" / "No step chosen" / "Add a next step" | One link **Add a next step** |
+| Practice context | "No journal entry needed. What would you like to say?" | "What would you like to say?" |
+| Wording | "One option to work with. Change it until it sounds like you." + "Copying doesn't save or send the message." | One line: "Copying won't save or send it." |
+| Saved message | "Saved here for you to revisit. Nothing is sent for you." | "Saved · not sent" |
+| Journal hub | "Your moments, ready to revisit." + "Your words, reflections and next steps, together." | "Journal" + Search field only |
+| Practice hub | "Find words that fit you." + "Try a message on its own, or build on a reflection." + "Copy a message when you're ready. Nothing is sent for you." | "Practice" + **Practice a message**; keep "Nothing is sent for you" only on Wording |
+| All screens | Uppercase eyebrows ("DESCRIBE A MOMENT", "SAMPLE SAVED ENTRY") | Remove from the product screens; sample labels belong in the review frame |
+
+Keep: the "Save only my words" path, "Copy won't save or send" (once), linked/standalone labels and the empty-day wording. These protect against the data-loss and authority risks listed in the [milestone plan](../superpowers/plans/2026-10-24-prototype-review-milestone.md#review-focus).

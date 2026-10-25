@@ -104,43 +104,36 @@ public struct BrandRecoveryPreview: View {
     @ViewBuilder private var screenContent: some View {
         switch screen {
         case .logIn:
-            helper("Use your earlier CircleU account. Nothing imports automatically.")
+            helper("Use your earlier CircleU account.")
             emailField
             passwordField("Password", text: $password, field: .password)
             validationMessage
             action("Log in") { submitLogin() }
-            HStack(spacing: 12) {
-                secondary("Forgot password?") { navigate(.resetRequest) }
-                secondary("Used Google?") { navigate(.help) }
-            }
+            secondary("Forgot password?") { navigate(.resetRequest) }
             secondary("Privacy and data") { navigate(.privacy) }
-            secondary("Continue locally") { leaveLocally() }
         case .checking:
-            progress("Checking your earlier account and backup.")
+            progress("Looking for your backup…")
             secondary("Cancel") { back() }
         case .loginError:
             status("Couldn’t log in", symbol: "person.crop.circle.badge.exclamationmark",
-                   detail: "Check your email, password or original login method. Your entries are unchanged.")
+                   detail: "Check your email and password. Your entries are unchanged.")
             action("Try again") { returnToLogin() }
-            secondary("Reset password") { navigate(.resetRequest) }
-            secondary("Continue locally") { leaveLocally() }
+            secondary("Forgot password?") { navigate(.resetRequest) }
+            secondary("Account help") { navigate(.help) }
         case .offline:
             status("You’re offline", symbol: "wifi.slash", detail: "Connect to check your earlier account. Local entries are unchanged.")
             action("Try again") { replace(.checking) }
             secondary("Continue locally") { leaveLocally() }
         case .resetRequest:
-            helper("We’ll send a link to your earlier account’s email.")
+            helper("We’ll email you a reset link.")
             emailField
             validationMessage
             action("Send reset link") { submitReset() }
-            secondary("Back to Log in") { returnToLogin() }
-            secondary("Privacy and data") { navigate(.privacy) }
         case .sendingReset:
             progress("Requesting a reset link…")
             secondary("Cancel") { back() }
         case .resetSent:
-            status("Reset link", symbol: "envelope", detail: "If an account uses this email, you’ll receive a reset link.")
-            helper("Check spam, or request another link.")
+            helper("If an account uses this email, a reset link is on its way. Check spam if you can’t find it.")
             action("Back to Log in") { returnToLogin() }
             secondary("Send again") { navigate(.resetRequest) }
         case .resetError:
@@ -161,14 +154,14 @@ public struct BrandRecoveryPreview: View {
             progress("Updating your password…")
             secondary("Cancel") { back() }
         case .passwordChanged:
-            status("Password updated", symbol: "checkmark.shield", detail: "Use your new password to log in. Nothing has been imported.")
+            helper("Log in with your new password.")
             action("Log in") { returnToLogin() }
         case .passwordError:
             status("Couldn’t update your password", symbol: "lock", detail: "Your password hasn’t changed. Try again or request a new link.")
             action("Try again") { replace(.newPassword) }
             secondary("Request new link") { replace(.resetRequest) }
         case .backupReview:
-            helper("Choose what to recover. Your current entries stay unchanged.")
+            helper("Choose what to recover. Current entries stay unchanged.")
             recoverySelection
             status("Keep this device’s version", symbol: "iphone", detail: "Your edited reflection won’t be replaced.")
             validationMessage
@@ -202,11 +195,9 @@ public struct BrandRecoveryPreview: View {
             status("Local use", symbol: "iphone", detail: "New entries stay on this device. Device backups may include them.")
             action("Done") { back() }
         case .help:
-            helper("Use the same login method as before. Creating a new account won’t recover the old one.")
-            status("Used Google?", symbol: "person.crop.circle", detail: "Google recovery isn’t available here yet. Keep your original account and app.")
-            status("Keep your earlier app", symbol: "iphone", detail: "Don’t delete the old installation or its data while recovery is unresolved.")
+            helper("Log in the same way as before. A new account won’t recover the old one.")
+            status("Used Google before?", symbol: "person.crop.circle", detail: "Google login isn’t available here yet. Keep your earlier app installed.")
             action("Back to Log in") { returnToLogin() }
-            secondary("Continue locally") { leaveLocally() }
         }
     }
 
@@ -219,7 +210,7 @@ public struct BrandRecoveryPreview: View {
         case .resetSent: "Check your email"
         case .linkExpired, .linkInvalid: "Request a new link"
         case .newPassword, .changingPassword, .passwordError: "New password"
-        case .passwordChanged: "You’re ready to log in"
+        case .passwordChanged: "Password updated"
         case .backupReview: "Earlier data"
         case .noBackup, .backupError: "Earlier backup"
         case .recovering, .recoveryError, .recovered: "Recover your message"
@@ -233,10 +224,10 @@ public struct BrandRecoveryPreview: View {
             Text("Email").font(font(14, .semibold, relativeTo: .subheadline))
             Group {
                 if renderingSnapshot {
-                    Text("Email address").foregroundStyle(BrandDemoColor.muted)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(" ").frame(maxWidth: .infinity, alignment: .leading)
                 } else {
-                    TextField("Email address", text: $email)
+                    // The visible label names the field; a matching placeholder would repeat it.
+                    TextField("", text: $email)
                         .textContentType(.emailAddress)
                         .autocorrectionDisabled().focused($focusedField, equals: .email)
                         .submitLabel(screen == .resetRequest ? .done : .next)
@@ -260,10 +251,9 @@ public struct BrandRecoveryPreview: View {
             Text(label).font(font(14, .semibold, relativeTo: .subheadline))
             Group {
                 if renderingSnapshot {
-                    Text(label).foregroundStyle(BrandDemoColor.muted)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(" ").frame(maxWidth: .infinity, alignment: .leading)
                 } else {
-                    SecureField(label, text: text)
+                    SecureField("", text: text).accessibilityLabel(label)
                         .textContentType(field == .password ? .password : .newPassword)
                         .focused($focusedField, equals: field).privacySensitive()
                         .submitLabel(field == .newPassword ? .next : .done).onSubmit {

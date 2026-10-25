@@ -31,3 +31,30 @@ Proposed content change: rename the link **Account help**, retaining the explana
 Firebase documents [Google](https://firebase.google.com/docs/auth/ios/google-signin), [Facebook](https://firebase.google.com/docs/auth/ios/facebook-login) and [Twitter/X](https://firebase.google.com/docs/auth/ios/twitter-login) integration on Apple platforms. Their availability in Firebase does not mean CircleU has configured them. A future optional-account proposal should begin with Apple and Google if a concrete account benefit is approved; defer X/Facebook unless user research establishes demand. Each provider adds configuration, account-linking, cancellation and recovery cases. Preserve the existing account identity and verify ownership rather than inferring the same account from a matching email.
 
 For social login used to establish/authenticate the primary app account, [Apple guideline 4.8](https://developer.apple.com/app-store/review/guidelines/) requires an equivalent privacy-preserving login option unless an exception applies. Plan Sign in with Apple alongside Google and verify the final service against that rule. Guest-first local use and optional legacy recovery remain the approved direction. No provider enablement, Firebase setting, social-login screen or production auth change was made in this review.
+
+## Concise copy pass — 25 October
+
+**Proposed for owner review on `codex/onboarding-content-trim`; not merged.** The owner asked for less on-screen text, keeping only what's necessary, with reference to popular apps. The pattern follows short Apple, Day One and Headspace sign-in/recovery screens: one heading, at most one short supporting line, one primary action and few secondary links. The system Back control replaces duplicate "Back to…" links. Branding, colours, fonts, layout, validation and genuine error/recovery messages are unchanged. This is prototype copy only.
+
+| Screen | Before | After |
+| --- | --- | --- |
+| Welcome | Get started (filled) + small "Log in" text link | Get started (filled) + full-width white **Log in** button, same size (owner decision, 25 October) |
+| Log in | "Use your earlier CircleU account. Nothing imports automatically." | "Use your earlier CircleU account." |
+| Log in fields | Labels plus placeholders "Email address" / "Password" | Labels only; accessibility labels kept |
+| Log in links | Forgot password? · Used Google? · Privacy and data · Continue locally | Forgot password? · Privacy and data (Back returns to Welcome) |
+| Couldn't log in | "…email, password or original login method…" · Reset password · Continue locally | "Check your email and password. Your entries are unchanged." · Forgot password? · Account help |
+| Account help | Helper + "Used Google?" + "Keep your earlier app" cards + Continue locally | One helper + one "Used Google before?" card; Back to Log in |
+| Checking | "Checking your earlier account and backup." | "Looking for your backup…" |
+| Reset password | "We'll send a link to your earlier account's email." + Back to Log in + Privacy and data | "We'll email you a reset link." (Back control only) |
+| Check your email | "Reset link" card + "Check spam, or request another link." | "If an account uses this email, a reset link is on its way. Check spam if you can't find it." |
+| Password updated | Title "You're ready to log in" + card "Use your new password to log in. Nothing has been imported." | Title "Password updated" + "Log in with your new password." |
+| Privacy and data | Four two-sentence cards; "Manage earlier CircleU data" | Four one-line cards (on this device, backups, export & delete, voice); "Earlier CircleU data" |
+| Earlier data | Line + two cards; two primary buttons | "Log in to choose what to recover. Nothing imports automatically." · Log in · quiet "Continue without importing" |
+| Opening | Two lines + Privacy and data + Back to welcome | One line + Privacy and data |
+| Locked / read error | Longer reassurance + Back to welcome | "Unlock your iPhone, then try again. Nothing has changed." / "Your saved words couldn't be read. Nothing has been erased." |
+
+Kept deliberately: "Continue locally" on offline, no-backup, backup-error and recovery-error states (a real exit when recovery fails); the expired/invalid-link "Back to Log in" (a reset link may open without a Log in screen behind it); the Privacy link on Log in (privacy information before entering details); "Nothing imports automatically" on Earlier data (an approved truthful-recovery rule).
+
+Used Google? is removed from Log in. Account help is reachable only after a failed login. Google, Apple, X and Facebook login remain deferred proposals (see above); no provider was added.
+
+**Owner decisions, 25 October:** keep Used Google? off Log in, with Account help shown only after a failed login; Google/Apple sign-in stays deferred. The copy pass (PR #2) stays unmerged until the owner checks it on the phone.
