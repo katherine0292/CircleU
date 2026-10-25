@@ -459,7 +459,11 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         for name in Self.legacyDraftFiles where !marked.contains(Self.adoptedMarker + name) {
             modelContext.insert(KeptDraftRecord(slot: Self.adoptedMarker + name, id: UUID(), text: "", updatedAt: Date()))
         }
-        try commit(entryID: UUID()) // One transaction, drafts included; rolled back on failure.
+        do {
+            try commit(entryID: UUID()) // One transaction, drafts included; rolled back on failure.
+        } catch GuestJournalError.savedButUnprotected {
+            // Committed: everything is deleted, so carry on and remove the older files too.
+        }
         // Older draft files (readable or not) are removed too. True when nothing was left behind.
         var clean = true
         for name in Self.legacyDraftFiles {

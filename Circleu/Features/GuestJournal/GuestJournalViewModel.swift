@@ -78,7 +78,10 @@ final class GuestJournalViewModel: ObservableObject {
     func dismissNotices() { notices.removeAll() }
 
     /// An older draft couldn't be read; it's left as it was and new writing is kept separately.
-    func noteUnreadableDraft() { draftWarning = Self.olderDraftUnreadableMessage }
+    func noteUnreadableDraft() {
+        // A warning that new writing won't be kept matters more; keep that one.
+        if draftWarning == nil { draftWarning = Self.olderDraftUnreadableMessage }
+    }
 
     static let olderDraftUnreadableMessage = "An earlier draft couldn’t be opened, so it’s been left as it was."
 

@@ -1,0 +1,19 @@
+**2026-10-26 — Codex review, round 5 — guest batch B — `a0584ce`**
+
+**Verdict: BLOCKED.** Store-backed drafts simplify deletion, but legacy adoption still permits data loss and resurrection. Review-only; no files edited.
+
+- **BLOCKER — Legacy copies survive Delete all and can return.** `GuestDraftStore.swift:119`, `SwiftDataGuestJournalStore.swift:441`: adoption suppresses file-removal failures; Delete all removes only database rows, including receipts. A retained legacy file can therefore be imported again after deletion. Unreadable files also survive a reported successful deletion. Existing `*.deleting-*` files are no longer inspected or recovered. Require durable adoption/deletion state and explicit cleanup handling. A crash between store save and file deletion alone is recoverable on the next launch **if cleanup then succeeds**.
+
+- **BLOCKER — Failed store reads can overwrite newer drafts.** `GuestDraftStore.swift:116`: `(try? await load()) == nil` treats a fetch error as an empty slot. If that read fails transiently but the subsequent save succeeds, the older file replaces the current database draft and is then removed. Fail closed on read errors; perform the conditional adoption within one store-actor operation.
+
+- **SHOULD-FIX — Stale composers can still save after Delete all.** `GuestPracticeViewModels.swift:367`: generation checks protect autosaving, but `save()` has no generation/deletion guard. Retaining the composer used by `GuestFindAndControlTests.swift:193` and invoking `save()` after deletion can recreate its old standalone message. Navigation dismissal mitigates ordinary interaction but does not invalidate retained or queued operations. Extend the test to cover Save.
+
+- **SHOULD-FIX — Legacy Practice adoption failures are silent.** `GuestRootView.swift:47`: the adoption result is discarded, so an unreadable Practice file produces no warning. The Write warning at `GuestJournalViewModel.swift:81` also says new writing will not persist, although this path leaves persistence enabled. Propagate adoption status and make the warning match actual behavior.
+
+- **SHOULD-FIX — Every edit becomes a database commit.** `GuestJournalViewModel.swift:223`, `GuestPracticeViewModels.swift:118`, `SwiftDataGuestJournalStore.swift:462`: each change queues a full draft write, fetch, save and protection pass on the shared store actor. There is no coalescing; Delete all waits for the backlog. Coalesce pending versions with explicit flush boundaries and measure typing/dictation latency.
+
+- **SHOULD-FIX — Migration and interruption coverage is incomplete.** `SwiftDataGuestJournalStore.swift:256`, `GuestFindAndControlTests.swift:208`: V4 preserves the existing model declarations exactly and adds one entity; no destructive schema change identified. However, tests lack a populated V3 fixture preserving reflections, next steps, links and receipts, plus adoption cleanup/read failures and interrupted adoption followed by deletion.
+
+**Earlier findings:** #12’s enumeration path and #14’s staging scheme are removed for new writes, but existing file remnants remain unhandled. #15’s ordinary “already lost ownership before Save” case is addressed by the nil draft ID and conditional cleanup. #13’s original wording was unavailable, so its closure cannot be confirmed.
+
+**Verification / limits:** Reviewed HEAD and all requested files; `git diff --check HEAD^ HEAD` passed; working tree clean. Database deletion reads all rows before mutation, commits once and rolls back save failures; normal pause/resume paths are balanced. No build, XCTest execution, actual migration/crash injection, performance profiling, Simulator or physical-device checks. No inter-agent exchanges.

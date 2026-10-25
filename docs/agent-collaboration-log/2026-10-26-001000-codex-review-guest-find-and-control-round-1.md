@@ -1,0 +1,27 @@
+**2026-10-25 — Codex review — `1d21654`**
+
+**Verdict: BLOCKED.** Static review found data-loss, partial-deletion and draft-resurrection paths. No files edited.
+
+1. **BLOCKER — Failed fetch leaves pending deletions.** [SwiftDataGuestJournalStore.swift:353](<../../Circleu/Services/GuestJournal/SwiftDataGuestJournalStore.swift:353>): entries are marked deleted before fetching messages and receipts. If either later fetch throws, `commit()` and its rollback never run. A subsequent successful write can commit those deletions despite “Nothing was removed.” Fetch everything before mutation or roll back every failure.
+
+2. **BLOCKER — Delete all is not atomic across drafts.** [GuestFindAndControl.swift:220](<../../Circleu/Features/GuestJournal/GuestFindAndControl.swift:220>): saved content and receipts commit before either draft-file deletion. A draft failure therefore leaves irreversible partial deletion; both discard methods also clear memory before confirming removal. “Everything was deleted, but…” violates the requested failure contract.
+
+3. **BLOCKER — Starting different Practice context destroys the retained draft.** [GuestPracticeScreens.swift:143](<../../Circleu/Features/GuestJournal/GuestPracticeScreens.swift:143>): restoration only matches `sourceEntryID`, but every composer writes the same draft slot. Keep standalone draft A, start Practice from an entry, then type: B silently replaces A without a discard decision.
+
+4. **BLOCKER — Saved Practice drafts can resurrect.** [GuestPracticeViewModels.swift:49](<../../Circleu/Features/GuestJournal/GuestPracticeViewModels.swift:49>): restoration never checks a durable saved-draft receipt, and `createPractice` records none. Termination after save but before asynchronous cleanup—or cleanup failure—offers the saved text again. Saving creates a duplicate; deleting the original does not prevent resurrection.
+
+5. **BLOCKER — Save clears newer typing from durable storage.** [GuestPracticeScreens.swift:234](<../../Circleu/Features/GuestJournal/GuestPracticeScreens.swift:234>): typing during save uses the same draft ID. Completion unconditionally clears that ID, even when the composer retains newer unsaved edits. Its observer then stops drafting because `saved != nil`. Relaunch loses those edits. Preserve/version the newer draft.
+
+6. **BLOCKER — Open composers survive Delete all.** [GuestPracticeViewModels.swift:72](<../../Circleu/Features/GuestJournal/GuestPracticeViewModels.swift:72>): clearing `keptDraft` does not invalidate route-owned composers. Leave an unsaved composer open in Practice, delete everything through Today’s Settings, then return: deleted text remains, and another edit writes it back. Deletion needs session-wide composer invalidation and write gating.
+
+7. **SHOULD-FIX — Practice draft failures are silent.** [GuestPracticeViewModels.swift:49](<../../Circleu/Features/GuestJournal/GuestPracticeViewModels.swift:49>): read/decode failures disappear through `try?`; subsequent typing can overwrite the unreadable draft. Protection failures are ignored, and `draftWarning` is never displayed by Practice screens. Preserve unreadable bytes and expose persistence failures before Back dismisses.
+
+8. **SHOULD-FIX — Export lacks a consistent snapshot.** [GuestFindAndControl.swift:186](<../../Circleu/Features/GuestJournal/GuestFindAndControl.swift:186>): journal and Practice load separately; export neither sets nor checks `isWorking`. Concurrent deletion can combine pre-delete entries with post-delete messages and export an inconsistent dataset as complete. Read both collections atomically and serialize conflicting controls.
+
+9. **SHOULD-FIX — Temporary exports can linger.** [GuestFindAndControl.swift:286](<../../Circleu/Features/GuestJournal/GuestFindAndControl.swift:286>): cleanup relies on the activity completion callback and suppresses removal errors. Termination before completion leaves readable content; there is no next-launch cleanup, and Delete all ignores it. Use managed export storage with dismissal and startup cleanup.
+
+10. **SHOULD-FIX — Backup disclosure is incomplete.** [GuestFindAndControl.swift:248](<../../Circleu/Features/GuestJournal/GuestFindAndControl.swift:248>): device-backup inclusion is disclosed, but historical-backup restoration can revive deleted content and exported copies survive deletion. State these limits explicitly, as M07 requires.
+
+11. **SHOULD-FIX — Tests miss the failure boundaries.** [GuestFindAndControlTests.swift:86](<../../CircleuTests/GuestFindAndControlTests.swift:86>): the export failure-named test exercises only success; delete failure tests only `beforeSave`, without draft stores. Missing: later-fetch failure, draft removal/read failure, save interruption, concurrent composers/export/delete, cleanup, DST/time-zone boundaries, search-plus-calendar interaction, and accessibility checks.
+
+**Verification / limits:** Reviewed the commit, surrounding code, tests and project guidance. Diff whitespace check passed; working tree remained clean. No legacy-data mutation or automatic sending found in the reviewed changes. No build/XCTest execution, Simulator interaction, VoiceOver/Dynamic Type audit, physical-device protection, process-kill testing, backup restoration or runtime network verification. Inter-agent exchanges: None.

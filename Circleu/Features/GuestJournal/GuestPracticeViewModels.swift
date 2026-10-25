@@ -133,7 +133,9 @@ final class GuestPracticeViewModel: ObservableObject {
     }
 
     /// An older practice draft couldn't be read; it's left as it was.
-    func noteUnreadableDraft() { draftWarning = GuestJournalViewModel.olderDraftUnreadableMessage }
+    func noteUnreadableDraft() {
+        if draftWarning == nil { draftWarning = GuestJournalViewModel.olderDraftUnreadableMessage }
+    }
 
     /// The message was saved or discarded: remove that draft (a newer one has another ID).
     func clearDraft(id: UUID) {
