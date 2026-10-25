@@ -23,12 +23,19 @@ struct GuestComposition {
     }
 
     func makeViewModel() async throws -> GuestJournalViewModel {
+        try await makeSession().journal
+    }
+
+    /// The journal and Practice, sharing one local store.
+    func makeSession() async throws -> (journal: GuestJournalViewModel, practice: GuestPracticeViewModel) {
         let location = try location()
         let store = try await SwiftDataGuestJournalStore.open(location: location)
         let viewModel = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location))
         await viewModel.load()
         await viewModel.restoreDraft() // After load, so a leftover draft can be matched to saved entries.
-        return viewModel
+        let practice = GuestPracticeViewModel(store: store)
+        await practice.load()
+        return (viewModel, practice)
     }
 }
 
@@ -36,7 +43,7 @@ struct GuestComposition {
 struct GuestRootView: View {
     private enum Phase {
         case opening
-        case ready(GuestJournalViewModel)
+        case ready(GuestJournalViewModel, GuestPracticeViewModel)
         case failed(String)
     }
 
@@ -53,8 +60,8 @@ struct GuestRootView: View {
         case .opening:
             ProgressView("Opening your journal…")
                 .task { await open() }
-        case .ready(let viewModel):
-            GuestHomeView(journal: viewModel, makeDictationEngine: composition.dictationEngine)
+        case .ready(let viewModel, let practice):
+            GuestHomeView(journal: viewModel, practice: practice, makeDictationEngine: composition.dictationEngine)
         case .failed(let message):
             VStack(spacing: 16) {
                 Text(message).multilineTextAlignment(.center)
@@ -67,7 +74,8 @@ struct GuestRootView: View {
 
     private func open() async {
         do {
-            phase = .ready(try await composition.makeViewModel())
+            let session = try await composition.makeSession()
+            phase = .ready(session.journal, session.practice)
         } catch {
             phase = .failed(GuestJournalViewModel.openFailureMessage(for: error))
         }

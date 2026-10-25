@@ -11,6 +11,8 @@ enum GuestBrand {
     static let ice = Color(red: 245 / 255, green: 250 / 255, blue: 255 / 255)
     /// Secondary text; 6.1:1 on `ice`, 6.4:1 on white.
     static let muted = Color(red: 79 / 255, green: 96 / 255, blue: 119 / 255)
+    /// Delete actions; 6.5:1 on `ice`, so it stays readable at footnote size.
+    static let danger = Color(red: 176 / 255, green: 32 / 255, blue: 32 / 255)
 
     /// Plus Jakarta Sans (SIL Open Font License, bundled with its licence), registered for this
     /// process the first time it's needed. Falls back to the system font if it can't load.

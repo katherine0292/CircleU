@@ -36,9 +36,69 @@ nonisolated enum GuestJournalSchemaV1: VersionedSchema {
     }
 }
 
+/// Version 2 adds practice messages. Entries and saved drafts are unchanged from version 1.
+nonisolated enum GuestJournalSchemaV2: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(2, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Entry.self, SavedDraft.self, PracticeMessage.self] }
+
+    @Model final class Entry {
+        @Attribute(.unique) var id: UUID
+        var originalWords: String
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+
+        init(id: UUID, originalWords: String, revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.originalWords = originalWords
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+
+    @Model final class SavedDraft {
+        @Attribute(.unique) var id: UUID
+        var savedAt: Date
+
+        init(id: UUID, savedAt: Date) {
+            self.id = id
+            self.savedAt = savedAt
+        }
+    }
+
+    /// Wording practised in Practice. Saved here only; never sent anywhere.
+    @Model final class PracticeMessage {
+        @Attribute(.unique) var id: UUID
+        var situation: String
+        var goal: String
+        var wording: String
+        /// The journal entry it was practised from; nil when it stands on its own.
+        var sourceEntryID: UUID?
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+
+        init(id: UUID, situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+             revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.situation = situation
+            self.goal = goal
+            self.wording = wording
+            self.sourceEntryID = sourceEntryID
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+}
+
 nonisolated enum GuestJournalMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] { [GuestJournalSchemaV1.self] }
-    static var stages: [MigrationStage] { [] }
+    static var schemas: [any VersionedSchema.Type] { [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self] }
+    /// V1 → V2 only adds a model, so a lightweight stage keeps every entry and saved draft.
+    static var stages: [MigrationStage] {
+        [.lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self)]
+    }
 }
 
 /// Where the guest journal lives. The setup marker sits outside `directory`, so losing the whole
@@ -82,9 +142,10 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// SwiftData-backed guest journal. One instance owns each store location (see
 /// `GuestJournalStoreRegistry`), and actor isolation serializes every read-check-write.
 /// Access from another process (for example an extension) is not supported.
-actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
-    typealias Entry = GuestJournalSchemaV1.Entry
-    typealias SavedDraft = GuestJournalSchemaV1.SavedDraft
+actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, ModelActor {
+    typealias Entry = GuestJournalSchemaV2.Entry
+    typealias SavedDraft = GuestJournalSchemaV2.SavedDraft
+    typealias PracticeMessage = GuestJournalSchemaV2.PracticeMessage
 
     nonisolated let modelExecutor: any ModelExecutor
     nonisolated let modelContainer: ModelContainer
@@ -125,7 +186,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
 
         let container: ModelContainer
         do {
-            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV1.self),
+            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV2.self),
                                            migrationPlan: GuestJournalMigrationPlan.self,
                                            configurations: ModelConfiguration(url: location.storeURL, cloudKitDatabase: .none))
         } catch {
@@ -192,8 +253,69 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
         try commit(entryID: id)
     }
 
+    // MARK: Practice
+
+    func loadPractice() throws -> [GuestPracticeMessage] {
+        try fetch(FetchDescriptor<PracticeMessage>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]))
+            .map(Self.value)
+    }
+
+    func createPractice(situation: String, goal: String, wording: String,
+                        sourceEntryID: UUID?) throws -> GuestPracticeMessage {
+        // Never link to an entry that no longer exists.
+        if let sourceEntryID, try fetch(FetchDescriptor<Entry>(predicate: #Predicate { $0.id == sourceEntryID })).isEmpty {
+            throw GuestJournalError.notFound
+        }
+        let now = Date()
+        let row = PracticeMessage(id: UUID(), situation: situation, goal: goal, wording: wording,
+                                  sourceEntryID: sourceEntryID, revision: 0, createdAt: now, updatedAt: now)
+        modelContext.insert(row)
+        try commit(entryID: row.id)
+        return Self.value(row)
+    }
+
+    func updatePractice(id: UUID, situation: String, goal: String, wording: String,
+                        expectedRevision: Int) throws -> GuestPracticeMessage {
+        guard let row = try fetch(FetchDescriptor<PracticeMessage>(predicate: #Predicate { $0.id == id })).first else {
+            throw GuestJournalError.notFound
+        }
+        guard row.revision == expectedRevision else {
+            throw GuestJournalError.staleRevision(current: row.revision, expected: expectedRevision)
+        }
+        row.situation = situation
+        row.goal = goal
+        row.wording = wording
+        row.revision += 1
+        row.updatedAt = Date()
+        try commit(entryID: id)
+        return Self.value(row)
+    }
+
+    func deletePractice(id: UUID) throws {
+        guard let row = try fetch(FetchDescriptor<PracticeMessage>(predicate: #Predicate { $0.id == id })).first else {
+            throw GuestJournalError.notFound
+        }
+        modelContext.delete(row)
+        try commit(entryID: id)
+    }
+
+    func deleteEntry(id: UUID, linkedPractice: GuestLinkedPracticeChoice) throws {
+        guard let entry = try fetch(FetchDescriptor<Entry>(predicate: #Predicate { $0.id == id })).first else {
+            throw GuestJournalError.notFound
+        }
+        let linked = try fetch(FetchDescriptor<PracticeMessage>(predicate: #Predicate { $0.sourceEntryID == id }))
+        for message in linked {
+            switch linkedPractice {
+            case .keepMessages: message.sourceEntryID = nil // Kept, now on its own.
+            case .deleteBoth: modelContext.delete(message)
+            }
+        }
+        modelContext.delete(entry)
+        try commit(entryID: id) // One transaction: all of it, or none of it.
+    }
+
     /// Fetch errors are `storeUnavailable`, never `notFound`: an unreadable store isn't empty.
-    private func fetch(_ descriptor: FetchDescriptor<Entry>) throws -> [Entry] {
+    private func fetch<T: PersistentModel>(_ descriptor: FetchDescriptor<T>) throws -> [T] {
         do {
             try faults.beforeFetch()
             return try modelContext.fetch(descriptor)
@@ -239,6 +361,12 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
         } catch {
             throw GuestJournalError.storeUnavailable("check \(url.lastPathComponent): \(error.localizedDescription)")
         }
+    }
+
+    private static func value(_ row: PracticeMessage) -> GuestPracticeMessage {
+        GuestPracticeMessage(id: row.id, situation: row.situation, goal: row.goal, wording: row.wording,
+                             sourceEntryID: row.sourceEntryID, revision: row.revision,
+                             createdAt: row.createdAt, updatedAt: row.updatedAt)
     }
 
     private static func value(_ row: Entry) -> GuestJournalEntry {
