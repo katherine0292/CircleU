@@ -1,9 +1,10 @@
 import SwiftUI
 import UIKit
 
-/// Guest experience shell: Today, Journal and Practice (a placeholder until Practice is built).
+/// Guest experience shell: Today, Journal and Practice.
 struct GuestHomeView: View {
     @ObservedObject var journal: GuestJournalViewModel
+    @ObservedObject var practice: GuestPracticeViewModel
     let makeDictationEngine: () -> any GuestDictationEngine
     @State private var tab: Tab = .today
 
@@ -14,10 +15,10 @@ struct GuestHomeView: View {
             GuestTodayView(journal: journal, makeDictationEngine: makeDictationEngine, onSaved: { tab = .journal })
                 .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
                 .tag(Tab.today)
-            GuestJournalListView(journal: journal)
+            GuestJournalListView(journal: journal, practice: practice)
                 .tabItem { GuestTabLabel(title: "Journal", icon: "GuestIconJournal") }
                 .tag(Tab.journal)
-            GuestPracticePlaceholderView()
+            GuestPracticeHomeView(practice: practice, journal: journal)
                 .tabItem { GuestTabLabel(title: "Practice", icon: "GuestIconPractice") }
                 .tag(Tab.practice)
         }
@@ -234,6 +235,7 @@ struct GuestWriteView: View {
 
 struct GuestJournalListView: View {
     @ObservedObject var journal: GuestJournalViewModel
+    @ObservedObject var practice: GuestPracticeViewModel
 
     var body: some View {
         NavigationStack {
@@ -270,7 +272,7 @@ struct GuestJournalListView: View {
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
             .navigationDestination(for: UUID.self) { id in
-                GuestEntryDetailView(entryID: id, journal: journal)
+                GuestEntryDetailView(entryID: id, journal: journal, practice: practice)
             }
         }
     }
@@ -279,13 +281,38 @@ struct GuestJournalListView: View {
 struct GuestEntryDetailView: View {
     let entryID: UUID
     @ObservedObject var journal: GuestJournalViewModel
+    @ObservedObject var practice: GuestPracticeViewModel
     /// Owned here, outside the content that refreshes, so an open editor survives list reloads.
     @State private var editor: GuestEntryEditorViewModel?
+    @State private var practiceRoute: GuestPracticeRoute?
+    @State private var confirmDelete = false
+    @State private var deleteError: String?
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         content
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Entry")
+            .navigationDestination(item: $practiceRoute) { route in
+                GuestPracticeRouteView(route: route, practice: practice, journal: journal)
+            }
+            .alert("Delete this entry?", isPresented: $confirmDelete) {
+                let linked = practice.linkedMessages(to: entryID)
+                if linked.isEmpty {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Delete", role: .destructive) { Task { await delete(.keepMessages) } }
+                } else {
+                    // Keeping the message is the default; it stays in Practice, on its own.
+                    Button("Keep message") { Task { await delete(.keepMessages) } }
+                        .keyboardShortcut(.defaultAction)
+                    Button("Delete both", role: .destructive) { Task { await delete(.deleteBoth) } }
+                    Button("Cancel", role: .cancel) {}
+                }
+            } message: {
+                if !practice.linkedMessages(to: entryID).isEmpty {
+                    Text("A practice message was made from it. Keep the message, or delete both?")
+                }
+            }
             .navigationDestination(isPresented: Binding(get: { editor != nil },
                                                         set: { if !$0 { editor = nil } })) {
                 if let editor {
@@ -326,6 +353,42 @@ struct GuestEntryDetailView: View {
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
                 Text(entry.updatedAt, format: .dateTime.day().month().year().hour().minute())
                     .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                let linked = practice.linkedMessages(to: entry.id)
+                if case .failed(let message) = practice.loadState {
+                    // Unknown is not "none": say so rather than hiding linked messages.
+                    HStack {
+                        Text(message).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                        Button("Try again") { Task { await practice.load() } }
+                            .font(GuestBrand.font(.footnote, .semibold))
+                    }
+                    .padding(.top, 8)
+                } else if !linked.isEmpty {
+                    Text("Practice").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                        .padding(.top, 8)
+                    ForEach(linked) { message in
+                        Button { practiceRoute = .message(message.id) } label: {
+                            GuestPracticeRow(message: message, entries: journal.entries)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                Button { practiceRoute = .new(sourceEntryID: entry.id) } label: {
+                    Label {
+                        Text("Practice what to say")
+                    } icon: {
+                        Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
+                    }
+                }
+                .buttonStyle(GuestBrandButtonStyle(filled: false))
+                .padding(.top, 8)
+                if let deleteError {
+                    Label(deleteError, systemImage: "exclamationmark.circle")
+                        .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                }
+                Button("Delete entry", role: .destructive) { Task { await askToDelete() } }
+                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
+                    .frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
+                    .padding(.top, 8)
             }
             .padding(24)
         }
@@ -382,24 +445,24 @@ struct GuestEntryEditView: View {
     }
 }
 
-// MARK: - Practice
+extension GuestEntryDetailView {
+    /// The delete choices depend on linked messages, so make sure they're known first.
+    fileprivate func askToDelete() async {
+        deleteError = nil
+        if case .loaded = practice.loadState {} else { await practice.load() }
+        if case .loaded = practice.loadState {
+            confirmDelete = true
+        } else {
+            deleteError = GuestPracticeViewModel.loadFailedMessage
+        }
+    }
 
-/// Practice isn't built yet. This says so plainly and offers nothing that looks like it works.
-struct GuestPracticePlaceholderView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 200)
-                    .accessibilityHidden(true)
-                Text("Practice is coming soon")
-                    .font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
-                    .multilineTextAlignment(.center)
-                    .accessibilityAddTraits(.isHeader)
-            }
-            .padding(24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(GuestBrand.ice.ignoresSafeArea())
-            .navigationTitle("Practice")
+    /// A failed delete keeps the entry (and its messages) and says so.
+    fileprivate func delete(_ choice: GuestLinkedPracticeChoice) async {
+        if let error = await practice.deleteEntry(id: entryID, linkedPractice: choice, journal: journal) {
+            deleteError = error
+        } else {
+            dismiss()
         }
     }
 }

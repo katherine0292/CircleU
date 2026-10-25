@@ -48,3 +48,37 @@ extension GuestJournalStore {
         try await create(originalWords: originalWords, draftID: nil)
     }
 }
+
+/// Wording practised in Practice, saved on this phone and never sent.
+nonisolated struct GuestPracticeMessage: Identifiable, Equatable, Sendable {
+    let id: UUID
+    var situation: String
+    var goal: String
+    var wording: String
+    /// The journal entry it was practised from, or nil when it stands on its own.
+    var sourceEntryID: UUID?
+    let revision: Int
+    let createdAt: Date
+    var updatedAt: Date
+}
+
+/// What happens to practice messages linked to a journal entry that's being deleted.
+nonisolated enum GuestLinkedPracticeChoice: Sendable {
+    /// Keep the messages; they become "On its own". The default.
+    case keepMessages
+    case deleteBoth
+}
+
+/// Practice messages, in the same store as the journal. Same rules: serialized, local only.
+nonisolated protocol GuestPracticeStore: Sendable {
+    /// Saved messages, most recently updated first.
+    func loadPractice() async throws -> [GuestPracticeMessage]
+    /// Fails with `notFound` if `sourceEntryID` names an entry that no longer exists.
+    func createPractice(situation: String, goal: String, wording: String,
+                        sourceEntryID: UUID?) async throws -> GuestPracticeMessage
+    func updatePractice(id: UUID, situation: String, goal: String, wording: String,
+                        expectedRevision: Int) async throws -> GuestPracticeMessage
+    func deletePractice(id: UUID) async throws
+    /// Deletes a journal entry and, in the same transaction, unlinks or deletes its messages.
+    func deleteEntry(id: UUID, linkedPractice: GuestLinkedPracticeChoice) async throws
+}
