@@ -42,6 +42,11 @@ final class GuestPracticeViewModel: ObservableObject {
     /// False when a kept draft exists but couldn't be read: it's left untouched, not overwritten.
     private var canKeepDraft: Bool
     private var draftsPaused = false
+    /// The screen currently allowed to write the kept draft.
+    private var draftOwner: ObjectIdentifier?
+
+    /// The newest screen opened for a new message takes over writing its draft.
+    func claimDraft(by owner: ObjectIdentifier) { draftOwner = owner }
 
     static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
     static let otherDraftMessage = "Another practice draft is already kept, so this one isn’t being kept. Save it, or go back and choose which draft to keep."
@@ -59,8 +64,12 @@ final class GuestPracticeViewModel: ObservableObject {
     /// offered again; one that can't be read is left untouched and never overwritten.
     func loadDraft() async {
         guard let drafts else { return }
+        let store = self.store
         let kept: KeptDraft?
         do {
+            guard try await drafts.recoverStaged(isConsumed: { try? await store.isDraftSaved($0) }) else {
+                throw GuestJournalError.storeUnavailable("unsettled draft")
+            }
             kept = try await drafts.load()
         } catch {
             canKeepDraft = false
@@ -93,8 +102,13 @@ final class GuestPracticeViewModel: ObservableObject {
 
     /// Keeps the latest version of a new message; empty text removes the kept copy. Writes from a
     /// screen opened before Delete all (an older `generation`) are ignored.
-    func keepDraft(_ draft: GuestPracticeDraft, generation: Int? = nil) {
+    func keepDraft(_ draft: GuestPracticeDraft, generation: Int? = nil, owner: ObjectIdentifier? = nil) {
         guard generation == nil || generation == dataGeneration, !draftsPaused else { return }
+        // Only the newest screen for a draft may write it, so an older screen can't overwrite newer text.
+        if let owner, let current = draftOwner, current != owner {
+            draftWarning = Self.otherDraftMessage
+            return
+        }
         // One draft is kept at a time; another screen never replaces it silently.
         if let current = keptDraft, current.id != draft.id {
             draftWarning = Self.otherDraftMessage
@@ -256,13 +270,15 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         isEditing = true
         guard let practice, let draftID else { return }
         let generation = practice.dataGeneration
+        let owner = ObjectIdentifier(self)
+        practice.claimDraft(by: owner)
         draftObserver = Publishers.CombineLatest3($situation, $goal, $wording)
             .dropFirst()
             .sink { [weak self, weak practice] situation, goal, wording in
                 guard let self, self.saved == nil else { return }
                 practice?.keepDraft(GuestPracticeDraft(id: draftID, situation: situation, goal: goal,
                                                        wording: wording, sourceEntryID: sourceEntryID),
-                                    generation: generation)
+                                    generation: generation, owner: owner)
             }
     }
 

@@ -81,12 +81,17 @@ final class GuestJournalViewModel: ObservableObject {
     func addNotice(_ notice: String) { notices.append(notice) }
 
     /// Restores a kept draft. A draft that can't be read is left untouched on disk. A draft the
-    /// store already saved (cleanup didn't finish) is removed rather than offered again; if the
-    /// store can't be asked, the draft is restored and `create` refuses to save it twice.
+    /// store already saved, or that Delete all consumed, is removed rather than offered again; if
+    /// the store can't be asked, the draft is left untouched and not shown (it fails closed).
     func restoreDraft() async {
         guard let drafts else { return }
+        let store = self.store
         let kept: KeptDraft?
         do {
+            // Copies left by an interrupted Delete all first: deleted ones go, others come back.
+            guard try await drafts.recoverStaged(isConsumed: { try? await store.isDraftSaved($0) }) else {
+                throw GuestJournalError.storeUnavailable("unsettled draft")
+            }
             kept = try await drafts.load()
         } catch {
             canKeepDraft = false
@@ -94,9 +99,17 @@ final class GuestJournalViewModel: ObservableObject {
             return
         }
         guard let kept else { return }
-        if (try? await store.isDraftSaved(kept.id)) == true {
-            enqueueDraftOperation { try await drafts.remove(id: kept.id) }
+        switch try? await store.isDraftSaved(kept.id) {
+        case true?:
+            enqueueDraftOperation { try await drafts.remove(id: kept.id) } // Saved or deleted already.
             return
+        case nil:
+            // Can't tell whether it was saved or deleted: don't show it, and don't overwrite it.
+            canKeepDraft = false
+            draftWarning = Self.draftUnreadableMessage
+            return
+        case false?:
+            break
         }
         if !kept.isProtected { draftWarning = Self.draftUnprotectedMessage }
         draftID = kept.id

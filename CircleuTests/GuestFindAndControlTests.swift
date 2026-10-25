@@ -359,6 +359,45 @@ final class GuestFindAndControlTests: XCTestCase {
         XCTAssertTrue(GuestSettingsViewModel.removeExports(in: folder))
         XCTAssertFalse(FileManager.default.fileExists(atPath: folder.path))
     }
+
+    func testOnlyTheNewestScreenForADraftCanWriteIt() async throws {
+        let (_, practice) = try await GuestComposition.local(at: location).makeSession()
+        let first = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil, practice: practice)
+        first.wording = "First screen"
+        await practice.flushDraft()
+        let kept = try XCTUnwrap(practice.keptDraft)
+        let second = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil, restoring: kept,
+                                                    practice: practice)
+        second.wording = "Newer text on the second screen"
+        first.goal = "A late edit on the older screen"
+        await practice.flushDraft()
+        XCTAssertEqual(practice.keptDraft?.wording, "Newer text on the second screen", "the older screen can't overwrite it")
+        XCTAssertEqual(practice.draftWarning, GuestPracticeViewModel.otherDraftMessage)
+    }
+
+    func testAStagedDraftWithAnUnknownOutcomeIsLeftAloneAndNothingIsWritten() async throws {
+        let reads = FetchCounter(failFrom: Int.max)
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: reads.faults)
+        let drafts = FileGuestDraftStore(location: location, protection: .init { _ in })
+        var journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "Set aside"
+        await journal.flushDraft()
+        _ = try await journal.stageDraftRemoval() // Interrupted here.
+        reads.failFrom = reads.count + 1 // The store can't be asked at the next launch.
+        journal = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location, protection: .init { _ in }))
+        await journal.restoreDraft()
+        reads.failFrom = Int.max
+        XCTAssertEqual(journal.draft, "")
+        XCTAssertEqual(journal.draftWarning, GuestJournalViewModel.draftUnreadableMessage)
+        journal.draft = "New typing"
+        await journal.flushDraft()
+        let folder = location.directory
+        let staged = try FileManager.default.contentsOfDirectory(atPath: folder.path).filter { $0.contains(".deleting-") }
+        XCTAssertEqual(staged.count, 1, "the set-aside copy is untouched")
+        let main = try await FileGuestDraftStore(location: location, protection: .init { _ in }).load()
+        XCTAssertNil(main, "and nothing was written over it")
+    }
 }
 
 /// Fails every fetch from the `failFrom`th onwards.
@@ -387,6 +426,7 @@ private actor StuckDraftStore: GuestDraftStore {
     func remove(id: UUID) throws {}
     func stageRemoval() throws -> UUID? { throw GuestJournalError.saveFailed("stuck") }
     func finishRemoval(commit: Bool) throws {}
+    func recoverStaged(isConsumed: @escaping @Sendable (UUID) async -> Bool?) async throws -> Bool { true }
 }
 
 /// Fails saves while `on`, inside the real store.

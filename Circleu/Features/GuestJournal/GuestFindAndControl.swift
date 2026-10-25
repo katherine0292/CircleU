@@ -172,7 +172,9 @@ final class GuestSettingsViewModel: ObservableObject {
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let cleanupPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; it can’t be opened and is cleared the next time CircleU opens."
+    static let cleanupPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; CircleU won’t show it and will try to remove it again next time it opens."
+    static let deleteFailedDraftAsideMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged; an unsaved draft was set aside and comes back next time CircleU opens."
+    static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
     let journal: GuestJournalViewModel
     let practice: GuestPracticeViewModel
@@ -239,8 +241,7 @@ final class GuestSettingsViewModel: ObservableObject {
             consumed += try await journal.stageDraftRemoval()
             consumed += try await practice.stageDraftRemoval()
         } catch {
-            await restoreDrafts()
-            message = Self.deleteFailedMessage
+            message = await restoreDrafts() ? Self.deleteFailedMessage : Self.deleteFailedDraftAsideMessage
             return
         }
         do {
@@ -248,8 +249,7 @@ final class GuestSettingsViewModel: ObservableObject {
         } catch GuestJournalError.savedButUnprotected {
             // Committed.
         } catch {
-            await restoreDrafts()
-            message = Self.deleteFailedMessage
+            message = await restoreDrafts() ? Self.deleteFailedMessage : Self.deleteFailedDraftAsideMessage
             return
         }
         var draftsRemoved = true
@@ -261,9 +261,16 @@ final class GuestSettingsViewModel: ObservableObject {
         message = draftsRemoved && exportsRemoved ? Self.deletedMessage : Self.cleanupPendingMessage
     }
 
-    private func restoreDrafts() async {
-        try? await journal.finishDraftRemoval(commit: false)
-        try? await practice.finishDraftRemoval(commit: false)
+    /// Returns false if a draft couldn't be put back yet (it comes back when CircleU next opens).
+    private func restoreDrafts() async -> Bool {
+        var restored = true
+        do { try await journal.finishDraftRemoval(commit: false) } catch { restored = false }
+        do { try await practice.finishDraftRemoval(commit: false) } catch { restored = false }
+        return restored
+    }
+
+    func noteExportCleanup(succeeded: Bool) {
+        if !succeeded { message = Self.exportCleanupMessage }
     }
 }
 
@@ -321,7 +328,8 @@ struct GuestSettingsView: View {
         }
         .sheet(item: Binding(get: { exportURL.map(ExportFile.init) }, set: { if $0 == nil { exportURL = nil } })) { file in
             GuestShareSheet(url: file.url) {
-                try? FileManager.default.removeItem(at: file.url) // Don't leave a copy behind.
+                // Don't leave a copy behind; say so if it can't be removed.
+                settings.noteExportCleanup(succeeded: GuestSettingsViewModel.removeExports())
                 exportURL = nil
             }
         }

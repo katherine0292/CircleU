@@ -194,6 +194,7 @@ final class GuestEntryEditorViewModelTests: XCTestCase {
 
 private actor FakeDraftStore: GuestDraftStore {
     func stageRemoval() throws -> UUID? { nil }
+    func recoverStaged(isConsumed: @escaping @Sendable (UUID) async -> Bool?) async throws -> Bool { true }
     func finishRemoval(commit: Bool) throws {}
     var kept: KeptDraft?
     var failRemove = false
@@ -383,13 +384,17 @@ final class GuestDraftIdentityTests: XCTestCase {
         let journal = GuestJournalViewModel(store: store, drafts: drafts)
         await journal.load()
         await journal.restoreDraft()
-        XCTAssertEqual(journal.draft, "Old version", "restored because the store couldn't be checked")
-        journal.draft = "Old version, then new words"
+        // Changed with Delete all (25 Oct): if the store can't say whether a kept draft was saved
+        // or deleted, it fails closed: not shown, left untouched on disk, with a warning.
+        XCTAssertEqual(journal.draft, "", "not shown when the store couldn't be checked")
+        XCTAssertEqual(journal.draftWarning, GuestJournalViewModel.draftUnreadableMessage)
+        journal.draft = "New words"
         let saved = await journal.saveDraft()
-        XCTAssertTrue(saved)
+        XCTAssertTrue(saved, "writing and saving still work")
         let entries = await store.entries
-        XCTAssertEqual(entries.map(\.originalWords), ["Old version, then new words"], "the new words were saved, not discarded")
-        XCTAssertTrue(journal.notices.isEmpty)
+        XCTAssertEqual(entries.map(\.originalWords), ["New words"])
+        let kept = await drafts.kept
+        XCTAssertEqual(kept?.text, "Old version", "the kept draft was never overwritten")
     }
 
     func testTypingDuringSaveIsKeptUnderANewIdentity() async {
@@ -435,6 +440,7 @@ extension GuestDraftIdentityTests {
 
 private actor FakeDraftStoreForIdentity: GuestDraftStore {
     func stageRemoval() throws -> UUID? { nil }
+    func recoverStaged(isConsumed: @escaping @Sendable (UUID) async -> Bool?) async throws -> Bool { true }
     func finishRemoval(commit: Bool) throws {}
     var kept: KeptDraft?
     init(kept: KeptDraft? = nil) { self.kept = kept }
