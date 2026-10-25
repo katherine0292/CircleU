@@ -114,6 +114,9 @@ final class GuestJournalStoreTests: XCTestCase {
         async let second = Result { try await storeB.update(id: created.id, originalWords: "second", expectedRevision: 0) }
         let results = await [first, second]
         XCTAssertEqual(results.filter { (try? $0.get()) != nil }.count, 1, "exactly one edit wins")
+        XCTAssertEqual(results.compactMap { result -> GuestJournalError? in
+            if case .failure(let error) = result { return error as? GuestJournalError } else { return nil }
+        }, [.staleRevision(current: 1, expected: 0)], "the other edit is rejected as stale")
         let entries = try await storeA.loadAll()
         XCTAssertEqual(entries.map(\.revision), [1])
     }
@@ -268,7 +271,9 @@ final class GuestJournalStoreTests: XCTestCase {
             _ = try await store.create(originalWords: "saved anyway")
             XCTFail("expected savedButUnprotected")
         } catch {
-            guard case .savedButUnprotected = error as? GuestJournalError else { return XCTFail("\(error)") }
+            guard case .savedButUnprotected(let entryID) = error as? GuestJournalError else { return XCTFail("\(error)") }
+            let entries = try await store.loadAll()
+            XCTAssertEqual(entries.map(\.id), [entryID], "the reported entry is the one that was saved")
         }
         let entries = try await store.loadAll()
         XCTAssertEqual(entries.map(\.originalWords), ["saved anyway"], "saved once; no retry needed")

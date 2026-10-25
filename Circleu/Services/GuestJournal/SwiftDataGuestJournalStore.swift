@@ -225,8 +225,11 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
 
 /// Ensures one live owner per store location, so two callers can't open independent writers
 /// on the same database. Holds stores weakly: a released store can be reopened later.
-actor GuestJournalStoreRegistry {
+/// File-private with a private initializer: `SwiftDataGuestJournalStore.open` is the only way in.
+fileprivate actor GuestJournalStoreRegistry {
     static let shared = GuestJournalStoreRegistry()
+
+    private init() {}
 
     private struct WeakStore {
         weak var store: SwiftDataGuestJournalStore?
