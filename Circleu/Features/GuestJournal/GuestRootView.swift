@@ -17,8 +17,8 @@ struct GuestComposition {
         let location = try location()
         let store = try await SwiftDataGuestJournalStore.open(location: location)
         let viewModel = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location))
-        await viewModel.restoreDraft()
         await viewModel.load()
+        await viewModel.restoreDraft() // After load, so a leftover draft can be matched to saved entries.
         return viewModel
     }
 }

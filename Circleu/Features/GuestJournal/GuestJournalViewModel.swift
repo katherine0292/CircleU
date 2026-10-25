@@ -29,6 +29,8 @@ final class GuestJournalViewModel: ObservableObject {
     static let savedButUnprotectedMessage = "Saved, but this phone couldn’t fully secure it."
     static let draftUnreadableMessage = "Your earlier draft couldn’t be opened, so it’s been left as it was. New writing won’t be kept after you close the app."
     static let draftNotKeptMessage = "Your draft couldn’t be kept on this phone. Save it before you close the app."
+    static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
+    static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, so it won’t be offered again for saving."
 
     /// What the guest root shows when the store can't be opened. Never an empty journal.
     static func openFailureMessage(for error: Error) -> String {
@@ -60,18 +62,27 @@ final class GuestJournalViewModel: ObservableObject {
         if case .loaded(let entries) = loadState { entries } else { [] }
     }
 
-    /// Restores a kept draft. A draft that can't be read is left untouched on disk.
+    /// Restores a kept draft after `load()`. A draft that can't be read is left untouched on disk.
+    /// A draft matching a saved entry was already saved (its cleanup didn't finish), so it's
+    /// cleared rather than offered again, which would create a duplicate.
     func restoreDraft() async {
         guard let drafts else { return }
+        let kept: String
         do {
-            let kept = try await drafts.load() ?? ""
-            restoringDraft = true
-            draft = kept
-            restoringDraft = false
+            let loaded = try await drafts.load()
+            kept = loaded?.text ?? ""
+            if loaded?.isProtected == false { draftWarning = Self.draftUnprotectedMessage }
         } catch {
             canKeepDraft = false
             draftWarning = Self.draftUnreadableMessage
+            return
         }
+        let trimmed = kept.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty, entries.contains(where: { $0.originalWords == trimmed }) {
+            await clearKeptDraft()
+            return
+        }
+        setDraftWithoutKeeping(kept)
     }
 
     /// Refreshes the list. Keeps showing the current entries while refreshing.
@@ -104,9 +115,30 @@ final class GuestJournalViewModel: ObservableObject {
             return false
         }
         // Text typed while the save was in progress is newer than what was saved; keep it.
-        if draft == submitted { draft = "" }
+        if draft == submitted {
+            setDraftWithoutKeeping("")
+            await clearKeptDraft()
+        }
         await load()
         return true
+    }
+
+    private func setDraftWithoutKeeping(_ text: String) {
+        restoringDraft = true
+        draft = text
+        restoringDraft = false
+    }
+
+    /// Removes the kept draft after it was saved as an entry, waiting for earlier draft writes.
+    private func clearKeptDraft() async {
+        guard let drafts, canKeepDraft else { return }
+        await lastDraftWrite?.value
+        do {
+            try await drafts.save("")
+        } catch {
+            // Restore reconciles a leftover copy against saved entries, so it isn't saved twice.
+            notice = Self.draftNotClearedMessage
+        }
     }
 
     /// Writes the draft in order, after any earlier write.
@@ -118,6 +150,8 @@ final class GuestJournalViewModel: ObservableObject {
             await previous?.value
             do {
                 try await drafts.save(text)
+            } catch GuestJournalError.protectionFailed {
+                self?.draftWarning = Self.draftUnprotectedMessage
             } catch {
                 self?.draftWarning = Self.draftNotKeptMessage
             }

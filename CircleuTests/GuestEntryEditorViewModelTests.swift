@@ -187,3 +187,90 @@ final class GuestEntryEditorViewModelTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: draftURL), unreadable, "the unreadable draft isn't overwritten")
     }
 }
+
+// MARK: - Draft failure handling (Codex re-check R1/R2)
+
+private actor FakeDraftStore: GuestDraftStore {
+    var kept: KeptDraft?
+    var failClear = false
+    var protectionFails = false
+    private(set) var saves: [String] = []
+
+    init(kept: KeptDraft? = nil) { self.kept = kept }
+    func configure(failClear: Bool = false, protectionFails: Bool = false) {
+        self.failClear = failClear
+        self.protectionFails = protectionFails
+    }
+
+    func load() throws -> KeptDraft? { kept }
+    func save(_ text: String) throws {
+        if text.isEmpty, failClear { throw GuestJournalError.saveFailed("injected") }
+        saves.append(text)
+        kept = text.isEmpty ? nil : KeptDraft(text: text, isProtected: !protectionFails)
+        if protectionFails, !text.isEmpty { throw GuestJournalError.protectionFailed("draft") }
+    }
+}
+
+private actor MemoryJournalStore: GuestJournalStore {
+    var entries: [GuestJournalEntry] = []
+    func loadAll() throws -> [GuestJournalEntry] { entries }
+    func create(originalWords: String) throws -> GuestJournalEntry {
+        let entry = GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: Date(), updatedAt: Date())
+        entries.insert(entry, at: 0)
+        return entry
+    }
+    func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
+    func delete(id: UUID) throws {}
+}
+
+@MainActor
+final class GuestDraftFailureTests: XCTestCase {
+    func testFailedDraftCleanupIsVisibleAndLeftoverIsNotOfferedAgain() async {
+        let store = MemoryJournalStore()
+        let drafts = FakeDraftStore()
+        await drafts.configure(failClear: true)
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "Saved words"
+        await journal.flushDraft()
+        let saved = await journal.saveDraft()
+        XCTAssertTrue(saved)
+        XCTAssertEqual(journal.notice, GuestJournalViewModel.draftNotClearedMessage, "shown on every screen")
+
+        // Relaunch: the leftover draft matches a saved entry, so it isn't restored or saved twice.
+        let reopened = GuestJournalViewModel(store: store, drafts: drafts)
+        await reopened.load()
+        await reopened.restoreDraft()
+        XCTAssertEqual(reopened.draft, "")
+        let entries = await store.entries
+        XCTAssertEqual(entries.count, 1)
+    }
+
+    func testInterruptedCleanupIsReconciledOnRelaunch() async {
+        let store = MemoryJournalStore()
+        _ = try? await store.create(originalWords: "Already saved")
+        let drafts = FakeDraftStore(kept: KeptDraft(text: "Already saved", isProtected: true))
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        await journal.load()
+        await journal.restoreDraft()
+        XCTAssertEqual(journal.draft, "")
+        let kept = await drafts.kept
+        XCTAssertNil(kept, "leftover cleared")
+    }
+
+    func testDraftKeptButUnprotectedSaysSoAccurately() async {
+        let drafts = FakeDraftStore()
+        await drafts.configure(protectionFails: true)
+        let journal = GuestJournalViewModel(store: MemoryJournalStore(), drafts: drafts)
+        journal.draft = "Kept anyway"
+        await journal.flushDraft()
+        XCTAssertEqual(journal.draftWarning, GuestJournalViewModel.draftUnprotectedMessage)
+        let kept = await drafts.kept
+        XCTAssertEqual(kept?.text, "Kept anyway", "the text was kept")
+
+        let reopened = GuestJournalViewModel(store: MemoryJournalStore(), drafts: drafts)
+        await reopened.load()
+        await reopened.restoreDraft()
+        XCTAssertEqual(reopened.draft, "Kept anyway", "restored even though protection wasn't confirmed")
+        XCTAssertEqual(reopened.draftWarning, GuestJournalViewModel.draftUnprotectedMessage)
+    }
+}

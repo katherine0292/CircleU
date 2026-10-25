@@ -17,6 +17,20 @@ struct GuestHomeView: View {
                 .tag(Tab.journal)
         }
         .tint(Pingu.accent)
+        // Above every tab and pushed screen, so a warning can't hide behind an open entry.
+        .safeAreaInset(edge: .top) {
+            if let notice = journal.notice {
+                HStack(alignment: .top) {
+                    Label(notice, systemImage: "exclamationmark.shield")
+                        .font(.subheadline).foregroundStyle(Pingu.ink)
+                    Spacer()
+                    Button("OK") { journal.notice = nil }
+                }
+                .padding(12)
+                .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                .padding(.horizontal, 16)
+            }
+        }
     }
 }
 
@@ -154,19 +168,6 @@ struct GuestJournalListView: View {
                             }
                         }
                     }
-                }
-            }
-            .safeAreaInset(edge: .top) {
-                if let notice = journal.notice {
-                    HStack(alignment: .top) {
-                        Label(notice, systemImage: "exclamationmark.shield")
-                            .font(.subheadline).foregroundStyle(Pingu.ink)
-                        Spacer()
-                        Button("OK") { journal.notice = nil }
-                    }
-                    .padding(12)
-                    .background(.white, in: RoundedRectangle(cornerRadius: 14))
-                    .padding(.horizontal, 16)
                 }
             }
             .navigationTitle("Journal")
