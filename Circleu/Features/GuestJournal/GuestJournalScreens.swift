@@ -16,7 +16,10 @@ struct GuestHomeView: View {
                 .tabItem { Label("Journal", systemImage: "book.closed") }
                 .tag(Tab.journal)
         }
-        .tint(Pingu.accent)
+        .tint(GuestBrand.blue)
+        .preferredColorScheme(.light) // Dark mode is deferred; the palette is light-only for now.
+        .font(GuestBrand.font(.body))
+        .foregroundStyle(GuestBrand.ink)
         // Above every tab and pushed screen, so a warning can't hide behind an open entry.
         .safeAreaInset(edge: .top) {
             if !journal.notices.isEmpty {
@@ -24,7 +27,7 @@ struct GuestHomeView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(journal.notices, id: \.self) { notice in
                             Label(notice, systemImage: "exclamationmark.shield")
-                                .font(.subheadline).foregroundStyle(Pingu.ink)
+                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                         }
                     }
                     Spacer()
@@ -50,30 +53,27 @@ struct GuestTodayView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("What’s on your mind?")
-                        .font(.largeTitle.bold()).foregroundStyle(Pingu.ink)
+                        .font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
-                    Image("PinguMascot").resizable().scaledToFit()
+                    Image("GuestBrandAvatar").resizable().scaledToFit()
                         .frame(maxWidth: .infinity).frame(height: 180)
                         .accessibilityHidden(true)
                     Button { isWriting = true } label: {
                         Label("Work through a moment", systemImage: "arrow.right")
                             .labelStyle(TrailingIconLabelStyle())
-                            .frame(maxWidth: .infinity, minHeight: 54)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Pingu.accent)
+                    .buttonStyle(GuestBrandButtonStyle())
                     // Shown only when there is something to continue.
                     if !journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         Button { isWriting = true } label: {
                             Label("Continue your draft", systemImage: "square.and.pencil")
-                                .frame(maxWidth: .infinity, minHeight: 44)
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(GuestBrandButtonStyle(filled: false))
                     }
                 }
                 .padding(24)
             }
-            .background(Color("PinguIce").ignoresSafeArea())
+            .background(GuestBrand.ice.ignoresSafeArea())
             .navigationDestination(isPresented: $isWriting) {
                 GuestWriteView(journal: journal) {
                     isWriting = false
@@ -102,9 +102,9 @@ struct GuestWriteView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Start with your words.")
-                    .font(.title.bold()).foregroundStyle(Pingu.ink)
+                    .font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
-                Text("What happened?").font(.body).foregroundStyle(Pingu.slate)
+                Text("What happened?").font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.muted)
                 TextEditor(text: $journal.draft)
                     .focused($focused)
                     .scrollContentBackground(.hidden)
@@ -114,11 +114,11 @@ struct GuestWriteView: View {
                     .accessibilityLabel("Your words")
                 if let error = journal.saveError {
                     Label(error, systemImage: "exclamationmark.circle")
-                        .font(.subheadline).foregroundStyle(Pingu.ink)
+                        .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
                 if let warning = journal.draftWarning {
                     Label(warning, systemImage: "info.circle")
-                        .font(.footnote).foregroundStyle(Pingu.slate)
+                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
             }
             .padding(24)
@@ -129,15 +129,13 @@ struct GuestWriteView: View {
                 Task { if await journal.saveDraft() { onSaved() } }
             } label: {
                 Text(journal.isSaving ? "Saving…" : "Save only my words")
-                    .frame(maxWidth: .infinity, minHeight: 54)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Pingu.accent)
+            .buttonStyle(GuestBrandButtonStyle())
             .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
-            .background(Color("PinguIce"))
+            .background(GuestBrand.ice)
         }
-        .background(Color("PinguIce").ignoresSafeArea())
+        .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { focused = true }
     }
@@ -161,19 +159,21 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    Text("Nothing saved yet.").foregroundStyle(Pingu.slate)
+                    Text("Nothing saved yet.").foregroundStyle(GuestBrand.muted)
                 case .loaded(let entries):
                     List(entries) { entry in
                         NavigationLink(value: entry.id) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(entry.originalWords).lineLimit(3).foregroundStyle(Pingu.ink)
+                                Text(entry.originalWords).lineLimit(3).foregroundStyle(GuestBrand.ink)
                                 Text(entry.updatedAt, format: .dateTime.day().month().hour().minute())
-                                    .font(.caption).foregroundStyle(Pingu.slate)
+                                    .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
                             }
                         }
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
+            .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
             .navigationDestination(for: UUID.self) { id in
                 GuestEntryDetailView(entryID: id, journal: journal)
@@ -190,7 +190,7 @@ struct GuestEntryDetailView: View {
 
     var body: some View {
         content
-            .background(Color("PinguIce").ignoresSafeArea())
+            .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Entry")
             .navigationDestination(isPresented: Binding(get: { editor != nil },
                                                         set: { if !$0 { editor = nil } })) {
@@ -218,7 +218,7 @@ struct GuestEntryDetailView: View {
             if let entry = entries.first(where: { $0.id == entryID }) {
                 detail(for: entry)
             } else {
-                Text("This entry no longer exists.").foregroundStyle(Pingu.slate)
+                Text("This entry no longer exists.").foregroundStyle(GuestBrand.muted)
             }
         }
     }
@@ -226,12 +226,12 @@ struct GuestEntryDetailView: View {
     private func detail(for entry: GuestJournalEntry) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text("My words").font(.subheadline.weight(.semibold)).foregroundStyle(Pingu.slate)
-                Text(entry.originalWords).font(.body).foregroundStyle(Pingu.ink)
+                Text("My words").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
                 Text(entry.updatedAt, format: .dateTime.day().month().year().hour().minute())
-                    .font(.caption).foregroundStyle(Pingu.slate)
+                    .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
             }
             .padding(24)
         }
@@ -255,21 +255,19 @@ struct GuestEntryEditView: View {
                 .accessibilityLabel("Your words")
             if let error = editor.saveError {
                 Label(error, systemImage: "exclamationmark.circle")
-                    .font(.subheadline).foregroundStyle(Pingu.ink)
+                    .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
             }
             Button {
                 // Close only when everything typed is saved and there's no warning to read.
                 Task { if await editor.save() == .saved { onDone() } }
             } label: {
                 Text(editor.isSaving ? "Saving…" : "Save")
-                    .frame(maxWidth: .infinity, minHeight: 54)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Pingu.accent)
+            .buttonStyle(GuestBrandButtonStyle())
             .disabled(!editor.canSave)
         }
         .padding(24)
-        .background(Color("PinguIce").ignoresSafeArea())
+        .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Edit")
         .navigationBarBackButtonHidden(true)
         .toolbar {

@@ -24,4 +24,13 @@ Owner's reply: “all good, merge”. These are owner reports, not agent-observe
 
 ## Open
 
-Brand font, largest-text and VoiceOver passes, the on-device Data Protection test, and release qualification.
+Full VoiceOver pass, live text-size changes without relaunch, dark mode (deferred), and release qualification. The brand font, largest-text audit and on-device protection check are covered in the follow-up below.
+
+## Brand polish follow-up (branch `codex/guest-brand-polish`)
+
+- Plus Jakarta Sans is bundled under the SIL Open Font License, with `OFL-PlusJakartaSans.txt` shipped beside it, and registered at runtime for the guest screens only. All text uses Dynamic Type styles; navigation titles use the variable font's `wght` axis (large titles 700, inline titles 600), scaled with `UIFontMetrics` when the appearance is installed. The guest screens are fixed to light appearance while dark mode is deferred.
+- The approved preview colours (ink, blue, ice, muted) and the Today avatar illustration are used, plus brand buttons (filled and white, 54 pt). Decorative images are hidden from VoiceOver; the editors keep their labels.
+- `performAccessibilityAudit()` on Today, Write, Journal, Detail and Edit at default and accessibility-extra-extra-extra-large text (iPhone 18 Pro / iOS 27.0 Simulator, out-of-repo XCUITest flow). The UI flow passed at both sizes. The audits ran; findings recorded and accepted as follows:
+  - system controls: keyboard suggestion slots, and the navigation-bar Edit and Back buttons;
+  - at the largest size: the intentional three-line cut-off of long entries in Journal, and a contrast reading on a row passing under the floating tab bar.
+- **On-device protection attributes verified** on the iPhone 11 Pro Max: `testRealDataProtectionOnDevice` confirmed the `.completeUnlessOpen` attribute on the store files (`xcodebuild test -only-testing:CircleuTests/GuestJournalStoreTests/testRealDataProtectionOnDevice`). This checks attributes, not locked-device access behaviour. It ran under the separate test app ID `com.tuannm3812.circleu.guesttest.Circleu`, never the real app, and that temporary app was uninstalled afterwards.
