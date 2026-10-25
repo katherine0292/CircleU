@@ -20,6 +20,10 @@ nonisolated enum GuestJournalError: Error, Equatable, Sendable {
     case staleRevision(current: Int, expected: Int)
     /// The change wasn't saved; previously saved data is unchanged.
     case saveFailed(String)
+    /// Data Protection couldn't be applied while opening; the store isn't used.
+    case protectionFailed(String)
+    /// The change **was** saved, but protecting a new store file failed. Don't retry the save.
+    case savedButUnprotected(entryID: UUID)
 }
 
 /// Guest-local journal persistence for the new experience. Implementations serialize every

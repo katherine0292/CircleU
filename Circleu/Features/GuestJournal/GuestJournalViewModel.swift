@@ -21,6 +21,7 @@ final class GuestJournalViewModel: ObservableObject {
 
     static let saveFailedMessage = "Couldn’t save. Try again."
     static let loadFailedMessage = "Couldn’t open your journal. Try again."
+    static let savedButUnprotectedMessage = "Saved, but this phone couldn’t fully secure it."
 
     private let store: any GuestJournalStore
 
@@ -43,13 +44,18 @@ final class GuestJournalViewModel: ObservableObject {
         guard !words.isEmpty, !isSaving else { return }
         isSaving = true
         defer { isSaving = false }
+        let submitted = draft
         do {
             _ = try await store.create(originalWords: words)
-            draft = ""
             saveError = nil
-            await load()
+        } catch GuestJournalError.savedButUnprotected {
+            saveError = Self.savedButUnprotectedMessage // Saved: retrying would duplicate it.
         } catch {
             saveError = Self.saveFailedMessage
+            return
         }
+        // Text typed while the save was in progress is newer than what was saved; keep it.
+        if draft == submitted { draft = "" }
+        await load()
     }
 }
