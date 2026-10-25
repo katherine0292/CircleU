@@ -158,6 +158,7 @@ enum GuestExport {
         }
         lines += ["", "PRACTICE"]
         for message in messages.sorted(by: { $0.createdAt < $1.createdAt }) {
+            // copy: export
             lines += ["", "— \(message.createdAt.formatted(date)) · \(GuestPracticeTag.label(sourceEntryID: message.sourceEntryID, entries: entries))"]
             if !message.situation.isEmpty { lines.append("Situation: \(message.situation)") }
             if !message.goal.isEmpty { lines.append("Goal: \(message.goal)") }
@@ -177,7 +178,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let deletedExportPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; it can’t come back into your journal, and CircleU will try again next time it opens."
+    static let deletedExportPendingMessage = "Everything was deleted. A leftover copy is still here; CircleU will try again to remove it."
     static let exportedMessage = "Export done. The copy you shared is yours to keep or delete."
     static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
@@ -287,15 +288,19 @@ struct GuestSettingsView: View {
             VStack(alignment: .leading, spacing: 20) {
                 section("Your Pingu", icon: "GuestPinguWelcome") {
                     GuestAvatarButton(size: 110)
-                    Text("Tap to choose from 21 Pingus. Kept on this iPhone.")
-                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    GuestSummary("Tap to change.")
                 }
                 section("Privacy and data", icon: "GuestIconPrivacy") {
-                    Text("Your journal and practice messages are kept on this iPhone. CircleU doesn’t upload or sync them, and suggestions are made on this iPhone.")
-                    Text("Your iPhone’s own backups (iCloud or a computer) may include them. Restoring an older backup can bring back things you deleted, and exports you saved elsewhere aren’t deleted here.")
-                    Text("Recording is used only while you dictate; no audio is saved.")
+                    GuestSummary("Kept on this iPhone. Not uploaded or synced.")
+                    GuestLearnMore {
+                        Text("Suggestions and dictation stay on this iPhone; no audio is saved.")
+                        Text("Your iPhone’s own backups (iCloud or a computer) may include your journal.")
+                        Text("Restoring an older backup can bring back things you deleted.")
+                        Text("Exports you saved elsewhere aren’t deleted here.")
+                    }
                 }
                 section("Your data", icon: "GuestIconJournal") {
+                    GuestSummary("A text file you can save or share.")
                     Button {
                         Task { exportURL = await settings.makeExportFile() }
                     } label: {
@@ -303,8 +308,6 @@ struct GuestSettingsView: View {
                     }
                     .buttonStyle(GuestBrandButtonStyle(filled: false))
                     .disabled(settings.isWorking)
-                    Text("A readable text file. You choose where it goes; nothing is sent for you.")
-                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                     Button(role: .destructive) { confirmDelete = true } label: {
                         Text("Delete all data").frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
                     }
@@ -319,7 +322,7 @@ struct GuestSettingsView: View {
                 }
                 if let importer = settings.practice.store as? any GuestImportStore {
                     section("Earlier CircleU account", icon: "GuestIconJournal") {
-                        Text("Had an account in the earlier app? Log in to copy that account’s backed-up journal here. You’re signed out afterwards.")
+                        GuestSummary("Bring in your journal from an earlier account.")
                         NavigationLink {
                             GuestSignInView(factory: .live, store: importer, journal: settings.journal,
                                             practice: settings.practice)
@@ -348,7 +351,7 @@ struct GuestSettingsView: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete all", role: .destructive) { Task { await settings.deleteAll() } }
         } message: {
-            Text("This deletes every journal entry, reflection, next step and practice message on this iPhone, and any drafts. It can’t be undone. Data from the earlier CircleU app isn’t affected.")
+            Text("Deletes everything in this journal, including drafts. The earlier CircleU app isn’t affected.")
         }
         .sheet(item: Binding(get: { exportURL.map(ExportFile.init) }, set: { if $0 == nil { exportURL = nil } })) { file in
             GuestShareSheet(url: file.url) { completed in
