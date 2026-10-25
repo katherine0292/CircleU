@@ -57,22 +57,23 @@ struct CircleView: View {
                         VStack(spacing: 16) {
                             if circleStore.isBackendAvailable {
                                 privacyPill
-                            } else {
-                                CircleUnavailableNote()
-                            }
-
-                            LazyVGrid(columns: columns, spacing: 12) {
-                                ForEach(Array(circleStore.circles.enumerated()), id: \.element.id) { index, circle in
-                                    CircleHeroCard(
-                                        circle: circle,
-                                        accent: CircleHeroPalette.accent(for: index),
-                                        heroHeight: CircleHeroPalette.heroHeight(for: index),
-                                        onOpen: { viewModel.open(circle) },
-                                        onEdit: { beginEdit(circle) },
-                                        onDelete: { pendingDelete = circle }
-                                    )
-                                    .slideUp(Double(index) * 0.04)
+                                LazyVGrid(columns: columns, spacing: 12) {
+                                    ForEach(Array(circleStore.circles.enumerated()), id: \.element.id) { index, circle in
+                                        CircleHeroCard(
+                                            circle: circle,
+                                            accent: CircleHeroPalette.accent(for: index),
+                                            heroHeight: CircleHeroPalette.heroHeight(for: index),
+                                            onOpen: { viewModel.open(circle) },
+                                            onEdit: { beginEdit(circle) },
+                                            onDelete: { pendingDelete = circle }
+                                        )
+                                        .slideUp(Double(index) * 0.04)
+                                    }
                                 }
+                            } else {
+                                // No backend: hide cached circles too, so no post, reply, reaction,
+                                // edit or delete can appear to succeed while staying on this device.
+                                CircleUnavailableNote()
                             }
                         }
                         .padding(.horizontal, 20)
