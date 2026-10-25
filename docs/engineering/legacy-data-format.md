@@ -79,3 +79,9 @@ Public/shared `circles/<circleID>/posts/<postID>` uses a separate [circle servic
 Use isolated, invented fixtures for pre-scoping and scoped formats, malformed JSON/unknown enums, duplicate IDs, missing optional fields, attachments, cross-account collisions and cloud timestamp variants. Validate the decoder against an authorized source from an existing installation or archive if obtainable; code history alone cannot certify the shipped schema. Keep raw source and rejected data protected, verify record/link/attachment counts, and distinguish a faithful content import from a readable export. No new decoder or tests were written/run in this research pass.
 
 See the [personal-account release options](../product/personal-account-release-plan.md) and [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md).
+
+## Owner decision: earlier journal in the guest app (26 October 2026)
+
+Mike chose option 1. The earlier journal **stays sealed** in the guest app (`GuestLegacyImport.allowsUnverifiedOnDeviceImport` stays `false`) until account sign-in is built. After that, only **the signed-in account's own journal** is imported. Unverified on-device data is never shown on the strength of a personal confirmation, and no export-file route is planned for now.
+
+Sign-in work touches Firebase and accounts, so it needs Mike's explicit go-ahead before it starts. See the [batch C log](../agent-collaboration-log/2026-10-26-024500-claude-guest-import-welcome.md).
