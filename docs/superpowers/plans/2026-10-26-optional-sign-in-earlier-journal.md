@@ -101,3 +101,35 @@ Firebase Auth proves control of **one account (uid) in one Firebase project**. I
 4. **Phone test client:**
    - (a) **register the Guest Test bundle as a new iOS app in the Dev project** *(recommended)*: read-only, using an account you choose;
    - (b) test only in the Simulator against fakes until the guest journal ships inside the real app.
+
+## Mike's decisions (26 October 2026)
+
+All recommended options were chosen, relayed through the coordinator:
+
+- **1a:** cloud backup only.
+- **2a:** sign out automatically after copying.
+- **3a:** Delete my account in the same batch.
+- **4a:** register CircleU Guest Test in the Firebase **Dev** project for the phone test.
+
+**Building has not started.** It waits for Mike's own "approve plan".
+
+## Appendix: Firebase console steps for 4a (Dev project only)
+
+These are sent to Mike when building starts. Mike does them in the console; the agent doesn't.
+
+1. Open <https://console.firebase.google.com> and choose the **Dev** project, **`circleu-45651`**.
+   - It is the project in `Config/Firebase/GoogleService-Info-Dev.plist`.
+   - Don't use `circleu-prod`.
+2. Go to **Project settings** (gear) → **General** → **Your apps** → **Add app** → **iOS**.
+   - **Apple bundle ID:** `com.tuannm3812.circleu.guesttest` (exactly).
+   - **App nickname:** `CircleU Guest Test (Dev)`.
+   - Leave App Store ID empty, then tap **Register app**.
+3. **Download `GoogleService-Info.plist`.** Skip the SDK steps, because the project already has the SDK.
+   - Send the file to Claude on the Mac, or save it as `Config/Firebase/GoogleService-Info-GuestTest-Dev.plist`.
+   - It holds no password, but it's kept out of commits unless Mike says otherwise.
+4. **Authentication → Sign-in method:** check that **Email/Password** is enabled. Don't enable anything new.
+5. **Authentication → Settings → User actions:** turn on **Email enumeration protection**, if it's off.
+6. **Firestore → Rules:** only look, don't change anything. Check that `users/{uid}/…` can be read only when `request.auth.uid == uid`, and send a screenshot or copy of the rules.
+7. Choose which **existing** account to use for the read-only test, and tell Claude the email only. The password is typed by Mike on the phone, never in chat.
+
+Nothing in these steps changes Prod, existing users or data.
