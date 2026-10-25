@@ -34,6 +34,15 @@ Trade-offs to accept:
 - Migrations are hand-written code, though small and tested.
 - Search and filtering run in memory, which is fine at this size.
 
+## Owner decision — 25 October
+
+**Mike chose SwiftData** for the first slice, rather than the recommended JSON files. The trade-offs noted above are accepted and must be handled in the production store:
+- explicit Data Protection on the store and its `-wal`/`-shm` sidecars;
+- failure paths tested through injected failures, since SwiftData's own write failures are hard to provoke;
+- fetch errors surfaced rather than turned into "not found";
+- `updatedAt` backfilled in future migrations;
+- the Codex rules below.
+
 ## Codex review: production requirements
 
 [Codex reviewed the spike](../agent-collaboration-log/2026-10-25-181218-codex-review-storage-spike.md) (read-only). Its verdict: nothing blocks presenting this recommendation, but the spike isn't production-ready. The production repository must add:
