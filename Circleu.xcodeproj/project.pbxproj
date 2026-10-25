@@ -384,8 +384,8 @@
 				DEVELOPMENT_TEAM = 3VJ6XS7472;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Circleu records your voice so it can create a private reflection transcript.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Circleu uses speech recognition to transcribe your reflection before AI analysis.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "CircleU listens while you dictate so your spoken words can appear as text you can edit.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "CircleU uses speech recognition to turn what you say into text you can edit before saving.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -420,8 +420,8 @@
 				DEVELOPMENT_TEAM = 3VJ6XS7472;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Circleu records your voice so it can create a private reflection transcript.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Circleu uses speech recognition to transcribe your reflection before AI analysis.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "CircleU listens while you dictate so your spoken words can appear as text you can edit.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "CircleU uses speech recognition to turn what you say into text you can edit before saving.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

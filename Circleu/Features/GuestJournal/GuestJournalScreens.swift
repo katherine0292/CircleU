@@ -1,20 +1,25 @@
 import SwiftUI
+import UIKit
 
-/// Guest experience shell: Today and Journal (Practice comes in a later slice).
+/// Guest experience shell: Today, Journal and Practice (a placeholder until Practice is built).
 struct GuestHomeView: View {
     @ObservedObject var journal: GuestJournalViewModel
+    let makeDictationEngine: () -> any GuestDictationEngine
     @State private var tab: Tab = .today
 
-    enum Tab: Hashable { case today, journal }
+    enum Tab: Hashable { case today, journal, practice }
 
     var body: some View {
         TabView(selection: $tab) {
-            GuestTodayView(journal: journal, onSaved: { tab = .journal })
-                .tabItem { Label("Today", systemImage: "sun.max") }
+            GuestTodayView(journal: journal, makeDictationEngine: makeDictationEngine, onSaved: { tab = .journal })
+                .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
                 .tag(Tab.today)
             GuestJournalListView(journal: journal)
-                .tabItem { Label("Journal", systemImage: "book.closed") }
+                .tabItem { GuestTabLabel(title: "Journal", icon: "GuestIconJournal") }
                 .tag(Tab.journal)
+            GuestPracticePlaceholderView()
+                .tabItem { GuestTabLabel(title: "Practice", icon: "GuestIconPractice") }
+                .tag(Tab.practice)
         }
         .tint(GuestBrand.blue)
         .preferredColorScheme(.light) // Dark mode is deferred; the palette is light-only for now.
@@ -41,10 +46,23 @@ struct GuestHomeView: View {
     }
 }
 
+// MARK: - Tabs
+
+/// A tab with its illustrated brand icon; the title is the accessible name.
+private struct GuestTabLabel: View {
+    let title: String
+    let icon: String
+
+    var body: some View {
+        Label { Text(title) } icon: { Image(icon).renderingMode(.original).accessibilityHidden(true) }
+    }
+}
+
 // MARK: - Today
 
 struct GuestTodayView: View {
     @ObservedObject var journal: GuestJournalViewModel
+    let makeDictationEngine: () -> any GuestDictationEngine
     let onSaved: () -> Void
     @State private var isWriting = false
 
@@ -66,7 +84,11 @@ struct GuestTodayView: View {
                     // Shown only when there is something to continue.
                     if !journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         Button { isWriting = true } label: {
-                            Label("Continue your draft", systemImage: "square.and.pencil")
+                            Label {
+                                Text("Continue your draft")
+                            } icon: {
+                                Image("GuestIconJournal").renderingMode(.original).accessibilityHidden(true)
+                            }
                         }
                         .buttonStyle(GuestBrandButtonStyle(filled: false))
                     }
@@ -75,7 +97,7 @@ struct GuestTodayView: View {
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationDestination(isPresented: $isWriting) {
-                GuestWriteView(journal: journal) {
+                GuestWriteView(journal: journal, dictationEngine: makeDictationEngine()) {
                     isWriting = false
                     onSaved()
                 }
@@ -94,8 +116,18 @@ private struct TrailingIconLabelStyle: LabelStyle {
 
 struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
+    @StateObject private var dictation: GuestDictationViewModel
     let onSaved: () -> Void
     @FocusState private var focused: Bool
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
+
+    init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
+         onSaved: @escaping () -> Void) {
+        self.journal = journal
+        self.onSaved = onSaved
+        _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
+    }
 
     var body: some View {
         // Scrolls rather than squeezing when the keyboard is up; Save stays visible above it.
@@ -104,14 +136,27 @@ struct GuestWriteView: View {
                 Text("Start with your words.")
                     .font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
-                Text("What happened?").font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.muted)
+                Text("Type, or tap the microphone and talk.")
+                    .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.muted)
+                microphone
                 TextEditor(text: $journal.draft)
                     .focused($focused)
+                    .disabled(dictation.isActive) // Spoken words are going in; type again after Stop.
                     .scrollContentBackground(.hidden)
                     .padding(12)
                     .frame(minHeight: 200)
                     .background(.white, in: RoundedRectangle(cornerRadius: 18))
                     .accessibilityLabel("Your words")
+                if let message = dictation.message {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(message, systemImage: "info.circle")
+                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                        if dictation.needsSettings, let url = URL(string: UIApplication.openSettingsURLString) {
+                            Button("Open Settings") { openURL(url) }
+                                .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
+                        }
+                    }
+                }
                 if let error = journal.saveError {
                     Label(error, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
@@ -131,13 +176,55 @@ struct GuestWriteView: View {
                 Text(journal.isSaving ? "Saving…" : "Save only my words")
             }
             .buttonStyle(GuestBrandButtonStyle())
-            .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
+            .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                      || journal.isSaving || dictation.isActive)
             .padding(.horizontal, 24).padding(.vertical, 12)
             .background(GuestBrand.ice)
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { focused = true }
+        // No automatic keyboard: it would cover the microphone. Tap the text to type.
+        // Leaving the app or this screen stops listening; the words so far stay in the draft.
+        .onChange(of: scenePhase) { _, phase in if phase != .active { dictation.interrupt() } }
+        .onDisappear { dictation.interrupt() }
+    }
+
+    /// The big microphone: tap to talk, tap again to stop. Cancel removes only the spoken words.
+    private var microphone: some View {
+        VStack(spacing: 10) {
+            Button {
+                focused = false
+                Task { await dictation.toggle() }
+            } label: {
+                Image(systemName: dictation.isActive ? "stop.fill" : "mic.fill")
+                    .font(.system(size: 30, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 80, height: 80)
+                    .background(GuestBrand.blue, in: Circle())
+                    .overlay(Circle().stroke(GuestBrand.blue.opacity(0.25), lineWidth: dictation.state == .listening ? 10 : 0))
+                    .animation(.easeInOut(duration: 0.2), value: dictation.state)
+            }
+            .disabled(dictation.state == .finishing || journal.isSaving)
+            .accessibilityLabel(dictation.isActive ? "Stop dictation" : "Start dictation")
+            .accessibilityHint(dictation.isActive ? "Keeps the words so far." : "Your words appear in the text, on this iPhone only.")
+            Text(statusText)
+                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                .accessibilityHidden(true)
+            if dictation.state == .listening || dictation.state == .finishing {
+                Button("Cancel dictation") { dictation.cancel() }
+                    .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var statusText: String {
+        switch dictation.state {
+        case .idle: "Tap to talk"
+        case .requestingAccess: "Checking access…"
+        case .listening: "Listening… tap to stop"
+        case .finishing: "Finishing…"
+        }
     }
 }
 
@@ -159,7 +246,12 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    Text("Nothing saved yet.").foregroundStyle(GuestBrand.muted)
+                    VStack(spacing: 16) {
+                        Image("GuestPinguWriting").resizable().scaledToFit().frame(height: 160)
+                            .accessibilityHidden(true)
+                        Text("Nothing saved yet.").foregroundStyle(GuestBrand.muted)
+                    }
+                    .padding(24)
                 case .loaded(let entries):
                     List(entries) { entry in
                         NavigationLink(value: entry.id) {
@@ -284,6 +376,28 @@ struct GuestEntryEditView: View {
             Button("Discard", role: .destructive) { if editor.canLeave { onDone() } }
         } message: {
             Text("Your edits haven’t been saved.")
+        }
+    }
+}
+
+// MARK: - Practice
+
+/// Practice isn't built yet. This says so plainly and offers nothing that looks like it works.
+struct GuestPracticePlaceholderView: View {
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 200)
+                    .accessibilityHidden(true)
+                Text("Practice is coming soon")
+                    .font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                    .multilineTextAlignment(.center)
+                    .accessibilityAddTraits(.isHeader)
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(GuestBrand.ice.ignoresSafeArea())
+            .navigationTitle("Practice")
         }
     }
 }
