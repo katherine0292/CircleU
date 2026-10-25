@@ -38,6 +38,7 @@ For social login used to establish/authenticate the primary app account, [Apple 
 
 | Screen | Before | After |
 | --- | --- | --- |
+| Welcome | Get started (filled) + small "Log in" text link | Get started (filled) + full-width white **Log in** button, same size (owner decision, 25 October) |
 | Log in | "Use your earlier CircleU account. Nothing imports automatically." | "Use your earlier CircleU account." |
 | Log in fields | Labels plus placeholders "Email address" / "Password" | Labels only; accessibility labels kept |
 | Log in links | Forgot password? · Used Google? · Privacy and data · Continue locally | Forgot password? · Privacy and data (Back returns to Welcome) |
