@@ -20,6 +20,8 @@ nonisolated enum GuestSuggestionSource: String, Sendable, Equatable {
     case onDevice
     /// Built-in guided prompts (no model).
     case guided
+    /// Copied from the earlier CircleU app, which may have used other engines.
+    case imported
 }
 
 /// A short, tentative reflection: what happened, a possible feeling, and one thing to consider.
@@ -123,6 +125,33 @@ extension GuestPracticeStore {
         try await createPractice(situation: situation, goal: goal, wording: wording, sourceEntryID: sourceEntryID,
                                  draftID: nil)
     }
+}
+
+/// An entry copied from the earlier app. `legacyID` is its ID there; it makes importing idempotent.
+nonisolated struct GuestImportedEntry: Equatable, Sendable {
+    let legacyID: UUID
+    let originalWords: String
+    let createdAt: Date
+    let updatedAt: Date
+    let reflection: GuestReflection?
+}
+
+/// A practice message copied from the earlier app (its own message, on its own).
+nonisolated struct GuestImportedMessage: Equatable, Sendable {
+    let legacyID: UUID
+    let situation: String
+    let wording: String
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+/// Copy-only import from the earlier app into the guest store.
+nonisolated protocol GuestImportStore: Sendable {
+    /// Whether an item with this earlier-app ID was already imported.
+    func isImported(_ legacyID: UUID) async throws -> Bool
+    /// Adds everything not imported before, in one transaction (all or nothing), recording each
+    /// item's earlier-app ID so a re-run never duplicates. Returns how many were added.
+    func importLegacy(entries: [GuestImportedEntry], messages: [GuestImportedMessage]) async throws -> Int
 }
 
 /// Data controls for everything in the guest store.
