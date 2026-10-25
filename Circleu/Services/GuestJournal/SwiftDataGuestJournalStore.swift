@@ -214,7 +214,8 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// SwiftData-backed guest journal. One instance owns each store location (see
 /// `GuestJournalStoreRegistry`), and actor isolation serializes every read-check-write.
 /// Access from another process (for example an extension) is not supported.
-actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestReflectionStore, ModelActor {
+actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestReflectionStore, GuestDataStore,
+    ModelActor {
     typealias Entry = GuestJournalSchemaV3.Entry
     typealias SavedDraft = GuestJournalSchemaV3.SavedDraft
     typealias PracticeMessage = GuestJournalSchemaV3.PracticeMessage
@@ -346,6 +347,13 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         row.reflectionBasedOn = reflection?.basedOnWords
         row.nextStep = nextStep
         row.nextStepDoneAt = nextStep != nil && nextStepDone ? (row.nextStepDoneAt ?? Date()) : nil
+    }
+
+    func deleteAll() throws {
+        for entry in try fetch(FetchDescriptor<Entry>()) { modelContext.delete(entry) }
+        for message in try fetch(FetchDescriptor<PracticeMessage>()) { modelContext.delete(message) }
+        for receipt in try fetch(FetchDescriptor<SavedDraft>()) { modelContext.delete(receipt) }
+        try commit(entryID: UUID()) // One transaction.
     }
 
     func delete(id: UUID) throws {

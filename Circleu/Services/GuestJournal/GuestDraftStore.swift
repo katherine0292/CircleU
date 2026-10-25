@@ -30,8 +30,10 @@ actor FileGuestDraftStore: GuestDraftStore {
     private let url: URL
     private let protection: GuestJournalFileProtection
 
-    init(location: GuestJournalLocation, protection: GuestJournalFileProtection = .completeUnlessOpen) {
-        url = location.directory.appendingPathComponent("Draft.json")
+    /// `fileName` separates kinds of draft: the Write draft ("Draft.json") and Practice's.
+    init(location: GuestJournalLocation, fileName: String = "Draft.json",
+         protection: GuestJournalFileProtection = .completeUnlessOpen) {
+        url = location.directory.appendingPathComponent(fileName)
         self.protection = protection
     }
 

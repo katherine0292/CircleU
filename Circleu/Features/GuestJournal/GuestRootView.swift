@@ -42,8 +42,10 @@ struct GuestComposition {
         let viewModel = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location))
         await viewModel.load()
         await viewModel.restoreDraft() // After load, so a leftover draft can be matched to saved entries.
-        let practice = GuestPracticeViewModel(store: store, suggester: suggester())
+        let practice = GuestPracticeViewModel(store: store, suggester: suggester(),
+                                              drafts: FileGuestDraftStore(location: location, fileName: "PracticeDraft.json"))
         await practice.load()
+        await practice.loadDraft()
         return (viewModel, practice)
     }
 }

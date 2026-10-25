@@ -13,8 +13,8 @@ struct GuestHomeView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            GuestTodayView(journal: journal, makeDictationEngine: makeDictationEngine, suggester: suggester,
-                           onSaved: { tab = .journal })
+            GuestTodayView(journal: journal, practice: practice, makeDictationEngine: makeDictationEngine,
+                           suggester: suggester, onSaved: { tab = .journal })
                 .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
                 .tag(Tab.today)
             GuestJournalListView(journal: journal, practice: practice)
@@ -65,6 +65,7 @@ private struct GuestTabLabel: View {
 
 struct GuestTodayView: View {
     @ObservedObject var journal: GuestJournalViewModel
+    @ObservedObject var practice: GuestPracticeViewModel
     let makeDictationEngine: () -> any GuestDictationEngine
     let suggester: any GuestSuggesting
     let onSaved: () -> Void
@@ -100,6 +101,14 @@ struct GuestTodayView: View {
                 .padding(24)
             }
             .background(GuestBrand.ice.ignoresSafeArea())
+            .toolbar {
+                NavigationLink {
+                    GuestSettingsView(journal: journal, practice: practice)
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .accessibilityLabel("Settings")
+            }
             .navigationDestination(isPresented: $isWriting) {
                 GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(), suggester: suggester) {
                     isWriting = false
@@ -259,6 +268,9 @@ struct GuestWriteView: View {
 struct GuestJournalListView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @ObservedObject var practice: GuestPracticeViewModel
+    @State private var query = ""
+    @State private var showsCalendar = false
+    @State private var selectedDay: Date?
 
     var body: some View {
         NavigationStack {
@@ -279,21 +291,52 @@ struct GuestJournalListView: View {
                         Text("Nothing saved yet.").foregroundStyle(GuestBrand.muted)
                     }
                     .padding(24)
-                case .loaded(let entries):
-                    List(entries) { entry in
-                        NavigationLink(value: entry.id) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(entry.originalWords).lineLimit(3).foregroundStyle(GuestBrand.ink)
-                                Text(entry.updatedAt, format: .dateTime.day().month().hour().minute())
-                                    .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                case .loaded(let all):
+                    let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
+                    let entries = byDay.filter { GuestSearch.matches($0, query) }
+                    List {
+                        if showsCalendar {
+                            GuestCalendarView(entries: all, selectedDay: $selectedDay)
+                                .listRowBackground(Color.clear)
+                                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        }
+                        if let selectedDay {
+                            HStack {
+                                Text("Showing \(selectedDay.formatted(.dateTime.day().month(.wide)))")
+                                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
+                                Spacer()
+                                Button("Show all") { self.selectedDay = nil }
+                                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                            }
+                            .listRowBackground(Color.clear)
+                        }
+                        if entries.isEmpty {
+                            Text(query.isEmpty ? "Nothing written that day." : "No entries match “\(query)”.")
+                                .foregroundStyle(GuestBrand.muted)
+                                .listRowBackground(Color.clear)
+                        }
+                        ForEach(entries) { entry in
+                            NavigationLink(value: entry.id) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(entry.originalWords).lineLimit(3).foregroundStyle(GuestBrand.ink)
+                                    Text(entry.updatedAt, format: .dateTime.day().month().hour().minute())
+                                        .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                                }
                             }
                         }
                     }
                     .scrollContentBackground(.hidden)
+                    .searchable(text: $query, prompt: "Search your journal")
                 }
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
+            .toolbar {
+                Button { withAnimation { showsCalendar.toggle() } } label: {
+                    Image(systemName: showsCalendar ? "list.bullet" : "calendar")
+                }
+                .accessibilityLabel(showsCalendar ? "Hide calendar" : "Show calendar")
+            }
             .navigationDestination(for: UUID.self) { id in
                 GuestEntryDetailView(entryID: id, journal: journal, practice: practice)
             }

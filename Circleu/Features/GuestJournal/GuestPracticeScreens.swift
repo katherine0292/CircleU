@@ -13,6 +13,7 @@ struct GuestPracticeHomeView: View {
     @ObservedObject var practice: GuestPracticeViewModel
     @ObservedObject var journal: GuestJournalViewModel
     @State private var path: [GuestPracticeRoute] = []
+    @State private var query = ""
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -23,12 +24,23 @@ struct GuestPracticeHomeView: View {
                             .labelStyle(GuestTrailingIconLabelStyle())
                     }
                     .buttonStyle(GuestBrandButtonStyle())
+                    if let draft = practice.keptDraft {
+                        Button { path.append(.new(sourceEntryID: draft.sourceEntryID)) } label: {
+                            Label {
+                                Text("Continue your draft")
+                            } icon: {
+                                Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
+                            }
+                        }
+                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                    }
                     history
                 }
                 .padding(24)
             }
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Practice")
+            .searchable(text: $query, prompt: "Search messages")
             .navigationDestination(for: GuestPracticeRoute.self) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
             }
@@ -53,7 +65,11 @@ struct GuestPracticeHomeView: View {
                 Text("Nothing practised yet.").foregroundStyle(GuestBrand.muted)
             }
             .frame(maxWidth: .infinity)
-        case .loaded(let messages):
+        case .loaded(let all):
+            let messages = all.filter { GuestSearch.matches($0, query) }
+            if messages.isEmpty {
+                Text("No messages match “\(query)”.").foregroundStyle(GuestBrand.muted)
+            }
             Text("Saved messages").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
             ForEach(messages) { message in
@@ -123,8 +139,11 @@ struct GuestPracticeRouteView: View {
         guard composer == nil else { return }
         switch route {
         case .new(let sourceEntryID):
+            // A kept draft for the same start (on its own, or the same entry) is restored.
+            let draft = practice.keptDraft.flatMap { $0.sourceEntryID == sourceEntryID ? $0 : nil }
             composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: sourceEntryID,
-                                                      suggester: practice.suggester)
+                                                      suggester: practice.suggester, restoring: draft,
+                                                      practice: practice)
         case .message(let id):
             if let message = practice.message(id: id) {
                 composer = GuestPracticeComposerViewModel(store: practice.store, message: message,
@@ -169,7 +188,12 @@ struct GuestPracticeMessageView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Back") {
-                    if composer.isEditing && composer.hasChanges { confirmDiscard = true } else { dismiss() }
+                    // A new message's words are kept as a draft; an edit to a saved one asks first.
+                    if composer.saved != nil && composer.isEditing && composer.hasChanges {
+                        confirmDiscard = true
+                    } else {
+                        dismiss()
+                    }
                 }
                 .disabled(!composer.canLeave)
             }
@@ -204,7 +228,13 @@ struct GuestPracticeMessageView: View {
             }
             suggestionsSection
             Button {
-                Task { if await composer.save() { await practice.load() } }
+                Task {
+                    let wasNew = composer.saved == nil
+                    if await composer.save() {
+                        if wasNew, let id = composer.draftID { practice.clearDraft(id: id) }
+                        await practice.load()
+                    }
+                }
             } label: {
                 Text(composer.isSaving ? "Saving…" : "Save")
             }

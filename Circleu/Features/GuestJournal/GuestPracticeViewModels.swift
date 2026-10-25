@@ -1,6 +1,19 @@
 import Combine
 import Foundation
 
+/// An unsaved new practice message, kept on this phone across relaunches.
+nonisolated struct GuestPracticeDraft: Codable, Equatable, Sendable {
+    var id = UUID()
+    var situation = ""
+    var goal = ""
+    var wording = ""
+    var sourceEntryID: UUID?
+
+    var isEmpty: Bool {
+        [situation, goal, wording].allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+}
+
 /// Practice history, plus deleting things that practice messages can be linked to.
 @MainActor
 final class GuestPracticeViewModel: ObservableObject {
@@ -19,10 +32,67 @@ final class GuestPracticeViewModel: ObservableObject {
     let store: any GuestPracticeStore
     /// Opt-in wording suggestions; nil hides "Get a suggestion".
     let suggester: (any GuestSuggesting)?
+    /// The unsaved new message, if there is one ("Continue your draft").
+    @Published private(set) var keptDraft: GuestPracticeDraft?
+    @Published private(set) var draftWarning: String?
+    private let drafts: (any GuestDraftStore)?
+    private var lastDraftOperation: Task<Void, Never>?
 
-    init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil) {
+    static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
+
+    init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil, drafts: (any GuestDraftStore)? = nil) {
         self.store = store
         self.suggester = suggester
+        self.drafts = drafts
+    }
+
+    func loadDraft() async {
+        guard let drafts, let kept = try? await drafts.load(), let data = kept.text.data(using: .utf8),
+              var draft = try? JSONDecoder().decode(GuestPracticeDraft.self, from: data) else { return }
+        draft.id = kept.id
+        keptDraft = draft.isEmpty ? nil : draft
+    }
+
+    /// Keeps the latest version of a new message; empty text removes the kept copy.
+    func keepDraft(_ draft: GuestPracticeDraft) {
+        keptDraft = draft.isEmpty ? nil : draft
+        guard let drafts else { return }
+        let text = draft.isEmpty ? "" : (try? JSONEncoder().encode(draft)).flatMap { String(data: $0, encoding: .utf8) } ?? ""
+        enqueue { try await drafts.save(id: draft.id, text: text) }
+    }
+
+    /// The message was saved or discarded: remove that draft (a newer one has another ID).
+    func clearDraft(id: UUID) {
+        if keptDraft?.id == id { keptDraft = nil }
+        guard let drafts else { return }
+        enqueue { try await drafts.remove(id: id) }
+    }
+
+    /// Delete all data: removes any kept practice draft. Returns false if it couldn't be removed.
+    func discardDraft() async -> Bool {
+        keptDraft = nil
+        guard let drafts else { return true }
+        await lastDraftOperation?.value
+        do {
+            try await drafts.save(id: UUID(), text: "")
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func flushDraft() async { await lastDraftOperation?.value }
+
+    private func enqueue(_ operation: @escaping @Sendable () async throws -> Void) {
+        let previous = lastDraftOperation
+        lastDraftOperation = Task { [weak self] in
+            await previous?.value
+            do { try await operation() } catch GuestJournalError.protectionFailed {
+                // Kept, though protection couldn't be confirmed.
+            } catch {
+                self?.draftWarning = Self.draftNotKeptMessage
+            }
+        }
     }
 
     var messages: [GuestPracticeMessage] {
@@ -113,22 +183,37 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     let sourceEntryID: UUID?
     private let store: any GuestPracticeStore
     let suggester: (any GuestSuggesting)?
+    /// A new message's draft identity; nil for saved messages (edits aren't drafted).
+    let draftID: UUID?
+    private var draftObserver: AnyCancellable?
 
-    /// A new message, on its own or practised from a journal entry.
-    init(store: any GuestPracticeStore, sourceEntryID: UUID?, suggester: (any GuestSuggesting)? = nil) {
+    /// A new message, on its own or practised from a journal entry, optionally restoring a kept
+    /// draft. With `practice`, every change is kept on this phone until saved or discarded.
+    init(store: any GuestPracticeStore, sourceEntryID: UUID?, suggester: (any GuestSuggesting)? = nil,
+         restoring draft: GuestPracticeDraft? = nil, practice: GuestPracticeViewModel? = nil) {
         self.store = store
         self.suggester = suggester
         self.sourceEntryID = sourceEntryID
-        situation = ""
-        goal = ""
-        wording = ""
+        draftID = draft?.id ?? UUID()
+        situation = draft?.situation ?? ""
+        goal = draft?.goal ?? ""
+        wording = draft?.wording ?? ""
         isEditing = true
+        guard let practice, let draftID else { return }
+        draftObserver = Publishers.CombineLatest3($situation, $goal, $wording)
+            .dropFirst()
+            .sink { [weak self, weak practice] situation, goal, wording in
+                guard let self, self.saved == nil else { return }
+                practice?.keepDraft(GuestPracticeDraft(id: draftID, situation: situation, goal: goal,
+                                                       wording: wording, sourceEntryID: sourceEntryID))
+            }
     }
 
     /// A saved message.
     init(store: any GuestPracticeStore, message: GuestPracticeMessage, suggester: (any GuestSuggesting)? = nil) {
         self.store = store
         self.suggester = suggester
+        draftID = nil
         sourceEntryID = message.sourceEntryID
         saved = message
         situation = message.situation

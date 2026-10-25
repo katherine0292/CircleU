@@ -114,6 +114,13 @@ nonisolated protocol GuestPracticeStore: Sendable {
     func deleteEntry(id: UUID, linkedPractice: GuestLinkedPracticeChoice) async throws
 }
 
+/// Data controls for everything in the guest store.
+nonisolated protocol GuestDataStore: Sendable {
+    /// Deletes every entry, reflection, next step, practice message and saved-draft receipt, in
+    /// one transaction: all of it or none of it. Never touches the earlier app's data.
+    func deleteAll() async throws
+}
+
 /// Entries with an optional reflection and next step. Same store, same rules.
 nonisolated protocol GuestReflectionStore: Sendable {
     /// Like `GuestJournalStore.create`, with an accepted reflection and next step saved alongside.

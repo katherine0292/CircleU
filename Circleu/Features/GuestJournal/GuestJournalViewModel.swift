@@ -178,6 +178,23 @@ final class GuestJournalViewModel: ObservableObject {
         return nil
     }
 
+    /// Clears the draft on screen and on this phone (Delete all data). Returns false if the kept
+    /// copy couldn't be removed.
+    func discardDraft() async -> Bool {
+        setDraftQuietly("")
+        draftID = UUID()
+        draftWarning = nil
+        guard let drafts else { return true }
+        await flushDraft()
+        do {
+            try await drafts.save(id: draftID, text: "") // Empty text removes the file.
+            canKeepDraft = true
+            return true
+        } catch {
+            return false
+        }
+    }
+
     /// Waits for pending draft writes and removals (tests and relaunch checks).
     func flushDraft() async {
         await lastDraftOperation?.value
