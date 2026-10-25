@@ -10,6 +10,7 @@ final class GuestImportTests: XCTestCase {
     private var defaults: UserDefaults!
 
     override func setUp() {
+        GuestLegacyImport.allowsUnverifiedOnDeviceImport = true // The copy path (switched off by default).
         root = FileManager.default.temporaryDirectory.appendingPathComponent("GuestImport-\(UUID())")
         location = GuestJournalLocation(directory: root.appendingPathComponent("Journal"),
                                         setupMarker: root.appendingPathComponent("Setup/initialized"))
@@ -19,6 +20,7 @@ final class GuestImportTests: XCTestCase {
     }
 
     override func tearDown() {
+        GuestLegacyImport.allowsUnverifiedOnDeviceImport = false
         defaults.removePersistentDomain(forName: suite)
         try? FileManager.default.removeItem(at: root)
     }
@@ -26,6 +28,13 @@ final class GuestImportTests: XCTestCase {
     private func oldBytes() -> [String: Data] {
         defaults.dictionaryRepresentation().compactMapValues { $0 as? Data }
             .filter { $0.key.hasPrefix("circleu.") }
+    }
+
+    func testByDefaultNothingFromTheEarlierAppIsShownOrCopied() {
+        GuestLegacyImport.allowsUnverifiedOnDeviceImport = false
+        let scan = GuestLegacyImport.scan(defaults)
+        XCTAssertTrue(scan.entries.isEmpty && scan.messages.isEmpty)
+        XCTAssertEqual(scan.skipped, [.init(what: "Your earlier journal", reason: .needsAccount)])
     }
 
     func testAnySignInHistorySealsEverything() {

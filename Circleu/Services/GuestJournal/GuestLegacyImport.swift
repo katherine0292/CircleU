@@ -38,6 +38,12 @@ enum GuestLegacyImport {
     /// so a fixture never touches the real keys.
     static var source: UserDefaults = .standard
 
+    /// Owner decision pending (26 Oct). No marker in the earlier app's data proves whose it is: a
+    /// reinstall can keep an account's sign-in in the Keychain and restore its backup into the
+    /// on-device keys without leaving any trace (Codex review, round 3). Until account sign-in
+    /// exists, or the owner chooses otherwise, nothing from the earlier app is shown or copied.
+    static var allowsUnverifiedOnDeviceImport = false
+
     static func scan(_ defaults: UserDefaults = source) -> GuestLegacyScan {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601 // As the earlier stores wrote them.
@@ -45,8 +51,8 @@ enum GuestLegacyImport {
         var seen = Set<UUID>()
         let keys = defaults.dictionaryRepresentation().keys.sorted()
 
-        // Any sign-in history seals everything: it's never decoded or shown.
-        if hasSignInHistory(keys) {
+        // Sealed by policy, or by any sign-in history: never decoded or shown.
+        if !allowsUnverifiedOnDeviceImport || hasSignInHistory(keys) {
             let found = keys.contains { $0 == journalKey || $0 == practiceKey || $0.hasPrefix(journalKey + ".user.")
                 || $0.hasPrefix(practiceKey + ".user.") }
             if found { scan.skipped.append(.init(what: "Your earlier journal", reason: .needsAccount)) }

@@ -46,6 +46,8 @@ struct GuestComposition {
             fixture.removePersistentDomain(forName: GuestLegacyFixture.suiteName)
             GuestLegacyFixture.write(to: fixture, signedIn: kind == "signedIn")
             GuestLegacyImport.source = fixture
+            // UI tests of the (currently switched off) copy path only.
+            GuestLegacyImport.allowsUnverifiedOnDeviceImport = UserDefaults.standard.bool(forKey: "CircleUAllowUnverifiedImport")
         }
         #endif
         let location = try location()
