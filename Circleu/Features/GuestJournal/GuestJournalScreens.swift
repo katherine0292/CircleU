@@ -69,56 +69,31 @@ struct GuestTodayView: View {
     let makeDictationEngine: () -> any GuestDictationEngine
     let suggester: any GuestSuggesting
     let onSaved: () -> Void
-    /// Write, then optionally the reflection review. Saving clears the whole path at once.
+    /// Today is the capture screen itself; the reflection review is pushed on top of it.
     @State private var path: [TodayRoute] = []
 
-    enum TodayRoute: Hashable { case write, review }
+    enum TodayRoute: Hashable { case review }
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    Text("What’s on your mind?")
-                        .font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
-                        .accessibilityAddTraits(.isHeader)
-                    GuestAvatarButton() // Tap to choose your Pingu.
-                    Button { path = [.write] } label: {
-                        Label("Work through a moment", systemImage: "arrow.right")
-                            .labelStyle(TrailingIconLabelStyle())
-                    }
-                    .buttonStyle(GuestBrandButtonStyle())
-                    // Shown only when there is something to continue.
-                    if !journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Button { path = [.write] } label: {
-                            Label {
-                                Text("Continue your draft")
-                            } icon: {
-                                Image("GuestIconJournal").renderingMode(.original).accessibilityHidden(true)
-                            }
+            // Straight to writing or talking: the text box and the big microphone, no extra tap.
+            GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
+                           heading: "What’s on your mind?",
+                           onGetSuggestion: { path.append(.review) }, onSaved: finish)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) { GuestAvatarButton(size: 36) }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink {
+                            GuestSettingsView(journal: journal, practice: practice)
+                        } label: {
+                            Image(systemName: "gearshape")
                         }
-                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                        .accessibilityLabel("Settings")
                     }
                 }
-                .padding(24)
-            }
-            .background(GuestBrand.ice.ignoresSafeArea())
-            .toolbar {
-                NavigationLink {
-                    GuestSettingsView(journal: journal, practice: practice)
-                } label: {
-                    Image(systemName: "gearshape")
-                }
-                .accessibilityLabel("Settings")
-            }
-            .navigationDestination(for: TodayRoute.self) { route in
-                switch route {
-                case .write:
-                    GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
-                                   onGetSuggestion: { path.append(.review) }, onSaved: finish)
-                case .review:
+                .navigationDestination(for: TodayRoute.self) { _ in
                     GuestReflectionReviewView(journal: journal, suggester: suggester, onSaved: finish)
                 }
-            }
         }
     }
 }
@@ -130,17 +105,13 @@ extension GuestTodayView {
     }
 }
 
-private struct TrailingIconLabelStyle: LabelStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        HStack { configuration.title; Spacer(); configuration.icon }
-    }
-}
 
 // MARK: - Write
 
 struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
+    let heading: String
     let onGetSuggestion: () -> Void
     let onSaved: () -> Void
     @FocusState private var focused: Bool
@@ -148,8 +119,10 @@ struct GuestWriteView: View {
     @Environment(\.openURL) private var openURL
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
+         heading: String = "Start with your words.",
          onGetSuggestion: @escaping () -> Void, onSaved: @escaping () -> Void) {
         self.journal = journal
+        self.heading = heading
         self.onGetSuggestion = onGetSuggestion
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
@@ -159,11 +132,10 @@ struct GuestWriteView: View {
         // Scrolls rather than squeezing when the keyboard is up; Save stays visible above it.
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Start with your words.")
+                Text(heading)
                     .font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
-                Text("Type, or tap the microphone and talk.")
-                    .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.muted)
+                GuestSummary("Type, or tap the microphone and talk.")
                 microphone
                 TextEditor(text: $journal.draft)
                     .focused($focused)
