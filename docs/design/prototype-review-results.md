@@ -8,13 +8,19 @@ Use [Demo 04](brand-demo/core-journeys.md) for appearance and the existing Figma
 
 | Task | Specimen / version | Observed outcome | Assistance | Misunderstanding | Severity | Proposed change | Retest |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Keep original words without accepting advice | Not run | Not observed | Not observed | Not observed | Unassessed | None yet | Not run |
+| Keep original words without accepting advice | Owner walkthrough 25 Oct; main `812b1ca` boards on phone (CircleU Preview `--board`) | Owner accepted all recommendation cards: start from Work through a moment; Save only my words found on Write and Suggestion screens | Moderated: recommendation cards, static boards | None reported | Low | Rename "Review a reflection" → "Get a suggestion"; Suggestion screen secondary → "Save without suggestion"; keep both full-width; reflection stays opt-in; draft card only when a draft exists (real app) | Prototype copy applied on `codex/today-task1-changes`; not retested |
 | Correct an interpretation, leave, return and find the intended version | Not run | Not observed | Not observed | Not observed | Unassessed | None yet | Not run |
 | Practice from a reflection, then create an independent message; distinguish Copy and Save | Not run | Not observed | Not observed | Not observed | Unassessed | None yet | Not run |
 | Find another date's entry, inspect an empty day, then use Search / All entries | Not run | Not observed | Not observed | Not observed | Unassessed | None yet | Not run |
 | Explain proposed storage/recovery and inspect linked-deletion choice/failure | Not run | Not observed | Not observed | Not observed | Unassessed | None yet | Not run |
 
 For operations missing from a specimen, record **not testable here**. A moderator switching images or preset Figma states is not unaided completion, and a static success label does not establish a completed save. Record privacy/deletion misunderstandings individually; do not turn five outcomes into market validation.
+
+## Walkthrough decisions — 25 October
+
+Owner decisions from the moderated walkthrough. The owner picked from Claude's recommendation cards (relayed via the project coordinator). These are prototype/design decisions, not production approval.
+
+- **Task 1:** "Save only my words" stays a full-width secondary button the same size as the main action. The AI reflection is opt-in: after writing, the person chooses to get a suggestion or to save, and nothing appears automatically. The Suggestion screen offers "Save without suggestion". The Write button is renamed "Get a suggestion". Today shows "Continue your draft" only when a draft exists (real app; the static first-visit board may keep it).
 
 ## Open calendar decisions
 

@@ -180,11 +180,11 @@ public struct BrandJourneyPreview: View {
     private var actions: some View {
         switch screen {
         case .capture:
-            action(iconLed ? "Review reflection" : "Review a reflection", symbol: "sparkles")
+            action("Get a suggestion", symbol: "sparkles")
             action("Save only my words", symbol: "square.and.arrow.down", primary: false)
         case .reflection:
             action("Save reflection", symbol: "checkmark")
-            action("Save only my words", symbol: "square.and.arrow.down", primary: false)
+            action("Save without suggestion", symbol: "square.and.arrow.down", primary: false)
         case .entry:
             action("Practice from this entry", symbol: "bubble.left.and.bubble.right")
         case .practiceContext:
