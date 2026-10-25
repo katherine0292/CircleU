@@ -161,6 +161,9 @@ struct CircleView: View {
                 }
             }
             .buttonStyle(PressableButtonStyle())
+            .disabled(!circleStore.isBackendAvailable)
+            .opacity(circleStore.isBackendAvailable ? 1 : 0.4)
+            .accessibilityLabel("Saved circles")
 
             Button {
                 creating = true
