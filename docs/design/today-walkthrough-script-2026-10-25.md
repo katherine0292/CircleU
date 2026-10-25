@@ -20,7 +20,7 @@ Afterwards, decide on the [open calendar proposals](prototype-review-results.md#
 
 ## Copy trim suggestions (proposal)
 
-The same standard as the onboarding pass: one heading, at most one short line, one primary action. **Applied to the preview boards on `codex/today-copy-trim` for review, not merged.** See [what was applied](#applied-on-codextoday-copy-trim).
+The same standard as the onboarding pass: one heading, at most one short line, one primary action. **Applied to the preview boards, owner-approved and merged in PR #4 (`c30deed`).** The walkthrough itself has not run yet. See [what was applied](#applied-on-codextoday-copy-trim).
 
 | Screen | Now | Suggested |
 | --- | --- | --- |
