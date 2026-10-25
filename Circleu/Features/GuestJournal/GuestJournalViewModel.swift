@@ -35,7 +35,7 @@ final class GuestJournalViewModel: ObservableObject {
         }
     }
 
-    private let store: any GuestJournalStore
+    let store: any GuestJournalStore
 
     init(store: any GuestJournalStore) {
         self.store = store
@@ -50,10 +50,17 @@ final class GuestJournalViewModel: ObservableObject {
         }
     }
 
+    /// Saved entries, newest first, or none while loading or after a failed load.
+    var entries: [GuestJournalEntry] {
+        if case .loaded(let entries) = loadState { entries } else { [] }
+    }
+
     /// Saves the draft as a new entry. On failure the draft stays and an error is shown.
-    func saveDraft() async {
+    /// Returns true once the entry is saved.
+    @discardableResult
+    func saveDraft() async -> Bool {
         let words = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !words.isEmpty, !isSaving else { return }
+        guard !words.isEmpty, !isSaving else { return false }
         isSaving = true
         defer { isSaving = false }
         let submitted = draft
@@ -64,10 +71,11 @@ final class GuestJournalViewModel: ObservableObject {
             saveError = Self.savedButUnprotectedMessage // Saved: retrying would duplicate it.
         } catch {
             saveError = Self.saveFailedMessage
-            return
+            return false
         }
         // Text typed while the save was in progress is newer than what was saved; keep it.
         if draft == submitted { draft = "" }
         await load()
+        return true
     }
 }
