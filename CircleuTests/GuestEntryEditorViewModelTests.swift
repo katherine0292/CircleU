@@ -339,3 +339,82 @@ final class GuestDraftFailureTests: XCTestCase {
         XCTAssertEqual(reopened.draftWarning, GuestJournalViewModel.draftUnprotectedMessage)
     }
 }
+
+/// Answers "can't check" for saved drafts, like a store that can't be read at restore.
+private actor UncheckableSavedDraftStore: GuestJournalStore {
+    var entries: [GuestJournalEntry] = []
+    var savedDrafts: Set<UUID>
+    init(savedDrafts: Set<UUID>) { self.savedDrafts = savedDrafts }
+    func loadAll() throws -> [GuestJournalEntry] { entries }
+    func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry {
+        if let draftID, savedDrafts.contains(draftID) { throw GuestJournalError.draftAlreadySaved }
+        let entry = GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: Date(), updatedAt: Date())
+        entries.insert(entry, at: 0)
+        if let draftID { savedDrafts.insert(draftID) }
+        return entry
+    }
+    func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
+    func delete(id: UUID) throws {}
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { throw GuestJournalError.storeUnavailable("injected") }
+}
+
+private actor SlowCreateStore: GuestJournalStore {
+    private var pending: CheckedContinuation<Void, Never>?
+    var isWaiting: Bool { pending != nil }
+    func release() { pending?.resume(); pending = nil }
+    func loadAll() throws -> [GuestJournalEntry] { [] }
+    func create(originalWords: String, draftID: UUID?) async throws -> GuestJournalEntry {
+        await withCheckedContinuation { pending = $0 }
+        return GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: Date(), updatedAt: Date())
+    }
+    func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
+    func delete(id: UUID) throws {}
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
+}
+
+@MainActor
+final class GuestDraftIdentityTests: XCTestCase {
+    func testEditedRestoredDraftIsSavedEvenIfItsOldVersionWasSaved() async {
+        let oldID = UUID()
+        let store = UncheckableSavedDraftStore(savedDrafts: [oldID])
+        let drafts = FakeDraftStoreForIdentity(kept: KeptDraft(id: oldID, text: "Old version", isProtected: true))
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        await journal.load()
+        await journal.restoreDraft()
+        XCTAssertEqual(journal.draft, "Old version", "restored because the store couldn't be checked")
+        journal.draft = "Old version, then new words"
+        let saved = await journal.saveDraft()
+        XCTAssertTrue(saved)
+        let entries = await store.entries
+        XCTAssertEqual(entries.map(\.originalWords), ["Old version, then new words"], "the new words were saved, not discarded")
+        XCTAssertTrue(journal.notices.isEmpty)
+    }
+
+    func testTypingDuringSaveIsKeptUnderANewIdentity() async {
+        let store = SlowCreateStore()
+        let drafts = FakeDraftStoreForIdentity()
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "A"
+        await journal.flushDraft()
+        let submittedID = await drafts.kept?.id
+        let saving = Task { await journal.saveDraft() }
+        while await !store.isWaiting { await Task.yield() }
+        journal.draft = "A, then B"
+        await journal.flushDraft()
+        let duringSave = await drafts.kept
+        XCTAssertNotEqual(duringSave?.id, submittedID, "newer typing never shares the saving version's ID")
+        await store.release()
+        _ = await saving.value
+        await journal.flushDraft()
+        let after = await drafts.kept
+        XCTAssertEqual(after?.text, "A, then B", "the newer typing is still kept after the save")
+    }
+}
+
+private actor FakeDraftStoreForIdentity: GuestDraftStore {
+    var kept: KeptDraft?
+    init(kept: KeptDraft? = nil) { self.kept = kept }
+    func load() throws -> KeptDraft? { kept }
+    func save(id: UUID, text: String) throws { kept = text.isEmpty ? nil : KeptDraft(id: id, text: text, isProtected: true) }
+    func remove(id: UUID) throws { if kept?.id == id { kept = nil } }
+}

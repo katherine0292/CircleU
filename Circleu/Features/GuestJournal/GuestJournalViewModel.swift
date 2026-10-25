@@ -15,7 +15,13 @@ final class GuestJournalViewModel: ObservableObject {
     @Published private(set) var loadState: LoadState = .loading
     /// The words being written. Kept on this phone as you type, and after a failed save.
     @Published var draft = "" {
-        didSet { if draft != oldValue { keepDraft() } }
+        didSet {
+            guard draft != oldValue, !settingDraftQuietly else { return }
+            // Every version of the draft gets its own ID, so a saved version can never be
+            // confused with text typed afterwards (including while a save is in progress).
+            draftID = UUID()
+            keepDraft()
+        }
     }
     @Published private(set) var saveError: String?
     @Published private(set) var isSaving = false
@@ -47,7 +53,7 @@ final class GuestJournalViewModel: ObservableObject {
 
     let store: any GuestJournalStore
     private let drafts: (any GuestDraftStore)?
-    /// The current draft's identity. A new one starts after each saved entry.
+    /// The identity of the current draft version; it changes whenever the text changes.
     private var draftID = UUID()
     /// False if a kept draft exists but couldn't be read: don't overwrite it.
     private var canKeepDraft: Bool
@@ -124,13 +130,8 @@ final class GuestJournalViewModel: ObservableObject {
             saveError = Self.saveFailedMessage
             return false
         }
-        // The saved draft is used up; anything typed from now on is a new draft.
-        draftID = UUID()
-        if draft == submitted {
-            setDraftQuietly("")
-        } else {
-            keepDraft() // Text typed while saving is a new draft; keep it under the new ID.
-        }
+        // Text typed while saving already has its own ID and is kept; only the saved version goes.
+        if draft == submitted { setDraftQuietly("") }
         removeKeptDraft(id: submittedID)
         await load()
         return true
@@ -148,7 +149,7 @@ final class GuestJournalViewModel: ObservableObject {
     }
 
     private func keepDraft() {
-        guard let drafts, canKeepDraft, !settingDraftQuietly else { return }
+        guard let drafts, canKeepDraft else { return }
         let id = draftID
         let text = draft
         enqueueDraftOperation { try await drafts.save(id: id, text: text) }
