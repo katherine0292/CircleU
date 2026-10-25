@@ -19,7 +19,7 @@ Both options implement the same `EntryRepository` (load newest first, save with 
 | Data Protection | Set explicitly on every write (`.completeFileProtection`, one file, no sidecars). **Unverified:** the Simulator reports no protection class | Store plus `-wal`/`-shm` sidecars; `ModelConfiguration` has no file-protection option, so it would need folder-level or Core Data configuration. **Unverified** on Simulator |
 | Testability | Plain value types, temp folders, every failure path easy to provoke | Works in temp folders; some failure paths hard to provoke |
 | iOS 17 | ✅ Foundation only | ✅ SwiftData is iOS 17+ (early versions had known issues) |
-| Complexity | ~130 lines, no framework concurrency rules | `@Model` classes, contexts, migration plan, main-actor considerations |
+| Complexity | ~110 lines, no framework concurrency rules | `@Model` classes, contexts, migration plan, main-actor considerations |
 
 ## Recommendation
 
