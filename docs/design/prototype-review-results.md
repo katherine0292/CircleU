@@ -22,6 +22,7 @@ Owner decisions from the moderated walkthrough. The owner picked from Claude's r
 
 - **Task 1:** "Save only my words" stays a full-width secondary button the same size as the main action. The AI reflection is opt-in: after writing, the person chooses to get a suggestion or to save, and nothing appears automatically. The Suggestion screen offers "Save without suggestion". The Write button is renamed "Get a suggestion". Today shows "Continue your draft" only when a draft exists (real app; the static first-visit board may keep it).
 - **Task 2:** "Edit reflection" is a full-width outlined button under the suggestion. Leaving the editor with unsaved edits asks "Discard your changes?" with Keep editing / Discard: a requirement for the real app, shown here as a static `edit-reflection-leave` board. "This updates the reflection only." is removed. The locked original words on the edit screen and the latest saved version at the top of Journal stay.
+- **Preview demo and assets (PR #7):** other email/password on Log in keep the recovery fixture flow (only the demo account opens the sample workspace); dark mode is deferred until the light screens are final; illustrations stay restrained (one per information or success screen, none on forms or editors).
 - **Screens (during task 1):** remove the "BRAND DEMO · STATIC SAMPLE" footer and the Sample/Draft corner tags from every preview screen; sample status stays in captions, file names and docs.
 
 ## Open calendar decisions
