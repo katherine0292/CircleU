@@ -290,7 +290,7 @@ public struct BrandJourneyPreview: View {
             .frame(maxWidth: .infinity).frame(height: 54)
             .foregroundStyle(primary ? .white : BrandDemoColor.blue)
             .background(primary ? BrandDemoColor.blue : .white, in: RoundedRectangle(cornerRadius: 17))
-        } else { BrandFixture.action(title, primary: primary) }
+        } else { BrandFixture.action(title, primary: primary, symbol: name) }
     }
 }
 

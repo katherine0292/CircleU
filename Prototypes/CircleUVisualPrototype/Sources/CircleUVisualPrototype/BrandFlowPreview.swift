@@ -18,8 +18,14 @@ enum BrandFixture {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    static func action(_ text: String, primary: Bool = true) -> some View {
-        Text(text).font(BrandDemoFont.font(16, .semibold))
+    static func action(_ text: String, primary: Bool = true, symbol: String? = nil) -> some View {
+        HStack(spacing: 9) {
+            if let symbol {
+                Image(systemName: symbol).font(.system(size: 16, weight: .medium, design: .rounded))
+                    .accessibilityHidden(true)
+            }
+            Text(text).font(BrandDemoFont.font(16, .semibold))
+        }
             .frame(maxWidth: .infinity).frame(height: 54)
             .foregroundStyle(primary ? .white : BrandDemoColor.blue)
             .background(primary ? BrandDemoColor.blue : .white, in: RoundedRectangle(cornerRadius: 17))
@@ -105,9 +111,9 @@ public struct BrandHubPreview: View {
                         body: "I had something to add, but I held back."
                     ).padding(.top, 12)
                     Spacer(minLength: 12)
-                    BrandFixture.action("New reflection").padding(.bottom, 16)
+                    BrandFixture.action("New reflection", symbol: "square.and.pencil").padding(.bottom, 16)
                 } else {
-                    BrandFixture.action("Practice a message").padding(.top, 20)
+                    BrandFixture.action("Practice a message", symbol: "bubble.left.and.bubble.right").padding(.top, 20)
                     BrandFixture.eyebrow("SAVED PRACTICE").padding(.top, 22).padding(.bottom, 12)
                     BrandFixture.card(
                         title: "A deadline update", subtitle: "Today · Linked to a reflection",

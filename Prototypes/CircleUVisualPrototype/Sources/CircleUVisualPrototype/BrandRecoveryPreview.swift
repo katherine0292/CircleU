@@ -26,6 +26,7 @@ public struct BrandRecoveryPreview: View {
     private let renderingSnapshot: Bool
     private let onBack: () -> Void
     private let onContinue: () -> Void
+    private let onDemo: () -> Void
 
     private enum Field: Hashable { case email, password, newPassword, confirmation }
     private var screen: BrandRecoveryScreen { route.last ?? .logIn }
@@ -33,13 +34,15 @@ public struct BrandRecoveryPreview: View {
     public init(initialScreen: BrandRecoveryScreen = .logIn,
                 scenario: BrandRecoveryScenario = .available,
                 advancesProgress: Bool = true, renderingSnapshot: Bool = false,
-                onBack: @escaping () -> Void = {}, onContinue: @escaping () -> Void = {}) {
+                onBack: @escaping () -> Void = {}, onContinue: @escaping () -> Void = {},
+                onDemo: @escaping () -> Void = {}) {
         _route = State(initialValue: initialScreen == .logIn ? [.logIn] : [.logIn, initialScreen])
         self.scenario = scenario
         self.advancesProgress = advancesProgress
         self.renderingSnapshot = renderingSnapshot
         self.onBack = onBack
         self.onContinue = onContinue
+        self.onDemo = onDemo
     }
 
     public var body: some View {
@@ -133,6 +136,7 @@ public struct BrandRecoveryPreview: View {
             progress("Requesting a reset link…")
             secondary("Cancel") { back() }
         case .resetSent:
+            illustration("PinguLaptopV1")
             helper("If an account uses this email, a reset link is on its way. Check spam if you can’t find it.")
             action("Back to Log in") { returnToLogin() }
             secondary("Send again") { navigate(.resetRequest) }
@@ -154,6 +158,7 @@ public struct BrandRecoveryPreview: View {
             progress("Updating your password…")
             secondary("Cancel") { back() }
         case .passwordChanged:
+            illustration("PinguThumbsUpV1")
             helper("Log in with your new password.")
             action("Log in") { returnToLogin() }
         case .passwordError:
@@ -187,6 +192,7 @@ public struct BrandRecoveryPreview: View {
             action("Review selection") { replace(.backupReview) }
             secondary("Continue locally") { leaveLocally() }
         case .recovered:
+            illustration("PinguHeartV1")
             status("Your message is ready", symbol: "checkmark.circle", detail: "Your reflection wasn’t replaced. The earlier cloud copy remains separate.")
             action("Done") { leaveLocally() }
         case .privacy:
@@ -301,6 +307,12 @@ public struct BrandRecoveryPreview: View {
         }
     }
 
+    /// One decorative brand illustration per success screen; hidden from VoiceOver.
+    private func illustration(_ name: String) -> some View {
+        BrandArtwork(name: name).frame(height: 130).frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
+    }
+
     private func helper(_ text: String) -> some View {
         Text(text).foregroundStyle(BrandDemoColor.muted)
             .fixedSize(horizontal: false, vertical: true)
@@ -363,6 +375,9 @@ public struct BrandRecoveryPreview: View {
     private func submitLogin() {
         guard screen == .logIn, validEmail() else { return }
         guard !password.isEmpty else { validation = "Enter your password."; focusedField = .password; return }
+        if BrandDemoAccount.matches(email: email, password: password) {
+            clearSecrets(); focusedField = nil; onDemo(); return
+        }
         clearSecrets(); navigate(.checking)
     }
 
