@@ -34,7 +34,7 @@ For social login used to establish/authenticate the primary app account, [Apple 
 
 ## Concise copy pass — 25 October
 
-**Proposed for owner review on `codex/onboarding-content-trim`; not merged.** The owner asked for less on-screen text, keeping only what's necessary, with reference to popular apps. The pattern follows short Apple, Day One and Headspace sign-in/recovery screens: one heading, at most one short supporting line, one primary action and few secondary links. The system Back control replaces duplicate "Back to…" links. Branding, colours, fonts, layout, validation and genuine error/recovery messages are unchanged. This is prototype copy only.
+**Owner-approved after a phone check and merged in PR #2 (`dd100c5`, 25 October) as preview copy; not production implementation.** The owner asked for less on-screen text, keeping only what's necessary, with reference to popular apps. The pattern follows short Apple, Day One and Headspace sign-in/recovery screens: one heading, at most one short supporting line, one primary action and few secondary links. The system Back control replaces duplicate "Back to…" links. Branding, colours, fonts, layout, validation and genuine error/recovery messages are unchanged. This is prototype copy only.
 
 | Screen | Before | After |
 | --- | --- | --- |
@@ -57,4 +57,4 @@ Kept deliberately: "Continue locally" on offline, no-backup, backup-error and re
 
 Used Google? is removed from Log in. Account help is reachable only after a failed login. Google, Apple, X and Facebook login remain deferred proposals (see above); no provider was added.
 
-**Owner decisions, 25 October:** keep Used Google? off Log in, with Account help shown only after a failed login; Google/Apple sign-in stays deferred. The copy pass (PR #2) stays unmerged until the owner checks it on the phone.
+**Owner decisions, 25 October:** keep Used Google? off Log in, with Account help shown only after a failed login; Google/Apple sign-in stays deferred. The owner then checked the copy pass on the phone and approved it; it merged in PR #2.
