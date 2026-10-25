@@ -16,6 +16,11 @@ private final class FaultSwitch: Sendable {
 
 private struct InjectedProtectionFailure: Error {}
 
+/// Async-friendly `Result` capture; `Result { try await … }` needs a newer SDK than CI's Xcode.
+private func outcome<T>(_ body: () async throws -> T) async -> Result<T, Error> {
+    do { return .success(try await body()) } catch { return .failure(error) }
+}
+
 final class GuestJournalStoreTests: XCTestCase {
     private var root: URL!
     private var location: GuestJournalLocation!
@@ -110,8 +115,8 @@ final class GuestJournalStoreTests: XCTestCase {
         let created = try await open().create(originalWords: "original")
         let storeA = try await open()
         let storeB = try await open()
-        async let first = Result { try await storeA.update(id: created.id, originalWords: "first", expectedRevision: 0) }
-        async let second = Result { try await storeB.update(id: created.id, originalWords: "second", expectedRevision: 0) }
+        async let first = outcome { try await storeA.update(id: created.id, originalWords: "first", expectedRevision: 0) }
+        async let second = outcome { try await storeB.update(id: created.id, originalWords: "second", expectedRevision: 0) }
         let results = await [first, second]
         XCTAssertEqual(results.filter { (try? $0.get()) != nil }.count, 1, "exactly one edit wins")
         XCTAssertEqual(results.compactMap { result -> GuestJournalError? in
