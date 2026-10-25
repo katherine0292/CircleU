@@ -112,12 +112,23 @@ final class GuestDictationViewModel: ObservableObject {
 
     /// The app left the foreground or the screen closed: stop at once, keeping the words so far.
     func interrupt() {
-        guard state != .idle else { return }
         let wasListening = state == .listening
+        guard stopKeepingWords() else { return }
+        if wasListening { message = Self.interruptedMessage }
+    }
+
+    /// Save was tapped while listening: stop at once and keep the words, so Save is never blocked.
+    func stopForSave() {
+        stopKeepingWords()
+    }
+
+    @discardableResult
+    private func stopKeepingWords() -> Bool {
+        guard state != .idle else { return false }
         generation += 1
         engine.cancel()
         state = .idle
-        if wasListening { message = Self.interruptedMessage }
+        return true
     }
 
     func dismissMessage() {

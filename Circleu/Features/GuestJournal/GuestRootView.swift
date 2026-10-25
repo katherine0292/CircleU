@@ -6,7 +6,14 @@ import SwiftUI
 struct GuestComposition {
     var location: () throws -> GuestJournalLocation
     /// On-device speech-to-text for the Write screen (tests inject a fake).
-    var dictationEngine: () -> any GuestDictationEngine = { SpeechDictationEngine() }
+    var dictationEngine: () -> any GuestDictationEngine = {
+        #if DEBUG
+        if let words = UserDefaults.standard.string(forKey: "CircleUScriptedDictation") {
+            return ScriptedDictationEngine(words: words) // UI tests only; set by a launch argument.
+        }
+        #endif
+        return SpeechDictationEngine()
+    }
 
     static var live: GuestComposition { GuestComposition(location: GuestJournalLocation.standard) }
 

@@ -171,13 +171,13 @@ struct GuestWriteView: View {
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
             Button {
+                dictation.stopForSave() // Saving while listening keeps the words so far.
                 Task { if await journal.saveDraft() { onSaved() } }
             } label: {
                 Text(journal.isSaving ? "Saving…" : "Save only my words")
             }
             .buttonStyle(GuestBrandButtonStyle())
-            .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                      || journal.isSaving || dictation.isActive)
+            .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
             .background(GuestBrand.ice)
         }

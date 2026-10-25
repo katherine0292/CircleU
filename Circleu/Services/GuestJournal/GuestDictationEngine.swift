@@ -207,3 +207,33 @@ final class SpeechDictationEngine: GuestDictationEngine {
         }
     }
 }
+
+#if DEBUG
+/// UI tests only (launch argument `-CircleUScriptedDictation "<words>"`): "hears" the given words
+/// without a microphone, so the voice path can be driven on the Simulator.
+final class ScriptedDictationEngine: GuestDictationEngine {
+    private let words: String
+    private var continuation: AsyncStream<GuestDictationEvent>.Continuation?
+
+    init(words: String) { self.words = words }
+
+    func requestAccess() async -> GuestDictationAccess { .granted }
+
+    func start() throws -> AsyncStream<GuestDictationEvent> {
+        let (stream, continuation) = AsyncStream.makeStream(of: GuestDictationEvent.self)
+        self.continuation = continuation
+        continuation.yield(.transcript(words, isFinal: false))
+        return stream
+    }
+
+    func finish() {
+        continuation?.yield(.transcript(words, isFinal: true))
+        cancel()
+    }
+
+    func cancel() {
+        continuation?.finish()
+        continuation = nil
+    }
+}
+#endif

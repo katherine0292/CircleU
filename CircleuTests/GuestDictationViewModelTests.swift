@@ -275,4 +275,42 @@ final class GuestDictationViewModelTests: XCTestCase {
         XCTAssertEqual(engine.startCount, 0)
         XCTAssertEqual(dictation.state, .idle)
     }
+
+    func testSavingWhileListeningStopsAndSavesTheWordsSoFar() async {
+        let (journal, dictation, engine) = make()
+        await dictation.start()
+        engine.send(.transcript("Said before tapping Save", isFinal: false))
+        await settle()
+        dictation.stopForSave()
+        XCTAssertFalse(dictation.isActive)
+        XCTAssertNil(dictation.message, "no warning for an intentional save")
+        let saved = await journal.saveDraft()
+        XCTAssertTrue(saved)
+        engine.sendLate(.transcript("Said before tapping Save, late", isFinal: true))
+        await settle()
+        XCTAssertEqual(journal.entries.map(\.originalWords), ["Said before tapping Save"])
+        XCTAssertEqual(journal.draft, "", "a late final result doesn't refill the cleared draft")
+    }
+
+    func testThreeEntriesInARowWithAndWithoutVoice() async {
+        let (journal, dictation, engine) = make()
+        journal.draft = "Typed entry"
+        _ = await journal.saveDraft()
+        for words in ["Spoken entry", "Another spoken entry"] {
+            await dictation.start()
+            engine.send(.transcript(words, isFinal: false))
+            await settle()
+            if words == "Spoken entry" {
+                dictation.stop()
+                engine.send(.transcript(words, isFinal: true))
+                engine.end()
+                await settle()
+            } else {
+                dictation.stopForSave()
+            }
+            let saved = await journal.saveDraft()
+            XCTAssertTrue(saved, words)
+        }
+        XCTAssertEqual(Set(journal.entries.map(\.originalWords)), ["Typed entry", "Spoken entry", "Another spoken entry"])
+    }
 }
