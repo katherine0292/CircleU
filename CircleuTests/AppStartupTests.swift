@@ -13,6 +13,12 @@ final class AppStartupTests: XCTestCase {
         XCTAssertEqual(startup, .existingApp, "TestFlight and App Store builds can't open the guest journal")
     }
 
+    func testPhoneTestBuildOpensGuestJournalOnlyInDebug() {
+        XCTAssertEqual(AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true, isGuestJournalBuild: true), .guestJournal)
+        XCTAssertEqual(AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: false, isGuestJournalBuild: true), .existingApp)
+        XCTAssertFalse(AppStartup.isGuestJournalBuild, "the project itself never sets the phone-test flag")
+    }
+
     func testDebugSwitchOpensGuestJournalWithoutFirebase() {
         let startup = AppStartup.resolve(arguments: ["Circleu", AppStartup.launchArgument], isDebugBuild: true)
         XCTAssertEqual(startup, .guestJournal)
