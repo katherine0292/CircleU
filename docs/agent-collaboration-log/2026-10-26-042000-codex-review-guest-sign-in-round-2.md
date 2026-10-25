@@ -1,0 +1,21 @@
+**2026-10-26 02:45 +11:00 — Codex guest sign-in review, Round 2**
+
+**Verdict: BLOCKERS remain.** Reviewed `git show HEAD` at `4480b2b`, branch `codex/guest-sign-in`. Working tree clean; no files edited. Statuses below are source-review conclusions, not runtime verification.
+
+| Round 1 finding | Status |
+|---|---|
+| Cancelled login leaves a live session | **Addressed for successful sign-out:** late login now signs out before reading. Residual overlap issue below. [GuestSignIn.swift:143](<../../Circleu/Features/GuestJournal/GuestSignIn.swift:143>) |
+| Deletion targets another `currentUser` | **Addressed:** deletion uses the captured `User`, checks its UID and current-session UID. [GuestAccount.swift:182](<../../Circleu/Services/GuestJournal/GuestAccount.swift:182>) |
+| Owned circles/posts orphaned | **OPEN — BLOCKER:** posts are searched only in current memberships. Posts in previously left circles survive; the creator-only pass deletes parents without inspecting posts. Account deletion can then report success. [GuestAccount.swift:235](<../../Circleu/Services/GuestJournal/GuestAccount.swift:235>) |
+| Cache isolation/shared default app | **Addressed for default-app and disk-cache isolation:** named recovery app, memory cache, server-only reads. Sign-out does not explicitly purge the memory cache. [GuestAccount.swift:122](<../../Circleu/Services/GuestJournal/GuestAccount.swift:122>) |
+| Sign-out failures presented as success | **PARTIAL — SHOULD-FIX:** copy completion reports failure, but Cancel, stale-result cleanup and error paths still discard the Boolean result. [GuestSignIn.swift:199](<../../Circleu/Features/GuestJournal/GuestSignIn.swift:199>) |
+| Reset hides service failures | **Addressed:** service failures now propagate generically; account-related outcomes remain concealed. [GuestAccount.swift:168](<../../Circleu/Services/GuestJournal/GuestAccount.swift:168>) |
+| Import fidelity: duplicates/images | **PARTIAL — SHOULD-FIX:** newest timestamps win, but conflicting equal-timestamp duplicates still depend on input order. [GuestAccount.swift:102](<../../Circleu/Services/GuestJournal/GuestAccount.swift:102>). Image omission is now disclosed at [GuestSignIn.swift:300](<../../Circleu/Features/GuestJournal/GuestSignIn.swift:300>). |
+
+- **NEW BLOCKER — cleanup failure becomes false success on retry.** A post query/delete can fail, yet cleanup still removes membership or deletes the circle parent. The first attempt reports failure; the next attempt no longer discovers that circle, can delete Auth, and reports completion while the post survives. Preserve discovery/retry state until child cleanup succeeds. [GuestAccount.swift:238](<../../Circleu/Services/GuestJournal/GuestAccount.swift:238>).
+
+- **SHOULD-FIX — cancellation releases the gate prematurely.** Cancel releases it while login/read is pending. Another account action can start; the old callback’s unconditional sign-out can then terminate that newer session. Keep the gate until pending work settles and scope cleanup to its session. [GuestSignIn.swift:202](<../../Circleu/Features/GuestJournal/GuestSignIn.swift:202>), [GuestSignIn.swift:145](<../../Circleu/Features/GuestJournal/GuestSignIn.swift:145>).
+
+**Rules check:** The operations as written can succeed: signed-in reads are allowed; normal membership updates preserve the required metadata; creators may delete circle documents; authors may delete their posts. However, circle ownership **does not authorize deleting other authors’ posts**. Those remain after parent deletion and retain signed-in read access under [firestore.rules:60](<../../firestore.rules:60>), `:72`, `:81`, `:99`. Parent deletion does not cascade into subcollections. [Firebase documentation](https://firebase.google.com/docs/firestore/manage-data/delete-data#delete_documents).
+
+**Verification/limits:** Inspected HEAD, relevant plans/logs, tests, legacy circle operations and repository rules; whitespace checks passed. No build/XCTest, emulator, Simulator/device, live-account, deployed-rule or network/cache-runtime checks. No inter-agent exchanges. Handoff: repair cleanup coverage/retry ordering and add failure-path coverage; owner unassigned.

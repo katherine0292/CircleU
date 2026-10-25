@@ -1,0 +1,21 @@
+**2026-10-26 — Codex review — `f880d6b` — optional guest sign-in**
+
+**Verdict: BLOCKED.** Review-only; no files changed. Working tree clean. No inter-agent exchanges.
+
+- **BLOCKER — Cancelled login can leave a live session.** [GuestSignIn.swift:109](<../../Circleu/Features/GuestJournal/GuestSignIn.swift:109>): cancellation signs out before pending authentication finishes. A late success signs back in, fetches the backup, then returns at the generation guard without cleanup. Check request ownership immediately after authentication and safely dispose stale sessions. The cancellation test checks only `.form`, missing both the surviving session and unwanted read.
+
+- **BLOCKER — Deletion can target a different account.** [GuestAccount.swift:164](<../../Circleu/Services/GuestJournal/GuestAccount.swift:164>): backup cleanup captures UID A, but final deletion resolves global `currentUser` again. The deletion screen permits navigation away while work continues; another login can install B before A’s final delete response returns. Bind deletion to the authenticated user and serialize account operations across screens.
+
+- **BLOCKER — Account deletion leaves owned cloud content orphaned.** [GuestAccount.swift:182](<../../Circleu/Services/GuestJournal/GuestAccount.swift:182>): cleanup covers private collections only, then deletes Auth. Owned circles/posts and membership references remain, removing the person’s ability to manage them. The UI disclaimer does not satisfy the approved plan’s owned-content cleanup requirement.
+
+- **SHOULD-FIX — Cache isolation is conditional.** [GuestAccount.swift:115](<../../Circleu/Services/GuestJournal/GuestAccount.swift:115>): preconfigured Dev apps bypass memory-cache setup. Fresh guest configuration sets it before queries, but sign-out never disposes the Firestore cache. Sharing the default app also couples recovery to legacy Auth/Firestore state. Use an isolated recovery client without clearing legacy storage; Firestore has a separate [cache lifecycle](https://firebase.google.com/docs/reference/swift/firebasefirestore/api/reference/Classes/Firestore).
+
+- **SHOULD-FIX — Sign-out failures become false success.** [GuestAccount.swift:168](<../../Circleu/Services/GuestJournal/GuestAccount.swift:168>): `try?` suppresses Keychain failures, while completion unconditionally says “You’ve been signed out.” Earlier-session discard similarly ignores failure. Propagate cleanup outcomes and prevent further recovery work when session isolation fails.
+
+- **SHOULD-FIX — Reset hides operational failures.** [GuestAccount.swift:157](<../../Circleu/Services/GuestJournal/GuestAccount.swift:157>): every error except offline/throttling becomes success, including disabled-provider/configuration failures. Preserve enumeration-safe account outcomes while reporting generic service failures.
+
+- **SHOULD-FIX — Import fidelity falls short of the plan.** [GuestAccount.swift:191](<../../Circleu/Services/GuestJournal/GuestAccount.swift:191>): document IDs/metadata are discarded; reused decoders silently drop malformed nested children; missing practice images are undisclosed. Duplicate embedded IDs resolve by first import order, not latest edit timestamp. Preserve source identity and report omissions/conflicts explicitly.
+
+**Other checks:** Source tracing found lazy guest startup, a guest configuration guard rejecting Prod, scoped receipt hashes, and no recovery upload or legacy-local-data write path. Legacy Release startup still configures Firebase by design. No application password persistence/logging found. Fresh login precedes cleanup; reported cleanup failure prevents Auth deletion. The bundle-ID override does not itself establish decision 4a’s registered Guest Test client.
+
+**Not checked:** Build/XCTest, Simulator/device behavior, VoiceOver/Dynamic Type interactions, network traffic, deployed rules, email-enumeration protection, Guest Test registration, real accounts/backups, or concurrent backend writes. `git diff --check HEAD^ HEAD` passed. Findings are source analysis, including local Firebase SDK inspection.

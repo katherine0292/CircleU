@@ -632,7 +632,8 @@ private extension BackendProfileSnapshot {
     }
 }
 
-private extension JournalReflectionEntry {
+// Internal (not private) so the guest journal's read-only recovery reader can reuse it.
+extension JournalReflectionEntry {
     nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "entryID"),
               let createdAt = FirebasePayloadReader.date(data, "createdAt"),
@@ -684,7 +685,8 @@ private extension Quest {
     }
 }
 
-private extension TipsPracticeSession {
+// Internal (not private) so the guest journal's read-only recovery reader can reuse it.
+extension TipsPracticeSession {
     nonisolated init?(firebaseData data: [String: Any]) {
         guard let id = FirebasePayloadReader.uuid(data, "sessionID"),
               let createdAt = FirebasePayloadReader.date(data, "createdAt"),

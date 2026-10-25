@@ -318,14 +318,21 @@ struct GuestSettingsView: View {
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
                 if let importer = settings.practice.store as? any GuestImportStore {
-                    section("Earlier CircleU app", icon: "GuestIconJournal") {
-                        Text("Used CircleU on this iPhone before? Copy that journal in. The earlier app isn’t changed.")
+                    section("Earlier CircleU account", icon: "GuestIconJournal") {
+                        Text("Had an account in the earlier app? Log in to copy that account’s backed-up journal here. You’re signed out afterwards.")
                         NavigationLink {
-                            GuestImportView(store: importer, journal: settings.journal, practice: settings.practice)
+                            GuestSignInView(factory: .live, store: importer, journal: settings.journal,
+                                            practice: settings.practice)
                         } label: {
-                            Text("Find my earlier journal")
+                            Text("Log in to bring in your journal")
                         }
                         .buttonStyle(GuestBrandButtonStyle(filled: false))
+                        NavigationLink {
+                            GuestDeleteAccountView(factory: .live)
+                        } label: {
+                            Text("Delete my account").frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
                     }
                 }
                 section("About", icon: "GuestIconLogo") {
