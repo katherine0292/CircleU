@@ -5,6 +5,18 @@ import os
 private let firebaseLogger = Logger(subsystem: "com.Pingu.Circleu", category: "FirebaseRuntime")
 
 enum FirebaseRuntime {
+    #if DEBUG
+    /// Test instrumentation: counts attempts to configure Firebase or build a cloud service,
+    /// so tests can prove the guest journal path never reaches this runtime.
+    static var debugCloudAccessCount = 0
+    #endif
+
+    private static func recordCloudAccess() {
+        #if DEBUG
+        debugCloudAccessCount += 1
+        #endif
+    }
+
     static var expectedBundleID: String {
         Bundle.main.bundleIdentifier ?? ""
     }
@@ -19,6 +31,7 @@ enum FirebaseRuntime {
 
     @discardableResult
     static func configureIfAvailable() -> Bool {
+        recordCloudAccess()
         guard FirebaseApp.app() == nil else { return true }
         guard let options = FirebaseOptions.defaultOptions() else {
             firebaseLogger.warning("Firebase disabled: GoogleService-Info.plist is missing.")
@@ -37,15 +50,18 @@ enum FirebaseRuntime {
     }
 
     static func makeAuthenticator() -> FirebaseAuthenticating {
-        canUseLiveFirebase ? FirebaseAuthService() : NoOpFirebaseAuthenticator()
+        recordCloudAccess()
+        return canUseLiveFirebase ? FirebaseAuthService() : NoOpFirebaseAuthenticator()
     }
 
     static func makeSyncer() -> any ReflectionSyncing & ReflectionBackupRestoring {
-        canUseLiveFirebase ? FirebaseUploadOnlySyncer() : NoOpBackendSyncer()
+        recordCloudAccess()
+        return canUseLiveFirebase ? FirebaseUploadOnlySyncer() : NoOpBackendSyncer()
     }
 
     static func makeAnalyticsTracker() -> any AnalyticsTracking {
-        canUseLiveFirebase ? FirebaseAnalyticsTracker() : NoOpAnalyticsTracker()
+        recordCloudAccess()
+        return canUseLiveFirebase ? FirebaseAnalyticsTracker() : NoOpAnalyticsTracker()
     }
 }
 

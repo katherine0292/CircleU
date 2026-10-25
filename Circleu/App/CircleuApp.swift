@@ -9,14 +9,21 @@ import SwiftUI
 
 @main
 struct CircleuApp: App {
+    private let startup = AppStartup.resolve()
+
     init() {
-        FirebaseRuntime.configureIfAvailable()
-        AnalyticsService.shared = FirebaseRuntime.makeAnalyticsTracker()
+        // The hidden guest journal (DEBUG only) starts without Firebase or analytics.
+        AppBootstrap.live.run(for: startup)
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            switch startup {
+            case .existingApp:
+                ContentView()
+            case .guestJournal:
+                GuestRootView()
+            }
         }
     }
 }
