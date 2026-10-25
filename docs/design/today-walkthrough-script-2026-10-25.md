@@ -20,7 +20,7 @@ Afterwards, decide on the [open calendar proposals](prototype-review-results.md#
 
 ## Copy trim suggestions (proposal)
 
-The same standard as the onboarding pass: one heading, at most one short line, one primary action. Not applied to the source yet; they await Mike's choices from the walkthrough.
+The same standard as the onboarding pass: one heading, at most one short line, one primary action. **Applied to the preview boards on `codex/today-copy-trim` for review, not merged.** See [what was applied](#applied-on-codextoday-copy-trim).
 
 | Screen | Now | Suggested |
 | --- | --- | --- |
@@ -38,3 +38,15 @@ The same standard as the onboarding pass: one heading, at most one short line, o
 | All screens | Uppercase eyebrows ("DESCRIBE A MOMENT", "SAMPLE SAVED ENTRY") | Remove from the product screens; sample labels belong in the review frame |
 
 Keep: the "Save only my words" path, "Copy won't save or send" (once), linked/standalone labels and the empty-day wording. These protect against the data-loss and authority risks listed in the [milestone plan](../superpowers/plans/2026-10-24-prototype-review-milestone.md#review-focus).
+
+## Applied on `codex/today-copy-trim`
+
+Prototype boards only (`BrandDemo.swift`, `BrandFlowPreview.swift`, `BrandJourneyPreview.swift`); the renders in `swiftui-previews/` were regenerated. Differences from the table above:
+
+- **Hub headings (owner decision, 25 October):** the plain tab names "Journal" and "Practice", replacing the small JOURNAL / PRACTICE label and the longer headline. The Journal Search field and the section labels stay.
+- **Sample/review labels (owner decision, 25 October):** "DESCRIBE A MOMENT", "SAMPLE SAVED ENTRY" and the others moved out of the phone screens. They are now captions above each screen in the comparison boards, so the screens read like the app. Individual screens stay marked as samples by the "Sample"/"Draft" chip and the "Brand demo · Static sample" footer, which satisfies the milestone's sample-label rule.
+- **Also removed:** "Back to Journal" / "Back to Practice" under the main action, because they duplicate the Back control (the onboarding rule).
+- **Reflection:** "A suggestion to consider. Change anything that doesn't fit." is kept, because the content standard requires suggestions to read as tentative.
+- **Demo 05 (icon-led) variant:** only the shared changes apply (Back links, capture prompt).
+
+Verification: the CircleU Preview host opens each board with `--board <today|journal|practice|capture|reflection|entry|practice-context|wording|practice-detail>`. All nine were checked in the iPhone 18 Pro / iOS 27.0 Simulator, and `performAccessibilityAudit()` ran on each. The only findings are "Dynamic Type font sizes are unsupported": these fixed-size specimens use fixed fonts on purpose, and production screens must use scalable text. There were no contrast or hit-area findings.

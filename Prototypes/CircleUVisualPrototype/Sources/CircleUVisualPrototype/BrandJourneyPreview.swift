@@ -75,9 +75,9 @@ public struct BrandJourneyPreview: View {
                 }
                 .padding(.bottom, 8)
             } else {
-                BrandFixture.eyebrow(linkedContext && screen == .practiceContext
-                    ? (updatedSource ? "UPDATED LINKED CONTEXT" : "PRACTICE FROM AN ENTRY") : screen.eyebrow)
-                BrandFixture.title(screen.title)
+                // Review labels (screen.eyebrow) are captions outside the phone frame, so the
+                // screen itself reads like the app; the Sample chip and footer still mark it.
+                BrandFixture.title(screen.title).padding(.top, 8)
             }
             VStack(alignment: .leading, spacing: 12) { content }
                 .fixedSize(horizontal: false, vertical: true)
@@ -96,7 +96,7 @@ public struct BrandJourneyPreview: View {
     private var content: some View {
         switch screen {
         case .capture:
-            BrandFixture.detail(iconLed ? "What happened?" : "What happened, and what matters to you?")
+            BrandFixture.detail("What happened?")
             block("Your words", text: originalWords, minimumHeight: 185)
             if iconLed {
                 HStack(spacing: 10) {
@@ -107,16 +107,14 @@ public struct BrandJourneyPreview: View {
             } else {
                 HStack(spacing: 8) {
                     Image(systemName: "mic").font(.system(size: 14))
-                    Text("Prefer to speak? Record your words.").font(BrandDemoFont.font(12, .medium))
+                    Text("Record").font(BrandDemoFont.font(12, .medium))
                 }
                 .foregroundStyle(BrandDemoColor.blue).padding(.vertical, 4)
-                BrandFixture.detail("You can keep just your words. A reflection and next step are optional.", size: 13)
             }
         case .reflection:
             if !iconLed { BrandFixture.detail("A suggestion to consider. Change anything that doesn’t fit.") }
             block("My words", text: originalWords, edit: "Edit my words")
             block("Suggested reflection", text: "You might feel frustrated and worried. A clear update and a shared plan may help.", edit: "Edit reflection")
-            if !iconLed { BrandFixture.detail("Your words stay separate from this interpretation.", size: 12) }
         case .entry:
             if iconLed { chip("Saved · 24 Oct · 10:30 am", symbol: "checkmark.circle") }
             else { BrandFixture.detail("24 October 2026 · 10:30 am", size: 12) }
@@ -131,13 +129,9 @@ public struct BrandJourneyPreview: View {
                 }
                 .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
             } else {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("Next step · optional").font(BrandDemoFont.font(13, .semibold))
-                    Text("No step chosen").font(BrandDemoFont.font(13)).foregroundStyle(BrandDemoColor.muted)
-                    Text("Add a next step").font(BrandDemoFont.font(12, .semibold)).foregroundStyle(BrandDemoColor.blue)
-                }
-                .padding(14).frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(BrandDemoColor.blue.opacity(0.13)))
+                Text("Add a next step").font(BrandDemoFont.font(14, .semibold)).foregroundStyle(BrandDemoColor.blue)
+                    .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(BrandDemoColor.blue.opacity(0.13)))
             }
         case .practiceContext:
             if iconLed {
@@ -145,8 +139,8 @@ public struct BrandJourneyPreview: View {
                      symbol: linkedContext ? "link" : "bubble.left")
             } else {
                 BrandFixture.detail(linkedContext
-                    ? "Only this reflection is carried over. Check it before continuing."
-                    : "No journal entry needed. What would you like to say?")
+                    ? "Only this reflection is carried over."
+                    : "What would you like to say?")
             }
             if linkedContext {
                 block(updatedSource ? "Updated reflection · The group deadline" : "From · The group deadline",
@@ -162,7 +156,7 @@ public struct BrandJourneyPreview: View {
             block("My draft · optional", text: "Could you let me know where things stand?")
             if updatedSource {
                 if iconLed { note("Draft kept. Review earlier wording.", symbol: "exclamationmark.circle") }
-                else { BrandFixture.detail("Your draft stays here. Earlier wording needs review because the reflection changed.", size: 13) }
+                else { BrandFixture.detail("Draft kept. The reflection changed, so review the wording.", size: 13) }
             }
         case .wording:
             if iconLed { chip(linkedContext ? "From The group deadline" : "Standalone", symbol: linkedContext ? "link" : "bubble.left") }
@@ -171,15 +165,14 @@ public struct BrandJourneyPreview: View {
             block("Suggested message", text: message, edit: "Edit message", minimumHeight: 135)
             if iconLed { note("Copy won’t save or send.", symbol: "doc.on.doc") }
             else {
-                BrandFixture.detail("One option to work with. Change it until it sounds like you.", size: 13)
-                BrandFixture.detail("Copying doesn’t save or send the message.", size: 12)
+                BrandFixture.detail("Copying won’t save or send it.", size: 13)
             }
         case .practiceDetail:
             if iconLed { chip(linkedContext ? "From The group deadline" : "24 Oct · Standalone", symbol: linkedContext ? "link" : "clock") }
             else { BrandFixture.detail(linkedContext ? "Source · The group deadline" : "Standalone message · 24 October 2026", size: 12) }
             block("My message", text: message, edit: "Edit message", minimumHeight: 135)
             if iconLed { note("Saved · Not sent", symbol: "checkmark.circle") }
-            else { BrandFixture.detail("Saved here for you to revisit. Nothing is sent for you.", size: 13) }
+            else { BrandFixture.detail("Saved · not sent", size: 13) }
         }
     }
 
@@ -194,8 +187,6 @@ public struct BrandJourneyPreview: View {
             action("Save only my words", symbol: "square.and.arrow.down", primary: false)
         case .entry:
             action("Practice from this entry", symbol: "bubble.left.and.bubble.right")
-            Text("Back to Journal").font(BrandDemoFont.font(14, .semibold))
-                .foregroundStyle(BrandDemoColor.blue).frame(maxWidth: .infinity).frame(height: 34)
         case .practiceContext:
             action(updatedSource ? "Review updated wording" : "Find some words", symbol: updatedSource ? "arrow.clockwise" : "text.bubble")
             Text("Keep draft").font(BrandDemoFont.font(14, .semibold))
@@ -205,8 +196,6 @@ public struct BrandJourneyPreview: View {
             action("Copy message", symbol: "doc.on.doc", primary: false)
         case .practiceDetail:
             action("Copy message", symbol: "doc.on.doc")
-            Text("Back to Practice").font(BrandDemoFont.font(14, .semibold))
-                .foregroundStyle(BrandDemoColor.blue).frame(maxWidth: .infinity).frame(height: 34)
         }
     }
 
@@ -346,8 +335,14 @@ public struct BrandLinkedContextGallery: View {
             Text("The reflection you choose, and the version you review")
                 .font(BrandDemoFont.font(21, .semibold)).tracking(-0.5)
             HStack(alignment: .top, spacing: 24) {
-                BrandJourneyPreview(screen: .practiceContext, linkedContext: true, iconLed: iconLed)
-                BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true, iconLed: iconLed)
+                VStack(alignment: .leading, spacing: 12) {
+                    BrandFixture.eyebrow("PRACTICE FROM AN ENTRY")
+                    BrandJourneyPreview(screen: .practiceContext, linkedContext: true, iconLed: iconLed)
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    BrandFixture.eyebrow("UPDATED LINKED CONTEXT")
+                    BrandJourneyPreview(screen: .practiceContext, linkedContext: true, updatedSource: true, iconLed: iconLed)
+                }
             }
             BrandFixture.detail("Original and changed-source fixtures · Static review only · Earlier wording is not silently reused", size: 12)
         }
