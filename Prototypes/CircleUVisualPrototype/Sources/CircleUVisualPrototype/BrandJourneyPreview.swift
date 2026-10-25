@@ -61,8 +61,6 @@ public struct BrandJourneyPreview: View {
                 Text(isPractice ? "Practice" : (screen == .entry ? "Journal" : "Today"))
                     .font(BrandDemoFont.font(14, .semibold))
                 Spacer()
-                Text(screen == .capture ? "Draft" : "Sample")
-                    .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
             }
             .frame(height: 24).padding(.top, 10).padding(.bottom, 6)
 
@@ -75,8 +73,8 @@ public struct BrandJourneyPreview: View {
                 }
                 .padding(.bottom, 8)
             } else {
-                // Review labels (screen.eyebrow) are captions outside the phone frame, so the
-                // screen itself reads like the app; the Sample chip and footer still mark it.
+                // Review and sample labels live in gallery captions, file names and docs, so the
+                // screen itself reads like the app.
                 BrandFixture.title(screen.title).padding(.top, 8)
             }
             VStack(alignment: .leading, spacing: 12) { content }
@@ -84,7 +82,6 @@ public struct BrandJourneyPreview: View {
             Spacer(minLength: 8)
             VStack(spacing: 8) { actions }
                 .fixedSize(horizontal: false, vertical: true)
-            BrandFixture.footer
         }
         .padding(.horizontal, 24).padding(.vertical, 20)
         .frame(width: 390, height: 844)
@@ -114,7 +111,15 @@ public struct BrandJourneyPreview: View {
         case .reflection:
             if !iconLed { BrandFixture.detail("A suggestion to consider. Change anything that doesn’t fit.") }
             block("My words", text: originalWords, edit: "Edit my words")
-            block("Suggested reflection", text: "You might feel frustrated and worried. A clear update and a shared plan may help.", edit: "Edit reflection")
+            block("Suggested reflection", text: "You might feel frustrated and worried. A clear update and a shared plan may help.",
+                  edit: iconLed ? "Edit reflection" : nil)
+            if !iconLed {
+                // Owner decision (walkthrough task 2): a full-width outlined button, not a small link.
+                Text("Edit reflection").font(BrandDemoFont.font(15, .semibold))
+                    .foregroundStyle(BrandDemoColor.blue)
+                    .frame(maxWidth: .infinity).frame(height: 46)
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(BrandDemoColor.blue.opacity(0.35), lineWidth: 1.5))
+            }
         case .entry:
             if iconLed { chip("Saved · 24 Oct · 10:30 am", symbol: "checkmark.circle") }
             else { BrandFixture.detail("24 October 2026 · 10:30 am", size: 12) }
@@ -159,8 +164,8 @@ public struct BrandJourneyPreview: View {
                 else { BrandFixture.detail("Draft kept. The reflection changed, so review the wording.", size: 13) }
             }
         case .wording:
-            if iconLed { chip(linkedContext ? "From The group deadline" : "Standalone", symbol: linkedContext ? "link" : "bubble.left") }
-            else { BrandFixture.detail(linkedContext ? "Linked to The group deadline" : "Standalone practice · No journal entry", size: 12) }
+            // Owner decision (walkthrough task 3): a small icon tag for linked vs standalone.
+            chip(linkedContext ? "From: The group deadline" : "On its own", symbol: linkedContext ? "link" : "bubble.left")
             block("My aim", text: "Ask for an update and agree on a realistic plan.")
             block("Suggested message", text: message, edit: "Edit message", minimumHeight: 135)
             if iconLed { note("Copy won’t save or send.", symbol: "doc.on.doc") }
@@ -168,8 +173,7 @@ public struct BrandJourneyPreview: View {
                 BrandFixture.detail("Copying won’t save or send it.", size: 13)
             }
         case .practiceDetail:
-            if iconLed { chip(linkedContext ? "From The group deadline" : "24 Oct · Standalone", symbol: linkedContext ? "link" : "clock") }
-            else { BrandFixture.detail(linkedContext ? "Source · The group deadline" : "Standalone message · 24 October 2026", size: 12) }
+            chip(linkedContext ? "From: The group deadline" : "On its own · 24 Oct", symbol: linkedContext ? "link" : "bubble.left")
             block("My message", text: message, edit: "Edit message", minimumHeight: 135)
             if iconLed { note("Saved · Not sent", symbol: "checkmark.circle") }
             else { BrandFixture.detail("Saved · not sent", size: 13) }
@@ -180,11 +184,11 @@ public struct BrandJourneyPreview: View {
     private var actions: some View {
         switch screen {
         case .capture:
-            action(iconLed ? "Review reflection" : "Review a reflection", symbol: "sparkles")
+            action("Get a suggestion", symbol: "sparkles")
             action("Save only my words", symbol: "square.and.arrow.down", primary: false)
         case .reflection:
             action("Save reflection", symbol: "checkmark")
-            action("Save only my words", symbol: "square.and.arrow.down", primary: false)
+            action("Save without suggestion", symbol: "square.and.arrow.down", primary: false)
         case .entry:
             action("Practice from this entry", symbol: "bubble.left.and.bubble.right")
         case .practiceContext:
@@ -285,7 +289,7 @@ public struct BrandJourneyPreview: View {
             .frame(maxWidth: .infinity).frame(height: 54)
             .foregroundStyle(primary ? .white : BrandDemoColor.blue)
             .background(primary ? BrandDemoColor.blue : .white, in: RoundedRectangle(cornerRadius: 17))
-        } else { BrandFixture.action(title, primary: primary) }
+        } else { BrandFixture.action(title, primary: primary, symbol: name) }
     }
 }
 

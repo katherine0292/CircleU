@@ -18,17 +18,17 @@ enum BrandFixture {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    static func action(_ text: String, primary: Bool = true) -> some View {
-        Text(text).font(BrandDemoFont.font(16, .semibold))
+    static func action(_ text: String, primary: Bool = true, symbol: String? = nil) -> some View {
+        HStack(spacing: 9) {
+            if let symbol {
+                Image(systemName: symbol).font(.system(size: 16, weight: .medium, design: .rounded))
+                    .accessibilityHidden(true)
+            }
+            Text(text).font(BrandDemoFont.font(16, .semibold))
+        }
             .frame(maxWidth: .infinity).frame(height: 54)
             .foregroundStyle(primary ? .white : BrandDemoColor.blue)
             .background(primary ? BrandDemoColor.blue : .white, in: RoundedRectangle(cornerRadius: 17))
-    }
-
-    static var footer: some View {
-        Text("BRAND DEMO · STATIC SAMPLE")
-            .font(BrandDemoFont.font(9, .medium)).tracking(1)
-            .foregroundStyle(BrandDemoColor.muted).frame(maxWidth: .infinity).frame(height: 12)
     }
 
     static func tabs(selected: PrototypeScreen) -> some View {
@@ -111,9 +111,9 @@ public struct BrandHubPreview: View {
                         body: "I had something to add, but I held back."
                     ).padding(.top, 12)
                     Spacer(minLength: 12)
-                    BrandFixture.action("New reflection").padding(.bottom, 16)
+                    BrandFixture.action("New reflection", symbol: "square.and.pencil").padding(.bottom, 16)
                 } else {
-                    BrandFixture.action("Practice a message").padding(.top, 20)
+                    BrandFixture.action("Practice a message", symbol: "bubble.left.and.bubble.right").padding(.top, 20)
                     BrandFixture.eyebrow("SAVED PRACTICE").padding(.top, 22).padding(.bottom, 12)
                     BrandFixture.card(
                         title: "A deadline update", subtitle: "Today · Linked to a reflection",
@@ -126,7 +126,6 @@ public struct BrandHubPreview: View {
                     Spacer(minLength: 12)
                 }
                 BrandFixture.tabs(selected: screen)
-                BrandFixture.footer.padding(.top, 13)
             }
             .padding(.horizontal, 24).padding(.bottom, 22)
             .frame(width: 390, height: 844)
@@ -139,8 +138,13 @@ public struct BrandHubPreview: View {
 /// Static editing specimens: original words and editable interpretation remain distinct.
 public struct BrandEditorPreview: View {
     public let kind: EditorPreviewKind
+    /// Static state for leaving with unsaved edits (walkthrough task 2); real behaviour is for the app.
+    public let showsLeavePrompt: Bool
 
-    public init(kind: EditorPreviewKind) { self.kind = kind }
+    public init(kind: EditorPreviewKind, showsLeavePrompt: Bool = false) {
+        self.kind = kind
+        self.showsLeavePrompt = showsLeavePrompt
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -148,11 +152,9 @@ public struct BrandEditorPreview: View {
                 Image(systemName: "chevron.left").font(.system(size: 18, weight: .semibold))
                 Text(kind == .reflection ? "Reflection" : "Practice").font(BrandDemoFont.font(14, .semibold))
                 Spacer()
-                Text("Editing").font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
             }
             .padding(.top, 25)
-            BrandFixture.eyebrow(kind == .reflection ? "EDIT REFLECTION" : "EDIT MESSAGE").padding(.top, 30)
-            BrandFixture.title(kind.title).padding(.top, 10)
+            BrandFixture.title(kind.title).padding(.top, 40)
             BrandFixture.detail(kind == .reflection
                 ? "Edit the reflection. Your original words stay unchanged."
                 : "Shape the message in your own voice. Nothing is sent.")
@@ -182,9 +184,9 @@ public struct BrandEditorPreview: View {
                 .frame(maxWidth: .infinity, minHeight: 163, alignment: .topLeading)
                 .padding(18).background(.white, in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(BrandDemoColor.blue.opacity(0.2)))
-            BrandFixture.detail(kind == .reflection
-                ? "This updates the reflection only."
-                : "Saving this message creates no journal entry.", size: 12).padding(.top, 10)
+            if kind == .message {
+                BrandFixture.detail("Saving this message creates no journal entry.", size: 12).padding(.top, 10)
+            }
             Spacer(minLength: 14)
             BrandFixture.action(kind == .reflection ? "Save reflection" : "Save message")
             if kind == .message {
@@ -192,12 +194,29 @@ public struct BrandEditorPreview: View {
             }
             Text("Discard edits").font(BrandDemoFont.font(14, .semibold))
                 .foregroundStyle(BrandDemoColor.muted).frame(maxWidth: .infinity).frame(height: 42)
-            BrandFixture.footer
         }
         .padding(.horizontal, 24).padding(.bottom, 22)
         .frame(width: 390, height: 844)
         .foregroundStyle(BrandDemoColor.ink).background(BrandDemoColor.ice)
+        .overlay { if showsLeavePrompt { leavePrompt } }
         .clipShape(RoundedRectangle(cornerRadius: 36)).environment(\.colorScheme, .light)
+    }
+
+    private var leavePrompt: some View {
+        ZStack {
+            BrandDemoColor.ink.opacity(0.28)
+            VStack(spacing: 14) {
+                Text("Discard your changes?").font(BrandDemoFont.font(18, .bold))
+                BrandFixture.detail("Your edits to this reflection haven’t been saved.", size: 14)
+                    .multilineTextAlignment(.center)
+                BrandFixture.action("Keep editing")
+                Text("Discard").font(BrandDemoFont.font(15, .semibold))
+                    .foregroundStyle(.red) // System destructive colour; no new brand token.
+                    .frame(maxWidth: .infinity).frame(height: 44)
+            }
+            .padding(22).background(.white, in: RoundedRectangle(cornerRadius: 24))
+            .padding(.horizontal, 28)
+        }
     }
 }
 

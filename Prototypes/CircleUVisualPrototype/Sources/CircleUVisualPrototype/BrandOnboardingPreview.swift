@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Design fixtures only. Opening never reads storage or advances automatically.
 public enum BrandOnboardingScreen: String, CaseIterable {
-    case welcome, privacy, earlierData, logIn, opening, locked, readError
+    case welcome, privacy, earlierData, logIn, opening, locked, readError, demo
 }
 
 /// Original Welcome composition, with the accepted identity and in-memory panel navigation.
@@ -30,7 +30,9 @@ public struct BrandOnboardingPreview: View {
             case .welcome: welcome
             case .privacy: privacy
             case .earlierData: earlierData
-            case .logIn: BrandRecoveryPreview(initialScreen: recoveryScreen, scenario: recoveryScenario, onBack: { back() }, onContinue: { navigate(to: .opening) })
+            case .logIn: BrandRecoveryPreview(initialScreen: recoveryScreen, scenario: recoveryScenario, onBack: { back() },
+                                              onContinue: { navigate(to: .opening) }, onDemo: { navigate(to: .demo) })
+            case .demo: BrandDemoWorkspace()
             case .opening: opening
             case .locked: failure(locked: true)
             case .readError: failure(locked: false)
@@ -97,6 +99,7 @@ public struct BrandOnboardingPreview: View {
 
     private var privacy: some View {
         panel(title: "Privacy and data") {
+            illustration("BrandPrivacyV1")
             information("On this device", symbol: "iphone", text: "No account needed. No CircleU sync or cloud AI.")
             information("Backups", symbol: "arrow.counterclockwise", text: "Device backups may include entries. Lost entries may not be recoverable.")
             information("Export & delete", symbol: "square.and.arrow.up", text: "Deleting here doesn’t remove exports or device backups.")
@@ -108,6 +111,7 @@ public struct BrandOnboardingPreview: View {
 
     private var earlierData: some View {
         panel(title: "Earlier data") {
+            illustration("PinguThoughtfulV1")
             Text("Log in to choose what to recover. Nothing imports automatically.")
                 .font(font(17)).foregroundStyle(BrandDemoColor.muted)
             primaryButton("Log in") { navigate(to: .logIn) }
@@ -154,6 +158,12 @@ public struct BrandOnboardingPreview: View {
                 .padding(24)
             }
         }
+    }
+
+    /// One decorative brand illustration per screen; hidden from VoiceOver.
+    private func illustration(_ name: String) -> some View {
+        BrandArtwork(name: name).frame(height: 120).frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
     }
 
     private func information(_ title: String, symbol: String, text: String) -> some View {

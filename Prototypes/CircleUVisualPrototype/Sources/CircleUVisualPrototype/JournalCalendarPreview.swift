@@ -27,13 +27,12 @@ public struct JournalCalendarPreview: View {
             .padding(.top, 12)
 
             HStack {
-                Text("Your journal").font(BrandDemoFont.font(30, .bold)).tracking(-1)
+                Text("Journal").font(BrandDemoFont.font(30, .bold)).tracking(-1)
                 Spacer()
                 Label("Search", systemImage: "magnifyingglass")
                     .font(BrandDemoFont.font(12, .semibold)).foregroundStyle(BrandDemoColor.blue)
             }
             .padding(.top, 18)
-            BrandFixture.detail("Little moments, kept together.", size: 14).padding(.top, 6)
             calendar.padding(.top, 18)
 
             HStack {
@@ -46,10 +45,9 @@ public struct JournalCalendarPreview: View {
             .padding(.top, 20).padding(.bottom, 12)
 
             if emptyDay {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("A little space, just for you.").font(BrandDemoFont.font(17, .semibold))
-                    BrandFixture.detail("No saved moments on this day. Browse another date or start a reflection for today.", size: 14)
-                }
+                // Owner decision (walkthrough task 4): one plain line that can't read as lost data.
+                Text("Nothing saved on this day.").font(BrandDemoFont.font(15, .medium))
+                    .foregroundStyle(BrandDemoColor.muted)
                 .padding(18).frame(maxWidth: .infinity, alignment: .leading)
                 .background(.white, in: RoundedRectangle(cornerRadius: 22))
             } else if day == .multiple {
@@ -68,7 +66,6 @@ public struct JournalCalendarPreview: View {
             Spacer(minLength: 14)
             BrandFixture.action("New reflection for today").padding(.bottom, 14)
             BrandFixture.tabs(selected: .journal)
-            BrandFixture.footer.padding(.top, 13)
         }
         .padding(.horizontal, 24).padding(.bottom, 22)
         .frame(width: 390, height: 844)
