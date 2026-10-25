@@ -21,6 +21,8 @@ nonisolated protocol GuestDraftStore: Sendable {
 }
 
 /// One protected JSON file next to the journal store. An actor, so operations apply in order.
+/// The app now keeps drafts in the journal store (`StoreGuestDraftStore`); this file format is
+/// read once at launch to move an existing draft across.
 actor FileGuestDraftStore: GuestDraftStore {
     private struct File: Codable {
         let id: UUID
@@ -30,8 +32,10 @@ actor FileGuestDraftStore: GuestDraftStore {
     private let url: URL
     private let protection: GuestJournalFileProtection
 
-    init(location: GuestJournalLocation, protection: GuestJournalFileProtection = .completeUnlessOpen) {
-        url = location.directory.appendingPathComponent("Draft.json")
+    /// `fileName` separates kinds of draft: the Write draft ("Draft.json") and Practice's.
+    init(location: GuestJournalLocation, fileName: String = "Draft.json",
+         protection: GuestJournalFileProtection = .completeUnlessOpen) {
+        url = location.directory.appendingPathComponent(fileName)
         self.protection = protection
     }
 
@@ -60,6 +64,9 @@ actor FileGuestDraftStore: GuestDraftStore {
         }
     }
 
+    /// Removes the file whatever it holds (once its draft is in the store, or by Delete all).
+    func removeFile() throws { try deleteFile() }
+
     func remove(id: UUID) throws {
         // Leave a newer draft (another ID) alone. An unreadable file is also left alone.
         guard let file = try? readFile(), file.id == id else { return }
@@ -86,5 +93,47 @@ actor FileGuestDraftStore: GuestDraftStore {
         } catch {
             throw GuestJournalError.saveFailed("draft: \(error.localizedDescription)")
         }
+    }
+}
+
+/// Drafts kept in the journal store itself (one row per slot), so they share its protection and
+/// Delete all removes them in the same transaction as everything else.
+nonisolated struct StoreGuestDraftStore: GuestDraftStore {
+    let store: SwiftDataGuestJournalStore
+    let slot: String
+
+    static let writeSlot = "write"
+    static let practiceSlot = "practice"
+
+    func load() async throws -> KeptDraft? { try await store.keptDraft(slot: slot) }
+    func save(id: UUID, text: String) async throws { try await store.keepDraft(slot: slot, id: id, text: text) }
+    func remove(id: UUID) async throws { try await store.removeKeptDraft(slot: slot, id: id) }
+
+    enum Adoption: Equatable {
+        case done
+        /// The older file couldn't be read; it's left untouched.
+        case unreadable
+        /// The store couldn't be checked; nothing was changed (it's tried again next launch).
+        case unknown
+    }
+
+    /// Moves a draft kept in an older file into the store once (in one store transaction that
+    /// also marks the file adopted, and never replaces a newer draft), then deletes the file.
+    @discardableResult
+    func adoptLegacyFile(_ file: FileGuestDraftStore, named name: String) async -> Adoption {
+        do {
+            if try await store.isLegacyDraftAdopted(name) {
+                try? await file.removeFile() // Already moved; retry removing a leftover file.
+                return .done
+            }
+        } catch {
+            return .unknown
+        }
+        let kept: KeptDraft?
+        do { kept = try await file.load() } catch { return .unreadable }
+        guard let kept else { return .done } // No older file: nothing to adopt or mark.
+        do { try await store.adoptLegacyDraft(slot: slot, draft: kept, legacyName: name) } catch { return .unknown }
+        try? await file.removeFile()
+        return .done
     }
 }

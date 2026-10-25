@@ -59,6 +59,8 @@ final class GuestJournalViewModel: ObservableObject {
     /// False if a kept draft exists but couldn't be read: don't overwrite it.
     private var canKeepDraft: Bool
     private var settingDraftQuietly = false
+    /// True while Delete all runs, so no draft write can recreate a file mid-way.
+    private var draftsPaused = false
     /// Every draft write and removal runs in this order, one after another.
     private var lastDraftOperation: Task<Void, Never>?
 
@@ -75,12 +77,20 @@ final class GuestJournalViewModel: ObservableObject {
 
     func dismissNotices() { notices.removeAll() }
 
+    /// An older draft couldn't be read; it's left as it was and new writing is kept separately.
+    func noteUnreadableDraft() {
+        // A warning that new writing won't be kept matters more; keep that one.
+        if draftWarning == nil { draftWarning = Self.olderDraftUnreadableMessage }
+    }
+
+    static let olderDraftUnreadableMessage = "An earlier draft couldn’t be opened, so it’s been left as it was."
+
     /// A lasting message from elsewhere in the guest app (for example Practice).
     func addNotice(_ notice: String) { notices.append(notice) }
 
     /// Restores a kept draft. A draft that can't be read is left untouched on disk. A draft the
-    /// store already saved (cleanup didn't finish) is removed rather than offered again; if the
-    /// store can't be asked, the draft is restored and `create` refuses to save it twice.
+    /// store already saved, or that Delete all consumed, is removed rather than offered again; if
+    /// the store can't be asked, the draft is left untouched and not shown (it fails closed).
     func restoreDraft() async {
         guard let drafts else { return }
         let kept: KeptDraft?
@@ -92,9 +102,17 @@ final class GuestJournalViewModel: ObservableObject {
             return
         }
         guard let kept else { return }
-        if (try? await store.isDraftSaved(kept.id)) == true {
-            enqueueDraftOperation { try await drafts.remove(id: kept.id) }
+        switch try? await store.isDraftSaved(kept.id) {
+        case true?:
+            enqueueDraftOperation { try await drafts.remove(id: kept.id) } // Saved or deleted already.
             return
+        case nil:
+            // Can't tell whether it was saved or deleted: don't show it, and don't overwrite it.
+            canKeepDraft = false
+            draftWarning = Self.draftUnreadableMessage
+            return
+        case false?:
+            break
         }
         if !kept.isProtected { draftWarning = Self.draftUnprotectedMessage }
         draftID = kept.id
@@ -178,6 +196,25 @@ final class GuestJournalViewModel: ObservableObject {
         return nil
     }
 
+    /// Delete all, before: no draft writes until `resumeDrafts`, and pending ones finish first.
+    func pauseDrafts() async {
+        draftsPaused = true
+        await flushDraft()
+    }
+
+    /// Delete all, after: `deleted` clears the draft on screen (the store already removed the kept
+    /// copy in the same transaction). Draft keeping resumes either way.
+    func resumeDrafts(afterDeleting deleted: Bool) {
+        if deleted {
+            pendingDraftWrite = nil
+            setDraftQuietly("")
+            draftID = UUID()
+            draftWarning = nil
+            canKeepDraft = drafts != nil
+        }
+        draftsPaused = false
+    }
+
     /// Waits for pending draft writes and removals (tests and relaunch checks).
     func flushDraft() async {
         await lastDraftOperation?.value
@@ -189,11 +226,23 @@ final class GuestJournalViewModel: ObservableObject {
         settingDraftQuietly = false
     }
 
+    /// The newest version waiting to be written; a burst of typing or dictation is one write.
+    private var pendingDraftWrite: (id: UUID, text: String)?
+
     private func keepDraft() {
-        guard let drafts, canKeepDraft else { return }
-        let id = draftID
-        let text = draft
-        enqueueDraftOperation { try await drafts.save(id: id, text: text) }
+        guard let drafts, canKeepDraft, !draftsPaused else { return }
+        let alreadyQueued = pendingDraftWrite != nil
+        pendingDraftWrite = (draftID, draft)
+        guard !alreadyQueued else { return }
+        enqueueDraftOperation { [weak self] in
+            guard let write = await self?.takePendingDraftWrite() else { return }
+            try await drafts.save(id: write.id, text: write.text)
+        }
+    }
+
+    private func takePendingDraftWrite() -> (id: UUID, text: String)? {
+        defer { pendingDraftWrite = nil }
+        return pendingDraftWrite
     }
 
     /// Removes the saved draft's file, after any earlier writes. A newer draft has another ID,

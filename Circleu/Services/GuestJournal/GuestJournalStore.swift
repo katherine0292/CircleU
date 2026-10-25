@@ -104,14 +104,35 @@ nonisolated enum GuestLinkedPracticeChoice: Sendable {
 nonisolated protocol GuestPracticeStore: Sendable {
     /// Saved messages, most recently updated first.
     func loadPractice() async throws -> [GuestPracticeMessage]
-    /// Fails with `notFound` if `sourceEntryID` names an entry that no longer exists.
-    func createPractice(situation: String, goal: String, wording: String,
-                        sourceEntryID: UUID?) async throws -> GuestPracticeMessage
+    /// Fails with `notFound` if `sourceEntryID` names an entry that no longer exists. With a
+    /// `draftID`, records that draft as saved in the same transaction and refuses one saved before.
+    func createPractice(situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+                        draftID: UUID?) async throws -> GuestPracticeMessage
+    /// Whether a draft with this ID was already saved (journal or practice).
+    func isDraftSaved(_ draftID: UUID) async throws -> Bool
     func updatePractice(id: UUID, situation: String, goal: String, wording: String,
                         expectedRevision: Int) async throws -> GuestPracticeMessage
     func deletePractice(id: UUID) async throws
     /// Deletes a journal entry and, in the same transaction, unlinks or deletes its messages.
     func deleteEntry(id: UUID, linkedPractice: GuestLinkedPracticeChoice) async throws
+}
+
+extension GuestPracticeStore {
+    func createPractice(situation: String, goal: String, wording: String,
+                        sourceEntryID: UUID?) async throws -> GuestPracticeMessage {
+        try await createPractice(situation: situation, goal: goal, wording: wording, sourceEntryID: sourceEntryID,
+                                 draftID: nil)
+    }
+}
+
+/// Data controls for everything in the guest store.
+nonisolated protocol GuestDataStore: Sendable {
+    /// Deletes every entry, reflection, next step, practice message, saved-draft receipt and kept
+    /// draft, in one transaction: all of it or none of it. Never touches the earlier app's data.
+    /// Returns false if an older draft file couldn't be removed afterwards (it's never imported).
+    func deleteAll() async throws -> Bool
+    /// Entries and practice messages read together, for a consistent export.
+    func snapshot() async throws -> (entries: [GuestJournalEntry], messages: [GuestPracticeMessage])
 }
 
 /// Entries with an optional reflection and next step. Same store, same rules.

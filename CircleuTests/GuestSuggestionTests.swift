@@ -150,6 +150,55 @@ final class GuestReflectionStoreTests: XCTestCase {
         XCTAssertTrue(receiptKept, "saved-draft receipts survive")
     }
 
+    func testVersionThreeStoreMigratesWithReflectionsStepsLinksAndReceipts() async throws {
+        let entryID = UUID(), messageID = UUID(), draftID = UUID()
+        let created = Date(timeIntervalSince1970: 1_800_000_000)
+        try FileManager.default.createDirectory(at: location.directory, withIntermediateDirectories: true)
+        do {
+            let container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV3.self),
+                                               configurations: ModelConfiguration(url: location.storeURL,
+                                                                                  cloudKitDatabase: .none))
+            let context = ModelContext(container)
+            let entry = GuestJournalSchemaV3.Entry(id: entryID, originalWords: "Before drafts moved", revision: 2,
+                                                   createdAt: created, updatedAt: created)
+            entry.reflectionSummary = "Summary"
+            entry.reflectionFeeling = "Calm"
+            entry.reflectionInsight = "Insight"
+            entry.reflectionSource = GuestSuggestionSource.guided.rawValue
+            entry.reflectionBasedOn = "Before drafts moved"
+            entry.nextStep = "Step"
+            entry.nextStepDoneAt = created
+            context.insert(entry)
+            context.insert(GuestJournalSchemaV3.SavedDraft(id: draftID, savedAt: created))
+            context.insert(GuestJournalSchemaV3.PracticeMessage(id: messageID, situation: "S", goal: "G", wording: "W",
+                                                                sourceEntryID: entryID, revision: 1,
+                                                                createdAt: created, updatedAt: created))
+            try context.save()
+        }
+        try FileManager.default.createDirectory(at: location.setupMarker.deletingLastPathComponent(),
+                                                withIntermediateDirectories: true)
+        try Data().write(to: location.setupMarker)
+
+        let store = try await open()
+        let entries = try await store.loadAll()
+        let entry = try XCTUnwrap(entries.first)
+        XCTAssertEqual(entry.id, entryID)
+        XCTAssertEqual(entry.revision, 2)
+        XCTAssertEqual(entry.reflection, GuestReflection(summary: "Summary", feeling: "Calm", insight: "Insight",
+                                                         source: .guided, basedOnWords: "Before drafts moved"))
+        XCTAssertEqual(entry.nextStep, "Step")
+        XCTAssertTrue(entry.nextStepDone)
+        let messages = try await store.loadPractice()
+        let message = try XCTUnwrap(messages.first)
+        XCTAssertEqual(message.id, messageID)
+        XCTAssertEqual(message.sourceEntryID, entryID)
+        XCTAssertEqual(message.revision, 1)
+        let receipt = try await store.isDraftSaved(draftID)
+        XCTAssertTrue(receipt)
+        let draft = try await store.keptDraft(slot: StoreGuestDraftStore.writeSlot)
+        XCTAssertNil(draft, "no draft invented")
+    }
+
     func testFailedReflectionUpdateKeepsTheEntryAsItWas() async throws {
         let faults = SaveSwitch()
         let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
