@@ -179,7 +179,7 @@ extension GuestImportView {
         switch reason {
         case .noWords: "no words were saved with it"
         case .unreadable: "it couldn’t be read"
-        case .belongsToAccount: "it belongs to an account, so it isn’t shown without signing in to it"
+        case .needsAccount: "CircleU was signed in to an account on this iPhone, so it can’t be shown until you sign in to that account, which this version can’t do yet. It stays safe in the earlier app"
         }
     }
 }

@@ -40,9 +40,11 @@ struct GuestComposition {
         GuestSettingsViewModel.removeExports() // Never leave an export behind from an earlier run.
         #if DEBUG
         // UI tests only: realistic earlier-app data in this app's own defaults (launch argument).
-        if UserDefaults.standard.bool(forKey: "CircleUSeedLegacyFixture"),
+        // "guest" or "signedIn"; written to its own suite, so the real keys are never touched.
+        if let kind = UserDefaults.standard.string(forKey: "CircleUSeedLegacyFixture"),
            let fixture = UserDefaults(suiteName: GuestLegacyFixture.suiteName) {
-            GuestLegacyFixture.write(to: fixture) // Its own suite: the real keys are never touched.
+            fixture.removePersistentDomain(forName: GuestLegacyFixture.suiteName)
+            GuestLegacyFixture.write(to: fixture, signedIn: kind == "signedIn")
             GuestLegacyImport.source = fixture
         }
         #endif

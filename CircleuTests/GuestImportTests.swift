@@ -28,13 +28,33 @@ final class GuestImportTests: XCTestCase {
             .filter { $0.key.hasPrefix("circleu.") }
     }
 
-    func testScanCopiesOnlyOnDeviceDataAndKeepsAccountDataSealed() {
+    func testAnySignInHistorySealsEverything() {
+        let signedIn = UserDefaults(suiteName: "GuestImportSignedIn-\(UUID())")!
+        GuestLegacyFixture.write(to: signedIn, signedIn: true)
+        let scan = GuestLegacyImport.scan(signedIn)
+        XCTAssertTrue(scan.entries.isEmpty && scan.messages.isEmpty, "nothing is read or shown")
+        XCTAssertEqual(scan.skipped, [.init(what: "Your earlier journal", reason: .needsAccount)])
+        // Signing out removed the account ID, but per-account data still counts as history.
+        signedIn.removeObject(forKey: "circleu.currentFirebaseUID")
+        XCTAssertEqual(GuestLegacyImport.scan(signedIn).skipped.map(\.reason), [.needsAccount])
+        XCTAssertTrue(GuestLegacyImport.hasSignInHistory(["circleu.auth.session.v1"]))
+        XCTAssertFalse(GuestLegacyImport.hasSignInHistory([GuestLegacyImport.journalKey, "circleu.profile.displayName.v1"]))
+    }
+
+    func testAnUnreadableBucketIsReportedNotGuessed() {
+        let broken = UserDefaults(suiteName: "GuestImportBroken-\(UUID())")!
+        broken.set(Data("not the right format".utf8), forKey: GuestLegacyImport.journalKey)
+        let scan = GuestLegacyImport.scan(broken)
+        XCTAssertTrue(scan.entries.isEmpty)
+        XCTAssertEqual(scan.skipped.map(\.reason), [.unreadable])
+        XCTAssertEqual(broken.data(forKey: GuestLegacyImport.journalKey), Data("not the right format".utf8), "left as it was")
+    }
+
+    func testScanReadsGuestOnlyDataAndExplainsSkips() {
         let scan = GuestLegacyImport.scan(defaults)
-        XCTAssertEqual(scan.entries.count, 2, "on-device entries only")
+        XCTAssertEqual(scan.entries.count, 2)
         XCTAssertEqual(scan.messages.count, 1)
-        XCTAssertFalse(scan.entries.contains { $0.originalWords.contains("sister") }, "account data is never read")
-        XCTAssertEqual(scan.skipped.map(\.reason), [.belongsToAccount, .noWords])
-        XCTAssertEqual(scan.skipped.first?.what, "Data saved under 2 accounts")
+        XCTAssertEqual(scan.skipped.map(\.reason), [.noWords])
 
         let interrupted = try? XCTUnwrap(scan.entries.first { $0.originalWords.hasPrefix("My manager") })
         XCTAssertEqual(interrupted?.originalWords, "My manager cut me off in the meeting again.\n\nMy note: Talk to her on Friday.")

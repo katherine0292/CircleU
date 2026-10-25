@@ -2,17 +2,20 @@ import Foundation
 
 /// Finds the earlier CircleU app's local journal and practice on this iPhone, for a one-time,
 /// copy-only import. It only reads: nothing in the earlier app's storage is changed or removed,
-/// and nothing is sent anywhere. The earlier app kept data on this device (signed out) and
-/// separately per signed-in account ("….user.<uid>"). Only the on-device data is copied: account
-/// data can't be shown without signing in to that account, so it stays sealed and is only counted.
+/// and nothing is sent anywhere. Who the earlier data belongs to must be clear before any of it
+/// is shown (docs/engineering/legacy-data-format.md): data saved before accounts were separated,
+/// or restored from an account backup, can belong to someone who signed in on this iPhone. So the
+/// on-device journal is shown and copied only when the earlier app has no sign-in history here;
+/// otherwise everything stays sealed until signing in is possible.
 struct GuestLegacyScan: Equatable {
     enum SkipReason: Equatable {
         /// The saved data couldn't be read (an unknown or damaged format).
         case unreadable
         /// No words were saved with it.
         case noWords
-        /// Saved under an account that signed in on this iPhone; it needs that account.
-        case belongsToAccount
+        /// The earlier app was signed in to an account on this iPhone, so whose data this is
+        /// can't be told without signing in to it.
+        case needsAccount
     }
 
     struct Skip: Equatable {
@@ -42,12 +45,12 @@ enum GuestLegacyImport {
         var seen = Set<UUID>()
         let keys = defaults.dictionaryRepresentation().keys.sorted()
 
-        // Account data stays sealed: count it, never decode or show it.
-        let accountBuckets = keys.filter { $0.hasPrefix(journalKey + ".user.") || $0.hasPrefix(practiceKey + ".user.") }
-        if !accountBuckets.isEmpty {
-            scan.skipped.append(.init(what: accountBuckets.count == 1 ? "Data saved under an account"
-                                          : "Data saved under \(accountBuckets.count) accounts",
-                                      reason: .belongsToAccount))
+        // Any sign-in history seals everything: it's never decoded or shown.
+        if hasSignInHistory(keys) {
+            let found = keys.contains { $0 == journalKey || $0 == practiceKey || $0.hasPrefix(journalKey + ".user.")
+                || $0.hasPrefix(practiceKey + ".user.") }
+            if found { scan.skipped.append(.init(what: "Your earlier journal", reason: .needsAccount)) }
+            return scan
         }
 
         for key in keys where key == journalKey {
@@ -85,6 +88,15 @@ enum GuestLegacyImport {
         return scan
     }
 
+    /// Signs that the earlier app was signed in on this iPhone (the account ID, local account
+    /// records, or data kept per account). Signing out removes the ID, so all are checked.
+    static func hasSignInHistory(_ keys: [String]) -> Bool {
+        keys.contains { key in
+            key == "circleu.currentFirebaseUID" || key.hasPrefix("circleu.auth.")
+                || (key.hasPrefix("circleu.") && key.contains(".user."))
+        }
+    }
+
     /// The person's own words become the entry; a private note is kept with them, labelled.
     /// The earlier reflection is kept apart from the words and marked as from the earlier app.
     static func map(_ entry: JournalReflectionEntry) -> GuestImportedEntry? {
@@ -118,7 +130,8 @@ enum GuestLegacyImport {
 enum GuestLegacyFixture {
     static let suiteName = "circleu.guest.legacyFixture"
 
-    static func write(to defaults: UserDefaults, uid: String = "fixture-uid") {
+    /// `signedIn` adds sign-in history (an account bucket and ID), which seals everything.
+    static func write(to defaults: UserDefaults, signedIn: Bool = false, uid: String = "fixture-uid") {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let day: TimeInterval = 86_400
@@ -146,7 +159,7 @@ enum GuestLegacyFixture {
                                    transcript: "   ", engineName: "Local test engine", result: result("Unclear", "")),
         ]
         let account = [
-            shared, // The same entry under a signed-in account: sealed, not shown.
+            shared, // The same entry under a signed-in account.
             JournalReflectionEntry(id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
                                    createdAt: base.addingTimeInterval(3 * day), durationSeconds: 25,
                                    transcript: "My sister and I sorted out the holiday plans.",
@@ -161,9 +174,12 @@ enum GuestLegacyFixture {
                                                              roomReading: "", replyOptions: [])),
         ]
         defaults.set(try? encoder.encode(device), forKey: GuestLegacyImport.journalKey)
-        defaults.set(try? encoder.encode(account), forKey: GuestLegacyImport.journalKey + ".user." + uid)
         defaults.set(try? encoder.encode(practice), forKey: GuestLegacyImport.practiceKey)
-        defaults.set(Data("not the right format".utf8), forKey: GuestLegacyImport.practiceKey + ".user.broken")
+        defaults.set(Data("not the right format".utf8), forKey: "circleu.tipsPractice.sessions.v1.unknown")
+        if signedIn {
+            defaults.set(try? encoder.encode(account), forKey: GuestLegacyImport.journalKey + ".user." + uid)
+            defaults.set(uid, forKey: "circleu.currentFirebaseUID")
+        }
     }
 }
 #endif
