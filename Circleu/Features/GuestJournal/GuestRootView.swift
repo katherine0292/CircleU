@@ -1,10 +1,19 @@
 import SwiftUI
 
-/// Builds the guest journal's dependencies: the local store and nothing else. It never constructs
+/// Builds the guest journal's dependencies: the local store and on-device dictation, nothing else. It never constructs
 /// Firebase, sync, backup or cloud services, and never reads legacy UserDefaults keys.
 @MainActor
 struct GuestComposition {
     var location: () throws -> GuestJournalLocation
+    /// On-device speech-to-text for the Write screen (tests inject a fake).
+    var dictationEngine: () -> any GuestDictationEngine = {
+        #if DEBUG
+        if let words = UserDefaults.standard.string(forKey: "CircleUScriptedDictation") {
+            return ScriptedDictationEngine(words: words) // UI tests only; set by a launch argument.
+        }
+        #endif
+        return SpeechDictationEngine()
+    }
 
     static var live: GuestComposition { GuestComposition(location: GuestJournalLocation.standard) }
 
@@ -45,7 +54,7 @@ struct GuestRootView: View {
             ProgressView("Opening your journal…")
                 .task { await open() }
         case .ready(let viewModel):
-            GuestHomeView(journal: viewModel)
+            GuestHomeView(journal: viewModel, makeDictationEngine: composition.dictationEngine)
         case .failed(let message):
             VStack(spacing: 16) {
                 Text(message).multilineTextAlignment(.center)
