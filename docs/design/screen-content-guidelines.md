@@ -37,8 +37,7 @@ The supporting line is the single line under the heading; "—" means none.
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
 | Welcome | CircleU | A private place to work through a moment and find your words. | Get started | Log in | — |
-| Today | What’s on your mind? | — | Work through a moment | Continue your draft | — |
-| Write | Start with your words. | Type, or tap the microphone and talk. | Save only my words | Get a suggestion; microphone (control) | — |
+| Today (capture) | What’s on your mind? | Type, or tap the microphone and talk. | Save only my words | Get a suggestion; microphone (control); avatar and Settings in the toolbar | — |
 | Reflection review | Reflection (title) / A suggestion | Source label | Save with reflection, or Save only my words when nothing is kept | Save only my words | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet.") | — (list) | Calendar | — |
 | Entry | Entry | — | — | Edit; Practice what to say | — |

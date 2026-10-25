@@ -120,12 +120,17 @@ struct GuestSuccessBanner: View {
 struct GuestAvatarButton: View {
     @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
     var size: CGFloat = 180
+    /// Runs before the picker opens (Today stops the microphone first).
+    var beforeOpening: () -> Void = {}
     @State private var picking = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         let avatar = GuestAvatars.avatar(id: avatarID)
-        Button { picking = true } label: {
+        Button {
+            beforeOpening()
+            picking = true
+        } label: {
             Image(avatar.id).resizable().scaledToFit()
                 .frame(maxWidth: .infinity)
                 .frame(height: typeSize.isAccessibilitySize ? min(size, 96) : size)
