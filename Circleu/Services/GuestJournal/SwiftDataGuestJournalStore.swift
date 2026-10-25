@@ -299,7 +299,7 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// `GuestJournalStoreRegistry`), and actor isolation serializes every read-check-write.
 /// Access from another process (for example an extension) is not supported.
 actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestReflectionStore, GuestDataStore,
-    ModelActor {
+    GuestImportStore, ModelActor {
     typealias Entry = GuestJournalSchemaV4.Entry
     typealias SavedDraft = GuestJournalSchemaV4.SavedDraft
     typealias PracticeMessage = GuestJournalSchemaV4.PracticeMessage
@@ -490,6 +490,47 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         }
         if !isMarked { modelContext.insert(KeptDraftRecord(slot: marker, id: UUID(), text: "", updatedAt: Date())) }
         try commitDraft()
+    }
+
+    // MARK: Import from the earlier app
+
+    func isImported(_ legacyID: UUID) throws -> Bool { try isDraftSaved(legacyID) }
+
+    func importLegacy(entries: [GuestImportedEntry], messages: [GuestImportedMessage]) throws -> GuestImportResult {
+        // Every read happens before any insert, so a failed read leaves nothing pending.
+        let receipts: Set<UUID>
+        do {
+            try faults.beforeFetch()
+            receipts = Set(try modelContext.fetch(FetchDescriptor<SavedDraft>()).map(\.id))
+        } catch {
+            throw GuestJournalError.storeUnavailable("read: \(error)")
+        }
+        var added = 0
+        var seen = receipts
+        // Receipts are the same "saved" records drafts use, keyed by the earlier app's IDs.
+        let now = Date()
+        for item in entries where seen.insert(item.legacyID).inserted {
+            let row = Entry(id: UUID(), originalWords: item.originalWords, revision: 0,
+                            createdAt: item.createdAt, updatedAt: item.updatedAt)
+            Self.apply(item.reflection, nextStep: nil, nextStepDone: false, to: row)
+            modelContext.insert(row)
+            modelContext.insert(SavedDraft(id: item.legacyID, savedAt: now))
+            added += 1
+        }
+        for item in messages where seen.insert(item.legacyID).inserted {
+            modelContext.insert(PracticeMessage(id: UUID(), situation: item.situation, goal: "", wording: item.wording,
+                                                sourceEntryID: nil, revision: 0,
+                                                createdAt: item.createdAt, updatedAt: item.updatedAt))
+            modelContext.insert(SavedDraft(id: item.legacyID, savedAt: now))
+            added += 1
+        }
+        guard added > 0 else { return GuestImportResult(added: 0) }
+        do {
+            try commit(entryID: UUID()) // All or nothing; rolled back on failure.
+        } catch GuestJournalError.savedButUnprotected {
+            return GuestImportResult(added: added, isProtected: false) // Committed; say so.
+        }
+        return GuestImportResult(added: added)
     }
 
     // MARK: Kept drafts

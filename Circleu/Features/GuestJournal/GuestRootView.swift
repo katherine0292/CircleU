@@ -38,6 +38,18 @@ struct GuestComposition {
     /// The journal and Practice, sharing one local store.
     func makeSession() async throws -> (journal: GuestJournalViewModel, practice: GuestPracticeViewModel) {
         GuestSettingsViewModel.removeExports() // Never leave an export behind from an earlier run.
+        #if DEBUG
+        // UI tests only: realistic earlier-app data in this app's own defaults (launch argument).
+        // "guest" or "signedIn"; written to its own suite, so the real keys are never touched.
+        if let kind = UserDefaults.standard.string(forKey: "CircleUSeedLegacyFixture"),
+           let fixture = UserDefaults(suiteName: GuestLegacyFixture.suiteName) {
+            fixture.removePersistentDomain(forName: GuestLegacyFixture.suiteName)
+            GuestLegacyFixture.write(to: fixture, signedIn: kind == "signedIn")
+            GuestLegacyImport.source = fixture
+            // UI tests of the (currently switched off) copy path only.
+            GuestLegacyImport.allowsUnverifiedOnDeviceImport = UserDefaults.standard.bool(forKey: "CircleUAllowUnverifiedImport")
+        }
+        #endif
         let location = try location()
         let store = try await SwiftDataGuestJournalStore.open(location: location)
         // Drafts live in the store; a draft kept in an older file is moved across once.
@@ -67,6 +79,8 @@ struct GuestRootView: View {
     }
 
     @State private var phase: Phase = .opening
+    /// First launch shows Welcome; a new key, separate from the earlier app's onboarding flag.
+    @AppStorage("circleu.guest.welcomeSeen.v1") private var welcomeSeen = false
     private let composition: GuestComposition
 
     init(composition: GuestComposition? = nil) {
@@ -80,8 +94,12 @@ struct GuestRootView: View {
             ProgressView("Opening your journal…")
                 .task { await open() }
         case .ready(let viewModel, let practice):
-            GuestHomeView(journal: viewModel, practice: practice, makeDictationEngine: composition.dictationEngine,
-                          suggester: composition.suggester())
+            if !welcomeSeen, let importer = practice.store as? any GuestImportStore {
+                GuestWelcomeView(store: importer, journal: viewModel, practice: practice) { welcomeSeen = true }
+            } else {
+                GuestHomeView(journal: viewModel, practice: practice, makeDictationEngine: composition.dictationEngine,
+                              suggester: composition.suggester())
+            }
         case .failed(let message):
             VStack(spacing: 16) {
                 Text(message).multilineTextAlignment(.center)

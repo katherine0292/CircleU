@@ -40,6 +40,7 @@ extension GuestSuggestionSource {
         switch self {
         case .onDevice: "Suggested on this iPhone by Apple Intelligence. Edit or remove anything."
         case .guided: "Guided prompts, not a personal analysis. Edit or remove anything."
+        case .imported: "From the earlier CircleU app. Edit or remove anything."
         }
     }
 }

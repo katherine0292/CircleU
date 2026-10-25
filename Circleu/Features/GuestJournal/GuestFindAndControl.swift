@@ -144,7 +144,12 @@ enum GuestExport {
         for entry in entries.sorted(by: { $0.createdAt < $1.createdAt }) {
             lines += ["", "— \(entry.createdAt.formatted(date))", "My words:", entry.originalWords]
             if let reflection = entry.reflection {
-                lines.append("Reflection (\(reflection.source == .onDevice ? "suggested by Apple Intelligence on this iPhone" : "guided prompts")):")
+                let source = switch reflection.source {
+                case .onDevice: "suggested by Apple Intelligence on this iPhone"
+                case .guided: "guided prompts"
+                case .imported: "from the earlier CircleU app"
+                }
+                lines.append("Reflection (\(source)):")
                 for part in [reflection.summary, reflection.feeling.isEmpty ? "" : "Feeling: \(reflection.feeling)", reflection.insight]
                 where !part.isEmpty { lines.append(part) }
                 if entry.isReflectionStale { lines.append("(Based on an earlier version of these words.)") }
@@ -311,6 +316,17 @@ struct GuestSettingsView: View {
                 } else if let message = settings.message {
                     Label(message, systemImage: "info.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                }
+                if let importer = settings.practice.store as? any GuestImportStore {
+                    section("Earlier CircleU app", icon: "GuestIconJournal") {
+                        Text("Used CircleU on this iPhone before? Copy that journal in. The earlier app isn’t changed.")
+                        NavigationLink {
+                            GuestImportView(store: importer, journal: settings.journal, practice: settings.practice)
+                        } label: {
+                            Text("Find my earlier journal")
+                        }
+                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                    }
                 }
                 section("About", icon: "GuestIconLogo") {
                     Text("CircleU \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
