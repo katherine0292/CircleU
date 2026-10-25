@@ -411,6 +411,26 @@ final class GuestDraftIdentityTests: XCTestCase {
     }
 }
 
+extension GuestDraftIdentityTests {
+    func testEditAndRevertDuringSaveStaysVisibleAndKeptTogether() async {
+        let store = SlowCreateStore()
+        let drafts = FakeDraftStoreForIdentity()
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "A"
+        await journal.flushDraft()
+        let saving = Task { await journal.saveDraft() }
+        while await !store.isWaiting { await Task.yield() }
+        journal.draft = "B"
+        journal.draft = "A" // Same words, new version.
+        await store.release()
+        _ = await saving.value
+        await journal.flushDraft()
+        let kept = await drafts.kept
+        XCTAssertEqual(journal.draft, "A", "not hidden: the new version stays on screen")
+        XCTAssertEqual(kept?.text, "A", "and on the phone, so screen and storage agree")
+    }
+}
+
 private actor FakeDraftStoreForIdentity: GuestDraftStore {
     var kept: KeptDraft?
     init(kept: KeptDraft? = nil) { self.kept = kept }

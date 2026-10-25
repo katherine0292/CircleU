@@ -115,7 +115,6 @@ final class GuestJournalViewModel: ObservableObject {
         guard !words.isEmpty, !isSaving else { return false }
         isSaving = true
         defer { isSaving = false }
-        let submitted = draft
         let submittedID = draftID
         do {
             _ = try await store.create(originalWords: words, draftID: drafts == nil ? nil : submittedID)
@@ -130,8 +129,9 @@ final class GuestJournalViewModel: ObservableObject {
             saveError = Self.saveFailedMessage
             return false
         }
-        // Text typed while saving already has its own ID and is kept; only the saved version goes.
-        if draft == submitted { setDraftQuietly("") }
+        // Clear only the exact version that was saved (same ID). Any edit while saving, even one
+        // that returns to the same words, is a new version: it stays on screen and on the phone.
+        if draftID == submittedID { setDraftQuietly("") }
         removeKeptDraft(id: submittedID)
         await load()
         return true
