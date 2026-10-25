@@ -83,9 +83,9 @@ public struct BrandOnboardingPreview: View {
 
             Spacer(minLength: 24)
 
-            VStack(spacing: 4) {
+            VStack(spacing: 10) {
                 primaryButton("Get started") { navigate(to: .opening) }
-                quietButton("Log in") { navigate(to: .logIn) }
+                primaryButton("Log in", filled: false) { navigate(to: .logIn) }
                     .accessibilityHint("Opens account login")
             }
             .padding(.top, 12)
@@ -165,13 +165,15 @@ public struct BrandOnboardingPreview: View {
         .background(.white, in: RoundedRectangle(cornerRadius: 18))
     }
 
-    private func primaryButton(_ title: String, action: @escaping () -> Void) -> some View {
+    /// `filled: false` is the existing white secondary style (as on Save only my words), same size.
+    private func primaryButton(_ title: String, filled: Bool = true, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title).font(font(17, .semibold)).multilineTextAlignment(.center)
                 .padding(.horizontal, 16).padding(.vertical, 15)
                 .frame(maxWidth: .infinity, minHeight: 54)
-                .foregroundStyle(.white)
-                .background(BrandDemoColor.blue, in: RoundedRectangle(cornerRadius: 18))
+                .foregroundStyle(filled ? .white : BrandDemoColor.blue)
+                .background(filled ? BrandDemoColor.blue : .white, in: RoundedRectangle(cornerRadius: 18))
+                .contentShape(RoundedRectangle(cornerRadius: 18))
         }
         .buttonStyle(.plain)
     }
