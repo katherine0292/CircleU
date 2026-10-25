@@ -25,12 +25,6 @@ enum BrandFixture {
             .background(primary ? BrandDemoColor.blue : .white, in: RoundedRectangle(cornerRadius: 17))
     }
 
-    static var footer: some View {
-        Text("BRAND DEMO · STATIC SAMPLE")
-            .font(BrandDemoFont.font(9, .medium)).tracking(1)
-            .foregroundStyle(BrandDemoColor.muted).frame(maxWidth: .infinity).frame(height: 12)
-    }
-
     static func tabs(selected: PrototypeScreen) -> some View {
         HStack(spacing: 8) {
             ForEach(PrototypeScreen.allCases) { screen in
@@ -126,7 +120,6 @@ public struct BrandHubPreview: View {
                     Spacer(minLength: 12)
                 }
                 BrandFixture.tabs(selected: screen)
-                BrandFixture.footer.padding(.top, 13)
             }
             .padding(.horizontal, 24).padding(.bottom, 22)
             .frame(width: 390, height: 844)
@@ -148,11 +141,9 @@ public struct BrandEditorPreview: View {
                 Image(systemName: "chevron.left").font(.system(size: 18, weight: .semibold))
                 Text(kind == .reflection ? "Reflection" : "Practice").font(BrandDemoFont.font(14, .semibold))
                 Spacer()
-                Text("Editing").font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
             }
             .padding(.top, 25)
-            BrandFixture.eyebrow(kind == .reflection ? "EDIT REFLECTION" : "EDIT MESSAGE").padding(.top, 30)
-            BrandFixture.title(kind.title).padding(.top, 10)
+            BrandFixture.title(kind.title).padding(.top, 40)
             BrandFixture.detail(kind == .reflection
                 ? "Edit the reflection. Your original words stay unchanged."
                 : "Shape the message in your own voice. Nothing is sent.")
@@ -192,7 +183,6 @@ public struct BrandEditorPreview: View {
             }
             Text("Discard edits").font(BrandDemoFont.font(14, .semibold))
                 .foregroundStyle(BrandDemoColor.muted).frame(maxWidth: .infinity).frame(height: 42)
-            BrandFixture.footer
         }
         .padding(.horizontal, 24).padding(.bottom, 22)
         .frame(width: 390, height: 844)

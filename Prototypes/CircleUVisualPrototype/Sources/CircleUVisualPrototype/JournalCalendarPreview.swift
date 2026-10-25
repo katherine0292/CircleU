@@ -68,7 +68,6 @@ public struct JournalCalendarPreview: View {
             Spacer(minLength: 14)
             BrandFixture.action("New reflection for today").padding(.bottom, 14)
             BrandFixture.tabs(selected: .journal)
-            BrandFixture.footer.padding(.top, 13)
         }
         .padding(.horizontal, 24).padding(.bottom, 22)
         .frame(width: 390, height: 844)

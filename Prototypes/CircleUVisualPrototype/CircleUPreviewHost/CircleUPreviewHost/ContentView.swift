@@ -17,7 +17,8 @@ struct ContentView: View {
         }
     }
 
-    /// Static Today/Journal/Practice boards for review and audits, e.g. `--board wording`.
+    /// Static Today/Journal/Practice boards for review and audits, e.g. `--board wording`
+    /// or `--board edit-reflection`.
     /// They are fixed-size 390 × 844 specimens; nothing on them is interactive.
     @ViewBuilder private func boardView(_ name: String) -> some View {
         Group {
@@ -25,6 +26,8 @@ struct ContentView: View {
                 BrandHubPreview(screen: hub)
             } else if let journey = BrandJourneyScreen(rawValue: name) {
                 BrandJourneyPreview(screen: journey)
+            } else if name.hasPrefix("edit-"), let kind = EditorPreviewKind(rawValue: String(name.dropFirst(5))) {
+                BrandEditorPreview(kind: kind)
             } else {
                 Text("Unknown board: \(name)")
             }

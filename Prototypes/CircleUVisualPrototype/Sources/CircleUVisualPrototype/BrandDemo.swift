@@ -114,10 +114,6 @@ public struct BrandTodayPreview: View {
                 tab("Practice", asset: practiceArtwork, selected: false)
             }
             .padding(8).background(.white, in: RoundedRectangle(cornerRadius: 24))
-            Text("BRAND DEMO · STATIC SAMPLE")
-                .font(BrandDemoFont.font(9, .medium)).tracking(1)
-                .foregroundStyle(BrandDemoColor.muted)
-                .frame(maxWidth: .infinity).padding(.top, 13)
         }
         .padding(.horizontal, 24).padding(.bottom, 22)
         .frame(width: 390, height: 844)

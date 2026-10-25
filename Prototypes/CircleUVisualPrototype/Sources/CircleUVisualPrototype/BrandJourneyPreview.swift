@@ -61,8 +61,6 @@ public struct BrandJourneyPreview: View {
                 Text(isPractice ? "Practice" : (screen == .entry ? "Journal" : "Today"))
                     .font(BrandDemoFont.font(14, .semibold))
                 Spacer()
-                Text(screen == .capture ? "Draft" : "Sample")
-                    .font(BrandDemoFont.font(12)).foregroundStyle(BrandDemoColor.muted)
             }
             .frame(height: 24).padding(.top, 10).padding(.bottom, 6)
 
@@ -75,8 +73,8 @@ public struct BrandJourneyPreview: View {
                 }
                 .padding(.bottom, 8)
             } else {
-                // Review labels (screen.eyebrow) are captions outside the phone frame, so the
-                // screen itself reads like the app; the Sample chip and footer still mark it.
+                // Review and sample labels live in gallery captions, file names and docs, so the
+                // screen itself reads like the app.
                 BrandFixture.title(screen.title).padding(.top, 8)
             }
             VStack(alignment: .leading, spacing: 12) { content }
@@ -84,7 +82,6 @@ public struct BrandJourneyPreview: View {
             Spacer(minLength: 8)
             VStack(spacing: 8) { actions }
                 .fixedSize(horizontal: false, vertical: true)
-            BrandFixture.footer
         }
         .padding(.horizontal, 24).padding(.vertical, 20)
         .frame(width: 390, height: 844)

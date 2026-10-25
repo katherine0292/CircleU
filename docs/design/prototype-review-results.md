@@ -21,6 +21,7 @@ For operations missing from a specimen, record **not testable here**. A moderato
 Owner decisions from the moderated walkthrough. The owner picked from Claude's recommendation cards (relayed via the project coordinator). These are prototype/design decisions, not production approval.
 
 - **Task 1:** "Save only my words" stays a full-width secondary button the same size as the main action. The AI reflection is opt-in: after writing, the person chooses to get a suggestion or to save, and nothing appears automatically. The Suggestion screen offers "Save without suggestion". The Write button is renamed "Get a suggestion". Today shows "Continue your draft" only when a draft exists (real app; the static first-visit board may keep it).
+- **Screens (during task 1):** remove the "BRAND DEMO · STATIC SAMPLE" footer and the Sample/Draft corner tags from every preview screen; sample status stays in captions, file names and docs.
 
 ## Open calendar decisions
 
