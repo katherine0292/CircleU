@@ -23,6 +23,18 @@ final class GuestJournalViewModel: ObservableObject {
     static let loadFailedMessage = "Couldn’t open your journal. Try again."
     static let savedButUnprotectedMessage = "Saved, but this phone couldn’t fully secure it."
 
+    /// What the guest root shows when the store can't be opened. Never an empty journal.
+    static func openFailureMessage(for error: Error) -> String {
+        switch error as? GuestJournalError {
+        case .storeMissing:
+            "Your saved journal is missing from this phone. Nothing new has been created."
+        case .protectionFailed:
+            "This phone couldn’t secure your journal, so it wasn’t opened."
+        default:
+            loadFailedMessage
+        }
+    }
+
     private let store: any GuestJournalStore
 
     init(store: any GuestJournalStore) {
