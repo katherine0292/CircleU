@@ -8,7 +8,7 @@
 | --- | --- |
 | Heading | One per screen, **≤ 40 characters**, sentence case, no full stop. The navigation title may be the heading. |
 | Supporting line | **At most one**, **≤ 90 characters**, in the secondary style (`GuestSummary`: subheadline, muted, Dynamic Type). |
-| Primary action | **Exactly one** filled button per screen. |
+| Primary action | **At most one** filled button per screen (screens that are lists or settings may have none). A destructive primary, such as Delete my account, is a red text button rather than a filled one. |
 | Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items and "Learn more" don't count. |
 | Detail | Only where honesty needs it, behind **Learn more** (`GuestLearnMore`, collapsed, footnote, Dynamic Type). At most four short sentences, each **≤ 120 characters**, marked `// copy: detail` when over 100. |
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
@@ -46,7 +46,7 @@ The supporting line is the single line under the heading; "—" means none.
 | Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
 | Settings → Your Pingu | Your Pingu | Tap to change. | — | — | — |
 | Settings → Privacy and data | Privacy and data | Kept on this iPhone. Not uploaded or synced. | — | — | Backups, restore, exports, dictation |
-| Settings → Your data | Your data | A text file you can save or share. | — | Export my data; Delete all data | — |
+| Settings → Your data | Your data | A text file you can save or share. (above Export) | — | Export my data; Delete all data | — |
 | Settings → Earlier CircleU account | Earlier CircleU account | Bring in your journal from an earlier account. | — | Log in to bring in your journal; Delete my account | — |
 | Log in | Bring in your earlier journal | Nothing new is uploaded, and you’re signed out after. | Log in | Forgot password?; Continue without logging in (Welcome only) | What logging in does; no new accounts; why on-phone data stays sealed |
 | Backup preview | Your account’s backup | N to copy · N already copied | Copy into this journal | Don’t copy | Not changed; what isn’t copied; what was left out |
@@ -56,5 +56,6 @@ The supporting line is the single line under the heading; "—" means none.
 
 ## Enforcement
 
-- **Test:** `CircleuTests/GuestCopyLintTests.swift` reads the guest journal's source files. It fails on any user-facing literal over 100 characters (or over 120 when marked `// copy: detail`), and on banned wording. Run it with the full suite before every merge.
+- **Test:** `CircleuTests/GuestCopyLintTests.swift` reads every Swift file under the guest journal's feature and service folders, recursively. It fails on banned wording (whole words) and on any multi-word string literal over 100 characters (120 when marked `// copy: detail`). It runs on the Simulator or CI host from the checkout, and skips where the sources aren't reachable, such as on a device.
+- **Not checked automatically:** heading (≤ 40) and supporting-line (≤ 90) limits, the number of actions, and the displayed length of interpolated or combined messages. These are checked in review against the table above. Messages shown together (for example a failure plus "Signing out didn't finish") must each fit on their own.
 - **Review:** before accepting copy, read the screen at normal and larger text sizes: one purpose, one primary action, nothing duplicated, no placeholder repeating a label.

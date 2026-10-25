@@ -490,7 +490,7 @@ struct GuestDeleteAccountView: View {
                         GuestSummary("\(kept) \(kept == 1 ? "circle" : "circles") kept for other people’s posts.")
                     }
                 } else {
-                    GuestSummary("Deletes your earlier account and its cloud data. Entries on this iPhone stay.")
+                    GuestSummary("Deletes your earlier account, backup, posts and memberships. Entries here stay.")
                     GuestLearnMore {
                         Text("Your backup, posts and circle memberships are deleted.")
                         // copy: detail

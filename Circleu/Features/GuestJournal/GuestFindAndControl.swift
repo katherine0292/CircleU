@@ -178,7 +178,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let deletedExportPendingMessage = "Everything was deleted. A leftover copy will be removed next time CircleU opens."
+    static let deletedExportPendingMessage = "Everything was deleted. A leftover copy is still here; CircleU will try again to remove it."
     static let exportedMessage = "Export done. The copy you shared is yours to keep or delete."
     static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
@@ -293,13 +293,14 @@ struct GuestSettingsView: View {
                 section("Privacy and data", icon: "GuestIconPrivacy") {
                     GuestSummary("Kept on this iPhone. Not uploaded or synced.")
                     GuestLearnMore {
-                        Text("Suggestions are made on this iPhone. Dictation saves no audio.")
+                        Text("Suggestions and dictation stay on this iPhone; no audio is saved.")
                         Text("Your iPhone’s own backups (iCloud or a computer) may include your journal.")
                         Text("Restoring an older backup can bring back things you deleted.")
                         Text("Exports you saved elsewhere aren’t deleted here.")
                     }
                 }
                 section("Your data", icon: "GuestIconJournal") {
+                    GuestSummary("A text file you can save or share.")
                     Button {
                         Task { exportURL = await settings.makeExportFile() }
                     } label: {
@@ -307,7 +308,6 @@ struct GuestSettingsView: View {
                     }
                     .buttonStyle(GuestBrandButtonStyle(filled: false))
                     .disabled(settings.isWorking)
-                    GuestSummary("A text file you can save or share.")
                     Button(role: .destructive) { confirmDelete = true } label: {
                         Text("Delete all data").frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
                     }
@@ -351,7 +351,7 @@ struct GuestSettingsView: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete all", role: .destructive) { Task { await settings.deleteAll() } }
         } message: {
-            Text("Deletes all entries, practice and drafts on this iPhone. This can’t be undone.")
+            Text("Deletes everything in this journal, including drafts. The earlier CircleU app isn’t affected.")
         }
         .sheet(item: Binding(get: { exportURL.map(ExportFile.init) }, set: { if $0 == nil { exportURL = nil } })) { file in
             GuestShareSheet(url: file.url) { completed in

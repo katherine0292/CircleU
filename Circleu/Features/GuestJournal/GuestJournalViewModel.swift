@@ -35,7 +35,7 @@ final class GuestJournalViewModel: ObservableObject {
     static let saveFailedMessage = "Couldn’t save. Try again."
     static let loadFailedMessage = "Couldn’t open your journal. Try again."
     static let savedButUnprotectedMessage = "Saved, but this phone couldn’t fully secure it."
-    static let draftUnreadableMessage = "An earlier draft couldn’t be opened and was left as it was. New writing isn’t kept yet."
+    static let draftUnreadableMessage = "An earlier draft couldn’t be opened. New writing isn’t kept, so save before closing."
     static let draftNotKeptMessage = "Your draft couldn’t be kept on this phone. Save it before you close the app."
     static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
     static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, but it won’t be saved twice."

@@ -54,7 +54,7 @@ final class GuestPracticeViewModel: ObservableObject {
     static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
     static let otherDraftMessage = "Another practice draft is kept. Save this one, or go back to choose."
     static let draftUnprotectedMessage = "Your practice draft is kept, but this phone couldn’t fully secure it."
-    static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened and was left as it was."
+    static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened. New writing here isn’t kept, so save before closing."
 
     init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil, drafts: (any GuestDraftStore)? = nil) {
         self.store = store
