@@ -43,15 +43,17 @@ struct GuestComposition {
         // Drafts live in the store; a draft kept in an older file is moved across once.
         let writeDrafts = StoreGuestDraftStore(store: store, slot: StoreGuestDraftStore.writeSlot)
         let practiceDrafts = StoreGuestDraftStore(store: store, slot: StoreGuestDraftStore.practiceSlot)
-        let writeMoved = await writeDrafts.adoptLegacyFile(FileGuestDraftStore(location: location))
-        await practiceDrafts.adoptLegacyFile(FileGuestDraftStore(location: location, fileName: "PracticeDraft.json"))
+        let writeAdoption = await writeDrafts.adoptLegacyFile(FileGuestDraftStore(location: location), named: "Draft.json")
+        let practiceAdoption = await practiceDrafts.adoptLegacyFile(
+            FileGuestDraftStore(location: location, fileName: "PracticeDraft.json"), named: "PracticeDraft.json")
         let viewModel = GuestJournalViewModel(store: store, drafts: writeDrafts)
         await viewModel.load()
         await viewModel.restoreDraft() // After load, so a leftover draft can be matched to saved entries.
-        if !writeMoved { viewModel.noteUnreadableDraft() } // An older draft file is left untouched.
+        if writeAdoption != .done { viewModel.noteUnreadableDraft() } // The older file is left untouched.
         let practice = GuestPracticeViewModel(store: store, suggester: suggester(), drafts: practiceDrafts)
         await practice.load()
         await practice.loadDraft()
+        if practiceAdoption != .done { practice.noteUnreadableDraft() }
         return (viewModel, practice)
     }
 }

@@ -78,7 +78,9 @@ final class GuestJournalViewModel: ObservableObject {
     func dismissNotices() { notices.removeAll() }
 
     /// An older draft couldn't be read; it's left as it was and new writing is kept separately.
-    func noteUnreadableDraft() { draftWarning = Self.draftUnreadableMessage }
+    func noteUnreadableDraft() { draftWarning = Self.olderDraftUnreadableMessage }
+
+    static let olderDraftUnreadableMessage = "An earlier draft couldn’t be opened, so it’s been left as it was."
 
     /// A lasting message from elsewhere in the guest app (for example Practice).
     func addNotice(_ notice: String) { notices.append(notice) }
@@ -201,6 +203,7 @@ final class GuestJournalViewModel: ObservableObject {
     /// copy in the same transaction). Draft keeping resumes either way.
     func resumeDrafts(afterDeleting deleted: Bool) {
         if deleted {
+            pendingDraftWrite = nil
             setDraftQuietly("")
             draftID = UUID()
             draftWarning = nil
@@ -220,11 +223,23 @@ final class GuestJournalViewModel: ObservableObject {
         settingDraftQuietly = false
     }
 
+    /// The newest version waiting to be written; a burst of typing or dictation is one write.
+    private var pendingDraftWrite: (id: UUID, text: String)?
+
     private func keepDraft() {
         guard let drafts, canKeepDraft, !draftsPaused else { return }
-        let id = draftID
-        let text = draft
-        enqueueDraftOperation { try await drafts.save(id: id, text: text) }
+        let alreadyQueued = pendingDraftWrite != nil
+        pendingDraftWrite = (draftID, draft)
+        guard !alreadyQueued else { return }
+        enqueueDraftOperation { [weak self] in
+            guard let write = await self?.takePendingDraftWrite() else { return }
+            try await drafts.save(id: write.id, text: write.text)
+        }
+    }
+
+    private func takePendingDraftWrite() -> (id: UUID, text: String)? {
+        defer { pendingDraftWrite = nil }
+        return pendingDraftWrite
     }
 
     /// Removes the saved draft's file, after any earlier writes. A newer draft has another ID,

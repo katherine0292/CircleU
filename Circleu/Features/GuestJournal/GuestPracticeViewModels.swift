@@ -116,8 +116,24 @@ final class GuestPracticeViewModel: ObservableObject {
         keptDraft = draft.isEmpty ? nil : draft
         guard let drafts, canKeepDraft else { return }
         let text = draft.isEmpty ? "" : (try? JSONEncoder().encode(draft)).flatMap { String(data: $0, encoding: .utf8) } ?? ""
-        enqueue { try await drafts.save(id: draft.id, text: text) }
+        let alreadyQueued = pendingDraftWrite != nil
+        pendingDraftWrite = (draft.id, text) // A burst of edits is one write.
+        guard !alreadyQueued else { return }
+        enqueue { [weak self] in
+            guard let write = await self?.takePendingDraftWrite() else { return }
+            try await drafts.save(id: write.id, text: write.text)
+        }
     }
+
+    private var pendingDraftWrite: (id: UUID, text: String)?
+
+    private func takePendingDraftWrite() -> (id: UUID, text: String)? {
+        defer { pendingDraftWrite = nil }
+        return pendingDraftWrite
+    }
+
+    /// An older practice draft couldn't be read; it's left as it was.
+    func noteUnreadableDraft() { draftWarning = GuestJournalViewModel.olderDraftUnreadableMessage }
 
     /// The message was saved or discarded: remove that draft (a newer one has another ID).
     func clearDraft(id: UUID) {
@@ -136,6 +152,7 @@ final class GuestPracticeViewModel: ObservableObject {
     /// (the kept draft went in the same transaction). Draft keeping resumes either way.
     func resumeDrafts(afterDeleting deleted: Bool) {
         if deleted {
+            pendingDraftWrite = nil
             keptDraft = nil
             draftWarning = nil
             draftOwner = nil
@@ -242,6 +259,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
 
     static let saveFailedMessage = "Couldn’t save. Try again. Your words are still here."
     static let staleMessage = "This message changed somewhere else. Go back and open it again. Your words are still here."
+    static let closedByDeleteMessage = "Everything was deleted after this screen opened, so this wasn’t saved."
     static let alreadySavedMessage = "This draft was already saved in Practice, so it wasn’t saved again."
     static let missingMessage = "This message or its journal entry no longer exists. Your words are still here to copy."
 
@@ -252,6 +270,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     let draftID: UUID?
     private var draftObserver: AnyCancellable?
     private weak var practiceModel: GuestPracticeViewModel?
+    /// Delete all closes this screen; a save from it afterwards is refused.
+    private var generationAtCreation: Int?
 
     /// This screen still owns the kept draft, so saving records and clears it. An older screen
     /// saves its text as its own message and leaves the newer draft alone.
@@ -271,6 +291,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         isEditing = true
         guard let practice, let draftID else { return }
         practiceModel = practice
+        generationAtCreation = practice.dataGeneration
         let generation = practice.dataGeneration
         let owner = ObjectIdentifier(self)
         practice.claimDraft(by: owner)
@@ -366,6 +387,10 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     @discardableResult
     func save() async -> Bool {
         guard canSave else { return false }
+        if let practiceModel, let generationAtCreation, practiceModel.dataGeneration != generationAtCreation {
+            saveError = Self.closedByDeleteMessage // Everything was deleted after this screen opened.
+            return false
+        }
         isSaving = true
         defer { isSaving = false }
         let submitted = (situation, goal, wording)

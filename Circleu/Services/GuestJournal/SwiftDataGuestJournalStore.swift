@@ -438,17 +438,54 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestPracticeStore, GuestRe
         (try loadAll(), try loadPractice()) // One actor turn: nothing changes in between.
     }
 
-    func deleteAll() throws {
+    /// Draft files written by earlier builds, moved into the store once (see `adoptLegacyDraft`).
+    static let legacyDraftFiles = ["Draft.json", "PracticeDraft.json"]
+    private static let adoptedMarker = "legacy-adopted:"
+
+    @discardableResult
+    func deleteAll() throws -> Bool {
         // Read everything first, so a failed read can't leave deletions pending in the context.
         let entries = try fetch(FetchDescriptor<Entry>())
         let messages = try fetch(FetchDescriptor<PracticeMessage>())
         let receipts = try fetch(FetchDescriptor<SavedDraft>())
-        let drafts = try fetch(FetchDescriptor<KeptDraftRecord>())
+        let rows = try fetch(FetchDescriptor<KeptDraftRecord>())
         entries.forEach(modelContext.delete)
         messages.forEach(modelContext.delete)
         receipts.forEach(modelContext.delete)
-        drafts.forEach(modelContext.delete)
+        // Drafts go; "already adopted" markers stay (and are added), so an older draft file that
+        // outlives this can never be imported again.
+        let marked = Set(rows.filter { $0.slot.hasPrefix(Self.adoptedMarker) }.map(\.slot))
+        rows.filter { !$0.slot.hasPrefix(Self.adoptedMarker) }.forEach(modelContext.delete)
+        for name in Self.legacyDraftFiles where !marked.contains(Self.adoptedMarker + name) {
+            modelContext.insert(KeptDraftRecord(slot: Self.adoptedMarker + name, id: UUID(), text: "", updatedAt: Date()))
+        }
         try commit(entryID: UUID()) // One transaction, drafts included; rolled back on failure.
+        // Older draft files (readable or not) are removed too. True when nothing was left behind.
+        var clean = true
+        for name in Self.legacyDraftFiles {
+            let url = location.directory.appendingPathComponent(name)
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            if (try? FileManager.default.removeItem(at: url)) == nil { clean = false }
+        }
+        return clean
+    }
+
+    func isLegacyDraftAdopted(_ name: String) throws -> Bool {
+        let marker = Self.adoptedMarker + name
+        return try !fetch(FetchDescriptor<KeptDraftRecord>(predicate: #Predicate { $0.slot == marker })).isEmpty
+    }
+
+    /// In one transaction: puts an older file's draft into `slot` unless the slot already has a
+    /// newer one, and marks that file adopted so it's never imported again.
+    func adoptLegacyDraft(slot: String, draft: KeptDraft?, legacyName: String) throws {
+        let marker = Self.adoptedMarker + legacyName
+        let existing = try fetch(FetchDescriptor<KeptDraftRecord>(predicate: #Predicate { $0.slot == slot })).first
+        let isMarked = try !fetch(FetchDescriptor<KeptDraftRecord>(predicate: #Predicate { $0.slot == marker })).isEmpty
+        if existing == nil, let draft, !draft.text.isEmpty {
+            modelContext.insert(KeptDraftRecord(slot: slot, id: draft.id, text: draft.text, updatedAt: Date()))
+        }
+        if !isMarked { modelContext.insert(KeptDraftRecord(slot: marker, id: UUID(), text: "", updatedAt: Date())) }
+        try commitDraft()
     }
 
     // MARK: Kept drafts

@@ -222,6 +222,78 @@ final class GuestFindAndControlTests: XCTestCase {
         XCTAssertNil(leftPractice)
     }
 
+    func testAnOlderDraftFileIsNeverImportedAgainAfterDeleteAll() async throws {
+        let oldWrite = FileGuestDraftStore(location: location, protection: .init { _ in })
+        try await oldWrite.save(id: UUID(), text: "From an older build")
+        let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
+        XCTAssertEqual(journal.draft, "From an older build")
+        await GuestSettingsViewModel(journal: journal, practice: practice).deleteAll()
+        // The file comes back (say its removal failed): it's never imported again, and it's removed.
+        try await oldWrite.save(id: UUID(), text: "From an older build")
+        let (reopened, _) = try await GuestComposition.local(at: location).makeSession()
+        XCTAssertEqual(reopened.draft, "", "deleted text doesn't come back")
+        let leftover = try await oldWrite.load()
+        XCTAssertNil(leftover, "the leftover file is removed")
+    }
+
+    func testDeleteAllRemovesAnUnreadableOlderDraftFile() async throws {
+        let url = location.directory.appendingPathComponent("Draft.json")
+        try FileManager.default.createDirectory(at: location.directory, withIntermediateDirectories: true)
+        try Data([0xFF, 0xFE]).write(to: url)
+        let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
+        XCTAssertEqual(journal.draftWarning, GuestJournalViewModel.olderDraftUnreadableMessage)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: url.path), "left untouched until asked")
+        let settings = GuestSettingsViewModel(journal: journal, practice: practice)
+        await settings.deleteAll()
+        XCTAssertEqual(settings.message, GuestSettingsViewModel.deletedMessage)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+    }
+
+    func testAdoptionNeverReplacesANewerDraftAndFailsClosedOnAReadError() async throws {
+        let reads = FetchCounter(failFrom: Int.max)
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: reads.faults)
+        let slot = StoreGuestDraftStore(store: store, slot: StoreGuestDraftStore.writeSlot)
+        try await slot.save(id: UUID(), text: "Newer draft in the store")
+        let oldFile = FileGuestDraftStore(location: location, protection: .init { _ in })
+        try await oldFile.save(id: UUID(), text: "Older file")
+        reads.failFrom = reads.count + 1
+        let failed = await slot.adoptLegacyFile(oldFile, named: "Draft.json")
+        reads.failFrom = Int.max
+        XCTAssertEqual(failed, .unknown)
+        let untouched = try await oldFile.load()
+        XCTAssertEqual(untouched?.text, "Older file", "nothing changed")
+        let done = await slot.adoptLegacyFile(oldFile, named: "Draft.json")
+        XCTAssertEqual(done, .done)
+        let kept = try await slot.load()
+        XCTAssertEqual(kept?.text, "Newer draft in the store", "never replaced by the older file")
+        let gone = try await oldFile.load()
+        XCTAssertNil(gone)
+    }
+
+    func testAScreenClosedByDeleteAllCantSave() async throws {
+        let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
+        let open = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil, practice: practice)
+        open.wording = "Typed before delete"
+        await GuestSettingsViewModel(journal: journal, practice: practice).deleteAll()
+        let saved = await open.save()
+        XCTAssertFalse(saved)
+        XCTAssertEqual(open.saveError, GuestPracticeComposerViewModel.closedByDeleteMessage)
+        await practice.load()
+        XCTAssertEqual(practice.messages, [], "nothing recreated")
+    }
+
+    func testABurstOfTypingIsCoalescedAndTheLatestTextIsKept() async throws {
+        let counting = CountingDraftStore()
+        let journal = GuestJournalViewModel(store: try await store(), drafts: counting)
+        for length in 1...60 { journal.draft = String(repeating: "a", count: length) }
+        await journal.flushDraft()
+        let writes = await counting.writes
+        let last = await counting.lastText
+        XCTAssertLessThanOrEqual(writes, 3, "not one write per keystroke")
+        XCTAssertEqual(last, String(repeating: "a", count: 60))
+    }
+
     func testPracticeDraftSurvivesRelaunchAndIsClearedBySaving() async throws {
         let (_, practice) = try await GuestComposition.local(at: location).makeSession()
         let composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil, practice: practice)
@@ -339,6 +411,19 @@ final class GuestFindAndControlTests: XCTestCase {
         XCTAssertTrue(GuestSettingsViewModel.removeExports(in: folder))
         XCTAssertFalse(FileManager.default.fileExists(atPath: folder.path))
     }
+}
+
+/// Counts writes, to check that typing is coalesced.
+private actor CountingDraftStore: GuestDraftStore {
+    private(set) var writes = 0
+    private(set) var lastText = ""
+    func load() throws -> KeptDraft? { nil }
+    func save(id: UUID, text: String) async throws {
+        writes += 1
+        lastText = text
+        try? await Task.sleep(for: .milliseconds(5)) // Like a real write taking a moment.
+    }
+    func remove(id: UUID) throws {}
 }
 
 /// Fails every fetch from the `failFrom`th onwards.

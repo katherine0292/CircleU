@@ -183,7 +183,7 @@ final class GuestEntryEditorViewModelTests: XCTestCase {
         try unreadable.write(to: draftURL)
 
         let journal = try await GuestComposition.local(at: location).makeViewModel()
-        XCTAssertEqual(journal.draftWarning, GuestJournalViewModel.draftUnreadableMessage)
+        XCTAssertEqual(journal.draftWarning, GuestJournalViewModel.olderDraftUnreadableMessage)
         journal.draft = "new typing"
         await journal.flushDraft()
         XCTAssertEqual(try Data(contentsOf: draftURL), unreadable, "the unreadable draft isn't overwritten")

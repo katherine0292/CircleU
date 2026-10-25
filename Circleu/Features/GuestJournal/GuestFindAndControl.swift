@@ -172,7 +172,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
-    static let deletedExportPendingMessage = "Everything was deleted. A temporary export copy couldn’t be removed yet; CircleU will try again next time it opens."
+    static let deletedExportPendingMessage = "Everything was deleted. A leftover copy couldn’t be removed yet; it can’t come back into your journal, and CircleU will try again next time it opens."
     static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
     let journal: GuestJournalViewModel
@@ -237,8 +237,9 @@ final class GuestSettingsViewModel: ObservableObject {
         await journal.pauseDrafts()
         await practice.pauseDrafts()
         var deleted = true
+        var leftovers = false
         do {
-            try await data.deleteAll()
+            leftovers = try await !data.deleteAll()
         } catch GuestJournalError.savedButUnprotected {
             // Committed.
         } catch {
@@ -253,7 +254,7 @@ final class GuestSettingsViewModel: ObservableObject {
         let exportsRemoved = Self.removeExports()
         await journal.load()
         await practice.load()
-        message = exportsRemoved ? Self.deletedMessage : Self.deletedExportPendingMessage
+        message = exportsRemoved && !leftovers ? Self.deletedMessage : Self.deletedExportPendingMessage
     }
 
     func noteExportCleanup(succeeded: Bool) {
