@@ -5,9 +5,13 @@ import XCTest
 /// Saves in memory, so dictated words can be followed through to the Journal.
 private actor MemoryJournalStore: GuestJournalStore {
     private var rows: [GuestJournalEntry] = []
+    private var savedDrafts: Set<UUID> = []
 
     func loadAll() throws -> [GuestJournalEntry] { rows }
     func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry {
+        if let draftID {
+            guard savedDrafts.insert(draftID).inserted else { throw GuestJournalError.draftAlreadySaved }
+        }
         let entry = GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0,
                                       createdAt: Date(), updatedAt: Date())
         rows.insert(entry, at: 0)
@@ -17,7 +21,7 @@ private actor MemoryJournalStore: GuestJournalStore {
         throw GuestJournalError.notFound
     }
     func delete(id: UUID) throws {}
-    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { savedDrafts.contains(draftID) }
 }
 
 /// Stands in for the Speech framework: the test decides access and sends recogniser events.
@@ -292,8 +296,15 @@ final class GuestDictationViewModelTests: XCTestCase {
         XCTAssertEqual(journal.draft, "", "a late final result doesn't refill the cleared draft")
     }
 
-    func testThreeEntriesInARowWithAndWithoutVoice() async {
-        let (journal, dictation, engine) = make()
+    func testThreeEntriesInARowWithAndWithoutVoice() async throws {
+        // A real kept-draft store and an ID-aware journal, so draft identity is exercised.
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let location = GuestJournalLocation(directory: folder.appendingPathComponent("GuestJournal"),
+                                            setupMarker: folder.appendingPathComponent("Setup/initialized"))
+        let journal = GuestJournalViewModel(store: MemoryJournalStore(), drafts: FileGuestDraftStore(location: location))
+        let engine = FakeDictationEngine()
+        let dictation = GuestDictationViewModel(journal: journal, engine: engine)
         journal.draft = "Typed entry"
         _ = await journal.saveDraft()
         for words in ["Spoken entry", "Another spoken entry"] {
@@ -311,6 +322,9 @@ final class GuestDictationViewModelTests: XCTestCase {
             let saved = await journal.saveDraft()
             XCTAssertTrue(saved, words)
         }
-        XCTAssertEqual(Set(journal.entries.map(\.originalWords)), ["Typed entry", "Spoken entry", "Another spoken entry"])
+        await journal.flushDraft()
+        XCTAssertEqual(journal.entries.map(\.originalWords), ["Another spoken entry", "Spoken entry", "Typed entry"])
+        XCTAssertEqual(Set(journal.entries.map(\.id)).count, 3, "three distinct entries")
+        XCTAssertEqual(journal.notices, [], "never reported as already saved")
     }
 }
