@@ -55,20 +55,25 @@ struct CircleView: View {
 
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 16) {
-                            privacyPill
-
-                            LazyVGrid(columns: columns, spacing: 12) {
-                                ForEach(Array(circleStore.circles.enumerated()), id: \.element.id) { index, circle in
-                                    CircleHeroCard(
-                                        circle: circle,
-                                        accent: CircleHeroPalette.accent(for: index),
-                                        heroHeight: CircleHeroPalette.heroHeight(for: index),
-                                        onOpen: { viewModel.open(circle) },
-                                        onEdit: { beginEdit(circle) },
-                                        onDelete: { pendingDelete = circle }
-                                    )
-                                    .slideUp(Double(index) * 0.04)
+                            if circleStore.isBackendAvailable {
+                                privacyPill
+                                LazyVGrid(columns: columns, spacing: 12) {
+                                    ForEach(Array(circleStore.circles.enumerated()), id: \.element.id) { index, circle in
+                                        CircleHeroCard(
+                                            circle: circle,
+                                            accent: CircleHeroPalette.accent(for: index),
+                                            heroHeight: CircleHeroPalette.heroHeight(for: index),
+                                            onOpen: { viewModel.open(circle) },
+                                            onEdit: { beginEdit(circle) },
+                                            onDelete: { pendingDelete = circle }
+                                        )
+                                        .slideUp(Double(index) * 0.04)
+                                    }
                                 }
+                            } else {
+                                // No backend: hide cached circles too, so no post, reply, reaction,
+                                // edit or delete can appear to succeed while staying on this device.
+                                CircleUnavailableNote()
                             }
                         }
                         .padding(.horizontal, 20)
@@ -156,6 +161,9 @@ struct CircleView: View {
                 }
             }
             .buttonStyle(PressableButtonStyle())
+            .disabled(!circleStore.isBackendAvailable)
+            .opacity(circleStore.isBackendAvailable ? 1 : 0.4)
+            .accessibilityLabel("Saved circles")
 
             Button {
                 creating = true
@@ -168,6 +176,9 @@ struct CircleView: View {
                     .clipShape(Circle())
             }
             .buttonStyle(PressableButtonStyle())
+            .disabled(!circleStore.isBackendAvailable)
+            .opacity(circleStore.isBackendAvailable ? 1 : 0.4)
+            .accessibilityLabel("Create circle")
         }
     }
 
@@ -771,4 +782,23 @@ private struct SavedCircleRow: View {
     CircleView()
         .environmentObject(CircleStore())
         .environmentObject(ReflectionJournalStore())
+}
+
+/// Shown instead of social actions when Firebase isn't configured (see `CircleStore.isBackendAvailable`).
+struct CircleUnavailableNote: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "icloud.slash")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Pingu.accent)
+                .accessibilityHidden(true)
+            Text(CircleStore.backendUnavailableMessage)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Pingu.body)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glass(.pill, cornerRadius: 16)
+    }
 }

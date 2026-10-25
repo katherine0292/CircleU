@@ -4,6 +4,7 @@ struct JournalEntryDetailView: View {
     let entry: JournalReflectionEntry
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var journalStore: ReflectionJournalStore
+    @EnvironmentObject private var circleStore: CircleStore
     @StateObject private var viewModel = JournalEntryDetailViewModel()
     @State private var showShareSheet = false
 
@@ -28,7 +29,9 @@ struct JournalEntryDetailView: View {
                         insightCard
                         quoteCard
                         transcriptCard
-                        shareToCircleButton
+                        if circleStore.isBackendAvailable {
+                            shareToCircleButton
+                        }
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 8)
@@ -170,4 +173,5 @@ struct JournalEntryDetailView: View {
         JournalEntryDetailView(entry: .preview)
     }
     .environmentObject(ReflectionJournalStore())
+    .environmentObject(CircleStore())
 }

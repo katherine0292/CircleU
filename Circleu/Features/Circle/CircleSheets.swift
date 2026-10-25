@@ -31,8 +31,13 @@ struct CircleDetailView: View {
                                 .padding(.leading, 4)
                                 .padding(.bottom, 8)
 
-                            composer(circle)
-                                .padding(.bottom, 12)
+                            if circleStore.isBackendAvailable {
+                                composer(circle)
+                                    .padding(.bottom, 12)
+                            } else {
+                                CircleUnavailableNote()
+                                    .padding(.bottom, 12)
+                            }
 
                             postsList(circle)
                         }
@@ -140,6 +145,8 @@ struct CircleDetailView: View {
                         }
                     }
                     .buttonStyle(PinguPrimaryButtonStyle())
+                    .disabled(!circleStore.isBackendAvailable)
+                    .opacity(circleStore.isBackendAvailable ? 1 : 0.4)
                 }
 
                 circleReactionRow(circle)
