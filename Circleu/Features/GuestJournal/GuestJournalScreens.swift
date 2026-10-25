@@ -78,10 +78,9 @@ struct GuestTodayView: View {
         NavigationStack(path: $path) {
             // Straight to writing or talking: the text box and the big microphone, no extra tap.
             GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
-                           heading: "What’s on your mind?",
+                           heading: "What’s on your mind?", showsAvatar: true,
                            onGetSuggestion: { path.append(.review) }, onSaved: finish)
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) { GuestAvatarButton(size: 36) }
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
                             GuestSettingsView(journal: journal, practice: practice)
@@ -112,6 +111,8 @@ struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
     let heading: String
+    /// Today shows the Pingu avatar in the toolbar; opening its picker stops the microphone first.
+    let showsAvatar: Bool
     let onGetSuggestion: () -> Void
     let onSaved: () -> Void
     @FocusState private var focused: Bool
@@ -119,10 +120,11 @@ struct GuestWriteView: View {
     @Environment(\.openURL) private var openURL
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         heading: String = "Start with your words.",
+         heading: String = "Start with your words.", showsAvatar: Bool = false,
          onGetSuggestion: @escaping () -> Void, onSaved: @escaping () -> Void) {
         self.journal = journal
         self.heading = heading
+        self.showsAvatar = showsAvatar
         self.onGetSuggestion = onGetSuggestion
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
@@ -192,6 +194,13 @@ struct GuestWriteView: View {
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if showsAvatar {
+                ToolbarItem(placement: .topBarLeading) {
+                    GuestAvatarButton(size: 36, beforeOpening: { dictation.interrupt() })
+                }
+            }
+        }
         // No automatic keyboard: it would cover the microphone. Tap the text to type.
         // Leaving the app or this screen stops listening; the words so far stay in the draft.
         // Only `.background`: the permission alert makes the app `.inactive`, and calls arrive
