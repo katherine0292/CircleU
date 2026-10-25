@@ -11,28 +11,42 @@ Both options implement the same `EntryRepository` (load newest first, save with 
 | Criterion | Versioned JSON file (atomic write) | SwiftData (versioned schema) |
 | --- | --- | --- |
 | Save, relaunch, edit, reopen | ✅ stable ID; revision 0 → 1; stale edit rejected | ✅ same |
-| Corrupt store | ✅ `unreadable` on load **and** save; corrupt bytes untouched | ✅ container fails with an error; bytes untouched. Core Data logs "attempting recovery" first |
-| Never an empty journal on a failed read | ✅ missing file = first launch; unreadable or future schema = error | ✅ load error surfaced (in this test) |
-| Interrupted write | ✅ partial temp file without rename → previous version loads | Not simulated; relies on SQLite transactions (well established, not exercised here) |
+| Corrupt store | ✅ asserted: `unreadable` on load **and** save; corrupt bytes untouched | Observed (logged, not asserted): container failed with an error; bytes untouched. Core Data logs "attempting recovery" first |
+| Never an empty journal on a failed read | Partly: malformed data and an unknown schema give errors. **Gap:** an inaccessible folder or a vanished established store currently reads as empty (Codex finding 1) | Observed for corruption only; a fetch failure after opening wasn't exercised |
+| Interrupted write | Only that a stray temp file is ignored; a real write was **not** interrupted | Not simulated; relies on SQLite transactions |
 | Write failure | ✅ read-only folder → `writeFailed`, previous version intact | ⚠️ could not be provoked: open SQLite handles ignore later permission changes. Disk-full not tested for either option |
 | Schema versioning / migration | ✅ schema 1 → 2 in code, IDs kept; unknown future schema refused | ✅ V1 → V2 lightweight migration (renamed field, new defaults) kept data and IDs |
 | Data Protection | Set explicitly on every write (`.completeFileProtection`, one file, no sidecars). **Unverified:** the Simulator reports no protection class | Store plus `-wal`/`-shm` sidecars; `ModelConfiguration` has no file-protection option, so it would need folder-level or Core Data configuration. **Unverified** on Simulator |
-| Testability | Plain value types, temp folders, every failure path easy to provoke | Works in temp folders; some failure paths hard to provoke |
-| iOS 17 | ✅ Foundation only | ✅ SwiftData is iOS 17+ (early versions had known issues) |
-| Complexity | ~110 lines, no framework concurrency rules | `@Model` classes, contexts, migration plan, main-actor considerations |
+| Testability | Plain value types and temp folders; easier to inspect and inject failures into | Works in temp folders; some failure paths hard to provoke |
+| iOS 17 | Declared minimum (Foundation only); runs observed on iOS 27 Simulator and macOS only | Declared minimum (SwiftData is iOS 17+); same runs |
+| Complexity | ~110 lines; still needs one serialized writer (Codex finding 3) | `@Model` classes, contexts, migration plan, context isolation |
 
 ## Recommendation
 
 **Use versioned JSON files behind the `EntryRepository` protocol for the first slice.**
 
-- **Why:** every safety rule in the plan (failed reads never shown as empty, failed saves keep the text, corrupt data preserved, explicit schema, complete file protection) is simple and fully testable.
-- **Size:** a personal journal of hundreds to low thousands of short entries fits comfortably in one atomically rewritten file.
+- **Why:** the plan's safety rules (failed reads never shown as empty, failed saves keep the text, corrupt data preserved, explicit schema, complete file protection) are straightforward to implement and test on a plain file format, with a small dependency surface. The spike does **not** show JSON is more durable than SwiftData.
+- **Size (hypothesis):** a personal journal of hundreds to low thousands of short entries should fit in one atomically rewritten file. This needs a measurement in the slice.
 - **Switching later:** the protocol keeps SwiftData (or one file per entry) open as an option if the journal grows or Practice links need queries.
 
 Trade-offs to accept:
 - The whole file is rewritten on each save.
 - Migrations are hand-written code, though small and tested.
 - Search and filtering run in memory, which is fine at this size.
+
+## Codex review: production requirements
+
+[Codex reviewed the spike](../agent-collaboration-log/2026-10-25-181218-codex-review-storage-spike.md) (read-only). Its verdict: nothing blocks presenting this recommendation, but the spike isn't production-ready. The production repository must add:
+
+1. Only a confirmed missing, never-initialised store counts as empty; permission, protection and I/O failures, and a vanished established store, are errors.
+2. Separate **create** and **update(expectedRevision:)**: updating a deleted entry must fail, not resurrect it.
+3. **One serialized writer** per store, so concurrent edits or inserts can't overwrite each other.
+4. Failure injection at the real write, plus delete-failure tests.
+5. Migration tests covering all fields and ordering.
+6. A size/timing measurement.
+7. Physical-iPhone Data Protection checks.
+
+(For SwiftData, if reconsidered: surface fetch errors on delete, and backfill `updatedAt` during migration.)
 
 ## Limits and follow-up
 
