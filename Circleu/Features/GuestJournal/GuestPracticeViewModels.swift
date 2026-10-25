@@ -99,8 +99,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     @Published private(set) var suggestionError: String?
     /// The wording before "Use this", so it can be undone.
     @Published private(set) var wordingBeforeSuggestion: String?
-    /// The situation and goal the options were made from.
-    private var suggestedFrom: (String, String)?
+    /// The situation, goal and wording the options were made from (wording follows "Use this").
+    private var suggestedFrom: (String, String, String)?
     /// Ignores a slow result when a newer request was made.
     private var suggestionRequest = 0
 
@@ -162,10 +162,9 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         suggestionError = nil
         suggestionRequest += 1
         let request = suggestionRequest
-        let inputs = (Self.trim(situation), Self.trim(goal))
+        let inputs = (Self.trim(situation), Self.trim(goal), Self.trim(wording))
         do {
-            let result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1,
-                                                            draft: Self.trim(wording))
+            let result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1, draft: inputs.2)
             guard request == suggestionRequest else { return }
             suggestions = result
             suggestedFrom = inputs
@@ -175,16 +174,17 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         }
     }
 
-    /// The situation or goal changed after the options were made.
+    /// The situation, goal or wording changed after the options were made (using an option doesn't count).
     var suggestionsAreStale: Bool {
         guard suggestions != nil, let suggestedFrom else { return false }
-        return suggestedFrom != (Self.trim(situation), Self.trim(goal))
+        return suggestedFrom != (Self.trim(situation), Self.trim(goal), Self.trim(wording))
     }
 
     /// Puts an option in the wording box to edit; the previous wording can be restored.
     func use(_ option: GuestWordingOption) {
         if wordingBeforeSuggestion == nil { wordingBeforeSuggestion = wording }
         wording = option.text
+        suggestedFrom?.2 = Self.trim(option.text)
         didCopy = false
     }
 
@@ -192,6 +192,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         guard let previous = wordingBeforeSuggestion else { return }
         wording = previous
         wordingBeforeSuggestion = nil
+        suggestedFrom?.2 = Self.trim(previous)
     }
 
     /// Puts the wording on the clipboard. Doesn't save, doesn't send.

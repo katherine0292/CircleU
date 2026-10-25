@@ -241,7 +241,7 @@ struct GuestPracticeMessageView: View {
                 if let suggestions = composer.suggestions {
                     Text(suggestions.source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                     if composer.suggestionsAreStale {
-                        Label("Based on earlier details. Get a suggestion again to update.",
+                        Label("Based on earlier details or wording. Get a suggestion again to update.",
                               systemImage: "clock.arrow.circlepath")
                             .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
                     }

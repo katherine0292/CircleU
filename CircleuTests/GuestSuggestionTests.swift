@@ -243,7 +243,7 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertEqual(journal.draft, "Saved once")
     }
 
-    func testStalePracticeSuggestionsAndLateResults() async throws {
+    func testPracticeSuggestionsBecomeStaleWhenTheirInputsChange() async throws {
         let (_, practice) = try await session()
         let composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil,
                                                       suggester: FakeSuggester())
@@ -252,8 +252,13 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertFalse(composer.suggestionsAreStale)
         composer.situation = "Rent and chores"
         XCTAssertTrue(composer.suggestionsAreStale)
-        composer.wording = "Changing my wording doesn't make them stale"
         composer.situation = "Rent"
+        XCTAssertFalse(composer.suggestionsAreStale)
+        composer.use(composer.suggestions!.options[0])
+        XCTAssertFalse(composer.suggestionsAreStale, "using an option isn't a change of inputs")
+        composer.wording = "My own rewrite"
+        XCTAssertTrue(composer.suggestionsAreStale, "a manual rewrite is")
+        composer.undoSuggestion()
         XCTAssertFalse(composer.suggestionsAreStale)
     }
 
