@@ -19,6 +19,7 @@ final class AppStartupTests: XCTestCase {
         XCTAssertFalse(startup.configuresFirebase)
     }
 
+    #if DEBUG // The cloud-access counter only exists in Debug builds.
     @MainActor
     func testGuestStartupDoesNotConstructCloudServices() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("GuestStartup-\(UUID())")
@@ -38,10 +39,13 @@ final class AppStartupTests: XCTestCase {
 
     @MainActor
     func testCloudAccessCounterDetectsTheExistingStartup() {
+        let previousTracker = AnalyticsService.shared
+        defer { AnalyticsService.shared = previousTracker }
         let before = FirebaseRuntime.debugCloudAccessCount
         AppBootstrap.live.run(for: AppStartup.resolve(arguments: ["Circleu"], isDebugBuild: true))
         XCTAssertEqual(FirebaseRuntime.debugCloudAccessCount, before + 2, "configure + analytics; proves the check can fail")
     }
+    #endif
 
     @MainActor
     func testExistingStartupStillConfiguresFirebaseThenAnalytics() {
