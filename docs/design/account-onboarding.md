@@ -55,3 +55,5 @@ For social login used to establish/authenticate the primary app account, [Apple 
 Kept deliberately: "Continue locally" on offline, no-backup, backup-error and recovery-error states (a real exit when recovery fails); the expired/invalid-link "Back to Log in" (a reset link may open without a Log in screen behind it); the Privacy link on Log in (privacy information before entering details); "Nothing imports automatically" on Earlier data (an approved truthful-recovery rule).
 
 Used Google? is removed from Log in. Account help is reachable only after a failed login. Google, Apple, X and Facebook login remain deferred proposals (see above); no provider was added.
+
+**Owner decisions, 25 October:** keep Used Google? off Log in, with Account help shown only after a failed login; Google/Apple sign-in stays deferred. The copy pass (PR #2) stays unmerged until the owner checks it on the phone.
