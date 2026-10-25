@@ -27,13 +27,12 @@ public struct JournalCalendarPreview: View {
             .padding(.top, 12)
 
             HStack {
-                Text("Your journal").font(BrandDemoFont.font(30, .bold)).tracking(-1)
+                Text("Journal").font(BrandDemoFont.font(30, .bold)).tracking(-1)
                 Spacer()
                 Label("Search", systemImage: "magnifyingglass")
                     .font(BrandDemoFont.font(12, .semibold)).foregroundStyle(BrandDemoColor.blue)
             }
             .padding(.top, 18)
-            BrandFixture.detail("Little moments, kept together.", size: 14).padding(.top, 6)
             calendar.padding(.top, 18)
 
             HStack {

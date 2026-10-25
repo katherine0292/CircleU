@@ -164,8 +164,8 @@ public struct BrandJourneyPreview: View {
                 else { BrandFixture.detail("Draft kept. The reflection changed, so review the wording.", size: 13) }
             }
         case .wording:
-            if iconLed { chip(linkedContext ? "From The group deadline" : "Standalone", symbol: linkedContext ? "link" : "bubble.left") }
-            else { BrandFixture.detail(linkedContext ? "Linked to The group deadline" : "Standalone practice · No journal entry", size: 12) }
+            // Owner decision (walkthrough task 3): a small icon tag for linked vs standalone.
+            chip(linkedContext ? "From: The group deadline" : "On its own", symbol: linkedContext ? "link" : "bubble.left")
             block("My aim", text: "Ask for an update and agree on a realistic plan.")
             block("Suggested message", text: message, edit: "Edit message", minimumHeight: 135)
             if iconLed { note("Copy won’t save or send.", symbol: "doc.on.doc") }
@@ -173,8 +173,7 @@ public struct BrandJourneyPreview: View {
                 BrandFixture.detail("Copying won’t save or send it.", size: 13)
             }
         case .practiceDetail:
-            if iconLed { chip(linkedContext ? "From The group deadline" : "24 Oct · Standalone", symbol: linkedContext ? "link" : "clock") }
-            else { BrandFixture.detail(linkedContext ? "Source · The group deadline" : "Standalone message · 24 October 2026", size: 12) }
+            chip(linkedContext ? "From: The group deadline" : "On its own · 24 Oct", symbol: linkedContext ? "link" : "bubble.left")
             block("My message", text: message, edit: "Edit message", minimumHeight: 135)
             if iconLed { note("Saved · Not sent", symbol: "checkmark.circle") }
             else { BrandFixture.detail("Saved · not sent", size: 13) }

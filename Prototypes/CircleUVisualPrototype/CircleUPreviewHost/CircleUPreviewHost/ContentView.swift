@@ -26,6 +26,8 @@ struct ContentView: View {
                 BrandHubPreview(screen: hub)
             } else if let journey = BrandJourneyScreen(rawValue: name) {
                 BrandJourneyPreview(screen: journey)
+            } else if name == "calendar" || name == "calendar-empty" || name == "calendar-multiple" {
+                JournalCalendarPreview(day: name == "calendar-empty" ? .empty : name == "calendar-multiple" ? .multiple : .saved)
             } else if name == "edit-reflection-leave" {
                 BrandEditorPreview(kind: .reflection, showsLeavePrompt: true)
             } else if name.hasPrefix("edit-"), let kind = EditorPreviewKind(rawValue: String(name.dropFirst(5))) {
