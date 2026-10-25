@@ -102,11 +102,12 @@ enum GuestCloudBackupMapper {
         }
         // The same item twice: keep its latest edit, every time.
         // (A tie on the edit time is broken by the words, so the result never depends on order.)
+        // (A tie on the edit time is broken on the whole record, so the result never depends on order.)
         backup.entries = Dictionary(backup.entries.map { ($0.legacyID, $0) }, uniquingKeysWith: { a, b in
-            a.updatedAt != b.updatedAt ? (a.updatedAt > b.updatedAt ? a : b) : (a.originalWords >= b.originalWords ? a : b)
+            a.updatedAt != b.updatedAt ? (a.updatedAt > b.updatedAt ? a : b) : ("\(a)" >= "\(b)" ? a : b)
         }).values.sorted { $0.createdAt > $1.createdAt }
         backup.messages = Dictionary(backup.messages.map { ($0.legacyID, $0) }, uniquingKeysWith: { a, b in
-            a.updatedAt != b.updatedAt ? (a.updatedAt > b.updatedAt ? a : b) : (a.wording >= b.wording ? a : b)
+            a.updatedAt != b.updatedAt ? (a.updatedAt > b.updatedAt ? a : b) : ("\(a)" >= "\(b)" ? a : b)
         }).values.sorted { $0.createdAt > $1.createdAt }
         return backup
     }
@@ -261,6 +262,11 @@ final class LiveGuestCloudBackupReader: GuestCloudBackupReading {
                     if (try? await circle.reference.delete()) == nil { failures += 1 }
                 } else {
                     keptCircles += 1
+                    // Kept for the others, but this person is no longer in it.
+                    if isMember,
+                       (try? await circle.reference.updateData(["memberUserIDs": FieldValue.arrayRemove([uid])])) == nil {
+                        failures += 1
+                    }
                 }
             } else if isMember,
                       (try? await circle.reference.updateData(["memberUserIDs": FieldValue.arrayRemove([uid])])) == nil {

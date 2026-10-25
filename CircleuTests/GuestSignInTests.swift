@@ -184,6 +184,7 @@ final class GuestSignInTests: XCTestCase {
         let task = Task { await model.logIn() }
         for _ in 0..<20 { await Task.yield() }
         model.cancel()
+        model.cancel() // A second cancel doesn't let go early either.
         XCTAssertTrue(GuestAccountGate.isBusy, "the gate is held until the pending log in settles")
         account.release()
         await task.value

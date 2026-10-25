@@ -133,6 +133,8 @@ final class GuestSignInViewModel: ObservableObject {
         holdsGate = true
         request += 1
         let current = request
+        inFlight = true
+        defer { inFlight = false }
         message = nil
         step = .working
         do {
@@ -151,13 +153,13 @@ final class GuestSignInViewModel: ObservableObject {
             for message in backup.messages {
                 if try await store.isImported(message.legacyID) { already += 1 } else { fresh.messages.append(message) }
             }
-            guard current == request else { return }
+            guard current == request else { settleCancelled(account); return }
             failures = 0
             retryAfter = nil
             step = .preview(fresh, alreadyCopied: already)
         } catch {
             guard current == request else { settleCancelled(account); return }
-            noteSignOut(account.signOut())
+            let signedOut = account.signOut()
             releaseGate()
             password = ""
             if case GuestAccountError.couldNotLogIn = error {
@@ -167,6 +169,7 @@ final class GuestSignInViewModel: ObservableObject {
                 }
             }
             message = GuestAccountMessages.text(for: error)
+            noteSignOut(signedOut) // Added after, so it isn't overwritten.
             step = .form
         }
     }
@@ -201,8 +204,8 @@ final class GuestSignInViewModel: ObservableObject {
     func cancel() {
         request += 1
         password = ""
-        if step == .working {
-            pendingCancel = true
+        if inFlight {
+            pendingCancel = true // The pending work signs out and lets go when it settles.
         } else {
             if let account = services?.account { noteSignOut(account.signOut()) }
             releaseGate()
@@ -211,6 +214,7 @@ final class GuestSignInViewModel: ObservableObject {
     }
 
     private var pendingCancel = false
+    private var inFlight = false
 
     private func settleCancelled(_ account: any GuestAccountService) {
         noteSignOut(account.signOut())
@@ -221,7 +225,8 @@ final class GuestSignInViewModel: ObservableObject {
     static let signOutUnfinishedMessage = "Signing out didn’t finish. Close and reopen CircleU; nothing syncs either way."
 
     private func noteSignOut(_ succeeded: Bool) {
-        if !succeeded { message = Self.signOutUnfinishedMessage }
+        guard !succeeded else { return }
+        message = [message, Self.signOutUnfinishedMessage].compactMap { $0 }.joined(separator: " ")
     }
 
     private var isDone: Bool { if case .done = step { true } else { false } }
@@ -434,7 +439,9 @@ final class GuestDeleteAccountViewModel: ObservableObject {
         step = .working
         message = nil
         defer {
-            account.signOut()
+            if !account.signOut() {
+                message = [message, GuestSignInViewModel.signOutUnfinishedMessage].compactMap { $0 }.joined(separator: " ")
+            }
             GuestAccountGate.leave()
             password = ""
         }
