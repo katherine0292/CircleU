@@ -88,6 +88,33 @@ final class GuestJournalStoreTests: XCTestCase {
         XCTAssertEqual(entries.map(\.revision), [1])
     }
 
+    // MARK: Draft identity
+
+    func testSavedDraftIsRememberedAfterDeleteAndCantBeSavedTwice() async throws {
+        let store = try await open()
+        let draftID = UUID()
+        let created = try await store.create(originalWords: "From a draft", draftID: draftID)
+        let savedBefore = try await store.isDraftSaved(draftID)
+        XCTAssertTrue(savedBefore)
+        try await store.delete(id: created.id)
+        let savedAfterDelete = try await store.isDraftSaved(draftID)
+        XCTAssertTrue(savedAfterDelete, "remembered after the entry is deleted")
+        await assertThrows(.draftAlreadySaved) { try await store.create(originalWords: "From a draft", draftID: draftID) }
+        let entries = try await store.loadAll()
+        XCTAssertEqual(entries, [], "the deleted entry wasn't resurrected")
+    }
+
+    func testFailedCreateDoesNotMarkDraftSaved() async throws {
+        let faults = FaultSwitch()
+        let store = try await open(faults: faults.faults)
+        let draftID = UUID()
+        faults.set(save: true)
+        _ = try? await store.create(originalWords: "x", draftID: draftID)
+        faults.set()
+        let saved = try await store.isDraftSaved(draftID)
+        XCTAssertFalse(saved, "the draft record rolls back with the entry")
+    }
+
     // MARK: Rule 2 — an edit can't bring back a deleted entry
 
     func testUpdateAfterDeleteDoesNotResurrectEntry() async throws {
@@ -316,7 +343,7 @@ private actor StubJournalStore: GuestJournalStore {
         return entries
     }
 
-    func create(originalWords: String) throws -> GuestJournalEntry {
+    func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry {
         let entry = GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: Date(), updatedAt: Date())
         if let createError {
             if case .savedButUnprotected = createError { entries.insert(entry, at: 0) }
@@ -331,6 +358,7 @@ private actor StubJournalStore: GuestJournalStore {
     }
 
     func delete(id: UUID) throws { throw GuestJournalError.notFound }
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
 }
 
 /// Holds `create` until the test releases it, to edit the draft mid-save.
@@ -342,7 +370,7 @@ private actor SuspendedSaveStore: GuestJournalStore {
 
     func loadAll() throws -> [GuestJournalEntry] { [] }
 
-    func create(originalWords: String) async throws -> GuestJournalEntry {
+    func create(originalWords: String, draftID: UUID?) async throws -> GuestJournalEntry {
         await withCheckedContinuation { pending = $0 }
         return GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: Date(), updatedAt: Date())
     }
@@ -352,6 +380,7 @@ private actor SuspendedSaveStore: GuestJournalStore {
     }
 
     func delete(id: UUID) throws { throw GuestJournalError.notFound }
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
 }
 
 @MainActor
@@ -375,7 +404,7 @@ final class GuestJournalViewModelTests: XCTestCase {
         XCTAssertTrue(saved, "committed, so it isn't offered for saving again")
         XCTAssertEqual(viewModel.draft, "")
         XCTAssertNil(viewModel.saveError)
-        XCTAssertEqual(viewModel.notice, GuestJournalViewModel.savedButUnprotectedMessage, "warning survives the move to Journal")
+        XCTAssertEqual(viewModel.notices, [GuestJournalViewModel.savedButUnprotectedMessage], "warning survives the move to Journal")
         XCTAssertEqual(viewModel.entries.count, 1, "exactly one entry")
     }
 

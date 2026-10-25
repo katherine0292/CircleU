@@ -19,12 +19,16 @@ struct GuestHomeView: View {
         .tint(Pingu.accent)
         // Above every tab and pushed screen, so a warning can't hide behind an open entry.
         .safeAreaInset(edge: .top) {
-            if let notice = journal.notice {
+            if !journal.notices.isEmpty {
                 HStack(alignment: .top) {
-                    Label(notice, systemImage: "exclamationmark.shield")
-                        .font(.subheadline).foregroundStyle(Pingu.ink)
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(journal.notices, id: \.self) { notice in
+                            Label(notice, systemImage: "exclamationmark.shield")
+                                .font(.subheadline).foregroundStyle(Pingu.ink)
+                        }
+                    }
                     Spacer()
-                    Button("OK") { journal.notice = nil }
+                    Button("OK") { journal.dismissNotices() }
                 }
                 .padding(12)
                 .background(.white, in: RoundedRectangle(cornerRadius: 14))

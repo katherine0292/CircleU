@@ -5,7 +5,7 @@ import SwiftData
 /// backfill derived values such as `updatedAt` in that stage rather than relying on defaults.
 nonisolated enum GuestJournalSchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
-    static var models: [any PersistentModel.Type] { [Entry.self] }
+    static var models: [any PersistentModel.Type] { [Entry.self, SavedDraft.self] }
 
     @Model final class Entry {
         @Attribute(.unique) var id: UUID
@@ -20,6 +20,18 @@ nonisolated enum GuestJournalSchemaV1: VersionedSchema {
             self.revision = revision
             self.createdAt = createdAt
             self.updatedAt = updatedAt
+        }
+    }
+
+    /// A draft that was saved as an entry. Kept even if the entry is later edited or deleted, so a
+    /// leftover draft file can be recognised and never saved twice.
+    @Model final class SavedDraft {
+        @Attribute(.unique) var id: UUID
+        var savedAt: Date
+
+        init(id: UUID, savedAt: Date) {
+            self.id = id
+            self.savedAt = savedAt
         }
     }
 }
@@ -72,6 +84,7 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// Access from another process (for example an extension) is not supported.
 actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
     typealias Entry = GuestJournalSchemaV1.Entry
+    typealias SavedDraft = GuestJournalSchemaV1.SavedDraft
 
     nonisolated let modelExecutor: any ModelExecutor
     nonisolated let modelContainer: ModelContainer
@@ -138,12 +151,23 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, ModelActor {
         return try fetch(descriptor).map(Self.value)
     }
 
-    func create(originalWords: String) throws -> GuestJournalEntry {
+    func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry {
+        if let draftID, try isDraftSaved(draftID) { throw GuestJournalError.draftAlreadySaved }
         let now = Date()
         let row = Entry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: now, updatedAt: now)
         modelContext.insert(row)
+        if let draftID { modelContext.insert(SavedDraft(id: draftID, savedAt: now)) } // Same transaction.
         try commit(entryID: row.id)
         return Self.value(row)
+    }
+
+    func isDraftSaved(_ draftID: UUID) throws -> Bool {
+        do {
+            try faults.beforeFetch()
+            return try !modelContext.fetch(FetchDescriptor<SavedDraft>(predicate: #Predicate { $0.id == draftID })).isEmpty
+        } catch {
+            throw GuestJournalError.storeUnavailable("read: \(error)")
+        }
     }
 
     func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry {

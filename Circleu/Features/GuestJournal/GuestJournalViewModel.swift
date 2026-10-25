@@ -19,8 +19,8 @@ final class GuestJournalViewModel: ObservableObject {
     }
     @Published private(set) var saveError: String?
     @Published private(set) var isSaving = false
-    /// A lasting message for the Journal screen, such as a save that needs attention.
-    @Published var notice: String?
+    /// Lasting messages shown above every screen until dismissed. They add up, never replace.
+    @Published private(set) var notices: [String] = []
     /// Set when the draft couldn't be restored or kept; shown on the Write screen.
     @Published private(set) var draftWarning: String?
 
@@ -30,7 +30,8 @@ final class GuestJournalViewModel: ObservableObject {
     static let draftUnreadableMessage = "Your earlier draft couldn’t be opened, so it’s been left as it was. New writing won’t be kept after you close the app."
     static let draftNotKeptMessage = "Your draft couldn’t be kept on this phone. Save it before you close the app."
     static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
-    static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, so it won’t be offered again for saving."
+    static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, but it won’t be saved twice."
+    static let draftAlreadySavedMessage = "This draft was already saved to your journal."
 
     /// What the guest root shows when the store can't be opened. Never an empty journal.
     static func openFailureMessage(for error: Error) -> String {
@@ -46,10 +47,13 @@ final class GuestJournalViewModel: ObservableObject {
 
     let store: any GuestJournalStore
     private let drafts: (any GuestDraftStore)?
+    /// The current draft's identity. A new one starts after each saved entry.
+    private var draftID = UUID()
     /// False if a kept draft exists but couldn't be read: don't overwrite it.
     private var canKeepDraft: Bool
-    private var restoringDraft = false
-    private var lastDraftWrite: Task<Void, Never>?
+    private var settingDraftQuietly = false
+    /// Every draft write and removal runs in this order, one after another.
+    private var lastDraftOperation: Task<Void, Never>?
 
     init(store: any GuestJournalStore, drafts: (any GuestDraftStore)? = nil) {
         self.store = store
@@ -62,27 +66,29 @@ final class GuestJournalViewModel: ObservableObject {
         if case .loaded(let entries) = loadState { entries } else { [] }
     }
 
-    /// Restores a kept draft after `load()`. A draft that can't be read is left untouched on disk.
-    /// A draft matching a saved entry was already saved (its cleanup didn't finish), so it's
-    /// cleared rather than offered again, which would create a duplicate.
+    func dismissNotices() { notices.removeAll() }
+
+    /// Restores a kept draft. A draft that can't be read is left untouched on disk. A draft the
+    /// store already saved (cleanup didn't finish) is removed rather than offered again; if the
+    /// store can't be asked, the draft is restored and `create` refuses to save it twice.
     func restoreDraft() async {
         guard let drafts else { return }
-        let kept: String
+        let kept: KeptDraft?
         do {
-            let loaded = try await drafts.load()
-            kept = loaded?.text ?? ""
-            if loaded?.isProtected == false { draftWarning = Self.draftUnprotectedMessage }
+            kept = try await drafts.load()
         } catch {
             canKeepDraft = false
             draftWarning = Self.draftUnreadableMessage
             return
         }
-        let trimmed = kept.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmed.isEmpty, entries.contains(where: { $0.originalWords == trimmed }) {
-            await clearKeptDraft()
+        guard let kept else { return }
+        if (try? await store.isDraftSaved(kept.id)) == true {
+            enqueueDraftOperation { try await drafts.remove(id: kept.id) }
             return
         }
-        setDraftWithoutKeeping(kept)
+        if !kept.isProtected { draftWarning = Self.draftUnprotectedMessage }
+        draftID = kept.id
+        setDraftQuietly(kept.text)
     }
 
     /// Refreshes the list. Keeps showing the current entries while refreshing.
@@ -96,7 +102,7 @@ final class GuestJournalViewModel: ObservableObject {
     }
 
     /// Saves the draft as a new entry. On failure the draft stays and an error is shown.
-    /// Returns true once the entry is saved.
+    /// Returns true once the entry is saved (or was already saved before).
     @discardableResult
     func saveDraft() async -> Bool {
         let words = draft.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -104,62 +110,77 @@ final class GuestJournalViewModel: ObservableObject {
         isSaving = true
         defer { isSaving = false }
         let submitted = draft
+        let submittedID = draftID
         do {
-            _ = try await store.create(originalWords: words)
+            _ = try await store.create(originalWords: words, draftID: drafts == nil ? nil : submittedID)
             saveError = nil
         } catch GuestJournalError.savedButUnprotected {
             saveError = nil
-            notice = Self.savedButUnprotectedMessage // Saved: shown on Journal; retrying would duplicate it.
+            notices.append(Self.savedButUnprotectedMessage) // Saved: retrying would duplicate it.
+        } catch GuestJournalError.draftAlreadySaved {
+            saveError = nil
+            notices.append(Self.draftAlreadySavedMessage)
         } catch {
             saveError = Self.saveFailedMessage
             return false
         }
-        // Text typed while the save was in progress is newer than what was saved; keep it.
+        // The saved draft is used up; anything typed from now on is a new draft.
+        draftID = UUID()
         if draft == submitted {
-            setDraftWithoutKeeping("")
-            await clearKeptDraft()
+            setDraftQuietly("")
+        } else {
+            keepDraft() // Text typed while saving is a new draft; keep it under the new ID.
         }
+        removeKeptDraft(id: submittedID)
         await load()
         return true
     }
 
-    private func setDraftWithoutKeeping(_ text: String) {
-        restoringDraft = true
-        draft = text
-        restoringDraft = false
+    /// Waits for pending draft writes and removals (tests and relaunch checks).
+    func flushDraft() async {
+        await lastDraftOperation?.value
     }
 
-    /// Removes the kept draft after it was saved as an entry, waiting for earlier draft writes.
-    private func clearKeptDraft() async {
+    private func setDraftQuietly(_ text: String) {
+        settingDraftQuietly = true
+        draft = text
+        settingDraftQuietly = false
+    }
+
+    private func keepDraft() {
+        guard let drafts, canKeepDraft, !settingDraftQuietly else { return }
+        let id = draftID
+        let text = draft
+        enqueueDraftOperation { try await drafts.save(id: id, text: text) }
+    }
+
+    /// Removes the saved draft's file, after any earlier writes. A newer draft has another ID,
+    /// so it's never removed by this.
+    private func removeKeptDraft(id: UUID) {
         guard let drafts, canKeepDraft else { return }
-        await lastDraftWrite?.value
-        do {
-            try await drafts.save("")
-        } catch {
-            // Restore reconciles a leftover copy against saved entries, so it isn't saved twice.
-            notice = Self.draftNotClearedMessage
+        enqueueDraftOperation(onFailure: { [weak self] _ in
+            self?.notices.append(Self.draftNotClearedMessage)
+        }) {
+            try await drafts.remove(id: id)
         }
     }
 
-    /// Writes the draft in order, after any earlier write.
-    private func keepDraft() {
-        guard let drafts, canKeepDraft, !restoringDraft else { return }
-        let text = draft
-        let previous = lastDraftWrite
-        lastDraftWrite = Task { [weak self] in
+    private func enqueueDraftOperation(onFailure: ((Error) -> Void)? = nil,
+                                       _ operation: @escaping @Sendable () async throws -> Void) {
+        let previous = lastDraftOperation
+        lastDraftOperation = Task { [weak self] in
             await previous?.value
             do {
-                try await drafts.save(text)
-            } catch GuestJournalError.protectionFailed {
-                self?.draftWarning = Self.draftUnprotectedMessage
+                try await operation()
             } catch {
-                self?.draftWarning = Self.draftNotKeptMessage
+                if let onFailure {
+                    onFailure(error)
+                } else if case GuestJournalError.protectionFailed = error {
+                    self?.draftWarning = Self.draftUnprotectedMessage
+                } else {
+                    self?.draftWarning = Self.draftNotKeptMessage
+                }
             }
         }
-    }
-
-    /// Waits for pending draft writes (tests and relaunch checks).
-    func flushDraft() async {
-        await lastDraftWrite?.value
     }
 }

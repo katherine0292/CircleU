@@ -7,13 +7,14 @@ private actor EditorStubStore: GuestJournalStore {
     func failUpdates(with error: GuestJournalError?) { updateError = error }
 
     func loadAll() throws -> [GuestJournalEntry] { [] }
-    func create(originalWords: String) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
+    func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
     func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry {
         if let updateError { throw updateError }
         return GuestJournalEntry(id: id, originalWords: originalWords, revision: expectedRevision + 1,
                                  createdAt: Date(), updatedAt: Date())
     }
     func delete(id: UUID) throws {}
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
 }
 
 /// Holds `update` until the test releases it, to type while an edit is saving.
@@ -23,13 +24,14 @@ private actor SuspendedUpdateStore: GuestJournalStore {
     func release() { pending?.resume(); pending = nil }
 
     func loadAll() throws -> [GuestJournalEntry] { [] }
-    func create(originalWords: String) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
+    func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
     func update(id: UUID, originalWords: String, expectedRevision: Int) async throws -> GuestJournalEntry {
         await withCheckedContinuation { pending = $0 }
         return GuestJournalEntry(id: id, originalWords: originalWords, revision: expectedRevision + 1,
                                  createdAt: Date(), updatedAt: Date())
     }
     func delete(id: UUID) throws {}
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { false }
 }
 
 @MainActor
@@ -176,8 +178,8 @@ final class GuestEntryEditorViewModelTests: XCTestCase {
         let (location, root) = makeLocation()
         defer { try? FileManager.default.removeItem(at: root) }
         _ = try await GuestComposition.local(at: location).makeViewModel() // Creates the folder.
-        let draftURL = location.directory.appendingPathComponent("Draft.txt")
-        let unreadable = Data([0xFF, 0xFE, 0xFD]) // Not valid UTF-8.
+        let draftURL = location.directory.appendingPathComponent("Draft.json")
+        let unreadable = Data([0xFF, 0xFE, 0xFD]) // Not a readable draft.
         try unreadable.write(to: draftURL)
 
         let journal = try await GuestComposition.local(at: location).makeViewModel()
@@ -188,73 +190,136 @@ final class GuestEntryEditorViewModelTests: XCTestCase {
     }
 }
 
-// MARK: - Draft failure handling (Codex re-check R1/R2)
+// MARK: - Draft identity and failure handling (Codex re-checks)
 
 private actor FakeDraftStore: GuestDraftStore {
     var kept: KeptDraft?
-    var failClear = false
+    var failRemove = false
     var protectionFails = false
-    private(set) var saves: [String] = []
 
     init(kept: KeptDraft? = nil) { self.kept = kept }
-    func configure(failClear: Bool = false, protectionFails: Bool = false) {
-        self.failClear = failClear
+    func configure(failRemove: Bool = false, protectionFails: Bool = false) {
+        self.failRemove = failRemove
         self.protectionFails = protectionFails
     }
 
     func load() throws -> KeptDraft? { kept }
-    func save(_ text: String) throws {
-        if text.isEmpty, failClear { throw GuestJournalError.saveFailed("injected") }
-        saves.append(text)
-        kept = text.isEmpty ? nil : KeptDraft(text: text, isProtected: !protectionFails)
+    func save(id: UUID, text: String) throws {
+        kept = text.isEmpty ? nil : KeptDraft(id: id, text: text, isProtected: !protectionFails)
         if protectionFails, !text.isEmpty { throw GuestJournalError.protectionFailed("draft") }
+    }
+    func remove(id: UUID) throws {
+        if failRemove { throw GuestJournalError.saveFailed("injected") }
+        if kept?.id == id { kept = nil }
     }
 }
 
+/// Records saved draft IDs like the real store (survives edits and deletes of the entry).
 private actor MemoryJournalStore: GuestJournalStore {
     var entries: [GuestJournalEntry] = []
+    var savedDrafts: Set<UUID> = []
+    var createResult: GuestJournalError?
+
+    func failCreates(with error: GuestJournalError?) { createResult = error }
     func loadAll() throws -> [GuestJournalEntry] { entries }
-    func create(originalWords: String) throws -> GuestJournalEntry {
+    func create(originalWords: String, draftID: UUID?) throws -> GuestJournalEntry {
+        if let draftID, savedDrafts.contains(draftID) { throw GuestJournalError.draftAlreadySaved }
         let entry = GuestJournalEntry(id: UUID(), originalWords: originalWords, revision: 0, createdAt: Date(), updatedAt: Date())
         entries.insert(entry, at: 0)
+        if let draftID { savedDrafts.insert(draftID) }
+        if let createResult { throw createResult }
         return entry
     }
-    func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry { throw GuestJournalError.notFound }
-    func delete(id: UUID) throws {}
+    func update(id: UUID, originalWords: String, expectedRevision: Int) throws -> GuestJournalEntry {
+        guard let index = entries.firstIndex(where: { $0.id == id }) else { throw GuestJournalError.notFound }
+        entries[index].originalWords = originalWords
+        return entries[index]
+    }
+    func delete(id: UUID) throws { entries.removeAll { $0.id == id } }
+    func isDraftSaved(_ draftID: UUID) throws -> Bool { savedDrafts.contains(draftID) }
 }
 
 @MainActor
 final class GuestDraftFailureTests: XCTestCase {
-    func testFailedDraftCleanupIsVisibleAndLeftoverIsNotOfferedAgain() async {
+    func testLeftoverDraftOfAnEditedEntryIsNotRestoredOrSavedTwice() async throws {
         let store = MemoryJournalStore()
         let drafts = FakeDraftStore()
-        await drafts.configure(failClear: true)
+        await drafts.configure(failRemove: true)
         let journal = GuestJournalViewModel(store: store, drafts: drafts)
         journal.draft = "Saved words"
         await journal.flushDraft()
         let saved = await journal.saveDraft()
         XCTAssertTrue(saved)
-        XCTAssertEqual(journal.notice, GuestJournalViewModel.draftNotClearedMessage, "shown on every screen")
+        await journal.flushDraft()
+        XCTAssertEqual(journal.notices, [GuestJournalViewModel.draftNotClearedMessage])
 
-        // Relaunch: the leftover draft matches a saved entry, so it isn't restored or saved twice.
+        // The entry is edited, so its text no longer matches the leftover draft.
+        let entryID = try XCTUnwrap(journal.entries.first?.id)
+        _ = try await store.update(id: entryID, originalWords: "Edited later", expectedRevision: 0)
+
+        await drafts.configure()
         let reopened = GuestJournalViewModel(store: store, drafts: drafts)
         await reopened.load()
         await reopened.restoreDraft()
-        XCTAssertEqual(reopened.draft, "")
-        let entries = await store.entries
-        XCTAssertEqual(entries.count, 1)
+        await reopened.flushDraft()
+        XCTAssertEqual(reopened.draft, "", "recognised by its ID, not its text")
+        let kept = await drafts.kept
+        XCTAssertNil(kept, "leftover removed")
+        let count = await store.entries.count
+        XCTAssertEqual(count, 1)
     }
 
-    func testInterruptedCleanupIsReconciledOnRelaunch() async {
+    func testANewDraftRepeatingEarlierWordsIsKept() async throws {
         let store = MemoryJournalStore()
-        _ = try? await store.create(originalWords: "Already saved")
-        let drafts = FakeDraftStore(kept: KeptDraft(text: "Already saved", isProtected: true))
+        _ = try await store.create(originalWords: "Same words", draftID: UUID())
+        let drafts = FakeDraftStore(kept: KeptDraft(id: UUID(), text: "Same words", isProtected: true))
         let journal = GuestJournalViewModel(store: store, drafts: drafts)
         await journal.load()
         await journal.restoreDraft()
-        XCTAssertEqual(journal.draft, "")
+        XCTAssertEqual(journal.draft, "Same words", "a different draft isn't deleted for repeating text")
+    }
+
+    func testDraftThatCantBeCheckedIsRestoredButNeverSavedTwice() async throws {
+        let store = MemoryJournalStore()
+        let draftID = UUID()
+        _ = try await store.create(originalWords: "Already saved", draftID: draftID)
+        let entryID = await store.entries[0].id
+        try await store.delete(id: entryID) // Saved, then deleted.
+        let drafts = FakeDraftStore(kept: KeptDraft(id: draftID, text: "Already saved", isProtected: true))
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        await journal.load()
+        await journal.restoreDraft()
+        await journal.flushDraft()
+        XCTAssertEqual(journal.draft, "", "a saved-then-deleted draft isn't resurrected")
+    }
+
+    func testTypingDuringCleanupIsKept() async {
+        let store = MemoryJournalStore()
+        let drafts = FakeDraftStore()
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "First"
+        await journal.flushDraft()
+        let saving = Task { await journal.saveDraft() }
+        await Task.yield()
+        journal.draft = "First, then more" // Typed while saving and cleanup are in flight.
+        _ = await saving.value
+        await journal.flushDraft()
         let kept = await drafts.kept
-        XCTAssertNil(kept, "leftover cleared")
+        XCTAssertEqual(kept?.text, journal.draft, "the newest typing is what's kept on the phone")
+    }
+
+    func testProtectionAndCleanupWarningsBothShow() async {
+        let store = MemoryJournalStore()
+        await store.failCreates(with: .savedButUnprotected(entryID: UUID()))
+        let drafts = FakeDraftStore()
+        await drafts.configure(failRemove: true)
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "Words"
+        await journal.flushDraft()
+        _ = await journal.saveDraft()
+        await journal.flushDraft()
+        XCTAssertEqual(journal.notices, [GuestJournalViewModel.savedButUnprotectedMessage,
+                                         GuestJournalViewModel.draftNotClearedMessage])
     }
 
     func testDraftKeptButUnprotectedSaysSoAccurately() async {
