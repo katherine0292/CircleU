@@ -24,6 +24,8 @@ nonisolated enum GuestJournalError: Error, Equatable, Sendable {
     case protectionFailed(String)
     /// The change **was** saved, but protecting a new store file failed. Don't retry the save.
     case savedButUnprotected(entryID: UUID)
+    /// This draft was already saved as an entry (it may since have been edited or deleted).
+    case draftAlreadySaved
 }
 
 /// Guest-local journal persistence for the new experience. Implementations serialize every
@@ -31,8 +33,18 @@ nonisolated enum GuestJournalError: Error, Equatable, Sendable {
 nonisolated protocol GuestJournalStore: Sendable {
     /// Saved entries, most recently updated first.
     func loadAll() async throws -> [GuestJournalEntry]
-    func create(originalWords: String) async throws -> GuestJournalEntry
+    /// Creates an entry. With a `draftID`, records that draft as saved in the same transaction and
+    /// refuses a draft that was saved before, so a leftover draft can never duplicate or resurrect.
+    func create(originalWords: String, draftID: UUID?) async throws -> GuestJournalEntry
+    /// Whether a draft with this ID was already saved as an entry.
+    func isDraftSaved(_ draftID: UUID) async throws -> Bool
     /// Saves an edit only if `expectedRevision` is still current; returns the new revision.
     func update(id: UUID, originalWords: String, expectedRevision: Int) async throws -> GuestJournalEntry
     func delete(id: UUID) async throws
+}
+
+extension GuestJournalStore {
+    func create(originalWords: String) async throws -> GuestJournalEntry {
+        try await create(originalWords: originalWords, draftID: nil)
+    }
 }
