@@ -17,9 +17,12 @@ final class GuestPracticeViewModel: ObservableObject {
     static let deleteFailedMessage = "Couldn’t delete. Try again."
 
     let store: any GuestPracticeStore
+    /// Opt-in wording suggestions; nil hides "Get a suggestion".
+    let suggester: (any GuestSuggesting)?
 
-    init(store: any GuestPracticeStore) {
+    init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil) {
         self.store = store
+        self.suggester = suggester
     }
 
     var messages: [GuestPracticeMessage] {
@@ -90,6 +93,14 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     @Published private(set) var isSaving = false
     @Published private(set) var saveError: String?
     @Published private(set) var didCopy = false
+    /// Up to three suggested options, shown only after "Get a suggestion".
+    @Published private(set) var suggestions: GuestWordingSuggestions?
+    @Published private(set) var isSuggesting = false
+    @Published private(set) var suggestionError: String?
+    /// The wording before "Use this", so it can be undone.
+    @Published private(set) var wordingBeforeSuggestion: String?
+
+    static let suggestionFailedMessage = "Suggestions couldn’t be made right now. Your words are unchanged."
 
     static let saveFailedMessage = "Couldn’t save. Try again. Your words are still here."
     static let staleMessage = "This message changed somewhere else. Go back and open it again. Your words are still here."
@@ -97,10 +108,12 @@ final class GuestPracticeComposerViewModel: ObservableObject {
 
     let sourceEntryID: UUID?
     private let store: any GuestPracticeStore
+    let suggester: (any GuestSuggesting)?
 
     /// A new message, on its own or practised from a journal entry.
-    init(store: any GuestPracticeStore, sourceEntryID: UUID?) {
+    init(store: any GuestPracticeStore, sourceEntryID: UUID?, suggester: (any GuestSuggesting)? = nil) {
         self.store = store
+        self.suggester = suggester
         self.sourceEntryID = sourceEntryID
         situation = ""
         goal = ""
@@ -109,8 +122,9 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     }
 
     /// A saved message.
-    init(store: any GuestPracticeStore, message: GuestPracticeMessage) {
+    init(store: any GuestPracticeStore, message: GuestPracticeMessage, suggester: (any GuestSuggesting)? = nil) {
         self.store = store
+        self.suggester = suggester
         sourceEntryID = message.sourceEntryID
         saved = message
         situation = message.situation
@@ -134,6 +148,33 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     func edit() {
         isEditing = true
         didCopy = false
+    }
+
+    /// Opt-in: up to three options built from the situation, goal and draft. Changes nothing yet.
+    func suggest() async {
+        guard let suggester, !isSuggesting else { return }
+        isSuggesting = true
+        defer { isSuggesting = false }
+        suggestionError = nil
+        do {
+            suggestions = try await suggester.wordingOptions(situation: Self.trim(situation), goal: Self.trim(goal),
+                                                             draft: Self.trim(wording))
+        } catch {
+            suggestionError = Self.suggestionFailedMessage
+        }
+    }
+
+    /// Puts an option in the wording box to edit; the previous wording can be restored.
+    func use(_ option: GuestWordingOption) {
+        if wordingBeforeSuggestion == nil { wordingBeforeSuggestion = wording }
+        wording = option.text
+        didCopy = false
+    }
+
+    func undoSuggestion() {
+        guard let previous = wordingBeforeSuggestion else { return }
+        wording = previous
+        wordingBeforeSuggestion = nil
     }
 
     /// Puts the wording on the clipboard. Doesn't save, doesn't send.

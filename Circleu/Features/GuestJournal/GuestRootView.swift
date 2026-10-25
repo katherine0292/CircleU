@@ -14,6 +14,15 @@ struct GuestComposition {
         #endif
         return SpeechDictationEngine()
     }
+    /// Opt-in suggestions, on this iPhone only (tests inject a fake).
+    var suggester: () -> any GuestSuggesting = {
+        #if DEBUG
+        // UI tests: predictable guided prompts instead of the on-device model.
+        return LocalFirstSuggestionEngine(guidedOnly: UserDefaults.standard.bool(forKey: "CircleUGuidedSuggestions"))
+        #else
+        return LocalFirstSuggestionEngine()
+        #endif
+    }
 
     static var live: GuestComposition { GuestComposition(location: GuestJournalLocation.standard) }
 
@@ -33,7 +42,7 @@ struct GuestComposition {
         let viewModel = GuestJournalViewModel(store: store, drafts: FileGuestDraftStore(location: location))
         await viewModel.load()
         await viewModel.restoreDraft() // After load, so a leftover draft can be matched to saved entries.
-        let practice = GuestPracticeViewModel(store: store)
+        let practice = GuestPracticeViewModel(store: store, suggester: suggester())
         await practice.load()
         return (viewModel, practice)
     }
@@ -61,7 +70,8 @@ struct GuestRootView: View {
             ProgressView("Opening your journal…")
                 .task { await open() }
         case .ready(let viewModel, let practice):
-            GuestHomeView(journal: viewModel, practice: practice, makeDictationEngine: composition.dictationEngine)
+            GuestHomeView(journal: viewModel, practice: practice, makeDictationEngine: composition.dictationEngine,
+                          suggester: composition.suggester())
         case .failed(let message):
             VStack(spacing: 16) {
                 Text(message).multilineTextAlignment(.center)
