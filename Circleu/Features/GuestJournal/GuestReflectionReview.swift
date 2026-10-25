@@ -11,8 +11,12 @@ final class GuestReflectionReviewViewModel: ObservableObject {
     @Published var summary = ""
     @Published var feeling = ""
     @Published var insight = ""
+    /// Empty until the person adds the suggested step or writes their own: a step is never kept by default.
     @Published var nextStep = ""
+    /// The suggested step, offered with "Add this step".
+    @Published private(set) var suggestedNextStep = ""
     @Published private(set) var source: GuestSuggestionSource?
+    private var generated = ("", "", "")
     /// The words the suggestion was made from.
     @Published private(set) var basedOnWords = ""
 
@@ -40,7 +44,8 @@ final class GuestReflectionReviewViewModel: ObservableObject {
             summary = suggestion.summary
             feeling = suggestion.feeling
             insight = suggestion.insight
-            nextStep = suggestion.nextStep
+            generated = (suggestion.summary, suggestion.feeling, suggestion.insight)
+            suggestedNextStep = suggestion.nextStep
             source = suggestion.source
             state = .ready
         } catch {
@@ -56,6 +61,13 @@ final class GuestReflectionReviewViewModel: ObservableObject {
         return GuestReflection(summary: parts.0, feeling: parts.1, insight: parts.2, source: source,
                                basedOnWords: basedOnWords)
     }
+
+    /// The person changed the suggestion or added a step; leaving asks first.
+    var hasEdits: Bool {
+        state == .ready && ((summary, feeling, insight) != generated || !Self.trim(nextStep).isEmpty)
+    }
+
+    func addSuggestedStep() { nextStep = suggestedNextStep }
 
     var keptNextStep: String? {
         let step = Self.trim(nextStep)
@@ -75,6 +87,8 @@ struct GuestReflectionReviewView: View {
     @StateObject private var review: GuestReflectionReviewViewModel
     @ObservedObject private var journal: GuestJournalViewModel
     let onSaved: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var confirmDiscard = false
 
     init(journal: GuestJournalViewModel, suggester: any GuestSuggesting, onSaved: @escaping () -> Void) {
         _review = StateObject(wrappedValue: GuestReflectionReviewViewModel(journal: journal, suggester: suggester))
@@ -119,6 +133,19 @@ struct GuestReflectionReviewView: View {
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Reflection")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Back") { if review.hasEdits { confirmDiscard = true } else { dismiss() } }
+                    .disabled(journal.isSaving)
+            }
+        }
+        .alert("Discard your changes to the suggestion?", isPresented: $confirmDiscard) {
+            Button("Keep editing", role: .cancel) {}
+            Button("Discard", role: .destructive) { dismiss() }
+        } message: {
+            Text("Your own words stay in the draft.")
+        }
         .task { if review.state == .loading { await review.load() } }
     }
 
@@ -153,10 +180,26 @@ struct GuestReflectionReviewView: View {
                 field("What happened", text: $review.summary)
                 field("A feeling that might fit", text: $review.feeling)
                 field("Something to consider", text: $review.insight)
-                field("Next step (optional)", text: $review.nextStep)
                 Text("Clear any part you don’t want to keep.")
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                if review.nextStep.isEmpty, !review.suggestedNextStep.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("A possible next step").font(GuestBrand.font(.subheadline, .semibold))
+                            .foregroundStyle(GuestBrand.muted)
+                        Text(review.suggestedNextStep).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                        Button { review.addSuggestedStep() } label: {
+                            Text("Add this step").frame(minHeight: 44).contentShape(Rectangle())
+                        }
+                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                }
+                field("Your next step (optional)", text: $review.nextStep)
             }
+            // Nothing can change while it saves, so what's saved is what's on screen.
+            .disabled(journal.isSaving)
         }
     }
 

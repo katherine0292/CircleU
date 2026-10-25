@@ -38,6 +38,7 @@ final class GuestJournalViewModel: ObservableObject {
     static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
     static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, but it won’t be saved twice."
     static let draftAlreadySavedMessage = "This draft was already saved to your journal."
+    static let reflectionNotAddedMessage = "These words are already in your journal, so this reflection wasn’t added. Open the entry in Journal to see it."
 
     /// What the guest root shows when the store can't be opened. Never an empty journal.
     static func openFailureMessage(for error: Error) -> String {
@@ -135,6 +136,10 @@ final class GuestJournalViewModel: ObservableObject {
         } catch GuestJournalError.savedButUnprotected {
             saveError = nil
             notices.append(Self.savedButUnprotectedMessage) // Saved: retrying would duplicate it.
+        } catch GuestJournalError.draftAlreadySaved where reflection != nil || nextStep != nil {
+            // The words were saved before, but this reflection wasn't: say so and stay.
+            saveError = Self.reflectionNotAddedMessage
+            return false
         } catch GuestJournalError.draftAlreadySaved {
             saveError = nil
             notices.append(Self.draftAlreadySavedMessage)

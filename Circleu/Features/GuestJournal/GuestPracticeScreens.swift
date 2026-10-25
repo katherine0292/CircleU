@@ -240,6 +240,11 @@ struct GuestPracticeMessageView: View {
                 }
                 if let suggestions = composer.suggestions {
                     Text(suggestions.source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    if composer.suggestionsAreStale {
+                        Label("Based on earlier details. Get a suggestion again to update.",
+                              systemImage: "clock.arrow.circlepath")
+                            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
+                    }
                     ForEach(suggestions.options) { option in
                         VStack(alignment: .leading, spacing: 8) {
                             Text(option.tone).font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)

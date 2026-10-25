@@ -117,7 +117,8 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
             Their draft: \(draft)
             """
         let response = try await session.respond(to: prompt).content
-        guard let start = response.firstIndex(of: "["), let end = response.lastIndex(of: "]"),
+        // Malformed output (for example "] … [") must never trap.
+        guard let start = response.firstIndex(of: "["), let end = response.lastIndex(of: "]"), start < end,
               let data = String(response[start...end]).data(using: .utf8) else { return [] }
         struct Option: Decodable { let tone: String; let text: String }
         return try JSONDecoder().decode([Option].self, from: data)

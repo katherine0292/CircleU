@@ -99,6 +99,10 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     @Published private(set) var suggestionError: String?
     /// The wording before "Use this", so it can be undone.
     @Published private(set) var wordingBeforeSuggestion: String?
+    /// The situation and goal the options were made from.
+    private var suggestedFrom: (String, String)?
+    /// Ignores a slow result when a newer request was made.
+    private var suggestionRequest = 0
 
     static let suggestionFailedMessage = "Suggestions couldn’t be made right now. Your words are unchanged."
 
@@ -156,12 +160,25 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         isSuggesting = true
         defer { isSuggesting = false }
         suggestionError = nil
+        suggestionRequest += 1
+        let request = suggestionRequest
+        let inputs = (Self.trim(situation), Self.trim(goal))
         do {
-            suggestions = try await suggester.wordingOptions(situation: Self.trim(situation), goal: Self.trim(goal),
-                                                             draft: Self.trim(wording))
+            let result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1,
+                                                            draft: Self.trim(wording))
+            guard request == suggestionRequest else { return }
+            suggestions = result
+            suggestedFrom = inputs
         } catch {
+            guard request == suggestionRequest else { return }
             suggestionError = Self.suggestionFailedMessage
         }
+    }
+
+    /// The situation or goal changed after the options were made.
+    var suggestionsAreStale: Bool {
+        guard suggestions != nil, let suggestedFrom else { return false }
+        return suggestedFrom != (Self.trim(situation), Self.trim(goal))
     }
 
     /// Puts an option in the wording box to edit; the previous wording can be restored.

@@ -23,6 +23,19 @@ private struct FakeSuggester: GuestSuggesting {
     }
 }
 
+/// Fails saves on demand inside the real store.
+private final class SaveSwitch: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = false
+    var fail: Bool {
+        get { lock.withLock { value } }
+        set { lock.withLock { value = newValue } }
+    }
+    var faults: GuestJournalFaults {
+        GuestJournalFaults(beforeSave: { [self] in if fail { throw CocoaError(.fileWriteOutOfSpace) } })
+    }
+}
+
 final class GuestReflectionStoreTests: XCTestCase {
     private var root: URL!
     private var location: GuestJournalLocation!
@@ -98,16 +111,19 @@ final class GuestReflectionStoreTests: XCTestCase {
     func testVersionTwoStoreMigratesWithEntriesAndPractice() async throws {
         let entryID = UUID()
         let messageID = UUID()
+        let draftID = UUID()
+        let created = Date(timeIntervalSince1970: 1_800_000_000)
         try FileManager.default.createDirectory(at: location.directory, withIntermediateDirectories: true)
         do {
             let container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV2.self),
                                                configurations: ModelConfiguration(url: location.storeURL,
                                                                                   cloudKitDatabase: .none))
             let context = ModelContext(container)
-            let now = Date()
+            let now = created
             context.insert(GuestJournalSchemaV2.Entry(id: entryID, originalWords: "Before suggestions", revision: 1,
                                                       createdAt: now, updatedAt: now))
-            context.insert(GuestJournalSchemaV2.PracticeMessage(id: messageID, situation: "", goal: "", wording: "Hi",
+            context.insert(GuestJournalSchemaV2.SavedDraft(id: draftID, savedAt: now))
+            context.insert(GuestJournalSchemaV2.PracticeMessage(id: messageID, situation: "Rent", goal: "Fair split", wording: "Hi",
                                                                 sourceEntryID: entryID, revision: 0,
                                                                 createdAt: now, updatedAt: now))
             try context.save()
@@ -125,6 +141,34 @@ final class GuestReflectionStoreTests: XCTestCase {
         XCTAssertNil(entries.first?.nextStep)
         XCTAssertEqual(messages.map(\.id), [messageID])
         XCTAssertEqual(messages.first?.sourceEntryID, entryID)
+        XCTAssertEqual(entries.first?.originalWords, "Before suggestions")
+        XCTAssertEqual(entries.first?.createdAt.timeIntervalSince1970 ?? 0, created.timeIntervalSince1970, accuracy: 0.001)
+        XCTAssertEqual(messages.first?.situation, "Rent")
+        XCTAssertEqual(messages.first?.goal, "Fair split")
+        XCTAssertEqual(messages.first?.wording, "Hi")
+        let receiptKept = try await store.isDraftSaved(draftID)
+        XCTAssertTrue(receiptKept, "saved-draft receipts survive")
+    }
+
+    func testFailedReflectionUpdateKeepsTheEntryAsItWas() async throws {
+        let faults = SaveSwitch()
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in },
+                                                              faults: faults.faults)
+        let created = try await store.create(originalWords: "Words", draftID: nil, reflection: reflection,
+                                             nextStep: "Step")
+        faults.fail = true
+        do {
+            _ = try await store.updateReflection(id: created.id, reflection: nil, nextStep: nil, nextStepDone: false,
+                                                 expectedRevision: 0)
+            XCTFail("expected saveFailed")
+        } catch {
+            guard case .saveFailed = error as? GuestJournalError else { return XCTFail("got \(error)") }
+        }
+        faults.fail = false
+        let entry = try await store.loadAll().first
+        XCTAssertEqual(entry?.reflection, reflection, "rolled back")
+        XCTAssertEqual(entry?.nextStep, "Step")
+        XCTAssertEqual(entry?.revision, 0)
     }
 }
 
@@ -154,6 +198,10 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertEqual(review.state, .ready)
         review.feeling = "Disappointed"
         review.insight = ""
+        XCTAssertEqual(review.nextStep, "", "a next step is never kept by default")
+        XCTAssertEqual(review.suggestedNextStep, "Ask for a check-in.")
+        review.addSuggestedStep()
+        XCTAssertTrue(review.hasEdits, "leaving now asks first")
         let saved = await review.saveWithReflection()
         XCTAssertTrue(saved)
         let entry = journal.entries.first
@@ -163,6 +211,50 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertEqual(entry?.reflection?.source, .onDevice)
         XCTAssertEqual(entry?.nextStep, "Ask for a check-in.")
         XCTAssertEqual(journal.draft, "")
+    }
+
+    func testSuggestedStepIsNotSavedUnlessAdded() async throws {
+        let (journal, _) = try await session()
+        journal.draft = "Words"
+        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
+        await review.load()
+        XCTAssertFalse(review.hasEdits, "an untouched suggestion can be left without asking")
+        _ = await review.saveWithReflection()
+        XCTAssertNotNil(journal.entries.first?.reflection)
+        XCTAssertNil(journal.entries.first?.nextStep)
+    }
+
+    func testReflectionOnWordsAlreadySavedKeepsTheReviewOpen() async throws {
+        let location = GuestJournalLocation(directory: root.appendingPathComponent("Journal"),
+                                            setupMarker: root.appendingPathComponent("Setup/initialized"))
+        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in })
+        let drafts = FileGuestDraftStore(location: location, protection: .init { _ in })
+        let journal = GuestJournalViewModel(store: store, drafts: drafts)
+        journal.draft = "Saved once"
+        await journal.flushDraft()
+        let kept = try await drafts.load()
+        // The same draft version was saved earlier (its cleanup didn't finish).
+        _ = try await store.create(originalWords: "Saved once", draftID: kept?.id)
+        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
+        await review.load()
+        let saved = await review.saveWithReflection()
+        XCTAssertFalse(saved, "the review stays open; the reflection wasn't stored")
+        XCTAssertEqual(journal.saveError, GuestJournalViewModel.reflectionNotAddedMessage)
+        XCTAssertEqual(journal.draft, "Saved once")
+    }
+
+    func testStalePracticeSuggestionsAndLateResults() async throws {
+        let (_, practice) = try await session()
+        let composer = GuestPracticeComposerViewModel(store: practice.store, sourceEntryID: nil,
+                                                      suggester: FakeSuggester())
+        composer.situation = "Rent"
+        await composer.suggest()
+        XCTAssertFalse(composer.suggestionsAreStale)
+        composer.situation = "Rent and chores"
+        XCTAssertTrue(composer.suggestionsAreStale)
+        composer.wording = "Changing my wording doesn't make them stale"
+        composer.situation = "Rent"
+        XCTAssertFalse(composer.suggestionsAreStale)
     }
 
     func testClearingEverythingSavesOnlyTheWords() async throws {
@@ -208,6 +300,7 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         journal.draft = "Words"
         let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
         await review.load()
+        review.addSuggestedStep()
         _ = await review.saveWithReflection()
         var entry = try XCTUnwrap(journal.entries.first)
         var error = await journal.updateReflection(of: entry, reflection: entry.reflection, nextStep: entry.nextStep,
