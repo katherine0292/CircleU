@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CircleU Design · Key non-happy states</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+<style>
+body{margin:0;background:#E9EEF5;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0D1421;padding:48px}.row{margin-bottom:96px}.row h2{font-size:40px;margin:0 0 28px}.boards{display:flex;gap:80px;align-items:flex-start}.board{margin:0;flex-shrink:0;display:flex;flex-direction:column;gap:12px}.board figcaption{font-size:15px;font-weight:600;max-width:390px;color:#4F6077}.frame{overflow:hidden;box-shadow:0 10px 30px rgba(13,20,33,.12);background:#F5FAFF;position:relative}.note{flex-shrink:0;box-sizing:border-box;border-radius:14px;padding:16px;font-size:14px;line-height:1.45;align-self:flex-start;margin-top:32px}
+.chip{display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: #E3EEFF; font-size: 13px; font-weight: 600; color: #054FC9}
+.dots{display: flex; gap: 2px; height: 4px}
+.dot{width: 4px; height: 4px; border-radius: 2px; background: #054FC9}
+.dot{width: 8px; height: 8px; border-radius: 4px; background: #B9C7DA}
+.d{height: 40px; border: none; background: transparent; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0D1421; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0}
+.ib{width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center}
+.on{width: 22px; background: #054FC9}
+.primary{height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600}
+.secondary{height: 54px; border-radius: 18px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 17px; font-weight: 600}
+.wd{font-size: 12px; font-weight: 600; color: #4F6077; text-align: center}
+a:hover{color:#033a96}
+a{color:#054FC9}
+</style>
+</head>
+<body><section class="row" id="row-States"><h2>Key non-happy states</h2><div class="boards"><figure class="board" data-board="States-MicDenied.html"><figcaption>T4.1 · Today · mic permission denied</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between"><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span></div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">Type, or tap the microphone and talk.</p>
+<div style="display: flex; align-items: center; gap: 12px">
+<button aria-label="Start dictation" style="width: 56px; height: 56px; border-radius: 28px; border: 2px dashed #8A99AD; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3M3 3l18 18"></path></svg>
+</button>
+<span style="font-size: 13px; color: #4F6077">Microphone is off</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE6F2; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; line-height: 1.4">Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing.</span>
+<a href="#" style="font-size: 14px; font-weight: 700; color: #054FC9; text-decoration: none">Open Settings</a>
+</div>
+<label style="flex-grow: 1; display: flex; flex-direction: column"><span style="position: absolute; left: -9999px">Your words</span><textarea style="flex-grow: 1; border-radius: 18px; border: none; background: #FFFFFF; padding: 16px; font-family: inherit; font-size: 17px; resize: none">I can still type here.</textarea></label>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 17px">Save only my words</button>
+</div>
+</div></figure><figure class="board" data-board="States-JournalEmpty.html"><figcaption>J1.1 · Journal · empty</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Journal</h1>
+<button aria-label="Calendar" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; padding: 0; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+</button>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px">
+<img src="../../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 180px; height: 180px; object-fit: contain">
+<p style="margin: 0; font-size: 17px; color: #4F6077">Nothing saved yet.</p>
+</div>
+</div>
+</div></figure><figure class="board" data-board="States-NoResults.html"><figcaption>J2.2 · Journal · no search results</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Journal</h1>
+<div style="display: flex; align-items: center; gap: 10px">
+<label style="flex-grow: 1; display: flex; align-items: center; gap: 8px; height: 44px; border-radius: 12px; background: #E8EEF6; padding: 0 12px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<span style="position: absolute; left: -9999px">Search entries</span>
+<input value="deadline" style="flex-grow: 1; border: none; background: transparent; font-family: inherit; font-size: 17px; color: #0D1421">
+</label>
+<button style="border: none; background: transparent; color: #054FC9; font-family: inherit; font-size: 17px; padding: 0">Cancel</button>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px">
+<img src="../../../../Circleu/Assets.xcassets/GuestPinguPractising.imageset/GuestPinguPractising.png" alt="" style="width: 140px; height: 140px; object-fit: contain">
+<p style="margin: 0; font-size: 17px; color: #4F6077">No entries match “deadline”.</p>
+</div>
+</div>
+</div></figure><figure class="board" data-board="States-ImportError.html"><figcaption>S5.4 · Backup preview · copy failed</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 700">Your account’s backup</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">12 to copy · 0 already copied</p>
+<div role="alert" style="display: flex; gap: 10px; align-items: flex-start; background: #FFF1E0; border-radius: 14px; padding: 12px 14px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A4A00" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+<span style="font-size: 14px; line-height: 1.4; color: #5C2C00">Couldn’t copy your earlier journal. Nothing was added; try again.</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 4px 16px; display: flex; flex-direction: column">
+<div style="padding: 12px 0; border-bottom: 1px solid #E8EEF6; display: flex; justify-content: space-between"><span>Journal entries</span><span style="color: #4F6077">9</span></div>
+<div style="padding: 12px 0; border-bottom: 1px solid #E8EEF6; display: flex; justify-content: space-between"><span>Practice messages</span><span style="color: #4F6077">3</span></div>
+<div style="padding: 12px 0; display: flex; justify-content: space-between"><span>Left out</span><span style="color: #4F6077">2</span></div>
+</div>
+<button style="border: none; background: transparent; color: #054FC9; font-family: inherit; font-size: 13px; padding: 0; align-self: flex-start">Learn more</button>
+<div style="flex-grow: 1"></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 17px">Copy into this journal</button>
+<button style="height: 44px; border: none; background: transparent; color: #054FC9; font-family: inherit; font-weight: 600; font-size: 17px">Don’t copy</button>
+</div>
+</div></figure><figure class="board" data-board="States-ExportDone.html"><figcaption>S2.3 · Settings · export done</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div role="status" style="display: flex; gap: 10px; align-items: flex-start; background: #E6F4EC; border-radius: 14px; padding: 12px 14px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E6B3F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+<span style="font-size: 14px; line-height: 1.4; color: #134A2B">Export done. The copy you shared is yours to keep or delete.</span>
+</div>
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Settings</h1>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 17px">Your data</strong>
+<span style="font-size: 14px; color: #4F6077">A text file you can save or share.</span>
+<button style="height: 44px; border-radius: 12px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Export my data</button>
+<button style="height: 44px; border: none; background: transparent; color: #B3261E; font-family: inherit; font-size: 16px; font-weight: 600">Delete all data</button>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<strong style="font-size: 17px">Privacy and data</strong>
+<span style="font-size: 14px; color: #4F6077">Kept on this iPhone. Not uploaded or synced.</span>
+</div>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:300px">Wording is the app&#x27;s current text. Each board maps to a story in docs/product/user-stories.md: T4.1, J1.1, J2.2, S5.4, S2.3.</aside></div></section></body>
+</html>

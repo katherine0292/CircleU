@@ -1,0 +1,584 @@
+{
+ "boards": [
+  {
+   "file": "Main.html",
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "T1–T3 · Today (capture)",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "Journal.html",
+   "x": 470,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "J1–J5 · Journal",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "Practice.html",
+   "x": 940,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P1–P4 · Practice",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "Settings.html",
+   "x": 1410,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "S1–S8 · Settings",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "MicOptions.html",
+   "x": 0,
+   "y": 1300,
+   "w": 880,
+   "h": 420,
+   "title": "T3 · A · mic studies",
+   "radius": 0,
+   "page": "screens"
+  },
+  {
+   "file": "A1-IllustratedMic.html",
+   "x": 960,
+   "y": 1300,
+   "w": 390,
+   "h": 844,
+   "title": "T3 · A1 Illustrated mic",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "A2-PinguListening.html",
+   "x": 1430,
+   "y": 1300,
+   "w": 390,
+   "h": 844,
+   "title": "T3 · A2 Pingu listening (rings)",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "B1-PromptChips.html",
+   "x": 0,
+   "y": 2450,
+   "w": 390,
+   "h": 844,
+   "title": "T6 (proposed) · B1 Prompt chips (empty)",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "B2-Nudge.html",
+   "x": 470,
+   "y": 2450,
+   "w": 390,
+   "h": 844,
+   "title": "T6 (proposed) · B2 Need a nudge? (writing)",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "B3-AfterSave.html",
+   "x": 940,
+   "y": 2450,
+   "w": 390,
+   "h": 844,
+   "title": "T6 (proposed) · B3 After save: optional reflection",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "C1-SceneHeader.html",
+   "x": 0,
+   "y": 3600,
+   "w": 390,
+   "h": 844,
+   "title": "T1 · C1 Pingu scene header",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "C2a-Morning.html",
+   "x": 470,
+   "y": 3600,
+   "w": 390,
+   "h": 844,
+   "title": "T1 · C2 Morning backdrop",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "C2b-Evening.html",
+   "x": 940,
+   "y": 3600,
+   "w": 390,
+   "h": 844,
+   "title": "T1 · C2 Evening backdrop",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "States-MicDenied.html",
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "T4.1 · Today · mic permission denied",
+   "radius": 36,
+   "page": "states"
+  },
+  {
+   "file": "States-JournalEmpty.html",
+   "x": 470,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "J1.1 · Journal · empty",
+   "radius": 36,
+   "page": "states"
+  },
+  {
+   "file": "States-NoResults.html",
+   "x": 940,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "J2.2 · Journal · no search results",
+   "radius": 36,
+   "page": "states"
+  },
+  {
+   "file": "States-ImportError.html",
+   "x": 1410,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "S5.4 · Backup preview · copy failed",
+   "radius": 36,
+   "page": "states"
+  },
+  {
+   "file": "States-ExportDone.html",
+   "x": 1880,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "S2.3 · Settings · export done",
+   "radius": 36,
+   "page": "states"
+  },
+  {
+   "file": "D1-VisualEmpty.html",
+   "x": 0,
+   "y": 4960,
+   "w": 390,
+   "h": 844,
+   "title": "T10 · D1 Visual Today · empty",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "D2-VisualListening.html",
+   "x": 470,
+   "y": 4960,
+   "w": 390,
+   "h": 844,
+   "title": "T10 · D2 Visual Today · listening",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "D3-VisualWriting.html",
+   "x": 940,
+   "y": 4960,
+   "w": 390,
+   "h": 844,
+   "title": "T10 · D3 Visual Today · writing",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "JS1-List.html",
+   "x": 0,
+   "y": 6290,
+   "w": 390,
+   "h": 844,
+   "title": "J1 · J2 (proposed) · Simpler list: date tile, status icons, short Saved card",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "JS2-Calendar.html",
+   "x": 470,
+   "y": 6290,
+   "w": 390,
+   "h": 844,
+   "title": "J3 (proposed) · Calendar: count dots, today icon, day chip",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "JS3-Entry.html",
+   "x": 940,
+   "y": 6290,
+   "w": 390,
+   "h": 844,
+   "title": "J4 · J5 (proposed) · Entry: date title, icon actions, delete in menu",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "PR1-Home.html",
+   "x": 0,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "P2 · P4.1 (proposed) · Home: Pingu start card, draft card, message bubbles",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "PR2-Empty.html",
+   "x": 470,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "P2.1 (proposed) · Empty: big Pingu, one button",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "PR3-Compose.html",
+   "x": 940,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "P1 · P2.2 (proposed) · Write: Situation and Goal as + chips, words in a bubble",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "PR4-Suggestions.html",
+   "x": 1410,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "P4.2 (proposed) · Suggestions: swipe tone cards, Pingu asks",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "PR5-Saved.html",
+   "x": 1880,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "P3 (proposed) · Saved: your message as a sent bubble, Edit and ••• in the toolbar",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "S-Settings-New.html",
+   "x": 0,
+   "y": 7620,
+   "w": 390,
+   "h": 844,
+   "title": "S1–S3 (proposed) · Settings: Pingu, privacy chip, icon rows",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "S-Privacy-New.html",
+   "x": 470,
+   "y": 7620,
+   "w": 390,
+   "h": 844,
+   "title": "S1 (proposed) · Privacy sheet: four icon rows, no Learn more",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "S-ExportDone-New.html",
+   "x": 940,
+   "y": 7620,
+   "w": 390,
+   "h": 844,
+   "title": "S2.3 · S3 (proposed) · Export done toast, delete all confirm",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "S-LogIn-New.html",
+   "x": 1880,
+   "y": 7620,
+   "w": 390,
+   "h": 844,
+   "title": "S5 · S7 (proposed, account thread) · Log in: Pingu, two chips, info button",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "S-DeleteAccount-New.html",
+   "x": 2350,
+   "y": 7620,
+   "w": 390,
+   "h": 844,
+   "title": "S8 (proposed, account thread) · Delete my account: Deleted vs Stays",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "AC1-Welcome.html",
+   "x": 0,
+   "y": 10330,
+   "w": 390,
+   "h": 844,
+   "title": "W1 · W2 (proposed) · Welcome: one short line",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "AC2-BackupPreview.html",
+   "x": 470,
+   "y": 10330,
+   "w": 390,
+   "h": 844,
+   "title": "S5 (proposed) · Backup preview: count chips, info button, Left out",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "AC3-Copied.html",
+   "x": 940,
+   "y": 10330,
+   "w": 390,
+   "h": 844,
+   "title": "S5 · W2.2 (proposed) · Copied: Pingu, Signed out chip",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "AC4-ResetPassword.html",
+   "x": 1410,
+   "y": 10330,
+   "w": 390,
+   "h": 844,
+   "title": "S7 (proposed) · Reset password: envelope, no extra line",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "OB1-HardMoment.html",
+   "x": 0,
+   "y": 11660,
+   "w": 390,
+   "h": 844,
+   "title": "W1 (proposed) · Onboarding 1: a hard moment (rainy evening)",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "OB2-FindWords.html",
+   "x": 470,
+   "y": 11660,
+   "w": 390,
+   "h": 844,
+   "title": "W1 (proposed) · Onboarding 2: write it through (lamp-lit desk)",
+   "radius": 36,
+   "page": "screens"
+  },
+  {
+   "file": "OB3-SayItKindly.html",
+   "x": 940,
+   "y": 11660,
+   "w": 390,
+   "h": 844,
+   "title": "W1 · W2 (proposed) · Onboarding 3: find your words (sunrise), Get started / Log in",
+   "radius": 36,
+   "page": "screens"
+  }
+ ],
+ "notes": {
+  "title": {
+   "x": 0,
+   "y": -260,
+   "text": "CircleU guest app — current screens",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "howto": {
+   "x": 1880,
+   "y": 0,
+   "w": 300,
+   "text": "Each board title starts with its story ID from docs/product/user-stories.md. Edit text in place, move things around, or add artboards. Leave a comment on anything you want changed, then tell Claude \"code the CircleU Design changes\".",
+   "fill": "blue",
+   "page": "screens"
+  },
+  "rowA": {
+   "x": 0,
+   "y": 1060,
+   "text": "A · Illustrated microphone",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "rowB": {
+   "x": 0,
+   "y": 2210,
+   "text": "B · Get a suggestion redesign",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "rowC": {
+   "x": 0,
+   "y": 3360,
+   "text": "C · Background and Pingu artwork",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "noteB": {
+   "x": 1410,
+   "y": 2450,
+   "w": 300,
+   "text": "B replaces “Get a suggestion” and “Save only my words” with one Save. Questions come before and during writing; a reflection is only offered after saving.",
+   "fill": "teal",
+   "page": "screens"
+  },
+  "noteC": {
+   "x": 1410,
+   "y": 3600,
+   "w": 300,
+   "text": "Orange tags mark placeholder or legacy art. See docs/design/pingu-scene-art-brief.md for the art we still need.",
+   "fill": "orange",
+   "page": "screens"
+  },
+  "statesTitle": {
+   "x": 0,
+   "y": -260,
+   "text": "Key non-happy states",
+   "kind": "title1",
+   "maxW": 2270,
+   "page": "states"
+  },
+  "statesNote": {
+   "x": 2350,
+   "y": 0,
+   "w": 300,
+   "text": "Wording is the app's current text. Each board maps to a story in docs/product/user-stories.md: T4.1, J1.1, J2.2, S5.4, S2.3.",
+   "fill": "teal",
+   "page": "states"
+  },
+  "rowJS": {
+   "x": 0,
+   "y": 6040,
+   "text": "J · Simpler Journal (icons over labels)",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "noteJS": {
+   "x": 1410,
+   "y": 6290,
+   "w": 320,
+   "text": "Labels become icons (each keeps its spoken name for VoiceOver). Removed: “My words”, the “Entry” title (the date is the title), “Showing …” and “Go to today” text, and the text links under the reflection and next step. Delete entry moves into the ••• menu. Comment on anything you want back.",
+   "fill": "teal",
+   "page": "screens"
+  },
+  "rowD": {
+   "x": 0,
+   "y": 4700,
+   "text": "D · Visual Today with the art we already have",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "noteD": {
+   "x": 1410,
+   "y": 4960,
+   "w": 320,
+   "text": "D swaps words for pictures using Pingu art that's already in the app, so it can ship before ART-1 to ART-6. Gone: \"Type, or tap the microphone and talk.\", \"Tap to talk\", \"Not sure where to start?\", \"Need a nudge?\", \"Another question\" and \"Hide\" (icons now, with VoiceOver labels). When the new mic and scene art land, they drop into the same blue card. Comment on anything you want changed.",
+   "fill": "teal",
+   "page": "screens"
+  },
+  "rowPR": {
+   "x": 0,
+   "y": 8750,
+   "text": "P · Practice with fewer words",
+   "kind": "title1",
+   "maxW": 2270,
+   "page": "screens"
+  },
+  "notePR": {
+   "x": 2350,
+   "y": 9000,
+   "w": 320,
+   "text": "Gone: the “Saved messages” header, the From/On its own line and time on each row (a journal icon and a date instead), the Situation, Goal and “Your wording” labels and their hints (Situation and Goal become + chips that open a field), the full-width Copy button (a copy icon in the bubble), the source line under suggestions is kept but small, and the Edit button and red Delete text (a pencil in the toolbar, and Delete message in the ••• menu, still asks first). One open question: “Copying won’t save or send it.” is approved text. I'd show it only after copying, as “Copied. Not saved or sent.” Comment if you want it kept always.",
+   "fill": "teal",
+   "page": "screens"
+  },
+  "rowAC": {
+   "x": 0,
+   "y": 10090,
+   "text": "AC · Account screens and Welcome",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "noteAC": {
+   "x": 1880,
+   "y": 10330,
+   "w": 320,
+   "text": "With Log in and Delete my account (row S, right). Gone: the Email and Password labels above the fields (placeholders and VoiceOver keep them), Learn more on Log in and the backup preview (now an (i) button), the “N to copy · N already copied” line (two chips), “You’re signed out.” (a chip), “We’ll email you a reset link.”, and Welcome’s long line. Kept on purpose: “If an account uses this email, a link is on its way.” (never says whether an account exists) and a promise that nothing is uploaded: I’d make Log in’s first chip “Nothing uploaded” rather than “Copy only”. Comment on anything you want back.",
+   "fill": "teal",
+   "page": "screens"
+  },
+  "rowS": {
+   "x": 0,
+   "y": 7370,
+   "text": "S · Simpler Settings and privacy",
+   "kind": "title1",
+   "maxW": 2740,
+   "page": "screens"
+  },
+  "noteS": {
+   "x": 1410,
+   "y": 7620,
+   "w": 320,
+   "text": "Settings becomes icon rows under your Pingu. Gone: \"Tap to change.\" (pencil badge), \"A text file you can save or share.\", \"Bring in your journal from an earlier account.\", and the four Learn more lines (now the Privacy sheet behind \"Only on this iPhone\"). Export done is a Pingu toast; the delete all confirm is one line. The account rows open the Log in and Delete my account screens, drafted on the two boards to the right for the account screens thread. Comment on anything you want back.",
+   "fill": "teal",
+   "page": "screens"
+  },
+  "rowOB": {
+   "x": 0,
+   "y": 11420,
+   "text": "OB · Portrait onboarding with scenes",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "screens"
+  },
+  "noteOB": {
+   "x": 1410,
+   "y": 11660,
+   "w": 320,
+   "fill": "orange",
+   "page": "screens",
+   "text": "Backgrounds here are drawn placeholders behind existing Pingu poses (Thoughtful, Writing, WarmDrink). The real art would be three painted portrait scenes with Pingu in them (ART-7 to ART-9 in the art brief), each fading into ice blue at the bottom so text stays readable. Swipe or tap the arrow; Skip jumps to the last page. Art is hidden from VoiceOver, still with Reduce Motion, and shrinks to a banner at the largest text sizes. Comment on the moments, the lines or the palette."
+  }
+ }
+}

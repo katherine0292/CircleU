@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CircleU Design · CircleU guest app — current screens</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+<style>
+body{margin:0;background:#E9EEF5;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0D1421;padding:48px}.row{margin-bottom:96px}.row h2{font-size:40px;margin:0 0 28px}.boards{display:flex;gap:80px;align-items:flex-start}.board{margin:0;flex-shrink:0;display:flex;flex-direction:column;gap:12px}.board figcaption{font-size:15px;font-weight:600;max-width:390px;color:#4F6077}.frame{overflow:hidden;box-shadow:0 10px 30px rgba(13,20,33,.12);background:#F5FAFF;position:relative}.note{flex-shrink:0;box-sizing:border-box;border-radius:14px;padding:16px;font-size:14px;line-height:1.45;align-self:flex-start;margin-top:32px}
+.chip{display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: #E3EEFF; font-size: 13px; font-weight: 600; color: #054FC9}
+.dots{display: flex; gap: 2px; height: 4px}
+.dot{width: 4px; height: 4px; border-radius: 2px; background: #054FC9}
+.dot{width: 8px; height: 8px; border-radius: 4px; background: #B9C7DA}
+.d{height: 40px; border: none; background: transparent; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0D1421; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0}
+.ib{width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center}
+.on{width: 22px; background: #054FC9}
+.primary{height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600}
+.secondary{height: 54px; border-radius: 18px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 17px; font-weight: 600}
+.wd{font-size: 12px; font-weight: 600; color: #4F6077; text-align: center}
+a:hover{color:#033a96}
+a{color:#054FC9}
+</style>
+</head>
+<body><section class="row" id="row-Screens"><h2>CircleU guest app — current screens</h2><div class="boards"><figure class="board" data-board="Main.html"><figcaption>T1–T3 · Today (capture)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<button aria-label="Your Pingu" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; padding: 4px; display: flex; align-items: center; justify-content: center"><img src="../../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 34px; height: 34px; object-fit: contain"></button>
+<button aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+</div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700; line-height: 1.15">What’s on your mind?</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">Type, or tap the microphone and talk.</p>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0">
+<button aria-label="Start dictation" style="width: 80px; height: 80px; border-radius: 40px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></button>
+<span style="font-size: 13px; color: #4F6077">Tap to talk</span>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1">
+<span style="position: absolute; left: -9999px">Your words</span>
+<textarea placeholder="" style="flex-grow: 1; min-height: 200px; border: none; border-radius: 18px; background: #FFFFFF; padding: 16px; font-family: inherit; font-size: 17px; color: #0D1421; resize: none"></textarea>
+</label>
+<button style="height: 54px; border-radius: 18px; border: none; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 17px; font-weight: 600">Get a suggestion</button>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save only my words</button>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #054FC9; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="Journal.html"><figcaption>J1–J5 · Journal</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 20px 24px 20px; gap: 14px">
+<div style="display: flex; justify-content: flex-end">
+<button aria-label="Show calendar" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></button>
+</div>
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Journal</h1>
+<label style="display: flex; align-items: center; gap: 8px; height: 44px; border-radius: 22px; background: #FFFFFF; padding: 0 16px; color: #4F6077; font-size: 15px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<input placeholder="Search your journal" aria-label="Search your journal" style="border: none; outline: none; font-family: inherit; font-size: 15px; background: transparent; flex-grow: 1">
+</label>
+<div style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF3F9; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">My groupmate missed the deadline again and I froze.</span><span style="font-size: 12px; color: #4F6077">26 Oct at 09:40</span></div>
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF3F9; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">I said no to the extra shift and felt okay.</span><span style="font-size: 12px; color: #4F6077">25 Oct at 18:12</span></div>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">Talked with my sister about the holiday plans.</span><span style="font-size: 12px; color: #4F6077">24 Oct at 20:05</span></div>
+</div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<img src="../../../../Circleu/Assets.xcassets/GuestPinguWriting.imageset/GuestPinguWriting.png" alt="" style="height: 120px; object-fit: contain">
+<span style="font-size: 13px; color: #4F6077">(Empty journal shows this Pingu with “Nothing saved yet.”)</span>
+</div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="Journal.html" style="color: #054FC9; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="Practice.html"><figcaption>P1–P4 · Practice</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 100px 24px 24px 24px; gap: 16px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Practice</h1>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; padding: 0 20px">Practice a message<span aria-hidden="true">→</span></button>
+<h2 style="margin: 8px 0 0 0; font-size: 17px; font-weight: 600">Saved messages</h2>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 16px">Hey, can we talk about Friday? I want us to split the slides fairly.</span>
+<span style="font-size: 12px; font-weight: 600; color: #054FC9">From: My groupmate missed the deadline…</span>
+<span style="font-size: 12px; color: #4F6077">26 Oct at 09:52</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 16px">Could we find a time that works for both of us?</span>
+<span style="font-size: 12px; font-weight: 600; color: #054FC9">On its own</span>
+<span style="font-size: 12px; color: #4F6077">25 Oct at 17:30</span>
+</div>
+<div style="flex-grow: 1; display: flex; align-items: flex-end; justify-content: center">
+<img src="../../../../Circleu/Assets.xcassets/GuestPinguPractising.imageset/GuestPinguPractising.png" alt="" style="height: 150px; object-fit: contain">
+</div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="Practice.html" style="color: #054FC9; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="Settings.html"><figcaption>S1–S8 · Settings</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: center; position: relative; height: 44px">
+<span style="font-size: 17px; font-weight: 600">Settings</span>
+</div>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Your Pingu</h2>
+<img src="../../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="height: 90px; object-fit: contain">
+<p style="margin: 0; font-size: 14px; color: #4F6077">Tap to change.</p>
+</section>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Privacy and data</h2>
+<p style="margin: 0; font-size: 14px; color: #4F6077">Kept on this iPhone. Not uploaded or synced.</p>
+<a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none">Learn more ›</a>
+</section>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Your data</h2>
+<p style="margin: 0; font-size: 14px; color: #4F6077">A text file you can save or share.</p>
+<button style="height: 48px; border-radius: 16px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Export my data</button>
+<button style="height: 44px; border: none; background: transparent; color: #B02020; font-family: inherit; font-size: 15px; font-weight: 600">Delete all data</button>
+</section>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Earlier CircleU account</h2>
+<p style="margin: 0; font-size: 14px; color: #4F6077">Bring in your journal from an earlier account.</p>
+<button style="height: 48px; border-radius: 16px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Log in to bring in your journal</button>
+</section>
+</div>
+</div></figure><aside class="note" style="background:#E3EEFF;width:300px">Each board title starts with its story ID from docs/product/user-stories.md. Edit text in place, move things around, or add artboards. Leave a comment on anything you want changed, then tell Claude &quot;code the CircleU Design changes&quot;.</aside></div></section></body>
+</html>

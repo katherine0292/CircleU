@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CircleU Design canvas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+<style>
+body{margin:0;background:#E9EEF5;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0D1421;padding:48px}.row{margin-bottom:96px}.row h2{font-size:40px;margin:0 0 28px}.boards{display:flex;gap:80px;align-items:flex-start}.board{margin:0;flex-shrink:0;display:flex;flex-direction:column;gap:12px}.board figcaption{font-size:15px;font-weight:600;max-width:390px;color:#4F6077}.frame{overflow:hidden;box-shadow:0 10px 30px rgba(13,20,33,.12);background:#F5FAFF;position:relative}.note{flex-shrink:0;box-sizing:border-box;border-radius:14px;padding:16px;font-size:14px;line-height:1.45;align-self:flex-start;margin-top:32px}
+.chip{display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: #E3EEFF; font-size: 13px; font-weight: 600; color: #054FC9}
+.dots{display: flex; gap: 2px; height: 4px}
+.dot{width: 4px; height: 4px; border-radius: 2px; background: #054FC9}
+.dot{width: 8px; height: 8px; border-radius: 4px; background: #B9C7DA}
+.d{height: 40px; border: none; background: transparent; border-radius: 10px; font-family: inherit; font-size: 15px; color: #0D1421; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0}
+.ib{width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center}
+.on{width: 22px; background: #054FC9}
+.primary{height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600}
+.secondary{height: 54px; border-radius: 18px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 17px; font-weight: 600}
+.wd{font-size: 12px; font-weight: 600; color: #4F6077; text-align: center}
+a:hover{color:#033a96}
+a{color:#054FC9}
+</style>
+</head>
+<body><section class="row" id="row-Screens"><h2>CircleU guest app — current screens</h2><div class="boards"><figure class="board" data-board="Main.html"><figcaption>T1–T3 · Today (capture)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<button aria-label="Your Pingu" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; padding: 4px; display: flex; align-items: center; justify-content: center"><img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 34px; height: 34px; object-fit: contain"></button>
+<button aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+</div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700; line-height: 1.15">What’s on your mind?</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">Type, or tap the microphone and talk.</p>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0">
+<button aria-label="Start dictation" style="width: 80px; height: 80px; border-radius: 40px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></button>
+<span style="font-size: 13px; color: #4F6077">Tap to talk</span>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1">
+<span style="position: absolute; left: -9999px">Your words</span>
+<textarea placeholder="" style="flex-grow: 1; min-height: 200px; border: none; border-radius: 18px; background: #FFFFFF; padding: 16px; font-family: inherit; font-size: 17px; color: #0D1421; resize: none"></textarea>
+</label>
+<button style="height: 54px; border-radius: 18px; border: none; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 17px; font-weight: 600">Get a suggestion</button>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save only my words</button>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #054FC9; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="Journal.html"><figcaption>J1–J5 · Journal</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 20px 24px 20px; gap: 14px">
+<div style="display: flex; justify-content: flex-end">
+<button aria-label="Show calendar" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></button>
+</div>
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Journal</h1>
+<label style="display: flex; align-items: center; gap: 8px; height: 44px; border-radius: 22px; background: #FFFFFF; padding: 0 16px; color: #4F6077; font-size: 15px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<input placeholder="Search your journal" aria-label="Search your journal" style="border: none; outline: none; font-family: inherit; font-size: 15px; background: transparent; flex-grow: 1">
+</label>
+<div style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF3F9; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">My groupmate missed the deadline again and I froze.</span><span style="font-size: 12px; color: #4F6077">26 Oct at 09:40</span></div>
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF3F9; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">I said no to the extra shift and felt okay.</span><span style="font-size: 12px; color: #4F6077">25 Oct at 18:12</span></div>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">Talked with my sister about the holiday plans.</span><span style="font-size: 12px; color: #4F6077">24 Oct at 20:05</span></div>
+</div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguWriting.imageset/GuestPinguWriting.png" alt="" style="height: 120px; object-fit: contain">
+<span style="font-size: 13px; color: #4F6077">(Empty journal shows this Pingu with “Nothing saved yet.”)</span>
+</div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="Journal.html" style="color: #054FC9; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="Practice.html"><figcaption>P1–P4 · Practice</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 100px 24px 24px 24px; gap: 16px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Practice</h1>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; padding: 0 20px">Practice a message<span aria-hidden="true">→</span></button>
+<h2 style="margin: 8px 0 0 0; font-size: 17px; font-weight: 600">Saved messages</h2>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 16px">Hey, can we talk about Friday? I want us to split the slides fairly.</span>
+<span style="font-size: 12px; font-weight: 600; color: #054FC9">From: My groupmate missed the deadline…</span>
+<span style="font-size: 12px; color: #4F6077">26 Oct at 09:52</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 16px">Could we find a time that works for both of us?</span>
+<span style="font-size: 12px; font-weight: 600; color: #054FC9">On its own</span>
+<span style="font-size: 12px; color: #4F6077">25 Oct at 17:30</span>
+</div>
+<div style="flex-grow: 1; display: flex; align-items: flex-end; justify-content: center">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguPractising.imageset/GuestPinguPractising.png" alt="" style="height: 150px; object-fit: contain">
+</div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="Practice.html" style="color: #054FC9; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="Settings.html"><figcaption>S1–S8 · Settings</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: center; position: relative; height: 44px">
+<span style="font-size: 17px; font-weight: 600">Settings</span>
+</div>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Your Pingu</h2>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="height: 90px; object-fit: contain">
+<p style="margin: 0; font-size: 14px; color: #4F6077">Tap to change.</p>
+</section>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Privacy and data</h2>
+<p style="margin: 0; font-size: 14px; color: #4F6077">Kept on this iPhone. Not uploaded or synced.</p>
+<a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none">Learn more ›</a>
+</section>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Your data</h2>
+<p style="margin: 0; font-size: 14px; color: #4F6077">A text file you can save or share.</p>
+<button style="height: 48px; border-radius: 16px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Export my data</button>
+<button style="height: 44px; border: none; background: transparent; color: #B02020; font-family: inherit; font-size: 15px; font-weight: 600">Delete all data</button>
+</section>
+<section style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Earlier CircleU account</h2>
+<p style="margin: 0; font-size: 14px; color: #4F6077">Bring in your journal from an earlier account.</p>
+<button style="height: 48px; border-radius: 16px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Log in to bring in your journal</button>
+</section>
+</div>
+</div></figure><aside class="note" style="background:#E3EEFF;width:300px">Each board title starts with its story ID from docs/product/user-stories.md. Edit text in place, move things around, or add artboards. Leave a comment on anything you want changed, then tell Claude &quot;code the CircleU Design changes&quot;.</aside></div></section><section class="row" id="row-A"><h2>A · Illustrated microphone</h2><div class="boards"><figure class="board" data-board="MicOptions.html"><figcaption>T3 · A · mic studies</figcaption><div class="frame" style="width:880px;height:420px;border-radius:0px">
+<div style="width: 880px; height: 420px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; padding: 40px; display: flex; flex-direction: column; gap: 28px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">Microphone: three directions</h1>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="A: soft illustrated microphone">
+<circle cx="60" cy="60" r="56" fill="#DCEBFF"></circle>
+<ellipse cx="60" cy="98" rx="26" ry="5" fill="#BBD6F7"></ellipse>
+<rect x="45" y="22" width="30" height="50" rx="15" fill="#054FC9"></rect>
+<rect x="49" y="26" width="9" height="40" rx="4.5" fill="#3D7FE8"></rect>
+<path d="M36 58a24 24 0 0 0 48 0" fill="none" stroke="#0D1421" stroke-width="5" stroke-linecap="round"></path>
+<path d="M60 82v12" stroke="#0D1421" stroke-width="5" stroke-linecap="round"></path>
+<path d="M48 94h24" stroke="#F28C28" stroke-width="5" stroke-linecap="round"></path>
+</svg>
+<strong style="font-size: 16px">A · Illustrated mic</strong>
+<span style="font-size: 13px; color: #4F6077; text-align: center">Same soft shading as the tab icons, orange base like Pingu’s feet.</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="B: Pingu holding a microphone">
+<circle cx="60" cy="60" r="56" fill="#DCEBFF"></circle>
+<ellipse cx="60" cy="74" rx="28" ry="32" fill="#14254A"></ellipse>
+<ellipse cx="60" cy="80" rx="18" ry="22" fill="#FFFFFF"></ellipse>
+<circle cx="60" cy="44" r="20" fill="#14254A"></circle>
+<ellipse cx="60" cy="48" rx="13" ry="11" fill="#FFFFFF"></ellipse>
+<circle cx="54" cy="45" r="2.5" fill="#0D1421"></circle>
+<circle cx="66" cy="45" r="2.5" fill="#0D1421"></circle>
+<path d="M56 51l4 4 4-4z" fill="#F28C28"></path>
+<rect x="74" y="58" width="12" height="20" rx="6" fill="#054FC9"></rect>
+<path d="M80 78v8" stroke="#0D1421" stroke-width="3"></path>
+<ellipse cx="50" cy="104" rx="7" ry="3" fill="#F28C28"></ellipse>
+<ellipse cx="70" cy="104" rx="7" ry="3" fill="#F28C28"></ellipse>
+</svg>
+<strong style="font-size: 16px">B · Pingu with a mic</strong>
+<span style="font-size: 13px; color: #4F6077; text-align: center">Warmest. Pingu “listens”. Needs proper artwork from the Pingu artist style.</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="C: brand blue button with ice ring">
+<circle cx="60" cy="60" r="56" fill="#FFFFFF" stroke="#BBD6F7" stroke-width="6"></circle>
+<circle cx="60" cy="60" r="42" fill="#054FC9"></circle>
+<rect x="52" y="38" width="16" height="28" rx="8" fill="#FFFFFF"></rect>
+<path d="M44 58a16 16 0 0 0 32 0" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"></path>
+<path d="M60 74v8" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"></path>
+</svg>
+<strong style="font-size: 16px">C · Clean, with an ice ring</strong>
+<span style="font-size: 13px; color: #4F6077; text-align: center">Closest to now; the ring pulses while listening.</span>
+</div>
+</div>
+</div>
+</div></figure><figure class="board" data-board="A1-IllustratedMic.html"><figcaption>T3 · A1 Illustrated mic</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between"><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span></div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">Type, or tap the microphone and talk.</p>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<button aria-label="Start dictation" style="border: none; background: transparent; padding: 0">
+<svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+<circle cx="60" cy="60" r="56" fill="#DCEBFF"></circle>
+<ellipse cx="60" cy="100" rx="26" ry="5" fill="#BBD6F7"></ellipse>
+<rect x="45" y="22" width="30" height="50" rx="15" fill="#054FC9"></rect>
+<rect x="49" y="26" width="9" height="40" rx="4.5" fill="#3D7FE8"></rect>
+<path d="M36 58a24 24 0 0 0 48 0" fill="none" stroke="#0D1421" stroke-width="5" stroke-linecap="round"></path>
+<path d="M60 82v12" stroke="#0D1421" stroke-width="5" stroke-linecap="round"></path>
+<path d="M48 94h24" stroke="#F28C28" stroke-width="5" stroke-linecap="round"></path>
+</svg>
+</button>
+<span style="font-size: 13px; color: #4F6077">Tap to talk</span>
+<span style="font-size: 11px; font-weight: 700; color: #B05A00; background: #FFF1E0; border-radius: 8px; padding: 3px 8px">PLACEHOLDER ART · needs brand-style mic</span>
+</div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF"></div>
+<div style="height: 54px; border-radius: 18px; background: #054FC9; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save only my words</div>
+</div>
+</div></figure><figure class="board" data-board="A2-PinguListening.html"><figcaption>T3 · A2 Pingu listening (rings)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between"><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span></div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+<p style="margin: 0; font-size: 15px; color: #054FC9; font-weight: 600">Listening… tap to stop</p>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<button aria-label="Stop dictation" style="border: none; background: transparent; padding: 0; position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center">
+<span style="position: absolute; left: 0; top: 0; width: 170px; height: 170px; border-radius: 85px; background: #DCEBFF"></span>
+<span style="position: absolute; left: 15px; top: 15px; width: 140px; height: 140px; border-radius: 70px; background: #BBD6F7"></span>
+<span style="position: absolute; left: 30px; top: 30px; width: 110px; height: 110px; border-radius: 55px; background: #FFFFFF"></span>
+<img src="assets/CanvasPinguListeningLegacy.png" alt="" style="position: relative; width: 120px; height: 120px; object-fit: contain">
+</button>
+<span style="font-size: 11px; font-weight: 700; color: #B05A00; background: #FFF1E0; border-radius: 8px; padding: 3px 8px">EXISTING ART: Pingu listening · ideal: Pingu holding a mic</span>
+</div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; color: #0D1421">I keep thinking about what my manager said in the meeting…</div>
+<div style="height: 54px; border-radius: 18px; background: #054FC9; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save only my words</div>
+</div>
+</div></figure></div></section><section class="row" id="row-B"><h2>B · Get a suggestion redesign</h2><div class="boards"><figure class="board" data-board="B1-PromptChips.html"><figcaption>T6 (proposed) · B1 Prompt chips (empty)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between"><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span></div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<span style="width: 80px; height: 80px; border-radius: 40px; background: #054FC9"></span>
+<span style="font-size: 13px; color: #4F6077">Tap to talk</span>
+</div>
+<p style="margin: 6px 0 0 0; font-size: 13px; font-weight: 600; color: #4F6077">Not sure where to start?</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button style="border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 18px; padding: 10px 14px; font-family: inherit; font-size: 14px; font-weight: 600">What happened?</button>
+<button style="border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 18px; padding: 10px 14px; font-family: inherit; font-size: 14px; font-weight: 600">Who was it with?</button>
+<button style="border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 18px; padding: 10px 14px; font-family: inherit; font-size: 14px; font-weight: 600">What do you wish you’d said?</button>
+</div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; color: #8A99AD">Tap a question to start with it, or just write.</div>
+<div style="height: 54px; border-radius: 18px; background: #8DB0E8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save</div>
+</div>
+</div></figure><figure class="board" data-board="B2-Nudge.html"><figcaption>T6 (proposed) · B2 Need a nudge? (writing)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between"><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span></div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 56px; height: 56px; border-radius: 28px; background: #054FC9; flex-shrink: 0"></span>
+<span style="font-size: 13px; color: #4F6077">Tap to talk</span>
+</div>
+<div style="align-self: stretch; background: #054FC9; color: #FFFFFF; border-radius: 16px 16px 16px 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 700; opacity: 0.85">NEED A NUDGE?</span>
+<span style="font-size: 15px">What did you want them to understand?</span>
+<div style="display: flex; gap: 14px; font-size: 13px; font-weight: 700"><span>Add to my words</span><span style="opacity: 0.8">Another question</span><span style="opacity: 0.8">Hide</span></div>
+</div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; line-height: 1.45">My groupmate missed the deadline again. I froze in the meeting and didn’t say anything, and now I’m annoyed at myself.</div>
+<div style="height: 54px; border-radius: 18px; background: #054FC9; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save</div>
+</div>
+</div></figure><figure class="board" data-board="B3-AfterSave.html"><figcaption>T6 (proposed) · B3 After save: optional reflection</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Journal</h1>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 10px rgba(13,20,33,0.08)">
+<div style="display: flex; align-items: center; gap: 12px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 48px; height: 48px; object-fit: contain">
+<strong style="font-size: 16px">Saved to your journal</strong>
+</div>
+<span style="font-size: 14px; color: #4F6077">Want a short reflection on it?</span>
+<div style="display: flex; gap: 10px">
+<button style="flex-grow: 1; height: 46px; border-radius: 14px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 600">Reflect on it</button>
+<button style="flex-grow: 1; height: 46px; border-radius: 14px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 15px; font-weight: 600">Not now</button>
+</div>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">My groupmate missed the deadline again. I froze in the meeting…</span><span style="font-size: 12px; color: #4F6077">26 Oct at 10:58</span></div>
+<p style="margin: 0; font-size: 13px; color: #4F6077">Saving never needs a reflection. “Reflect on it” opens the same review as today’s Get a suggestion, but for a saved entry.</p>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:300px">B replaces “Get a suggestion” and “Save only my words” with one Save. Questions come before and during writing; a reflection is only offered after saving.</aside></div></section><section class="row" id="row-C"><h2>C · Background and Pingu artwork</h2><div class="boards"><figure class="board" data-board="C1-SceneHeader.html"><figcaption>T1 · C1 Pingu scene header</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column">
+<div style="position: relative; height: 300px; background: #0B2A5C; overflow: hidden">
+<img src="../../../Circleu/Assets.xcassets/PinguHero.imageset/pingu-hero.jpg" alt="" style="width: 390px; height: 300px; object-fit: cover; object-position: center 35%">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(rgba(245,250,255,0), #F5FAFF)"></div>
+<h1 style="position: absolute; left: 24px; bottom: 14px; margin: 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; padding: 8px 24px 24px 24px">
+<span style="font-size: 11px; font-weight: 700; color: #B05A00; background: #FFF1E0; border-radius: 8px; padding: 3px 8px; align-self: flex-start">EXISTING ART: PinguHero (legacy) · ideal: brand-style ice-floe scene</span>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 56px; height: 56px; border-radius: 28px; background: #054FC9"></span><span style="font-size: 13px; color: #4F6077">Tap to talk</span></div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; color: #8A99AD">Write it down, or tap to talk.</div>
+<div style="height: 54px; border-radius: 18px; background: #054FC9; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save</div>
+</div>
+</div>
+</div></figure><figure class="board" data-board="C2a-Morning.html"><figcaption>T1 · C2 Morning backdrop</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: linear-gradient(#FFE9D2 0%, #F5FAFF 45%); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px; position: relative; overflow: hidden">
+<span style="position: absolute; right: -40px; top: 40px; width: 180px; height: 180px; border-radius: 90px; background: #FFC48A; opacity: 0.55"></span>
+<svg style="position: absolute; left: 0; top: 250px" width="390" height="80" viewBox="0 0 390 80" aria-hidden="true"><path d="M0 50 Q60 20 120 44 T240 40 T390 36 V80 H0 Z" fill="#DCEBFF"></path></svg>
+<h1 style="position: relative; margin: 60px 0 0 0; font-size: 30px; font-weight: 700">Good morning</h1>
+<p style="position: relative; margin: 0; font-size: 15px; color: #4F6077">What’s on your mind today?</p>
+<div style="position: relative; height: 90px"></div>
+<div style="position: relative; display: flex; align-items: center; gap: 12px"><span style="width: 56px; height: 56px; border-radius: 28px; background: #054FC9"></span><span style="font-size: 13px; color: #4F6077">Tap to talk</span></div>
+<div style="position: relative; flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; color: #8A99AD">Write it down, or tap to talk.</div>
+<div style="position: relative; height: 54px; border-radius: 18px; background: #054FC9; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save</div>
+<span style="position: absolute; left: 24px; bottom: 90px; font-size: 11px; font-weight: 700; color: #B05A00; background: #FFF1E0; border-radius: 8px; padding: 3px 8px">PLACEHOLDER · morning gradient + ice horizon</span>
+</div>
+</div></figure><figure class="board" data-board="C2b-Evening.html"><figcaption>T1 · C2 Evening backdrop</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: linear-gradient(#1B2F66 0%, #6C7FC4 30%, #F5FAFF 55%); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px; position: relative; overflow: hidden">
+<span style="position: absolute; right: -40px; top: 40px; width: 180px; height: 180px; border-radius: 90px; background: #F4F1FF; opacity: 0.55"></span>
+<svg style="position: absolute; left: 0; top: 250px" width="390" height="80" viewBox="0 0 390 80" aria-hidden="true"><path d="M0 50 Q60 20 120 44 T240 40 T390 36 V80 H0 Z" fill="#DCEBFF"></path></svg>
+<h1 style="position: relative; margin: 60px 0 0 0; font-size: 30px; font-weight: 700">Good evening</h1>
+<p style="position: relative; margin: 0; font-size: 15px; color: #4F6077">How did today go?</p>
+<div style="position: relative; height: 90px"></div>
+<div style="position: relative; display: flex; align-items: center; gap: 12px"><span style="width: 56px; height: 56px; border-radius: 28px; background: #054FC9"></span><span style="font-size: 13px; color: #4F6077">Tap to talk</span></div>
+<div style="position: relative; flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; color: #8A99AD">Write it down, or tap to talk.</div>
+<div style="position: relative; height: 54px; border-radius: 18px; background: #054FC9; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Save</div>
+<span style="position: absolute; left: 24px; bottom: 90px; font-size: 11px; font-weight: 700; color: #B05A00; background: #FFF1E0; border-radius: 8px; padding: 3px 8px">PLACEHOLDER · evening gradient + moon</span>
+</div>
+</div></figure><aside class="note" style="background:#FFF1E0;width:300px">Orange tags mark placeholder or legacy art. See docs/design/pingu-scene-art-brief.md for the art we still need.</aside></div></section><section class="row" id="row-D"><h2>D · Visual Today with the art we already have</h2><div class="boards"><figure class="board" data-board="D1-VisualEmpty.html"><figcaption>T10 · D1 Visual Today · empty</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 20px 24px; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<img src="assets/CanvasPinguHeadLogo.png" alt="CircleU" style="width: 40px; height: 40px; object-fit: contain">
+<button aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg></button>
+</div>
+<h1 style="margin: 4px 0 0 0; font-size: 30px; font-weight: 700; line-height: 1.15">What’s on your mind?</h1>
+<div style="position: relative; height: 188px; border-radius: 28px; background: #E3EEFF; overflow: hidden; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 0 12px">
+<span style="position: absolute; left: -40px; bottom: -70px; width: 260px; height: 120px; border-radius: 130px; background: #FFFFFF; opacity: 0.7"></span>
+<button aria-label="Your Pingu: Pingu holding a journal" style="position: relative; border: none; background: transparent; padding: 0"><img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 170px; height: 170px; object-fit: contain"></button>
+<div style="align-self: center; display: flex; flex-direction: column; align-items: center; gap: 8px">
+<button aria-label="Start dictation" style="width: 92px; height: 92px; border-radius: 46px; border: 10px solid #C3D8FA; background: #054FC9; display: flex; align-items: center; justify-content: center; box-sizing: content-box; padding: 0"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#FFFFFF"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></button>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button style="display: flex; align-items: center; gap: 8px; min-height: 44px; border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 22px; padding: 6px 14px 6px 8px; font-family: inherit; font-size: 15px; font-weight: 600"><img src="../../../Circleu/Assets.xcassets/GuestIconToday.imageset/GuestIconToday@3x.png" alt="" style="width: 26px; height: 26px">What happened?</button>
+<button style="display: flex; align-items: center; gap: 8px; min-height: 44px; border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 22px; padding: 6px 14px 6px 8px; font-family: inherit; font-size: 15px; font-weight: 600"><img src="../../../Circleu/Assets.xcassets/GuestIconFeelings.imageset/GuestIconFeelings@3x.png" alt="" style="width: 26px; height: 26px">Who was it with?</button>
+<button style="display: flex; align-items: center; gap: 8px; min-height: 44px; border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 22px; padding: 6px 14px 6px 8px; font-family: inherit; font-size: 15px; font-weight: 600"><img src="../../../Circleu/Assets.xcassets/GuestIconPractice.imageset/GuestIconPractice@3x.png" alt="" style="width: 26px; height: 26px">What do you wish you’d said?</button>
+</div>
+<label style="display: flex; flex-grow: 1; position: relative">
+<span style="position: absolute; left: -9999px">Your words</span>
+<textarea style="flex-grow: 1; min-height: 140px; border: none; border-radius: 18px; background: #FFFFFF; padding: 16px 16px 16px 48px; font-family: inherit; font-size: 17px; color: #0D1421; resize: none"></textarea>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A99AD" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 18px; top: 18px"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M14 6l4 4"></path></svg>
+</label>
+<button disabled="disabled" style="height: 54px; border-radius: 18px; border: none; background: #8DB0E8; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save</button>
+<nav style="display: flex; justify-content: space-around; font-size: 12px; font-weight: 600"><a href="D1-VisualEmpty.html" style="color: #054FC9; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="D2-VisualListening.html"><figcaption>T10 · D2 Visual Today · listening</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 20px 24px; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<button aria-label="Your Pingu" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; padding: 4px; display: flex; align-items: center; justify-content: center"><img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 34px; height: 34px; object-fit: contain"></button>
+<button aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg></button>
+</div>
+<h1 style="margin: 4px 0 0 0; font-size: 30px; font-weight: 700; line-height: 1.15">What’s on your mind?</h1>
+<div style="height: 260px; border-radius: 28px; background: #E3EEFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px">
+<div style="position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center">
+<span style="position: absolute; left: 0; top: 0; width: 170px; height: 170px; border-radius: 85px; background: #CFE0FC"></span>
+<span style="position: absolute; left: 16px; top: 16px; width: 138px; height: 138px; border-radius: 69px; background: #B6CFF7"></span>
+<span style="position: absolute; left: 32px; top: 32px; width: 106px; height: 106px; border-radius: 53px; background: #FFFFFF"></span>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguListening.imageset/GuestPinguListening.png" alt="" style="position: relative; width: 124px; height: 124px; object-fit: contain">
+</div>
+<div style="display: flex; align-items: center; gap: 20px">
+<button aria-label="Cancel dictation" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #BBD6F7; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+<button aria-label="Stop dictation" style="width: 56px; height: 56px; border-radius: 28px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center"><span style="width: 18px; height: 18px; border-radius: 4px; background: #FFFFFF"></span></button>
+</div>
+</div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; line-height: 1.4; color: #0D1421">I keep thinking about what my manager said in the meeting<span style="display: inline-block; width: 2px; height: 20px; background: #054FC9; vertical-align: middle; margin-left: 2px"></span></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save</button>
+<nav style="display: flex; justify-content: space-around; font-size: 12px; font-weight: 600"><a href="D1-VisualEmpty.html" style="color: #054FC9; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="D3-VisualWriting.html"><figcaption>T10 · D3 Visual Today · writing</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 0 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<button aria-label="Your Pingu" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; padding: 4px; display: flex; align-items: center; justify-content: center"><img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 34px; height: 34px; object-fit: contain"></button>
+<button aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg></button>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; line-height: 1.15">What’s on your mind?</h1>
+<button aria-label="Start dictation" style="flex-shrink: 0; width: 52px; height: 52px; border-radius: 26px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#FFFFFF"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></button>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 8px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguThoughtful.imageset/GuestPinguThoughtful.png" alt="" style="flex-shrink: 0; width: 64px; height: 64px; object-fit: contain">
+<div style="flex-grow: 1; background: #054FC9; color: #FFFFFF; border-radius: 18px 18px 18px 4px; padding: 12px 12px 6px 14px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 16px; line-height: 1.35">What did you want them to understand?</span>
+<div style="display: flex; align-items: center; gap: 4px">
+<button style="display: flex; align-items: center; gap: 6px; min-height: 36px; border: none; border-radius: 18px; background: #FFFFFF; color: #054FC9; padding: 0 14px 0 10px; font-family: inherit; font-size: 14px; font-weight: 700"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add</button>
+<button aria-label="Another question" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"></path><path d="M20 4v5h-5"></path></svg></button>
+<span style="flex-grow: 1"></span>
+<button aria-label="Hide" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</div>
+</div>
+<div style="flex-grow: 1; border-radius: 18px; background: #FFFFFF; padding: 16px; font-size: 17px; line-height: 1.4">My manager moved my project to someone else without asking me first, and I didn’t say anything<span style="display: inline-block; width: 2px; height: 20px; background: #054FC9; vertical-align: middle; margin-left: 2px"></span></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save</button>
+<div aria-hidden="true" style="height: 250px; margin: 0 -24px; background: #D3D8DF; display: flex; align-items: center; justify-content: center; color: #6B7686; font-size: 13px; font-weight: 600">keyboard</div>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:320px">D swaps words for pictures using Pingu art that&#x27;s already in the app, so it can ship before ART-1 to ART-6. Gone: &quot;Type, or tap the microphone and talk.&quot;, &quot;Tap to talk&quot;, &quot;Not sure where to start?&quot;, &quot;Need a nudge?&quot;, &quot;Another question&quot; and &quot;Hide&quot; (icons now, with VoiceOver labels). When the new mic and scene art land, they drop into the same blue card. Comment on anything you want changed.</aside></div></section><section class="row" id="row-JS"><h2>J · Simpler Journal (icons over labels)</h2><div class="boards"><figure class="board" data-board="JS1-List.html"><figcaption>J1 · J2 (proposed) · Simpler list: date tile, status icons, short Saved card</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 20px 24px 20px; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Journal</h1>
+<button aria-label="Show calendar" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></button>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; height: 40px; border-radius: 12px; background: #E8EEF6; padding: 0 12px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<input placeholder="Search" aria-label="Search your journal" style="border: none; outline: none; font-family: inherit; font-size: 16px; background: transparent; flex-grow: 1">
+</label>
+<div style="display: flex; align-items: center; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 10px 10px 10px 12px; box-shadow: 0 2px 10px rgba(13,20,33,0.08)">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 40px; height: 40px; object-fit: contain">
+<strong style="font-size: 16px; flex-grow: 1">Saved</strong>
+<button style="height: 40px; border-radius: 20px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 600; padding: 0 16px; display: flex; align-items: center; gap: 6px"><img src="../../../Circleu/Assets.xcassets/GuestIconReflection.imageset/GuestIconReflection@3x.png" alt="" style="width: 18px; height: 18px; filter: brightness(0) invert(1)">Reflect</button>
+<button aria-label="Not now" style="width: 40px; height: 40px; border-radius: 20px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<a href="JS3-Entry.html" style="display: flex; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 12px; text-decoration: none; color: #0D1421">
+<div style="width: 48px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #EAF2FF; border-radius: 12px; padding: 6px 0"><span style="font-size: 20px; font-weight: 700; color: #054FC9; line-height: 1.1">26</span><span style="font-size: 11px; font-weight: 600; color: #4F6077">Oct</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 0">
+<span style="font-size: 16px; line-height: 1.35">My groupmate missed the deadline again and I froze in the meeting.</span>
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconReflection.imageset/GuestIconReflection@3x.png" alt="Has a reflection" style="width: 18px; height: 18px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconNextStep.imageset/GuestIconNextStep@3x.png" alt="Next step not done" style="width: 18px; height: 18px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconPractice.imageset/GuestIconPractice@3x.png" alt="Has a practice message" style="width: 18px; height: 18px">
+<span style="flex-grow: 1"></span>
+<span style="font-size: 12px; color: #4F6077">09:40</span>
+</div>
+</div>
+</a>
+<a href="JS3-Entry.html" style="display: flex; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 12px; text-decoration: none; color: #0D1421">
+<div style="width: 48px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #EAF2FF; border-radius: 12px; padding: 6px 0"><span style="font-size: 20px; font-weight: 700; color: #054FC9; line-height: 1.1">25</span><span style="font-size: 11px; font-weight: 600; color: #4F6077">Oct</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 0">
+<span style="font-size: 16px; line-height: 1.35">I said no to the extra shift and felt okay about it.</span>
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Next step done"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.5 2.5L16 9.5"></path></svg>
+<span style="flex-grow: 1"></span>
+<span style="font-size: 12px; color: #4F6077">18:12</span>
+</div>
+</div>
+</a>
+<a href="JS3-Entry.html" style="display: flex; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 12px; text-decoration: none; color: #0D1421">
+<div style="width: 48px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #EAF2FF; border-radius: 12px; padding: 6px 0"><span style="font-size: 20px; font-weight: 700; color: #054FC9; line-height: 1.1">24</span><span style="font-size: 11px; font-weight: 600; color: #4F6077">Oct</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 0">
+<span style="font-size: 16px; line-height: 1.35">Talked with my sister about the holiday plans.</span>
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="flex-grow: 1"></span>
+<span style="font-size: 12px; color: #4F6077">20:05</span>
+</div>
+</div>
+</a>
+</div>
+<div style="flex-grow: 1"></div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="JS1-List.html" style="color: #054FC9; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="JS2-Calendar.html"><figcaption>J3 (proposed) · Calendar: count dots, today icon, day chip</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 20px 24px 20px; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Journal</h1>
+<button aria-label="Hide calendar" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></button>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 10px 12px 12px 12px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center">
+<button aria-label="Previous month" style="width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<strong style="flex-grow: 1; text-align: center; font-size: 17px">October 2026</strong>
+<button aria-label="Go to today" style="width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5" fill="#054FC9"></circle></svg></button>
+<button aria-label="Next month" style="width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px">
+<span class="wd">S</span><span class="wd">M</span><span class="wd">T</span><span class="wd">W</span><span class="wd">T</span><span class="wd">F</span><span class="wd">S</span>
+<span></span><span></span><span></span><span></span>
+<button class="d">1<span class="dots"></span></button><button class="d">2<span class="dots"></span></button><button class="d">3<span class="dots"></span></button>
+<button class="d">4<span class="dots"></span></button><button class="d">5<span class="dots"><span class="dot"></span></span></button><button class="d">6<span class="dots"></span></button><button class="d">7<span class="dots"></span></button><button class="d">8<span class="dots"><span class="dot"></span></span></button><button class="d">9<span class="dots"></span></button><button class="d">10<span class="dots"></span></button>
+<button class="d">11<span class="dots"></span></button><button class="d">12<span class="dots"><span class="dot"></span><span class="dot"></span></span></button><button class="d">13<span class="dots"></span></button><button class="d">14<span class="dots"></span></button><button class="d">15<span class="dots"></span></button><button class="d">16<span class="dots"><span class="dot"></span></span></button><button class="d">17<span class="dots"></span></button>
+<button class="d">18<span class="dots"></span></button><button class="d">19<span class="dots"></span></button><button class="d">20<span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></button><button class="d">21<span class="dots"></span></button><button class="d">22<span class="dots"></span></button><button class="d">23<span class="dots"></span></button><button class="d">24<span class="dots"><span class="dot"></span></span></button>
+<button class="d">25<span class="dots"><span class="dot"></span></span></button>
+<button class="d" aria-label="26 October, 2 entries" style="background: #054FC9; color: #FFFFFF; font-weight: 700">26<span class="dots"><span class="dot" style="background: #FFFFFF"></span><span class="dot" style="background: #FFFFFF"></span></span></button>
+<button class="d">27<span class="dots"></span></button><button class="d">28<span class="dots"></span></button><button class="d">29<span class="dots"></span></button><button class="d">30<span class="dots"></span></button><button class="d">31<span class="dots"></span></button>
+</div>
+</div>
+<div style="display: flex">
+<button aria-label="Show all" style="height: 36px; border-radius: 18px; border: none; background: #EAF2FF; color: #054FC9; font-family: inherit; font-size: 15px; font-weight: 600; padding: 0 8px 0 14px; display: flex; align-items: center; gap: 6px">26 Oct<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<a href="JS3-Entry.html" style="display: flex; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 12px; text-decoration: none; color: #0D1421">
+<div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1">
+<span style="font-size: 16px; line-height: 1.35">My groupmate missed the deadline again and I froze in the meeting.</span>
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconReflection.imageset/GuestIconReflection@3x.png" alt="Has a reflection" style="width: 18px; height: 18px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconNextStep.imageset/GuestIconNextStep@3x.png" alt="Next step not done" style="width: 18px; height: 18px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconPractice.imageset/GuestIconPractice@3x.png" alt="Has a practice message" style="width: 18px; height: 18px">
+<span style="flex-grow: 1"></span><span style="font-size: 12px; color: #4F6077">09:40</span>
+</div>
+</div>
+</a>
+<a href="JS3-Entry.html" style="display: flex; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 12px; text-decoration: none; color: #0D1421">
+<div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1">
+<span style="font-size: 16px; line-height: 1.35">Lunch with Sam went better than I expected.</span>
+<div style="display: flex; align-items: center; gap: 10px"><span style="flex-grow: 1"></span><span style="font-size: 12px; color: #4F6077">13:15</span></div>
+</div>
+</a>
+</div>
+<div style="flex-grow: 1"></div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="JS1-List.html" style="color: #054FC9; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="JS3-Entry.html"><figcaption>J4 · J5 (proposed) · Entry: date title, icon actions, delete in menu</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 52px 16px 24px 16px; gap: 12px">
+<div style="display: flex; align-items: center">
+<a href="JS1-List.html" aria-label="Journal" class="ib" style="display: flex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<strong style="flex-grow: 1; text-align: center; font-size: 17px">Sun 26 Oct · 09:40</strong>
+<button class="ib" aria-label="Edit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg></button>
+<button class="ib" aria-label="More"><svg width="20" height="20" viewBox="0 0 24 24" fill="#054FC9" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button>
+</div>
+<div style="padding: 0 4px; display: flex; flex-direction: column; gap: 12px">
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; font-size: 17px; line-height: 1.45">My groupmate missed the deadline again and I froze in the meeting. I wanted to say something but nothing came out.</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 14px 8px 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconReflection.imageset/GuestIconReflection@3x.png" alt="Reflection" style="width: 24px; height: 24px">
+<span style="font-size: 12px; color: #4F6077; flex-grow: 1">Guided prompts, not a personal analysis</span>
+<button class="ib" aria-label="Remove reflection"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<span style="font-size: 16px; line-height: 1.4; padding-right: 8px">You wanted to speak up and the moment passed.</span>
+<span style="display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; background: #EAF2FF; color: #054FC9; border-radius: 14px; padding: 4px 10px; font-size: 14px; font-weight: 600">Frustrated</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 6px 8px 6px 4px; display: flex; align-items: center; gap: 4px">
+<button class="ib" aria-label="Mark done"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg></button>
+<span style="font-size: 16px; flex-grow: 1; line-height: 1.4">Message the group before Friday’s check-in.</span>
+<img src="../../../Circleu/Assets.xcassets/GuestIconNextStep.imageset/GuestIconNextStep@3x.png" alt="Next step" style="width: 22px; height: 22px">
+<button class="ib" aria-label="Remove step"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<a href="Practice.html" style="background: #FFFFFF; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #0D1421">
+<img src="../../../Circleu/Assets.xcassets/GuestIconPractice.imageset/GuestIconPractice@3x.png" alt="Practice message" style="width: 22px; height: 22px">
+<span style="font-size: 15px; flex-grow: 1">“Hey team, can we agree on a new date…”</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</a>
+<button style="height: 48px; border-radius: 14px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><img src="../../../Circleu/Assets.xcassets/GuestIconPractice.imageset/GuestIconPractice@3x.png" alt="" style="width: 22px; height: 22px">Practice what to say</button>
+</div>
+<div style="flex-grow: 1"></div>
+<div style="align-self: flex-end; width: 210px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 8px 28px rgba(13,20,33,0.16); display: flex; flex-direction: column; margin: 0 12px 0 0">
+<button style="height: 44px; border: none; background: transparent; font-family: inherit; font-size: 16px; color: #B02020; display: flex; align-items: center; justify-content: space-between; padding: 0 16px">Delete entry<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B02020" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>
+</div>
+<span style="align-self: flex-end; font-size: 12px; color: #4F6077; margin-right: 12px">(the ••• menu, open)</span>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="JS1-List.html" style="color: #054FC9; text-decoration: none">Journal</a><a href="Practice.html" style="color: #0D1421; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:320px">Labels become icons (each keeps its spoken name for VoiceOver). Removed: “My words”, the “Entry” title (the date is the title), “Showing …” and “Go to today” text, and the text links under the reflection and next step. Delete entry moves into the ••• menu. Comment on anything you want back.</aside></div></section><section class="row" id="row-S"><h2>S · Simpler Settings and privacy</h2><div class="boards"><figure class="board" data-board="S-Settings-New.html"><figcaption>S1–S3 (proposed) · Settings: Pingu, privacy chip, icon rows</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 20px 24px 20px; gap: 18px">
+<div style="display: flex; align-items: center; justify-content: center; height: 44px">
+<span style="font-size: 17px; font-weight: 600">Settings</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<button aria-label="Your Pingu, change" style="position: relative; width: 132px; height: 132px; border-radius: 66px; border: none; background: #FFFFFF; padding: 10px; display: flex; align-items: center; justify-content: center">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 108px; height: 108px; object-fit: contain">
+<span style="position: absolute; right: 4px; bottom: 4px; width: 34px; height: 34px; border-radius: 17px; background: #054FC9; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg></span>
+</button>
+<span style="font-size: 15px; font-weight: 600">Your Pingu</span>
+</div>
+<button style="align-self: center; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 20px; border: none; background: #E3EEFF; color: #054FC9; font-family: inherit; font-size: 14px; font-weight: 600">
+<img src="../../../Circleu/Assets.xcassets/GuestIconPrivacy.imageset/GuestIconPrivacy@3x.png" alt="" style="width: 22px; height: 22px">
+Only on this iPhone
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</button>
+<p style="margin: -10px 0 0 0; text-align: center; font-size: 13px; color: #4F6077">Not uploaded or synced.</p>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="padding-left: 16px; font-size: 13px; font-weight: 600; color: #4F6077">Your data</span>
+<div style="background: #FFFFFF; border-radius: 18px; display: flex; flex-direction: column">
+<button style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; border: none; background: transparent; font-family: inherit; font-size: 16px; color: #0D1421; text-align: left">
+<img src="../../../Circleu/Assets.xcassets/GuestIconNextStep.imageset/GuestIconNextStep@3x.png" alt="" style="width: 28px; height: 28px">
+<span style="flex-grow: 1">Export my data</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AA8BB" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</button>
+<div style="height: 1px; background: #E8EEF6; margin-left: 56px"></div>
+<button style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; border: none; background: transparent; font-family: inherit; font-size: 16px; color: #B02020; text-align: left">
+<span style="width: 28px; height: 28px; border-radius: 8px; background: #FCE8E8; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B02020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></span>
+<span style="flex-grow: 1">Delete all data</span>
+</button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="padding-left: 16px; font-size: 13px; font-weight: 600; color: #4F6077">Earlier CircleU account</span>
+<div style="background: #FFFFFF; border-radius: 18px; display: flex; flex-direction: column">
+<a href="#" style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; font-size: 16px; color: #0D1421; text-decoration: none">
+<img src="../../../Circleu/Assets.xcassets/GuestIconJournal.imageset/GuestIconJournal@3x.png" alt="" style="width: 28px; height: 28px">
+<span style="flex-grow: 1">Bring in your earlier journal</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AA8BB" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</a>
+<div style="height: 1px; background: #E8EEF6; margin-left: 56px"></div>
+<a href="#" style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; font-size: 16px; color: #B02020; text-decoration: none">
+<span style="width: 28px; height: 28px; border-radius: 8px; background: #FCE8E8; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B02020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1-4 4-6 8-6s7 2 8 6"></path></svg></span>
+<span style="flex-grow: 1">Delete my account</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AA8BB" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</a>
+</div>
+</div>
+<div style="margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #4F6077">
+<img src="../../../Circleu/Assets.xcassets/GuestIconLogo.imageset/GuestIconLogo@3x.png" alt="" style="width: 18px; height: 18px">
+CircleU 1.0
+</div>
+</div>
+</div></figure><figure class="board" data-board="S-Privacy-New.html"><figcaption>S1 (proposed) · Privacy sheet: four icon rows, no Learn more</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 24px 20px 24px 20px; gap: 16px">
+<div style="display: flex; justify-content: flex-end">
+<button style="height: 44px; padding: 0 8px; border: none; background: transparent; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Done</button>
+</div>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguQuietBreath.imageset/GuestPinguQuietBreath.png" alt="" style="height: 150px; object-fit: contain">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">Only on this iPhone</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">Not uploaded or synced.</p>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 6px 16px; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 14px; min-height: 60px">
+<span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #E3EEFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3M3 3l18 18"></path></svg></span>
+<span style="font-size: 15px">No audio is saved</span>
+</div>
+<div style="height: 1px; background: #E8EEF6; margin-left: 50px"></div>
+<div style="display: flex; align-items: center; gap: 14px; min-height: 60px">
+<span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #E3EEFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18z"></path></svg></span>
+<span style="font-size: 15px">iPhone backups may include it</span>
+</div>
+<div style="height: 1px; background: #E8EEF6; margin-left: 50px"></div>
+<div style="display: flex; align-items: center; gap: 14px; min-height: 60px">
+<span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #E3EEFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"></path></svg></span>
+<span style="font-size: 15px">Old backups can bring back deleted items</span>
+</div>
+<div style="height: 1px; background: #E8EEF6; margin-left: 50px"></div>
+<div style="display: flex; align-items: center; gap: 14px; min-height: 60px">
+<span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #E3EEFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6"></path></svg></span>
+<span style="font-size: 15px">Exports stay where you saved them</span>
+</div>
+</div>
+</div>
+</div></figure><figure class="board" data-board="S-ExportDone-New.html"><figcaption>S2.3 · S3 (proposed) · Export done toast, delete all confirm</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 20px 24px 20px; gap: 18px">
+<div role="status" style="display: flex; gap: 12px; align-items: center; background: #E6F4EC; border-radius: 18px; padding: 10px 14px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguBackpack.imageset/GuestPinguBackpack.png" alt="" style="width: 52px; height: 52px; object-fit: contain">
+<span style="font-size: 15px; font-weight: 600; color: #134A2B">Export done</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="padding-left: 16px; font-size: 13px; font-weight: 600; color: #4F6077">Your data</span>
+<div style="background: #FFFFFF; border-radius: 18px; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; font-size: 16px">
+<img src="../../../Circleu/Assets.xcassets/GuestIconNextStep.imageset/GuestIconNextStep@3x.png" alt="" style="width: 28px; height: 28px">Export my data</div>
+<div style="height: 1px; background: #E8EEF6; margin-left: 56px"></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; font-size: 16px; color: #B02020">
+<span style="width: 28px; height: 28px; border-radius: 8px; background: #FCE8E8"></span>Delete all data</div>
+</div>
+</div>
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: rgba(13,20,33,0.32); display: flex; align-items: center; justify-content: center">
+<div role="alertdialog" aria-label="Delete all data?" style="width: 290px; background: #FFFFFF; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguThoughtful.imageset/GuestPinguThoughtful.png" alt="" style="height: 84px; object-fit: contain; margin-top: 18px">
+<strong style="font-size: 17px; margin-top: 8px">Delete all data?</strong>
+<span style="font-size: 14px; color: #4F6077; padding: 4px 18px 16px 18px">Everything here, including drafts.</span>
+<div style="width: 100%; height: 1px; background: #E8EEF6"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%">
+<button style="height: 48px; border: none; border-right: 1px solid #E8EEF6; background: transparent; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Cancel</button>
+<button style="height: 48px; border: none; background: transparent; color: #B02020; font-family: inherit; font-size: 16px; font-weight: 700">Delete all</button>
+</div>
+</div>
+</div>
+</div>
+</div></figure><figure class="board" data-board="S-LogIn-New.html"><figcaption>S5 · S7 (proposed, account thread) · Log in: Pingu, two chips, info button</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 44px">
+<a href="S-Settings-New.html" style="font-size: 16px; font-weight: 600; text-decoration: none">‹ Settings</a>
+<span style="font-size: 17px; font-weight: 600">Log in</span>
+<button aria-label="What logging in does" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg></button>
+</div>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguReading.imageset/GuestPinguReading.png" alt="" style="height: 130px; object-fit: contain">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700; text-align: center">Bring in your earlier journal</h1>
+<div style="display: flex; justify-content: center; gap: 8px">
+<span style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: #E3EEFF; font-size: 13px; font-weight: 600; color: #054FC9"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 10l5 5 5-5M5 21h14"></path></svg>Copy only</span>
+<span style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: #E3EEFF; font-size: 13px; font-weight: 600; color: #054FC9"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4v18h-4M10 17l5-5-5-5M15 12H3"></path></svg>Signed out after</span>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px">
+<span style="position: absolute; left: -9999px">Email</span>
+<input type="email" placeholder="Email" style="height: 50px; box-sizing: border-box; border: none; border-radius: 14px; background: #FFFFFF; padding: 0 14px; font-family: inherit; font-size: 16px">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px">
+<span style="position: absolute; left: -9999px">Password</span>
+<input type="password" placeholder="Password" style="height: 50px; box-sizing: border-box; border: none; border-radius: 14px; background: #FFFFFF; padding: 0 14px; font-family: inherit; font-size: 16px">
+</label>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600; margin-top: 4px">Log in</button>
+<a href="#" style="align-self: center; display: flex; align-items: center; min-height: 44px; font-size: 15px; font-weight: 600; text-decoration: none">Forgot password?</a>
+</div>
+</div></figure><figure class="board" data-board="S-DeleteAccount-New.html"><figcaption>S8 (proposed, account thread) · Delete my account: Deleted vs Stays</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 44px">
+<a href="S-Settings-New.html" style="font-size: 16px; font-weight: 600; text-decoration: none">‹ Settings</a>
+<span style="font-size: 17px; font-weight: 600">Delete my account</span>
+<span style="width: 60px"></span>
+</div>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguThoughtful.imageset/GuestPinguThoughtful.png" alt="" style="height: 110px; object-fit: contain">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+<div style="background: #FFFFFF; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #B02020"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B02020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18zM10 11l4 4M14 11l-4 4"></path></svg>Deleted</span>
+<span style="font-size: 14px; line-height: 1.5">Account<br>Cloud backup<br>Posts<br>Memberships</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #1E6B3F"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E6B3F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg>Stays</span>
+<span style="font-size: 14px; line-height: 1.5">Entries on this iPhone</span>
+</div>
+</div>
+<a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none">Learn more ›</a>
+<label style="display: flex; flex-direction: column">
+<span style="position: absolute; left: -9999px">Email</span>
+<input type="email" placeholder="Email" style="height: 50px; box-sizing: border-box; border: none; border-radius: 14px; background: #FFFFFF; padding: 0 14px; font-family: inherit; font-size: 16px">
+</label>
+<label style="display: flex; flex-direction: column">
+<span style="position: absolute; left: -9999px">Password</span>
+<input type="password" placeholder="Password" style="height: 50px; box-sizing: border-box; border: none; border-radius: 14px; background: #FFFFFF; padding: 0 14px; font-family: inherit; font-size: 16px">
+</label>
+<button style="height: 50px; border: none; background: transparent; color: #B02020; font-family: inherit; font-size: 17px; font-weight: 700">Delete my account</button>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:320px">Settings becomes icon rows under your Pingu. Gone: &quot;Tap to change.&quot; (pencil badge), &quot;A text file you can save or share.&quot;, &quot;Bring in your journal from an earlier account.&quot;, and the four Learn more lines (now the Privacy sheet behind &quot;Only on this iPhone&quot;). Export done is a Pingu toast; the delete all confirm is one line. The account rows open the Log in and Delete my account screens, drafted on the two boards to the right for the account screens thread. Comment on anything you want back.</aside></div></section><section class="row" id="row-PR"><h2>P · Practice with fewer words</h2><div class="boards"><figure class="board" data-board="PR1-Home.html"><figcaption>P2 · P4.1 (proposed) · Home: Pingu start card, draft card, message bubbles</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Practice</h1>
+<button aria-label="Search messages" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D1421" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+</div>
+<button style="position: relative; height: 150px; border-radius: 24px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; text-align: left; padding: 22px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguPractising.imageset/GuestPinguPractising.png" alt="" style="position: absolute; right: -6px; top: 4px; height: 150px; object-fit: contain">
+<span style="font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px">Practice a message <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+</button>
+<button style="border: 1.5px dashed #8DB0E8; background: #FFFFFF; border-radius: 18px; padding: 12px 14px; font-family: inherit; display: flex; align-items: center; gap: 12px; text-align: left">
+<span style="width: 36px; height: 36px; border-radius: 18px; background: #E6F0FF; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 15px; font-weight: 600; color: #054FC9">Continue your draft</span><span style="font-size: 13px; color: #4F6077; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">I wanted to check in about the rent…</span></span>
+</button>
+<div style="display: flex; flex-direction: column; gap: 14px; padding-top: 6px">
+<button aria-label="Saved message. From: My groupmate missed the deadline. 26 October" style="align-self: flex-end; max-width: 300px; border: none; font-family: inherit; text-align: left; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<span style="background: #FFFFFF; border: 1px solid #DCE6F2; border-radius: 22px 22px 6px 22px; padding: 12px 16px; font-size: 16px; line-height: 1.4; color: #0D1421">Hey, can we talk about Friday? I want us to split the slides fairly.</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4F6077"><img src="../../../Circleu/Assets.xcassets/GuestIconJournal.imageset/GuestIconJournal@3x.png" alt="" style="width: 16px; height: 16px">26 Oct</span>
+</button>
+<button aria-label="Saved message. On its own. 25 October" style="align-self: flex-end; max-width: 300px; border: none; font-family: inherit; text-align: left; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<span style="background: #FFFFFF; border: 1px solid #DCE6F2; border-radius: 22px 22px 6px 22px; padding: 12px 16px; font-size: 16px; line-height: 1.4; color: #0D1421">Could we find a time that works for both of us?</span>
+<span style="font-size: 12px; color: #4F6077">25 Oct</span>
+</button>
+<button aria-label="Saved message. From: Mum called about Sunday. 22 October" style="align-self: flex-end; max-width: 300px; border: none; font-family: inherit; text-align: left; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<span style="background: #FFFFFF; border: 1px solid #DCE6F2; border-radius: 22px 22px 6px 22px; padding: 12px 16px; font-size: 16px; line-height: 1.4; color: #0D1421">I can’t make lunch this week, but I’d love to call you on Sunday.</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4F6077"><img src="../../../Circleu/Assets.xcassets/GuestIconJournal.imageset/GuestIconJournal@3x.png" alt="" style="width: 16px; height: 16px">22 Oct</span>
+</button>
+</div>
+<div style="flex-grow: 1"></div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="PR1-Home.html" style="color: #054FC9; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="PR2-Empty.html"><figcaption>P2.1 (proposed) · Empty: big Pingu, one button</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">Practice</h1>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguPractising.imageset/GuestPinguPractising.png" alt="" style="height: 240px; object-fit: contain">
+<p style="margin: 0; font-size: 17px; color: #4F6077">Nothing practised yet.</p>
+<button style="height: 54px; align-self: stretch; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">Practice a message <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+<nav style="display: flex; justify-content: space-around; padding: 10px 0 0 0; font-size: 12px; font-weight: 600"><a href="Main.html" style="color: #0D1421; text-decoration: none">Today</a><a href="Journal.html" style="color: #0D1421; text-decoration: none">Journal</a><a href="PR1-Home.html" style="color: #054FC9; text-decoration: none">Practice</a></nav>
+</div>
+</div></figure><figure class="board" data-board="PR3-Compose.html"><figcaption>P1 · P2.2 (proposed) · Write: Situation and Goal as + chips, words in a bubble</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; height: 44px"><a href="PR1-Home.html" style="font-size: 17px; text-decoration: none">Back</a></div>
+<h1 style="margin: 0; font-size: 28px; font-weight: 700; line-height: 1.15">What would you like to say?</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<span style="display: flex; align-items: center; gap: 6px; background: #FFFFFF; border-radius: 16px; padding: 6px 10px; font-size: 13px; font-weight: 600; color: #054FC9"><img src="../../../Circleu/Assets.xcassets/GuestIconJournal.imageset/GuestIconJournal@3x.png" alt="" style="width: 16px; height: 16px">From: My groupmate missed…</span>
+</div>
+<div style="display: flex; gap: 8px">
+<button style="border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 18px; padding: 10px 14px; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Situation</button>
+<button style="border: 1px solid #BBD6F7; background: #FFFFFF; color: #054FC9; border-radius: 18px; padding: 10px 14px; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Goal</button>
+</div>
+<label style="position: relative; display: flex; flex-direction: column; flex-grow: 1; max-height: 300px">
+<span style="position: absolute; left: -9999px">Your wording</span>
+<textarea style="flex-grow: 1; border: none; border-radius: 24px 24px 6px 24px; background: #FFFFFF; padding: 18px 18px 52px 18px; font-family: inherit; font-size: 17px; line-height: 1.45; color: #0D1421; resize: none">Hey, can we talk about Friday? I felt stuck with most of the slides</textarea>
+<button aria-label="Copy" style="position: absolute; right: 10px; bottom: 10px; width: 44px; height: 44px; border-radius: 22px; border: none; background: #E6F0FF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h8"></path></svg></button>
+</label>
+<button style="align-self: flex-start; border: none; background: transparent; padding: 0; font-family: inherit; display: flex; align-items: center; gap: 10px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguThoughtful.imageset/GuestPinguThoughtful.png" alt="" style="width: 56px; height: 56px; object-fit: contain">
+<span style="background: #E6F0FF; color: #054FC9; border-radius: 16px 16px 16px 4px; padding: 10px 14px; font-size: 15px; font-weight: 600">Get a suggestion</span>
+</button>
+<div style="flex-grow: 1"></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save</button>
+</div>
+</div></figure><figure class="board" data-board="PR4-Suggestions.html"><figcaption>P4.2 (proposed) · Suggestions: swipe tone cards, Pingu asks</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px; overflow: hidden">
+<div style="display: flex; align-items: center; height: 44px"><a href="PR3-Compose.html" style="font-size: 17px; text-decoration: none">Back</a></div>
+<h1 style="margin: 0; font-size: 28px; font-weight: 700; line-height: 1.15">What would you like to say?</h1>
+<div style="position: relative; display: flex; flex-direction: column; height: 150px">
+<div style="flex-grow: 1; border-radius: 24px 24px 6px 24px; background: #FFFFFF; padding: 18px; font-size: 17px; line-height: 1.45">Hey, can we talk about Friday? I felt stuck with most of the slides</div>
+<button aria-label="Copy" style="position: absolute; right: 10px; bottom: 10px; width: 44px; height: 44px; border-radius: 22px; border: none; background: #E6F0FF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h8"></path></svg></button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguThoughtful.imageset/GuestPinguThoughtful.png" alt="" style="width: 44px; height: 44px; object-fit: contain">
+<span style="font-size: 12px; color: #4F6077; flex-grow: 1">Guided prompts, not a personal analysis</span>
+<button style="border: none; background: transparent; color: #054FC9; font-family: inherit; font-size: 15px; font-weight: 600; min-height: 44px">Another</button>
+</div>
+<div style="display: flex; gap: 12px; margin-right: -24px">
+<div style="flex: 0 0 272px; background: #FFFFFF; border: 2px solid #054FC9; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="align-self: flex-start; background: #E6F0FF; color: #054FC9; border-radius: 12px; padding: 4px 10px; font-size: 12px; font-weight: 700">Gentle</span>
+<span style="font-size: 16px; line-height: 1.45">Hi, could we chat about Friday? I’d like us to share the slides more evenly.</span>
+<button style="align-self: flex-start; height: 44px; border-radius: 14px; border: 1.5px solid #054FC9; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 15px; font-weight: 600; padding: 0 18px">Use this</button>
+</div>
+<div style="flex: 0 0 272px; background: #FFFFFF; border: 1px solid #DCE6F2; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="align-self: flex-start; background: #FFF1E6; color: #8A3B00; border-radius: 12px; padding: 4px 10px; font-size: 12px; font-weight: 700">Clear</span>
+<span style="font-size: 16px; line-height: 1.45">I’d like to talk about Friday. What I’m hoping for is to split the slides fairly. Does that work for you?</span>
+</div>
+</div>
+<div style="display: flex; justify-content: center; gap: 6px" aria-hidden="true"><span style="width: 18px; height: 6px; border-radius: 3px; background: #054FC9"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: #BBD6F7"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: #BBD6F7"></span></div>
+<div style="flex-grow: 1"></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Save</button>
+</div>
+</div></figure><figure class="board" data-board="PR5-Saved.html"><figcaption>P3 (proposed) · Saved: your message as a sent bubble, Edit and ••• in the toolbar</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 44px">
+<a href="PR1-Home.html" style="font-size: 17px; text-decoration: none">Back</a>
+<span style="font-size: 17px; font-weight: 600">Message</span>
+<span style="display: flex"><button aria-label="Edit" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg></button><button aria-label="More" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="8" cy="12" r="0.6"></circle><circle cx="12" cy="12" r="0.6"></circle><circle cx="16" cy="12" r="0.6"></circle></svg></button></span>
+</div>
+<span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; background: #FFFFFF; border-radius: 16px; padding: 6px 10px; font-size: 13px; font-weight: 600; color: #054FC9"><img src="../../../Circleu/Assets.xcassets/GuestIconJournal.imageset/GuestIconJournal@3x.png" alt="" style="width: 16px; height: 16px">From: My groupmate missed…</span>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #4F6077">
+<span style="display: flex; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" aria-label="Situation" role="img" style="flex-shrink: 0; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4l3 2"></path></svg>Slides are due Friday and I did most of them</span>
+<span style="display: flex; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" aria-label="Goal" role="img" style="flex-shrink: 0; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>Share the work fairly without a fight</span>
+</div>
+<div style="align-self: flex-end; max-width: 320px; background: #054FC9; color: #FFFFFF; border-radius: 24px 24px 6px 24px; padding: 18px; font-size: 18px; line-height: 1.45">Hey, can we talk about Friday? I want us to split the slides fairly.</div>
+<div style="align-self: flex-end; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #4F6077"><img src="../../../Circleu/Assets.xcassets/GuestPinguThumbsUp.imageset/GuestPinguThumbsUp.png" alt="" style="width: 40px; height: 40px; object-fit: contain">Saved · not sent</div>
+<div style="flex-grow: 1"></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h8"></path></svg>Copy</button>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:320px">Gone: the “Saved messages” header, the From/On its own line and time on each row (a journal icon and a date instead), the Situation, Goal and “Your wording” labels and their hints (Situation and Goal become + chips that open a field), the full-width Copy button (a copy icon in the bubble), the source line under suggestions is kept but small, and the Edit button and red Delete text (a pencil in the toolbar, and Delete message in the ••• menu, still asks first). One open question: “Copying won’t save or send it.” is approved text. I&#x27;d show it only after copying, as “Copied. Not saved or sent.” Comment if you want it kept always.</aside></div></section><section class="row" id="row-AC"><h2>AC · Account screens and Welcome</h2><div class="boards"><figure class="board" data-board="AC1-Welcome.html"><figcaption>W1 · W2 (proposed) · Welcome: one short line</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="flex-grow: 1"></div>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguWelcome.imageset/GuestPinguWelcome.png" alt="" style="height: 220px; object-fit: contain">
+<h1 style="margin: 0; font-size: 36px; font-weight: 700; text-align: center">CircleU</h1>
+<p style="margin: 0; font-size: 16px; color: #4F6077; text-align: center">A private place to find your words.</p>
+<div style="flex-grow: 1"></div>
+<button class="primary">Get started</button>
+<a href="S-LogIn-New.html" class="secondary" style="display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Log in</a>
+</div>
+</div></figure><figure class="board" data-board="AC2-BackupPreview.html"><figcaption>S5 (proposed) · Backup preview: count chips, info button, Left out</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 44px"><a href="S-LogIn-New.html" style="font-size: 16px; font-weight: 600; text-decoration: none">‹ Log in</a><span style="font-size: 17px; font-weight: 600"></span><button class="ib" aria-label="What isn’t copied"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg></button></div>
+<h1 style="margin: 0; font-size: 24px; font-weight: 700">Your account’s backup</h1>
+<div style="display: flex; gap: 8px">
+<span class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 10l5 5 5-5M5 21h14"></path></svg>5 to copy</span>
+<span class="chip" style="background: #EEF1F5; color: #4F6077"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>2 already here</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="background: #FFFFFF; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">I told my friend I needed space this weekend.</span><span style="font-size: 12px; color: #4F6077">3 Mar 2026</span></div>
+<div style="background: #FFFFFF; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">Work review went fine, but I didn’t ask about…</span><span style="font-size: 12px; color: #4F6077">28 Feb 2026</span></div>
+<div style="background: #FFFFFF; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px">Mum called again about the move.</span><span style="font-size: 12px; color: #4F6077">20 Feb 2026</span></div>
+</div>
+<button style="align-self: flex-start; display: flex; align-items: center; gap: 6px; min-height: 44px; border: none; background: transparent; padding: 0; font-family: inherit; font-size: 15px; font-weight: 600; color: #054FC9"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>Left out (1)</button>
+<div style="flex-grow: 1"></div>
+<button class="primary">Copy into this journal</button>
+<button class="secondary">Don’t copy</button>
+</div>
+</div></figure><figure class="board" data-board="AC3-Copied.html"><figcaption>S5 · W2.2 (proposed) · Copied: Pingu, Signed out chip</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="flex-grow: 1"></div>
+<img src="../../../Circleu/Assets.xcassets/GuestPinguReading.imageset/GuestPinguReading.png" alt="" style="height: 200px; object-fit: contain">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; text-align: center">Copied 5 items</h1>
+<div style="display: flex; justify-content: center; gap: 8px">
+<span class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4v18h-4M10 17l5-5-5-5M15 12H3"></path></svg>Signed out</span>
+</div>
+<button style="align-self: center; display: flex; align-items: center; gap: 6px; min-height: 44px; border: none; background: transparent; padding: 0; font-family: inherit; font-size: 15px; font-weight: 600; color: #054FC9"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>Left out (1)</button>
+<div style="flex-grow: 1"></div>
+<button class="primary">Continue</button>
+<span style="font-size: 12px; color: #4F6077; text-align: center">(Continue shows only when you came from Welcome)</span>
+</div>
+</div></figure><figure class="board" data-board="AC4-ResetPassword.html"><figcaption>S7 (proposed) · Reset password: envelope, no extra line</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; height: 44px"><a href="S-LogIn-New.html" style="font-size: 16px; font-weight: 600; text-decoration: none">‹ Log in</a><span style="font-size: 17px; font-weight: 600">Reset password</span><span style="width: 60px"></span></div>
+<div style="display: flex; justify-content: center; padding: 24px 0 8px 0"><svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"></rect><path d="M3.5 6.5l8.5 6.5 8.5-6.5"></path></svg></div>
+<label style="display: flex; flex-direction: column">
+<span style="position: absolute; left: -9999px">Email</span>
+<input type="email" placeholder="Email" style="height: 50px; box-sizing: border-box; border: none; border-radius: 14px; background: #FFFFFF; padding: 0 14px; font-family: inherit; font-size: 16px">
+</label>
+<button class="primary">Send reset link</button>
+<div style="height: 1px; background: #DCE6F2; margin: 20px 0"></div>
+<span style="font-size: 12px; color: #4F6077; text-align: center">After sending:</span>
+<div style="display: flex; justify-content: center"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"></rect><path d="M3.5 6.5l8.5 6.5 8.5-6.5"></path><circle cx="19" cy="17" r="4" fill="#054FC9" stroke="none"></circle><path d="M17.3 17l1.2 1.2 2.2-2.4" stroke="#FFFFFF" stroke-width="1.6"></path></svg></div>
+<h2 style="margin: 0; font-size: 22px; font-weight: 700; text-align: center">Check your email</h2>
+<p style="margin: 0; font-size: 15px; color: #4F6077; text-align: center">If an account uses this email, a link is on its way.</p>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:320px">With Log in and Delete my account (row S, right). Gone: the Email and Password labels above the fields (placeholders and VoiceOver keep them), Learn more on Log in and the backup preview (now an (i) button), the “N to copy · N already copied” line (two chips), “You’re signed out.” (a chip), “We’ll email you a reset link.”, and Welcome’s long line. Kept on purpose: “If an account uses this email, a link is on its way.” (never says whether an account exists) and a promise that nothing is uploaded: I’d make Log in’s first chip “Nothing uploaded” rather than “Copy only”. Comment on anything you want back.</aside></div></section><section class="row" id="row-OB"><h2>OB · Portrait onboarding with scenes</h2><div class="boards"><figure class="board" data-board="OB1-HardMoment.html"><figcaption>W1 (proposed) · Onboarding 1: a hard moment (rainy evening)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421">
+<svg width="390" height="620" viewBox="0 0 390 620" style="position: absolute; left: 0; top: 0" aria-hidden="true"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2A4E"></stop><stop offset="1" stop-color="#4C6D9E"></stop></linearGradient></defs><rect width="390" height="620" fill="url(#sk)"></rect><g fill="#22345C"><rect x="0" y="250" width="70" height="370"></rect><rect x="62" y="300" width="60" height="320"></rect><rect x="280" y="230" width="66" height="390"></rect><rect x="338" y="290" width="60" height="330"></rect></g><g fill="#FFD27A" opacity="0.85"><rect x="14" y="280" width="10" height="12"></rect><rect x="40" y="320" width="10" height="12"></rect><rect x="80" y="330" width="10" height="12"></rect><rect x="296" y="262" width="10" height="12"></rect><rect x="318" y="300" width="10" height="12"></rect><rect x="352" y="320" width="10" height="12"></rect></g><circle cx="200" cy="360" r="90" fill="#FFD27A" opacity="0.12"></circle><rect x="196" y="300" width="6" height="200" fill="#2A3E68"></rect><circle cx="199" cy="296" r="10" fill="#FFE3A6"></circle><g stroke="#C9D8F0" stroke-width="1.4" stroke-linecap="round" opacity="0.5"><path d="M30 40l-6 18M90 90l-6 18M150 30l-6 18M210 120l-6 18M270 60l-6 18M330 140l-6 18M60 190l-6 18M120 230l-6 18M240 210l-6 18M360 230l-6 18M20 400l-6 18M370 420l-6 18"></path></g><ellipse cx="200" cy="560" rx="150" ry="18" fill="#7E9CC8" opacity="0.4"></ellipse></svg><div style="position: absolute; left: 0; right: 0; top: 380px; height: 240px; background: linear-gradient(to bottom, rgba(245,250,255,0), #F5FAFF)"></div>
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 600px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; box-sizing: border-box">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguThoughtful.imageset/GuestPinguThoughtful.png" alt="" style="height: 230px; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(13,20,33,0.25))">
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 24px 34px 24px; display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700; text-align: center">Something on your mind?</h1>
+<p style="margin: 0; font-size: 16px; color: #4F6077; text-align: center">A private place for the moments that stay with you.</p>
+<div style="display: flex; justify-content: center; gap: 6px; padding: 10px 0"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+<div style="display: flex; justify-content: space-between; align-items: center"><button style="min-height: 44px; border: none; background: transparent; font-family: inherit; font-size: 16px; font-weight: 600; color: #4F6077; padding: 0 8px">Skip</button><button aria-label="Next" style="width: 56px; height: 56px; border-radius: 28px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div>
+</div>
+</div>
+</div></figure><figure class="board" data-board="OB2-FindWords.html"><figcaption>W1 (proposed) · Onboarding 2: write it through (lamp-lit desk)</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421">
+<svg width="390" height="620" viewBox="0 0 390 620" style="position: absolute; left: 0; top: 0" aria-hidden="true"><defs><radialGradient id="lamp" cx="0.72" cy="0.42" r="0.6"><stop offset="0" stop-color="#FFE7B0"></stop><stop offset="1" stop-color="#E9EEF8" stop-opacity="0"></stop></radialGradient></defs><rect width="390" height="620" fill="#DCE5F3"></rect><rect x="40" y="70" width="190" height="250" rx="14" fill="#2B4A86"></rect><rect x="40" y="70" width="190" height="250" rx="14" fill="none" stroke="#F5FAFF" stroke-width="8"></rect><path d="M135 70v250M40 195h190" stroke="#F5FAFF" stroke-width="6"></path><circle cx="190" cy="120" r="16" fill="#F5F0D8"></circle><g fill="#F5FAFF" opacity="0.8"><circle cx="80" cy="110" r="1.6"></circle><circle cx="100" cy="150" r="1.4"></circle><circle cx="170" cy="240" r="1.6"></circle><circle cx="70" cy="260" r="1.4"></circle></g><rect width="390" height="620" fill="url(#lamp)"></rect><path d="M300 330l-30-90h60z" fill="#F2B04A"></path><rect x="297" y="330" width="6" height="140" fill="#8A6A3A"></rect><rect x="0" y="470" width="390" height="24" rx="4" fill="#B98A5A"></rect></svg><div style="position: absolute; left: 0; right: 0; top: 380px; height: 240px; background: linear-gradient(to bottom, rgba(245,250,255,0), #F5FAFF)"></div>
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 600px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; box-sizing: border-box">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguWriting.imageset/GuestPinguWriting.png" alt="" style="height: 230px; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(13,20,33,0.25))">
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 24px 34px 24px; display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700; text-align: center">Write or talk it through</h1>
+<p style="margin: 0; font-size: 16px; color: #4F6077; text-align: center">Kept on this iPhone. Not uploaded or synced.</p>
+<div style="display: flex; justify-content: center; gap: 6px; padding: 10px 0"><span class="dot"></span><span class="dot on"></span><span class="dot"></span></div>
+<div style="display: flex; justify-content: space-between; align-items: center"><button style="min-height: 44px; border: none; background: transparent; font-family: inherit; font-size: 16px; font-weight: 600; color: #4F6077; padding: 0 8px">Skip</button><button aria-label="Next" style="width: 56px; height: 56px; border-radius: 28px; border: none; background: #054FC9; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div>
+</div>
+</div>
+</div></figure><figure class="board" data-board="OB3-SayItKindly.html"><figcaption>W1 · W2 (proposed) · Onboarding 3: find your words (sunrise), Get started / Log in</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421">
+<svg width="390" height="620" viewBox="0 0 390 620" style="position: absolute; left: 0; top: 0" aria-hidden="true"><defs><linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC8A8"></stop><stop offset="0.55" stop-color="#FFE6D3"></stop><stop offset="1" stop-color="#DDEBFF"></stop></linearGradient></defs><rect width="390" height="620" fill="url(#dawn)"></rect><circle cx="270" cy="330" r="64" fill="#FFF3D6"></circle><circle cx="270" cy="330" r="110" fill="#FFF3D6" opacity="0.35"></circle><rect x="0" y="380" width="390" height="240" fill="#BFD6F2"></rect><path d="M0 380h390" stroke="#F5FAFF" stroke-width="4"></path><g stroke="#F5FAFF" stroke-width="2" stroke-linecap="round" opacity="0.7"><path d="M220 410h100M240 430h60M200 455h140"></path></g><path d="M40 520c40-30 110-36 160-30s120 10 160 34v96H40z" fill="#F5FAFF"></path></svg><div style="position: absolute; left: 0; right: 0; top: 380px; height: 240px; background: linear-gradient(to bottom, rgba(245,250,255,0), #F5FAFF)"></div>
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 600px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; box-sizing: border-box">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguWarmDrink.imageset/GuestPinguWarmDrink.png" alt="" style="height: 230px; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(13,20,33,0.25))">
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 24px 34px 24px; display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700; text-align: center">Find your words</h1>
+<p style="margin: 0; font-size: 16px; color: #4F6077; text-align: center">Practise what you want to say, when you’re ready.</p>
+<div style="display: flex; justify-content: center; gap: 6px; padding: 10px 0"><span class="dot"></span><span class="dot"></span><span class="dot on"></span></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 600">Get started</button><button style="height: 54px; border-radius: 18px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 17px; font-weight: 600">Log in</button>
+</div>
+</div>
+</div></figure><aside class="note" style="background:#FFF1E0;width:320px">Backgrounds here are drawn placeholders behind existing Pingu poses (Thoughtful, Writing, WarmDrink). The real art would be three painted portrait scenes with Pingu in them (ART-7 to ART-9 in the art brief), each fading into ice blue at the bottom so text stays readable. Swipe or tap the arrow; Skip jumps to the last page. Art is hidden from VoiceOver, still with Reduce Motion, and shrinks to a banner at the largest text sizes. Comment on the moments, the lines or the palette.</aside></div></section><section class="row" id="row-States"><h2>Key non-happy states</h2><div class="boards"><figure class="board" data-board="States-MicDenied.html"><figcaption>T4.1 · Today · mic permission denied</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div style="display: flex; justify-content: space-between"><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span><span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; border: 1px solid #DCE6F2"></span></div>
+<h1 style="margin: 8px 0 0 0; font-size: 30px; font-weight: 700">What’s on your mind?</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">Type, or tap the microphone and talk.</p>
+<div style="display: flex; align-items: center; gap: 12px">
+<button aria-label="Start dictation" style="width: 56px; height: 56px; border-radius: 28px; border: 2px dashed #8A99AD; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3M3 3l18 18"></path></svg>
+</button>
+<span style="font-size: 13px; color: #4F6077">Microphone is off</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE6F2; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; line-height: 1.4">Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing.</span>
+<a href="#" style="font-size: 14px; font-weight: 700; color: #054FC9; text-decoration: none">Open Settings</a>
+</div>
+<label style="flex-grow: 1; display: flex; flex-direction: column"><span style="position: absolute; left: -9999px">Your words</span><textarea style="flex-grow: 1; border-radius: 18px; border: none; background: #FFFFFF; padding: 16px; font-family: inherit; font-size: 17px; resize: none">I can still type here.</textarea></label>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 17px">Save only my words</button>
+</div>
+</div></figure><figure class="board" data-board="States-JournalEmpty.html"><figcaption>J1.1 · Journal · empty</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Journal</h1>
+<button aria-label="Calendar" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE6F2; background: #FFFFFF; padding: 0; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#054FC9" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+</button>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguJournal.imageset/GuestPinguJournal.png" alt="" style="width: 180px; height: 180px; object-fit: contain">
+<p style="margin: 0; font-size: 17px; color: #4F6077">Nothing saved yet.</p>
+</div>
+</div>
+</div></figure><figure class="board" data-board="States-NoResults.html"><figcaption>J2.2 · Journal · no search results</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 16px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Journal</h1>
+<div style="display: flex; align-items: center; gap: 10px">
+<label style="flex-grow: 1; display: flex; align-items: center; gap: 8px; height: 44px; border-radius: 12px; background: #E8EEF6; padding: 0 12px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F6077" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<span style="position: absolute; left: -9999px">Search entries</span>
+<input value="deadline" style="flex-grow: 1; border: none; background: transparent; font-family: inherit; font-size: 17px; color: #0D1421">
+</label>
+<button style="border: none; background: transparent; color: #054FC9; font-family: inherit; font-size: 17px; padding: 0">Cancel</button>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px">
+<img src="../../../Circleu/Assets.xcassets/GuestPinguPractising.imageset/GuestPinguPractising.png" alt="" style="width: 140px; height: 140px; object-fit: contain">
+<p style="margin: 0; font-size: 17px; color: #4F6077">No entries match “deadline”.</p>
+</div>
+</div>
+</div></figure><figure class="board" data-board="States-ImportError.html"><figcaption>S5.4 · Backup preview · copy failed</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 700">Your account’s backup</h1>
+<p style="margin: 0; font-size: 15px; color: #4F6077">12 to copy · 0 already copied</p>
+<div role="alert" style="display: flex; gap: 10px; align-items: flex-start; background: #FFF1E0; border-radius: 14px; padding: 12px 14px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A4A00" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+<span style="font-size: 14px; line-height: 1.4; color: #5C2C00">Couldn’t copy your earlier journal. Nothing was added; try again.</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 4px 16px; display: flex; flex-direction: column">
+<div style="padding: 12px 0; border-bottom: 1px solid #E8EEF6; display: flex; justify-content: space-between"><span>Journal entries</span><span style="color: #4F6077">9</span></div>
+<div style="padding: 12px 0; border-bottom: 1px solid #E8EEF6; display: flex; justify-content: space-between"><span>Practice messages</span><span style="color: #4F6077">3</span></div>
+<div style="padding: 12px 0; display: flex; justify-content: space-between"><span>Left out</span><span style="color: #4F6077">2</span></div>
+</div>
+<button style="border: none; background: transparent; color: #054FC9; font-family: inherit; font-size: 13px; padding: 0; align-self: flex-start">Learn more</button>
+<div style="flex-grow: 1"></div>
+<button style="height: 54px; border-radius: 18px; border: none; background: #054FC9; color: #FFFFFF; font-family: inherit; font-weight: 600; font-size: 17px">Copy into this journal</button>
+<button style="height: 44px; border: none; background: transparent; color: #054FC9; font-family: inherit; font-weight: 600; font-size: 17px">Don’t copy</button>
+</div>
+</div></figure><figure class="board" data-board="States-ExportDone.html"><figcaption>S2.3 · Settings · export done</figcaption><div class="frame" style="width:390px;height:844px;border-radius:36px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5FAFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0D1421; display: flex; flex-direction: column; padding: 56px 24px 24px 24px; gap: 14px">
+<div role="status" style="display: flex; gap: 10px; align-items: flex-start; background: #E6F4EC; border-radius: 14px; padding: 12px 14px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E6B3F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+<span style="font-size: 14px; line-height: 1.4; color: #134A2B">Export done. The copy you shared is yours to keep or delete.</span>
+</div>
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Settings</h1>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 17px">Your data</strong>
+<span style="font-size: 14px; color: #4F6077">A text file you can save or share.</span>
+<button style="height: 44px; border-radius: 12px; border: 1px solid #DCE6F2; background: #FFFFFF; color: #054FC9; font-family: inherit; font-size: 16px; font-weight: 600">Export my data</button>
+<button style="height: 44px; border: none; background: transparent; color: #B3261E; font-family: inherit; font-size: 16px; font-weight: 600">Delete all data</button>
+</div>
+<div style="background: #FFFFFF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<strong style="font-size: 17px">Privacy and data</strong>
+<span style="font-size: 14px; color: #4F6077">Kept on this iPhone. Not uploaded or synced.</span>
+</div>
+</div>
+</div></figure><aside class="note" style="background:#DDF4F0;width:300px">Wording is the app&#x27;s current text. Each board maps to a story in docs/product/user-stories.md: T4.1, J1.1, J2.2, S5.4, S2.3.</aside></div></section></body>
+</html>
