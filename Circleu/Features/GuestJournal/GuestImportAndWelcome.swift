@@ -231,6 +231,7 @@ struct GuestWelcomeView: View {
                                 GuestOnboardingPageView(page: Self.pages[index], topInset: top,
                                                         bottomInset: footerHeight + bottom)
                                     .frame(width: width, height: height)
+                                    .accessibilityHidden(index != page)
                                     .id(index)
                             }
                         }
@@ -241,6 +242,11 @@ struct GuestWelcomeView: View {
                     .scrollBounceBehavior(.basedOnSize)
                     .scrollPosition(id: $scrolledPage)
                     .onChange(of: scrolledPage) { _, new in if let new { page = new } }
+                    // After a rotation the old offset lands between pages; settle back on the current one.
+                    .onChange(of: width) { _, _ in
+                        scrolledPage = nil
+                        DispatchQueue.main.async { scrolledPage = page }
+                    }
                     footer
                         .background(GeometryReader { Color.clear.preference(key: GuestFooterHeight.self, value: $0.size.height) })
                         .padding(.bottom, bottom)
@@ -268,9 +274,10 @@ struct GuestWelcomeView: View {
                     }
                 } else {
                     HStack {
-                        Button("Skip") { go(to: Self.pages.count - 1) }
-                            .font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.blue)
-                            .frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+                        Button { go(to: Self.pages.count - 1) } label: {
+                            Text("Skip").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.blue)
+                                .frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+                        }
                         Spacer()
                         Button { go(to: page + 1) } label: {
                             Image(systemName: "arrow.right").font(.title2.weight(.semibold)).foregroundStyle(.white)
@@ -286,7 +293,6 @@ struct GuestWelcomeView: View {
     }
 
     private func go(to index: Int) {
-        page = index
         if reduceMotion { scrolledPage = index } else { withAnimation(.easeInOut(duration: 0.3)) { scrolledPage = index } }
     }
 }
@@ -302,8 +308,10 @@ struct GuestOnboardingPage {
     let line: String
 }
 
-/// One Welcome page: the scene fills from the top and fades into ice, where the words sit. At
-/// accessibility text sizes the scene becomes a short banner so text never sits on the art.
+/// One Welcome page: the scene fills from the top and fades into ice, where the words sit. The
+/// scene only takes the height the words and footer leave, so text never sits on the art. At
+/// accessibility text sizes, or when the words don't fit, the scene is a short banner above
+/// scrolling text.
 struct GuestOnboardingPageView: View {
     let page: GuestOnboardingPage
     /// The status bar height; the page itself runs under it.
@@ -315,25 +323,48 @@ struct GuestOnboardingPageView: View {
     var body: some View {
         GeometryReader { geo in
             if typeSize.isAccessibilitySize {
-                // A 180 pt band around Pingu, who sits about 38% down the scene.
-                let top = topInset
-                VStack(spacing: 0) {
-                    Color.clear.frame(height: 180 + top)
-                        .overlay(alignment: .top) {
-                            art(width: geo.size.width).offset(y: min(0, top + 90 - geo.size.width * aspect * 0.38))
-                        }
-                        .clipped()
-                    ScrollView { words.padding(24).padding(.bottom, bottomInset) }
-                }
+                scrolling(width: geo.size.width, height: geo.size.height)
             } else {
-                // The art is a background so its height never moves the words.
-                words.padding(.horizontal, 24).padding(.bottom, bottomInset + 20)
-                    .frame(width: geo.size.width, height: geo.size.height, alignment: .bottom)
-                    .background(alignment: .top) { art(width: geo.size.width) }
-                    .clipped()
+                ViewThatFits(in: .vertical) {
+                    fitted(width: geo.size.width)
+                    scrolling(width: geo.size.width, height: geo.size.height)
+                }
             }
         }
         .ignoresSafeArea()
+    }
+
+    private func fitted(width: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            scene(width: width).frame(minHeight: 160 + topInset)
+            words.padding(.horizontal, 24).padding(.top, 8)
+            Color.clear.frame(height: bottomInset + 20)
+        }
+    }
+
+    private func scrolling(width: CGFloat, height: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            scene(width: width).frame(height: min(180 + topInset, height * 0.3))
+            ScrollView { words.padding(24) }
+            Color.clear.frame(height: bottomInset)
+        }
+    }
+
+    /// The scene in whatever band it's given: from the top when there's room, otherwise centred
+    /// on Pingu (about 38% down), with a soft edge into ice at the bottom.
+    private func scene(width: CGFloat) -> some View {
+        GeometryReader { band in
+            let artHeight = width * aspect, bandHeight = band.size.height
+            let y = max(bandHeight - artHeight, min(0, (bandHeight + topInset) / 2 - artHeight * 0.38))
+            Color.clear
+                .overlay(alignment: .top) { art(width: width).offset(y: y) }
+                .clipped()
+                .overlay(alignment: .bottom) {
+                    LinearGradient(colors: [GuestBrand.ice.opacity(0), GuestBrand.ice], startPoint: .top, endPoint: .bottom)
+                        .frame(height: min(80, bandHeight * 0.3))
+                }
+        }
+        .accessibilityHidden(true)
     }
 
     /// Height over width; the scenes aren't all the same shape.

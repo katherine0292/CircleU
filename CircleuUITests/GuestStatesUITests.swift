@@ -41,29 +41,54 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Get started"].exists, "Welcome isn't shown again")
     }
 
-    /// W1.1 and W1.5: three pages with Skip; Next and Skip both reach Get started and Log in.
+    /// Waits until the element is inside the window, not just in the tree: every Welcome page is built
+    /// at once, and the others sit off to the side. (Text in a scroll view isn't reported as hittable.)
+    func onScreen(_ app: XCUIApplication, _ element: XCUIElement, _ timeout: TimeInterval = 5) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        repeat {
+            if element.exists, !element.frame.isEmpty, app.windows.firstMatch.frame.contains(element.frame) { return true }
+            usleep(200_000)
+        } while Date() < deadline
+        return false
+    }
+
+    func onPage(_ app: XCUIApplication, _ number: Int, _ title: String) -> Bool {
+        let dots = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Page \(number) of 3")).firstMatch
+        return onScreen(app, app.staticTexts[title]) && dots.waitForExistence(timeout: 5)
+    }
+
+    /// W1.1 and W1.5: three pages with Skip; swiping, Next and Skip all move the shown page, and both
+    /// routes reach Get started and Log in.
     func testWelcomePagesNextAndSkip() throws {
         continueAfterFailure = false
         var app = launchGuest(fresh: true, welcomeSeen: nil)
-        XCTAssertTrue(app.staticTexts["Something on your mind?"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Skip"].exists)
-        shot(app, "w1-page1")
+        XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
+        XCTAssertTrue(onPage(app, 1, "Something on your mind?"))
         XCTAssertFalse(app.buttons["Get started"].exists, "Get started waits for the last page")
+        shot(app, "w1-page1")
+        app.swipeLeft()
+        XCTAssertTrue(onPage(app, 2, "Write or talk it through"), "swiping pages forward")
+        app.swipeRight()
+        XCTAssertTrue(onPage(app, 1, "Something on your mind?"), "and back")
         app.buttons["Next"].tap()
-        XCTAssertTrue(app.staticTexts["Write or talk it through"].waitForExistence(timeout: 5))
+        XCTAssertTrue(onPage(app, 2, "Write or talk it through"))
+        XCTAssertFalse(onScreen(app, app.staticTexts["Something on your mind?"], 1), "page 1 has moved away")
         sleep(1); shot(app, "w2-page2")
         app.buttons["Next"].tap()
-        XCTAssertTrue(app.staticTexts["Find your words"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Get started"].exists)
-        XCTAssertTrue(app.buttons["Log in"].exists)
+        XCTAssertTrue(onPage(app, 3, "Find your words"))
+        XCTAssertTrue(onScreen(app, app.buttons["Get started"]))
+        XCTAssertTrue(onScreen(app, app.buttons["Log in"]))
         XCTAssertFalse(app.buttons["Skip"].exists, "the last page has no Skip")
+        XCTAssertFalse(app.buttons["Next"].exists)
         sleep(1); shot(app, "w3-page3")
 
         app = launchGuest(fresh: true, welcomeSeen: nil)
         XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
         app.buttons["Skip"].tap()
-        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Log in"].exists)
+        XCTAssertTrue(onPage(app, 3, "Find your words"), "Skip goes to the last page")
+        XCTAssertTrue(onScreen(app, app.buttons["Get started"]))
+        XCTAssertTrue(onScreen(app, app.buttons["Log in"]))
+        XCTAssertFalse(app.buttons["Skip"].exists)
     }
 
     /// W1.5 at the largest text size: the scene is a short banner and both actions are reachable.
@@ -76,6 +101,8 @@ final class GuestStatesUITests: XCTestCase {
         app.buttons["Skip"].tap()
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
         sleep(1); shot(app, "w3-page3-ax5")
+        XCTAssertTrue(onPage(app, 3, "Find your words"))
+        XCTAssertTrue(onScreen(app, app.staticTexts["Practise what you want to say, when you’re ready."]), "the line is readable")
         XCTAssertTrue(app.buttons["Get started"].isHittable)
         XCTAssertTrue(app.buttons["Log in"].isHittable)
     }
