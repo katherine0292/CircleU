@@ -52,8 +52,8 @@ The supporting line is the single line under the heading; "—" means none.
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”) | Reflect on it (in the card, after saving) | Not now (in the card); Calendar | — |
 | Entry | Entry | — | — | Edit; Practice what to say | — |
-| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
-| Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
+| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message (blue card with Pingu) | Continue your draft (card with a one-line preview); saved messages are bubbles with a journal icon and date, no header | — |
+| Practice message | What would you like to say? | Tag (journal icon + From: … / On its own) | Save, or Copy when saved | Situation and Goal "+" chips (open a field); Copy icon in the bubble; Get a suggestion (Pingu bubble). Saved: Edit (pencil) and ••• → Delete message in the toolbar | — ("Copied. Not saved or sent." shows after copying, replacing the always-on line; pending Mike's OK) |
 | Settings → Your Pingu | Your Pingu | Tap to change. | — | — | — |
 | Settings → Privacy and data | Privacy and data | Kept on this iPhone. Not uploaded or synced. | — | — | Backups, restore, exports, dictation |
 | Settings → Your data | Your data | A text file you can save or share. (above Export) | — | Export my data; Delete all data | — |

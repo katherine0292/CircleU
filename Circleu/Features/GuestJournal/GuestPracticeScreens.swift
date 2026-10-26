@@ -296,11 +296,16 @@ struct GuestPracticeMessageView: View {
                 .disabled(!composer.canLeave)
             }
             if composer.saved != nil && !composer.isEditing {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(role: .destructive) { confirmDelete = true } label: {
-                        Image(systemName: "trash").foregroundStyle(GuestBrand.danger)
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button { composer.edit() } label: { Image(systemName: "pencil") }
+                        .accessibilityLabel("Edit")
+                    // Rarely used, so it waits in the ••• menu; it still asks first.
+                    Menu {
+                        Button("Delete message", systemImage: "trash", role: .destructive) { confirmDelete = true }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
-                    .accessibilityLabel("Delete message")
+                    .accessibilityLabel("More")
                 }
             }
         }
@@ -521,8 +526,6 @@ struct GuestPracticeMessageView: View {
             }
             .buttonStyle(GuestBrandButtonStyle())
             .disabled(!composer.canCopy)
-            Button("Edit") { composer.edit() }
-                .buttonStyle(GuestBrandButtonStyle(filled: false))
         }
     }
 
