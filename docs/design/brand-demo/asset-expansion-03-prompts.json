@@ -29,7 +29,8 @@
       "width": 1254,
       "height": 1254,
       "bytes": 898792,
-      "sha256": "a8d108bfb57e7861887a4b6850d15291b1ac51fc1017e8ef1c7f79491a6bf167"
+      "sha256": "a8d108bfb57e7861887a4b6850d15291b1ac51fc1017e8ef1c7f79491a6bf167",
+      "status": "superseded by V2: too busy to read at 28 pt"
     },
     {
       "name": "BrandNoAudioV1.png",
@@ -55,7 +56,8 @@
       "width": 1254,
       "height": 1254,
       "bytes": 659879,
-      "sha256": "93243e9855c1209beede10a1957fdbfcd96b40ff9892f1528eec9b3d9b265073"
+      "sha256": "93243e9855c1209beede10a1957fdbfcd96b40ff9892f1528eec9b3d9b265073",
+      "status": "superseded by V2: too busy to read at 28 pt"
     },
     {
       "name": "BrandRestoreV1.png",
@@ -82,6 +84,32 @@
       "height": 1254,
       "bytes": 518379,
       "sha256": "90b32b0686f08dbd2be439b61940588b9a9ae00531bc7e2bbb28ed25fb3662b2"
+    },
+    {
+      "name": "BrandEarlierJournalV2.png",
+      "kind": "icon",
+      "role": "Settings: Bring in your earlier journal row",
+      "asset_catalog": "GuestIconEarlierJournal",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandPrivacyV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandJournal.png. This is an illustrated brand accent, not a functional toolbar glyph. Simple silhouette readable at 32–48 points, about 65% canvas coverage. Do not include any penguin or character. Do not include any penguin or character. Subject: one simple chunky pale ice-blue keepsake box seen from the front, its royal-blue lid tipped open above it, two plain cards (one white, one sky blue) peeking out of the top, and one small warm orange ribbon bow on the front. Bold simple shapes that stay readable at 28 points: few parts, large forms, no tiny details. No book, no journal, no text on the cards.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion03/BrandEarlierJournalV2.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 779926,
+      "sha256": "67ae876eb868517a28c89f6f2e15ccbcb37e6c15de7ebb118fda4aad8b89321d"
+    },
+    {
+      "name": "BrandBackupsV2.png",
+      "kind": "icon",
+      "role": "Privacy sheet: device backups may include the journal",
+      "asset_catalog": "GuestIconBackups",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandPrivacyV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable CircleU app brand illustration, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandJournal.png. This is an illustrated brand accent, not a functional toolbar glyph. Simple silhouette readable at 32–48 points, about 65% canvas coverage. Do not include any penguin or character. Do not include any penguin or character. Subject: one large calm fluffy sky-blue cloud with a small navy smartphone tucked in front of its lower edge so the two overlap, the phone screen pale ice blue. Bold simple shapes readable at 28 points: no rays, sparks or lines, no rain, no lightning, not a storm cloud.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion03/BrandBackupsV2.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 821073,
+      "sha256": "42be0ed8f5d87141ed7526f1dd0ae7489a1f2b8d08b4a25b0ba22bfa012f3409"
     }
   ],
   "catalog_note": "Originals are unedited. Asset-catalog copies are trimmed to content, centred on a square at about 76% coverage, then resized with sips to 80 px (@2x) and 120 px (@3x)."
