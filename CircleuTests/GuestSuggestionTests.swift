@@ -259,6 +259,18 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertEqual(journal.reflectionOffer?.id, second.id, "a new save offers again, for the new entry")
     }
 
+    func testFinishingAnOlderReflectionKeepsTheNewerOffer() async throws {
+        let (journal, _) = try await session()
+        let older = try await saved("The first moment", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: older, journal: journal, suggester: FakeSuggester())
+        await review.load()
+        let newer = try await saved("A newer moment", in: journal) // Saved on Today while A's review was open.
+        let ok = await review.save()
+        XCTAssertTrue(ok)
+        XCTAssertNotNil(journal.entries.first { $0.id == older.id }?.reflection)
+        XCTAssertEqual(journal.reflectionOffer?.id, newer.id, "the newer entry is still offered")
+    }
+
     func testEditedSuggestionIsSavedApartFromTheWords() async throws {
         let (journal, _) = try await session()
         let entry = try await saved("My groupmate missed the deadline", in: journal)

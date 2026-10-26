@@ -81,7 +81,7 @@ final class GuestReflectionReviewViewModel: ObservableObject {
         defer { isSaving = false }
         saveError = await journal.updateReflection(of: entry, reflection: keptReflection, nextStep: keptNextStep,
                                                    nextStepDone: false)
-        if saveError == nil { journal.dismissReflectionOffer() }
+        if saveError == nil { journal.reflectionAdded(to: entry.id) }
         return saveError == nil
     }
 }

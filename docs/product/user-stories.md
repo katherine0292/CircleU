@@ -43,7 +43,7 @@ Screen: Today. States: empty, filled, in progress (saving), error.
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | T1.1 | Given words in the box, when I tap Save, then the entry appears in Journal and the box clears. | Unit `GuestJournalStoreTests.testSuccessfulSaveClearsDraftAndShowsEntry` |
-| T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again. Your words are still here." | Unit `GuestJournalStoreTests.testFailedSaveKeepsDraftAndShowsError` |
+| T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again." | Unit `GuestJournalStoreTests.testFailedSaveKeepsDraftAndShowsError` |
 | T1.3 | Given a save is in progress, when I keep typing, then the new words are kept. | Unit `GuestJournalStoreTests.testTextTypedDuringSaveIsKept` |
 | T1.4 | Given the entry saved but file protection failed, when Journal opens, then a notice says so. | Unit `GuestJournalStoreTests.testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal` |
 | T1.5 | Given Today, when I look at the actions, then there is one Save and nothing else to choose before saving. | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
@@ -91,11 +91,12 @@ Screen: Journal ("Saved to your journal" card) → Reflection review. States: fi
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T6.1 | Given I just saved, when Journal opens, then "Saved to your journal" offers Reflect on it and Not now, for that entry only, and Not now closes it. | Unit `GuestSuggestionTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T6.1 | Given I just saved, when Journal opens, then "Saved to your journal" offers Reflect on it and Not now, for that entry only, and Not now closes it. | Unit `GuestSuggestionTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`, `testFinishingAnOlderReflectionKeepsTheNewerOffer`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T6.2 | Given I tap Reflect on it and Save reflection, when the entry reopens, then my edits to the reflection are kept apart from my unchanged words. | Unit `GuestSuggestionTests.testEditedSuggestionIsSavedApartFromTheWords`, `testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I wrote. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
 | T6.4 | Given the suggestion fails or I clear every part, when I look, then nothing is added and the entry stays as it is. | Unit `GuestSuggestionTests.testFailedSuggestionLeavesTheSavedEntryAsItIs`, `testClearingEverythingAddsNothing` |
 | T6.5 | Given the entry changed somewhere else, when I save the reflection, then it isn't added and I'm told why. | Unit `GuestSuggestionTests.testReflectionOnAnEntryChangedMeanwhileIsNotAdded` |
+| T6.6 | Given a reflection is open, when I delete all data, then it closes and Journal is empty. | UI `GuestTodayUITests.testDeleteAllClosesAnOpenReflection` |
 
 **T7. Next step.** As a person, I want to choose whether to keep a suggested next step, so that nothing is added without my say.
 Screen: Reflection review, Entry. States: filled, done or not done.
@@ -122,7 +123,7 @@ Screen: Today (writing). States: filled, hidden, listening (not shown).
 | T9.1 | Given at least five words and no dictation, when I write, then "Need a nudge?" shows one question. | Unit `GuestTodayPromptsTests.testNudgeShowsOnceThereAreWordsAndNotWhileDictating`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T9.2 | Given a question, when I tap Another question, then a different one shows; when I tap Add to my words, then only its starter goes on a new line and the next question shows. | Unit `GuestTodayPromptsTests.testAnotherQuestionCyclesAndAddMovesOn`, `testAStarterGoesOnANewLineAfterExistingWords`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T9.3 | Given the nudge, when I tap Hide, then it stays hidden for this entry and comes back for the next one. | Unit `GuestTodayPromptsTests.testHideLastsForThisEntryOnly`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T9.4 | Given the keyboard is up, when the nudge shows, then the words are still in view (the microphone gets smaller). | No test (checked on screenshots) |
+| T9.4 | Given the keyboard is up, when the nudge shows, then the words are still in view (the microphone gets smaller). | No test (checked on the `t2-nudge` screenshot from `GuestTodayUITests`) |
 
 ## 3. Journal
 
@@ -286,12 +287,12 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 85 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 86 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
 | A unit test (17 also have a UI test) | 70 |
-| Only a UI test | 14 |
+| Only a UI test | 15 |
 | No test | 1 |
 | Marked partial (either kind) | 11 |
 

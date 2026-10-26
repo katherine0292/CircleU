@@ -19,6 +19,7 @@ final class GuestTodayUITests: XCTestCase {
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 15))
         XCTAssertFalse(app.buttons["Get a suggestion"].exists, "replaced by the prompts")
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Save")).count, 1, "one Save")
         XCTAssertFalse(app.buttons["Save"].isEnabled, "nothing to save yet")
         for question in ["What happened?", "Who was it with?", "What do you wish you’d said?"] {
             XCTAssertTrue(app.buttons[question].exists, question)
@@ -55,5 +56,29 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         XCTAssertEqual(words(app), "", "a fresh box after saving")
         XCTAssertTrue(app.buttons["What happened?"].exists, "the chips are back for the next entry")
+        editor.tap(); editor.typeText("My flatmate left the dishes again")
+        XCTAssertTrue(has(app, "Need a nudge?"), "Hide lasted for the last entry only")
+    }
+
+    /// Delete all while a reflection is open closes it and leaves an empty Journal.
+    func testDeleteAllClosesAnOpenReflection() throws {
+        continueAfterFailure = false
+        let app = launchGuest(fresh: true, ["-CircleUGuidedSuggestions", "YES"])
+        let editor = app.textViews["Your words"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 15))
+        editor.tap(); editor.typeText("A moment to reflect on")
+        app.buttons["Save"].tap()
+        app.buttons["Reflect on it"].tap()
+        XCTAssertTrue(app.buttons["Save reflection"].waitForExistence(timeout: 10))
+        app.tabBars.buttons["Today"].tap()
+        app.buttons["Settings"].tap()
+        let delete = app.buttons["Delete all data"]
+        for _ in 0..<6 where !delete.isHittable { app.swipeUp() }
+        delete.tap()
+        app.buttons["Delete all"].tap()
+        XCTAssertTrue(has(app, "was deleted from this iPhone", 10))
+        app.tabBars.buttons["Journal"].tap()
+        XCTAssertTrue(has(app, "Nothing saved yet.", 10), "the reflection closed with the journal")
+        XCTAssertFalse(app.buttons["Save reflection"].exists)
     }
 }

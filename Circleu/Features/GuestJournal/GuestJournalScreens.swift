@@ -101,6 +101,7 @@ struct GuestWriteView: View {
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
          heading: String = "Start with your words.", showsAvatar: Bool = false,
@@ -214,7 +215,7 @@ struct GuestWriteView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: compact ? .leading : .center)
-        .animation(.easeInOut(duration: 0.2), value: compact)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: compact)
     }
 
     /// Question chips above the empty box; the "Need a nudge?" bubble once there are words.
@@ -239,10 +240,10 @@ struct GuestWriteView: View {
                     .font(GuestBrand.font(.caption, .bold)).foregroundStyle(.white.opacity(0.9))
                 Text(nudge.prompt.question)
                     .font(GuestBrand.font(.body)).foregroundStyle(.white)
-                HStack(spacing: 16) {
-                    Button("Add to my words") { start(with: nil) }
-                    Button("Another question") { nudge.next() }
-                    Button("Hide") { nudge.hide() }
+                // One row when it fits; stacked at larger text sizes. Each action is 44 points tall.
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 16) { nudgeActions }
+                    VStack(alignment: .leading, spacing: 0) { nudgeActions }
                 }
                 .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(.white)
                 .buttonStyle(.borderless)
@@ -253,6 +254,16 @@ struct GuestWriteView: View {
                                                                    bottomTrailingRadius: 16, topTrailingRadius: 16))
             .accessibilityElement(children: .contain)
         }
+    }
+
+    @ViewBuilder private var nudgeActions: some View {
+        Button { start(with: nil) } label: { nudgeLabel("Add to my words") }
+        Button { nudge.next() } label: { nudgeLabel("Another question") }
+        Button { nudge.hide() } label: { nudgeLabel("Hide") }
+    }
+
+    private func nudgeLabel(_ title: String) -> some View {
+        Text(title).fixedSize().frame(minWidth: 44, minHeight: 44, alignment: .leading).contentShape(Rectangle())
     }
 
     /// Adds a chip's starter (or the nudge's) to the words and puts the cursor there to type.
@@ -356,6 +367,7 @@ struct GuestJournalListView: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
             }
+            .onChange(of: practice.dataGeneration) { _, _ in reflectingID = nil } // Delete all closes it.
             .navigationDestination(item: $reflectingID) { id in
                 if let entry = journal.entries.first(where: { $0.id == id }) {
                     GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester) { reflectingID = nil }

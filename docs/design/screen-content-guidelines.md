@@ -9,7 +9,7 @@
 | Heading | One per screen, **≤ 40 characters**, sentence case, no full stop. The navigation title may be the heading. |
 | Supporting line | **At most one**, **≤ 90 characters**, in the secondary style (`GuestSummary`: subheadline, muted, Dynamic Type). |
 | Primary action | **At most one** filled button per screen (screens that are lists or settings may have none). A destructive primary, such as Delete my account, is a red text button rather than a filled one. |
-| Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items and "Learn more" don't count. |
+| Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items, "Learn more", dismiss controls (Hide, Close) and prompt chips (which add a sentence starter to the person's words) don't count. |
 | Detail | Only where honesty needs it, behind **Learn more** (`GuestLearnMore`, collapsed, footnote, Dynamic Type). At most four short sentences, each **≤ 120 characters**, marked `// copy: detail` when over 100. |
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
 | Any string on screen | **≤ 100 characters**, unless marked `// copy: detail` or `// copy: export` (export file text, not a screen). |
@@ -37,9 +37,9 @@ The supporting line is the single line under the heading; "—" means none.
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
 | Welcome | CircleU | A private place to work through a moment and find your words. | Get started | Log in | — |
-| Today (capture) | What’s on your mind? | Type, or tap the microphone and talk. (hidden while typing) | Save | Question chips when empty (“Not sure where to start?”), or the “Need a nudge?” bubble while writing (Add to my words; Another question; Hide, which dismisses it and so doesn’t count, like Close); microphone (control); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
+| Today (capture) | What’s on your mind? | Type, or tap the microphone and talk. (hidden while typing) | Save | Question chips when empty (“Not sure where to start?”, prompts, not actions), or the “Need a nudge?” bubble while writing (Add to my words; Another question; Hide is a dismiss control); microphone (control); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
-| Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”, Reflect on it / Not now) | — (list) | Calendar | — |
+| Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”) | Reflect on it (in the card, after saving) | Not now (in the card); Calendar | — |
 | Entry | Entry | — | — | Edit; Practice what to say | — |
 | Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
 | Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |

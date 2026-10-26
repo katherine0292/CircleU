@@ -7,10 +7,10 @@ final class GuestTodayPromptsTests: XCTestCase {
     func testThreeStarterChipsEachAddOnlyTheirStarter() {
         XCTAssertEqual(GuestTodayPrompts.starters.map(\.question),
                        ["What happened?", "Who was it with?", "What do you wish you’d said?"])
-        let wish = GuestTodayPrompts.starters[2]
-        XCTAssertEqual(GuestTodayPrompts.inserting(wish.starter, into: ""), "I wish I’d said ",
-                       "an empty box starts with the starter, not the question")
-        XCTAssertEqual(GuestTodayPrompts.inserting(wish.starter, into: "  \n"), "I wish I’d said ")
+        let started = GuestTodayPrompts.starters.map { GuestTodayPrompts.inserting($0.starter, into: "") }
+        XCTAssertEqual(started, ["What happened was ", "I was with ", "I wish I’d said "],
+                       "an empty box starts with the chip's starter, never its question")
+        XCTAssertEqual(GuestTodayPrompts.inserting("I wish I’d said ", into: "  \n"), "I wish I’d said ")
     }
 
     func testAStarterGoesOnANewLineAfterExistingWords() {
