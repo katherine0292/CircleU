@@ -258,6 +258,7 @@ Screen: Log in → Backup preview → Copied. States: filled, in progress, error
 | S5.2 | Given wrong details, when I log in, then one generic message shows without saying whether the account exists, and repeated tries back off. | Unit `GuestSignInTests.testFailuresAreGenericSignedOutAndBackOff`; UI `GuestImportUITests.testRealDevRejectsAnInventedAccountGenerically` |
 | S5.3 | Given no connection, when I log in, then it says so plainly. | Unit `GuestSignInTests.testOfflineAndUnavailableAreSaidPlainly` |
 | S5.4 | Given copying the backup fails, when the error shows, then it says "Couldn’t copy your earlier journal. Nothing was added; try again." and nothing is added. | Unit `GuestSignInTests.testFailedBackupCopyAddsNothingSaysSoAndSignsOut` |
+| S5.5 | Given Log in, when it opens, then "Nothing uploaded" and "Signed out after" show as chips, and the detail is behind the (i) "What logging in does" button; after copying, a "Signed out" chip shows. | UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 
 **S7. Reset password.** As a returning person who forgot my password, I want a reset link, so that I can log in.
 Screen: Log in → Reset password. States: filled, in progress, done, error.
@@ -272,7 +273,7 @@ Screen: Settings → Delete my account. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted and entries on this iPhone stay. Before deleting, a Will be deleted card and a Stays card show what goes and what stays, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 
@@ -290,12 +291,12 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 89 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 90 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
 | A unit test (19 also have a UI test) | 70 |
-| Only a UI test | 18 |
+| Only a UI test | 19 |
 | No test | 1 |
 | Marked partial (either kind) | 12 |
 
