@@ -176,12 +176,17 @@ final class LiveGuestAccountService: GuestAccountService {
         do {
             try await auth.sendPasswordReset(withEmail: email)
         } catch {
-            switch Self.map(error) {
-            case .couldNotLogIn: return // "No such account" must look like success.
-            case .offline: throw GuestAccountError.offline
-            case .tooManyAttempts: throw GuestAccountError.tooManyAttempts
-            default: throw GuestAccountError.failed // A real service problem is reported, generically.
-            }
+            if let reported = Self.passwordResetError(Self.map(error)) { throw reported }
+        }
+    }
+
+    /// What a reset request reports, given the mapped error. "No such account" must look like
+    /// success; a real service problem is reported, generically.
+    static func passwordResetError(_ error: GuestAccountError) -> GuestAccountError? {
+        switch error {
+        case .couldNotLogIn: nil
+        case .offline, .tooManyAttempts: error
+        default: .failed
         }
     }
 

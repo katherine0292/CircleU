@@ -65,6 +65,7 @@ struct GuestCalendarView: View {
                 Button { shiftMonth(-1) } label: {
                     Image(systemName: "chevron.left").frame(width: 44, height: 44).contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless) // In a List row, default-style buttons all fire on any tap.
                 .accessibilityLabel("Previous month")
                 Spacer()
                 Text(month, format: .dateTime.month(.wide).year())
@@ -74,6 +75,7 @@ struct GuestCalendarView: View {
                 Button { shiftMonth(1) } label: {
                     Image(systemName: "chevron.right").frame(width: 44, height: 44).contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityLabel("Next month")
             }
             .foregroundStyle(GuestBrand.blue)
@@ -91,6 +93,7 @@ struct GuestCalendarView: View {
                 month = Date()
                 selectedDay = calendar.startOfDay(for: Date())
             }
+            .buttonStyle(.borderless)
             .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
             .frame(minHeight: 44)
         }

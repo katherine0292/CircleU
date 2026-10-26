@@ -68,6 +68,15 @@ private final class ScriptedReader: GuestCloudBackupReading {
     }
 }
 
+/// Previews from the real store, but the copy itself fails.
+private nonisolated struct FailingCopyStore: GuestImportStore {
+    let base: any GuestImportStore
+    func isImported(_ legacyID: UUID) async throws -> Bool { try await base.isImported(legacyID) }
+    func importLegacy(entries: [GuestImportedEntry], messages: [GuestImportedMessage]) async throws -> GuestImportResult {
+        throw GuestJournalError.saveFailed("test")
+    }
+}
+
 @MainActor
 final class GuestSignInTests: XCTestCase {
     private var root: URL!
@@ -292,5 +301,51 @@ final class GuestSignInTests: XCTestCase {
         let before = FirebaseRuntime.debugCloudAccessCount
         _ = try await session()
         XCTAssertEqual(FirebaseRuntime.debugCloudAccessCount, before, "Firebase is only reached when Log in is used")
+    }
+
+    func testFailedBackupCopyAddsNothingSaysSoAndSignsOut() async throws {
+        let account = ScriptedAccount(), reader = ScriptedReader()
+        reader.backup = backup()
+        let (journal, practice, store) = try await session()
+        let model = GuestSignInViewModel(factory: GuestAccountFactory { (account, reader) },
+                                         store: FailingCopyStore(base: store), journal: journal, practice: practice)
+        model.email = "person@example.com"; model.password = "secret"
+        await model.logIn()
+        guard case .preview = model.step else { return XCTFail("\(model.step)") }
+        await model.copy()
+        XCTAssertEqual(model.message, "Couldn’t copy your earlier journal. Nothing was added; try again.")
+        XCTAssertEqual(model.step, .form, "never shows Copied")
+        XCTAssertFalse(account.signedIn, "signed out after a failed copy too")
+        await journal.load()
+        XCTAssertTrue(journal.entries.isEmpty, "nothing was added")
+    }
+
+    func testPasswordResetLooksTheSameWhetherOrNotAnAccountExists() async {
+        let account = ScriptedAccount(), reader = ScriptedReader()
+        let model = GuestPasswordResetModel(factory: GuestAccountFactory { (account, reader) })
+        XCTAssertFalse(model.canSend, "needs an email")
+        model.email = "  person@example.com "
+        await model.send()
+        XCTAssertTrue(model.sent)
+        XCTAssertNil(model.message)
+        // The live service turns "no such account" into the same success; other problems stay generic.
+        XCTAssertNil(LiveGuestAccountService.passwordResetError(.couldNotLogIn))
+        XCTAssertEqual(LiveGuestAccountService.passwordResetError(.needsRecentLogIn), .failed)
+        XCTAssertEqual(LiveGuestAccountService.passwordResetError(.failed), .failed)
+    }
+
+    func testPasswordResetOfflineSaysSoAndNeverShowsSuccess() async {
+        for error in [GuestAccountError.offline, .tooManyAttempts, .unavailable] {
+            let account = ScriptedAccount(), reader = ScriptedReader()
+            account.resetError = error
+            let model = GuestPasswordResetModel(factory: GuestAccountFactory { (account, reader) })
+            model.email = "person@example.com"
+            await model.send()
+            XCTAssertFalse(model.sent, "\(error)")
+            XCTAssertEqual(model.message, GuestAccountMessages.text(for: error))
+            XCTAssertFalse(model.working)
+        }
+        XCTAssertEqual(LiveGuestAccountService.passwordResetError(.offline), .offline)
+        XCTAssertEqual(LiveGuestAccountService.passwordResetError(.tooManyAttempts), .tooManyAttempts)
     }
 }

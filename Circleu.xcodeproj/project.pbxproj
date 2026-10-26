@@ -13,6 +13,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C10000012F0000010000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 02CCBDBA2FCE6063007523F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02CCBDC12FCE6063007523F5;
+			remoteInfo = Circleu;
+		};
 		A10000012F0000010000000A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 02CCBDBA2FCE6063007523F5 /* Project object */;
@@ -23,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C10000012F00000100000001 /* CircleuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CircleuUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		02CCBDC22FCE6063007523F5 /* Circleu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Circleu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000012F00000100000001 /* CircleuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CircleuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10000012F10000100000001 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
@@ -30,6 +38,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C10000012F00000100000002 /* CircleuUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CircleuUITests;
+			sourceTree = "<group>";
+		};
 		02CCBDC42FCE6063007523F5 /* Circleu */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Circleu;
@@ -43,6 +56,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C10000012F00000100000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02CCBDBF2FCE6063007523F5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -69,6 +89,7 @@
 				B10000012F10000100000003 /* Config */,
 				02CCBDC42FCE6063007523F5 /* Circleu */,
 				A10000012F00000100000002 /* CircleuTests */,
+				C10000012F00000100000002 /* CircleuUITests */,
 				02CCBDC32FCE6063007523F5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,6 +99,7 @@
 			children = (
 				02CCBDC22FCE6063007523F5 /* Circleu.app */,
 				A10000012F00000100000001 /* CircleuTests.xctest */,
+				C10000012F00000100000001 /* CircleuUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -94,6 +116,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C10000012F00000100000006 /* CircleuUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C10000012F00000100000007 /* Build configuration list for PBXNativeTarget "CircleuUITests" */;
+			buildPhases = (
+				C10000012F00000100000003 /* Sources */,
+				C10000012F00000100000004 /* Frameworks */,
+				C10000012F00000100000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C10000012F0000010000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C10000012F00000100000002 /* CircleuUITests */,
+			);
+			name = CircleuUITests;
+			packageProductDependencies = (
+			);
+			productName = CircleuUITests;
+			productReference = C10000012F00000100000001 /* CircleuUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		02CCBDC12FCE6063007523F5 /* Circleu */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 02CCBDCD2FCE6064007523F5 /* Build configuration list for PBXNativeTarget "Circleu" */;
@@ -160,6 +205,10 @@
 						CreatedOnToolsVersion = 26.5;
 						TestTargetID = 02CCBDC12FCE6063007523F5;
 					};
+					C10000012F00000100000006 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 02CCBDC12FCE6063007523F5;
+					};
 				};
 			};
 			buildConfigurationList = 02CCBDBD2FCE6063007523F5 /* Build configuration list for PBXProject "Circleu" */;
@@ -181,11 +230,19 @@
 			targets = (
 				02CCBDC12FCE6063007523F5 /* Circleu */,
 				A10000012F00000100000006 /* CircleuTests */,
+				C10000012F00000100000006 /* CircleuUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C10000012F00000100000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02CCBDC02FCE6063007523F5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -227,6 +284,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C10000012F00000100000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02CCBDBE2FCE6063007523F5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -244,6 +308,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C10000012F0000010000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02CCBDC12FCE6063007523F5 /* Circleu */;
+			targetProxy = C10000012F0000010000000A /* PBXContainerItemProxy */;
+		};
 		A10000012F0000010000000B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 02CCBDC12FCE6063007523F5 /* Circleu */;
@@ -252,6 +321,46 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		C10000012F00000100000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B10000012F10000100000001 /* Signing.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Circleu;
+			};
+			name = Debug;
+		};
+		C10000012F00000100000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B10000012F10000100000001 /* Signing.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Circleu;
+			};
+			name = Release;
+		};
 		02CCBDCB2FCE6064007523F5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -499,6 +608,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C10000012F00000100000007 /* Build configuration list for PBXNativeTarget "CircleuUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C10000012F00000100000008 /* Debug */,
+				C10000012F00000100000009 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		02CCBDBD2FCE6063007523F5 /* Build configuration list for PBXProject "Circleu" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
