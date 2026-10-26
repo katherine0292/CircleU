@@ -256,6 +256,17 @@ struct GuestWriteView: View {
         .frame(maxWidth: .infinity)
         .background(GuestBrand.wash, in: RoundedRectangle(cornerRadius: 28))
         .clipShape(RoundedRectangle(cornerRadius: 28))
+        .overlay(alignment: .topLeading) { avatarBadge.padding(12) }
+    }
+
+    /// The person's Pingu as a small badge on the scene; tapping it opens the picker, which stops
+    /// the microphone first.
+    private var avatarBadge: some View {
+        GuestAvatarButton(size: 40, beforeOpening: { dictation.interrupt() })
+            .frame(width: 52, height: 52)
+            .background(.white, in: Circle())
+            .overlay(Circle().stroke(GuestBrand.blue.opacity(0.2), lineWidth: 1))
+            .shadow(color: GuestBrand.ink.opacity(0.12), radius: 4, y: 1)
     }
 
     /// Tap to talk, tap again to stop. Its spoken name says which; any wait is its value.

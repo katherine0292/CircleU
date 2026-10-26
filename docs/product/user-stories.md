@@ -130,7 +130,7 @@ Screen: Today. States: empty, in progress (listening), filled (writing). Mocked 
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T10.1 | Given an empty box, when Today opens, then the ice-floe scene and the microphone share one card, the question chips show their own icons (not the tab icons), and there's no "Type, or tap the microphone and talk.", "Tap to talk" or "Not sure where to start?". | UI (partial, checks the words are gone and the microphone is there, not the art) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T10.1 | Given an empty box, when Today opens, then the ice-floe scene and the microphone share one card with my Pingu as a small badge, the question chips show their own icons (not the tab icons), and there's no "Type, or tap the microphone and talk.", "Tap to talk" or "Not sure where to start?". | UI (partial, checks the words are gone and the microphone is there, not the art) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T10.2 | Given I'm listening, when I look, then the scene shows Pingu listening in the ripples, with stop and cancel as icons that VoiceOver names "Stop dictation" and "Cancel dictation". | UI (partial, checks "Stop dictation", not "Cancel dictation" or the art) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
 | T10.3 | Given at least five words, when the nudge shows, then it's a speech bubble from Pingu with the question, Add, and icons named "Another question" and "Hide", and no "Need a nudge?" label. | UI (partial, checks "Another question" and "Hide", not the bubble or the missing label) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T10.4 | Given the largest text sizes, when Today opens, then the scene is left out and the microphone and chips stay. | No test |
@@ -258,13 +258,13 @@ Screen: Settings → Your data → confirm. States: in progress, done, error.
 | S3.3 | Given a screen opened before delete all, when it tries to save, then it can't. | Unit `GuestFindAndControlTests.testAScreenClosedByDeleteAllCantSave` |
 
 **S4. Your Pingu.** As a person, I want to choose my Pingu, so that the app feels like mine.
-Screen: Settings → Your Pingu. States: filled.
+Screen: Today (the Pingu badge on the scene) or Settings → Your Pingu. States: filled.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | S4.1 | Given the picker, when it opens, then all 21 Pingu avatars show with spoken names. | Unit (partial, checks bundled art and names) `GuestPinguArtTests.testAll21AvatarsAndIconsAreBundled`; UI `GuestPolishUITests.testPinguArtScreens` |
-| S4.2 | Given I pick a Pingu, when the app relaunches, then the same Pingu shows in Settings. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
-| S4.3 | Given I'm dictating, when I open Settings to change my Pingu, then dictation stops and my words are kept. | UI (partial, checked back on Today) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
+| S4.2 | Given I pick a Pingu, when the app relaunches, then the same Pingu shows on Today's badge. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
+| S4.3 | Given I'm dictating, when I tap the Pingu badge, then dictation stops and my words are kept. | UI (partial, checked once the picker closes) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
 
 **S5. Log in and bring in my backup.** As a returning person, I want to log in once and copy my earlier account's backup, so that my old journal is here without anything new being uploaded.
 Screen: Log in → Backup preview → Copied. States: filled, in progress, error (wrong details, offline), done.

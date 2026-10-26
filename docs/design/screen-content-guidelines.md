@@ -48,7 +48,7 @@ The supporting line is the single line under the heading; "—" means none.
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
 | Welcome | CircleU | A private place to find your words. | Get started | Log in | — |
-| Today (capture) | What’s on your mind? | — (Pingu and the microphone share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
+| Today (capture) | What’s on your mind? | — (the ice-floe scene, the microphone and a Pingu badge share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); Pingu badge (opens the picker); logo and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; rows: date tile, words, status icons, time; after saving: one-row “Saved” card) | Reflect (in the card, after saving) | × Not now (in the card); Calendar (icon); a chosen day is a chip with × | — |
 | Entry | The date (title) | — | — | Edit (pencil); Practice what to say; Delete entry in the ••• menu | — (the reflection keeps its source line in words) |

@@ -82,7 +82,8 @@ final class GuestStatesUITests: XCTestCase {
         shot(app, "privacy-learn-more")
     }
 
-    /// S4.2 and S4.3: the chosen Pingu is kept across launches, and opening Settings stops dictation.
+    /// S4.2 and S4.3: the chosen Pingu is kept across launches, and opening the picker from the
+    /// badge on Today stops dictation.
     func testPinguChoiceIsKeptAndThePickerStopsDictation() throws {
         continueAfterFailure = false
         var app = launchGuest(fresh: true, ["-CircleUScriptedDictation", "Spoken before choosing"])
@@ -90,22 +91,18 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertTrue(editor.waitForExistence(timeout: 15))
         app.buttons["Start dictation"].tap()
         XCTAssertTrue(app.buttons["Stop dictation"].waitForExistence(timeout: 5), "listening")
-        app.buttons["Settings"].tap()
         let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu")).firstMatch
-        XCTAssertTrue(avatar.waitForExistence(timeout: 5))
+        XCTAssertTrue(avatar.waitForExistence(timeout: 5), "the badge on the scene")
         avatar.tap()
         XCTAssertTrue(app.navigationBars["Choose your Pingu"].waitForExistence(timeout: 5))
         app.buttons["Pingu reading"].tap()
         app.buttons["Done"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["Start dictation"].waitForExistence(timeout: 5), "dictation stopped")
         XCTAssertFalse(app.buttons["Stop dictation"].exists)
         XCTAssertTrue((editor.value as? String ?? "").contains("Spoken before choosing"), "the words so far are kept")
 
         app = launchGuest(fresh: false)
-        XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 10))
-        app.buttons["Settings"].tap()
-        XCTAssertTrue(app.buttons["Your Pingu: Pingu reading"].waitForExistence(timeout: 10), "kept across launches")
+        XCTAssertTrue(app.buttons["Your Pingu: Pingu reading"].waitForExistence(timeout: 10), "kept across launches, on Today")
         shot(app, "pingu-kept")
     }
 }
