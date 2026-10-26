@@ -68,7 +68,9 @@ final class GuestPolishUITests: XCTestCase {
         app.tabBars.buttons["Today"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 5), "Today is back at its start, not a blank screen")
         app.buttons["Settings"].tap()
-        XCTAssertTrue(has(app, "Your Pingu"))
+        // The "Your Pingu" caption is hidden from VoiceOver; the avatar button says it.
+        XCTAssertTrue(app.buttons["Only on this iPhone"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu")).firstMatch.exists)
         shot(app, "u9-settings"); audit(app, "settings")
         app.swipeUp(); sleep(1); shot(app, "u9b-settings-lower")
         attach(findings.joined(separator: "\n"), "polish-audit.txt")
