@@ -419,7 +419,7 @@ struct GuestSettingsView: View {
     }
 
     private func dangerIcon(_ symbol: String) -> some View {
-        Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(GuestBrand.danger)
+        Image(systemName: symbol).font(.system(size: iconSize * 0.55, weight: .semibold)).foregroundStyle(GuestBrand.danger)
             .frame(width: iconSize, height: iconSize)
             .background(GuestBrand.danger.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
             .accessibilityHidden(true)
