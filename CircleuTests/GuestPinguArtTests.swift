@@ -11,6 +11,8 @@ final class GuestPinguArtTests: XCTestCase {
         let assets = GuestAvatars.all.map(\.id) + ["GuestIconToday", "GuestIconJournal", "GuestIconPractice",
                                                   "GuestIconReflection", "GuestIconFeelings", "GuestIconNextStep",
                                                   "GuestIconPrivacy", "GuestIconLogo",
+                                                  "GuestChipWhatHappened", "GuestChipWhoWith", "GuestChipWishSaid",
+                                                  "GuestSceneToday", "GuestSceneListening", "GuestSceneJournalEmpty",
                                                   // Settings (Expansion03): one icon per row or fact, no repeats.
                                                   "GuestIconExport", "GuestIconEarlierJournal", "GuestIconNoAudio",
                                                   "GuestIconBackups", "GuestIconRestore", "GuestIconSharedCopy"]

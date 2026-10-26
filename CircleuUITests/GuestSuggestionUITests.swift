@@ -41,7 +41,7 @@ final class GuestSuggestionUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Reflect on it"].exists, "the offer is used up")
         let row = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "deadline \(tag)")).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5)); row.tap()
-        XCTAssertTrue(has(app, "Reflection"))
+        XCTAssertTrue(app.images["Reflection"].waitForExistence(timeout: 5), "the reflection icon")
         XCTAssertTrue(has(app, "Next step"))
         app.swipeUp()
         shot(app, "s2-entry"); audit(app, "entry")

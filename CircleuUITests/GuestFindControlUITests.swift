@@ -49,7 +49,7 @@ final class GuestFindControlUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts[lastMonth].waitForExistence(timeout: 3), "moved to last month")
         app.buttons["Go to today"].tap()
         XCTAssertFalse(app.staticTexts[lastMonth].waitForExistence(timeout: 2), "back to this month")
-        XCTAssertTrue(has(app, "Showing"))
+        XCTAssertTrue(app.buttons["Show all"].exists, "the day chip")
         XCTAssertTrue(has(app, "Alpha moment \(tag)"))
         shot(app, "f2-calendar"); audit(app, "calendar")
         app.buttons["Show all"].tap()
@@ -78,7 +78,11 @@ final class GuestFindControlUITests: XCTestCase {
         let close = app.buttons["Close"].firstMatch
         XCTAssertTrue(close.waitForExistence(timeout: 10) || app.otherElements["ActivityListView"].waitForExistence(timeout: 2), "share sheet")
         shot(app, "f4-share")
+        // A Close tap during the sheet's entrance can be ignored, so wait for it to go and retry once.
+        let sheet = app.otherElements["ShareSheet.RemoteContainerView"]
         if close.exists { close.tap() } else { app.swipeDown() }
+        if !sheet.waitForNonExistence(timeout: 3) { if close.exists { close.tap() } else { app.swipeDown() } }
+        XCTAssertTrue(sheet.waitForNonExistence(timeout: 5), "share sheet closed")
         app.buttons["Delete all data"].tap()
         XCTAssertTrue(app.buttons["Delete all"].waitForExistence(timeout: 3))
         shot(app, "f5-delete-confirm")

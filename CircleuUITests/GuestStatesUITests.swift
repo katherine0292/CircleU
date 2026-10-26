@@ -155,7 +155,8 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertTrue(chip.waitForExistence(timeout: 5), "back in Settings")
     }
 
-    /// S4.2 and S4.3: the chosen Pingu is kept across launches, and opening the picker stops dictation.
+    /// S4.2 and S4.3: the chosen Pingu is kept across launches, and opening the picker from the
+    /// badge on Today stops dictation.
     func testPinguChoiceIsKeptAndThePickerStopsDictation() throws {
         continueAfterFailure = false
         var app = launchGuest(fresh: true, ["-CircleUScriptedDictation", "Spoken before choosing"])
@@ -164,6 +165,7 @@ final class GuestStatesUITests: XCTestCase {
         app.buttons["Start dictation"].tap()
         XCTAssertTrue(app.buttons["Stop dictation"].waitForExistence(timeout: 5), "listening")
         let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu")).firstMatch
+        XCTAssertTrue(avatar.waitForExistence(timeout: 5), "the badge on the scene")
         avatar.tap()
         XCTAssertTrue(app.navigationBars["Choose your Pingu"].waitForExistence(timeout: 5))
         app.buttons["Pingu reading"].tap()
@@ -173,7 +175,7 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertTrue((editor.value as? String ?? "").contains("Spoken before choosing"), "the words so far are kept")
 
         app = launchGuest(fresh: false)
-        XCTAssertTrue(app.buttons["Your Pingu: Pingu reading"].waitForExistence(timeout: 10), "kept across launches")
+        XCTAssertTrue(app.buttons["Your Pingu: Pingu reading"].waitForExistence(timeout: 10), "kept across launches, on Today")
         shot(app, "pingu-kept")
     }
 }

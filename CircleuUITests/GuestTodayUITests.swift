@@ -1,7 +1,7 @@
 import XCTest
 
-/// Today option B: question chips, "Need a nudge?", one Save and the optional reflection after it
-/// (user stories T8, T9 and T6).
+/// Today: question chips with icons, Pingu's "Need a nudge?" bubble, one Save and the optional
+/// reflection after it (user stories T8, T9, T10 and T6).
 final class GuestTodayUITests: XCTestCase {
     func has(_ app: XCUIApplication, _ text: String, _ timeout: TimeInterval = 5) -> Bool {
         app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: timeout)
@@ -21,6 +21,10 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Get a suggestion"].exists, "replaced by the prompts")
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Save")).count, 1, "one Save")
         XCTAssertFalse(app.buttons["Save"].isEnabled, "nothing to save yet")
+        XCTAssertTrue(app.buttons["Start dictation"].exists, "the big microphone, in Pingu's card")
+        for gone in ["Type, or tap the microphone and talk.", "Tap to talk", "Not sure where to start?"] {
+            XCTAssertFalse(app.staticTexts[gone].exists, "pictures instead of \(gone)")
+        }
         for question in ["What happened?", "Who was it with?", "What do you wish you’d said?"] {
             XCTAssertTrue(app.buttons[question].exists, question)
         }
@@ -30,7 +34,8 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertFalse(app.buttons["What happened?"].exists, "chips go once there are words")
 
         app.typeText("that I needed more time on the slides")
-        XCTAssertTrue(has(app, "Need a nudge?"))
+        XCTAssertTrue(app.buttons["Another question"].waitForExistence(timeout: 5), "the nudge shows")
+        XCTAssertFalse(app.staticTexts["Need a nudge?"].exists, "no label above the question")
         let first = "What did you want them to understand?"
         XCTAssertTrue(has(app, first))
         shot(app, "t2-nudge")
@@ -41,11 +46,11 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertTrue(words(app).hasSuffix("the slides\nRight after, I felt "), "the starter on a new line: \(words(app))")
         app.typeText("embarrassed")
         app.buttons["Hide"].tap()
-        XCTAssertFalse(app.staticTexts["Need a nudge?"].waitForExistence(timeout: 1), "hidden")
+        XCTAssertFalse(app.buttons["Another question"].waitForExistence(timeout: 1), "hidden")
         shot(app, "t3-hidden")
 
         app.buttons["Save"].tap()
-        XCTAssertTrue(has(app, "Saved to your journal"))
+        XCTAssertTrue(has(app, "Saved"))
         XCTAssertTrue(app.buttons["Not now"].exists)
         shot(app, "t4-offer")
         app.buttons["Not now"].tap()
@@ -57,7 +62,7 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertEqual(words(app), "", "a fresh box after saving")
         XCTAssertTrue(app.buttons["What happened?"].exists, "the chips are back for the next entry")
         editor.tap(); editor.typeText("My flatmate left the dishes again")
-        XCTAssertTrue(has(app, "Need a nudge?"), "Hide lasted for the last entry only")
+        XCTAssertTrue(app.buttons["Another question"].waitForExistence(timeout: 5), "Hide lasted for the last entry only")
     }
 
     /// Delete all while a reflection is open closes it and leaves an empty Journal.

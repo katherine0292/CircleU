@@ -69,6 +69,7 @@ final class GuestPracticeUITests: XCTestCase {
         shot(app, "p6-entry-with-practice"); audit(app, "entry-detail")
 
         // Delete the entry, keeping the message
+        app.buttons["More"].tap() // Delete waits in the ••• menu.
         app.buttons["Delete entry"].tap()
         XCTAssertTrue(app.buttons["Keep message"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["Delete both"].exists)

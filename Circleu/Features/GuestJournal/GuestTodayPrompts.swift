@@ -6,15 +6,17 @@ import Foundation
 struct GuestPrompt: Equatable, Hashable {
     let question: String
     let starter: String
+    /// A brand icon shown beside the question on its chip, if any.
+    var icon: String? = nil
 }
 
 /// Today's guided prompts: fixed templates, not a personal analysis, and nothing leaves the phone.
 enum GuestTodayPrompts {
     /// Shown above the empty text box.
     static let starters: [GuestPrompt] = [
-        GuestPrompt(question: "What happened?", starter: "What happened was "),
-        GuestPrompt(question: "Who was it with?", starter: "I was with "),
-        GuestPrompt(question: "What do you wish you’d said?", starter: "I wish I’d said "),
+        GuestPrompt(question: "What happened?", starter: "What happened was ", icon: "GuestChipWhatHappened"),
+        GuestPrompt(question: "Who was it with?", starter: "I was with ", icon: "GuestChipWhoWith"),
+        GuestPrompt(question: "What do you wish you’d said?", starter: "I wish I’d said ", icon: "GuestChipWishSaid"),
     ]
 
     /// "Need a nudge?" follow-ups while writing, one at a time.

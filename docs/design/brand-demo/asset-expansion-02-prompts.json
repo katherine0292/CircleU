@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "created": "2026-10-26",
+  "status": "review-candidates",
+  "tool": "built-in image_gen via codex exec (gpt-6-astra, high effort)",
+  "format": "originals copied without pixel editing; icons transparent PNG, scenes opaque PNG. Catalog copies: icons trimmed to the artwork bounds with a 6% margin, then downscaled to 84 and 56 px; scenes scaled to 600 px high and centre-cropped to 1170x600",
+  "assets": [
+    {
+      "name": "GuestChipWhatHappenedV1.png",
+      "kind": "icon",
+      "role": "Today chip: what happened",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png; style: BrandToday.png, BrandJournal.png, BrandPractice.png",
+      "prompt": "Use case: stylized-concept. Asset type: one small CircleU app chip icon, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandToday.png, BrandJournal.png and BrandPractice.png (the same soft dimensional icon style). Must be clearly different from those three tab icons (sun, book, two chat bubbles). Very simple bold silhouette readable at 24 points, about 70% canvas coverage, at most two or three shapes, minimal small details. Subject: one small soft rounded storm cloud in pale ice and sky-blue tones with gentle navy-blue underside shading, and one tiny warm-orange rounded lightning bolt below it. Calm, not threatening. No rain, no face on the cloud, no other objects.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestChipWhatHappenedV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 699742,
+      "sha256": "70652ee27d9f64fe83618b0099f38b349cb468467af73755cfef23a9ac142c76",
+      "candidate": "c2 of 2",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestChipWhatHappened.imageset/GuestChipWhatHappened@2x.png",
+          "width": 56,
+          "height": 56,
+          "sha256": "52fca8faa9da5c901d6003d7adb0bf9337a9b53888e3006f66420c3f27cc0c08"
+        },
+        {
+          "file": "Circleu/Assets.xcassets/GuestChipWhatHappened.imageset/GuestChipWhatHappened@3x.png",
+          "width": 84,
+          "height": 84,
+          "sha256": "ee8e4bf43006706b8cd1236efe01fad3cf2b12b5eb27ab021b99d9f6f4b03745"
+        }
+      ]
+    },
+    {
+      "name": "GuestChipWhoWithV1.png",
+      "kind": "icon",
+      "role": "Today chip: who it was with",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png; style: BrandToday.png, BrandJournal.png, BrandPractice.png",
+      "prompt": "Use case: stylized-concept. Asset type: one small CircleU app chip icon, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandToday.png, BrandJournal.png and BrandPractice.png (the same soft dimensional icon style). Must be clearly different from those three tab icons (sun, book, two chat bubbles). Very simple bold silhouette readable at 24 points, about 70% canvas coverage, at most two or three shapes, minimal small details. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Subject: two small Pingu heads only (head and top of scarf, no bodies), side by side and slightly overlapping, both with the exact Pingu face. Left head navy #0D1421 as reference; right head the same character recoloured sky blue #47C7FF. Both calm and friendly. No other objects.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestChipWhoWithV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 773096,
+      "sha256": "fb053ec2fba15403247c8b513298ea19802372fdcbb869e7a94485d950f4ae0e",
+      "candidate": "c2 of 2",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestChipWhoWith.imageset/GuestChipWhoWith@2x.png",
+          "width": 56,
+          "height": 56,
+          "sha256": "adebf985550cebf8a2e538a6f4764735ab548492ba65b328763fa1dde1ec2bd6"
+        },
+        {
+          "file": "Circleu/Assets.xcassets/GuestChipWhoWith.imageset/GuestChipWhoWith@3x.png",
+          "width": 84,
+          "height": 84,
+          "sha256": "f7dfccba4db0d2d6fe3f97d7d942584c4edc20fd75bebbbd27b2cf6eda3f7a28"
+        }
+      ]
+    },
+    {
+      "name": "GuestChipWishSaidV1.png",
+      "kind": "icon",
+      "role": "Today chip: what I wish I'd said",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png; style: BrandToday.png, BrandJournal.png, BrandPractice.png",
+      "prompt": "Use case: stylized-concept. Asset type: one small CircleU app chip icon, transparent PNG. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, backdrop, background tile or external cast shadow. Genuinely transparent background. One isolated composition centered in a square, consistent generous padding, every edge fully visible. Style reference: BrandToday.png, BrandJournal.png and BrandPractice.png (the same soft dimensional icon style). Must be clearly different from those three tab icons (sun, book, two chat bubbles). Very simple bold silhouette readable at 24 points, about 70% canvas coverage, at most two or three shapes, minimal small details. Subject: one rounded five-point wishing star in warm soft yellow-orange #FF8538 tones with gentle shading, with one small rounded royal-blue #054FC9 closing quotation mark shape placed on its face, and two tiny sky-blue sparkle dots near one point. No speech bubble, no letters, no other objects.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestChipWishSaidV1.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 880833,
+      "sha256": "78ee0cb0eb5a47910fbba2081c3f48f6e6893400ac330811c685e0f007cb08e9",
+      "candidate": "c2 of 2",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestChipWishSaid.imageset/GuestChipWishSaid@2x.png",
+          "width": 56,
+          "height": 56,
+          "sha256": "f7d022d301a9d05e7b3047a7bab0ef85e4993724964edc8de66d921bf89753a0"
+        },
+        {
+          "file": "Circleu/Assets.xcassets/GuestChipWishSaid.imageset/GuestChipWishSaid@3x.png",
+          "width": 84,
+          "height": 84,
+          "sha256": "24d3a88b31db62dc796602dd639a668e1cdedfe49a83cc597c7ce66a452aca76"
+        }
+      ]
+    },
+    {
+      "name": "GuestSceneTodayV1.png",
+      "kind": "scene",
+      "role": "Today header scene (microphone sits in the right 40%)",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "prompt": "Use case: stylized-concept. Asset type: one wide landscape CircleU app header scene, fully opaque, no transparency. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, frame or border. Calm, quiet and soft, not cheerful-loud; low contrast, gentle gradients, few elements. Wide landscape composition about 2:1; keep all important content inside the central horizontal band so the top and bottom can be cropped slightly. The bottom 15% of the image is a calm plain flat tone of pale ice-blue water close to #E3EEFF with no objects, ripples or detail, blending softly. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Scene: Pingu sitting calmly on a small rounded ice floe on a calm sea, soft pale morning sky with gentle sky-blue and faint warm-orange dawn glow, very gentle low hills of ice far in the background. Pingu and floe sit in the left 45% of the width. The right 40% is quiet empty sky and sea with nothing in it. Pingu looks calm and content, small in the frame (about 45% of image height).",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestSceneTodayV1.png",
+      "width": 1774,
+      "height": 887,
+      "bytes": 1414147,
+      "sha256": "0c9de89f75ce87029f19a80dfde73ca8373818786429e45160bb4daf7b78ec90",
+      "candidate": "c1 of 2",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestSceneToday.imageset/GuestSceneToday@3x.png",
+          "width": 1170,
+          "height": 600,
+          "sha256": "be98577419a7413f7ea799de7ce2b292994cf76ea822abdf8f35a2ed86ee300b"
+        }
+      ]
+    },
+    {
+      "name": "GuestSceneListeningV1.png",
+      "kind": "scene",
+      "role": "Today header while listening",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "prompt": "Use case: stylized-concept. Asset type: one wide landscape CircleU app header scene, fully opaque, no transparency. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, frame or border. Calm, quiet and soft, not cheerful-loud; low contrast, gentle gradients, few elements. Wide landscape composition about 2:1; keep all important content inside the central horizontal band so the top and bottom can be cropped slightly. The bottom 15% of the image is a calm plain flat tone of pale ice-blue water close to #E3EEFF with no objects, ripples or detail, blending softly. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Scene: same setting: Pingu sitting on a small rounded ice floe on a calm sea under a soft pale morning sky, gentle low ice hills far back. Pingu faces the viewer with one flipper raised to the side of its head as if cupping its ear, listening attentively, calm open eyes. A few small soft concentric ripple rings on the water around the floe. Pingu and floe centred horizontally, about 45% of image height.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestSceneListeningV1.png",
+      "width": 1774,
+      "height": 887,
+      "bytes": 1436698,
+      "sha256": "bfe75e322d2814ea1dbac130e78d9f4dd311ecacdd6c550f4cc09d54132ac319",
+      "candidate": "c1 of 2",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestSceneListening.imageset/GuestSceneListening@3x.png",
+          "width": 1170,
+          "height": 600,
+          "sha256": "dc18c1400643b930f7b3d02c3c1a01dc3a412fa0a79158b0f501999e4de3a37e"
+        }
+      ]
+    },
+    {
+      "name": "GuestSceneJournalEmptyV1.png",
+      "kind": "scene",
+      "role": "Journal empty state scene",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+      "prompt": "Use case: stylized-concept. Asset type: one wide landscape CircleU app header scene, fully opaque, no transparency. Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, watermark, frame or border. Calm, quiet and soft, not cheerful-loud; low contrast, gentle gradients, few elements. Wide landscape composition about 2:1; keep all important content inside the central horizontal band so the top and bottom can be cropped slightly. The bottom 15% of the image is a calm plain flat tone of pale ice-blue water close to #E3EEFF with no objects, ripples or detail, blending softly. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Scene: same setting at dusk: Pingu sitting on a small rounded ice floe on a calm sea, soft muted dusk sky in royal blue to pale lavender-blue with a faint warm-orange glow at the horizon, gentle low ice hills far back, one small first star in the upper sky. Pingu holds an open plain royal-blue journal on its lap, looking down at it calmly. Pingu and floe centred horizontally, about 45% of image height. Bottom water still a calm plain pale tone.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestSceneJournalEmptyV1.png",
+      "width": 1774,
+      "height": 887,
+      "bytes": 1379858,
+      "sha256": "dc33ef220f7d6c78ee8546cbf3911951af9f56c079fbaa56aaedd78cc144815f",
+      "candidate": "c2 of 2",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestSceneJournalEmpty.imageset/GuestSceneJournalEmpty@3x.png",
+          "width": 1170,
+          "height": 600,
+          "sha256": "ff58b82ded4e89e220183467079c0d1da0333d0682f297d70a9cff712d65785c"
+        }
+      ]
+    }
+  ]
+}

@@ -73,7 +73,7 @@ struct GuestTodayView: View {
         NavigationStack {
             // Straight to writing or talking: the text box and the big microphone, no extra tap.
             GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
-                           heading: "What’s on your mind?", showsAvatar: true, onSaved: onSaved)
+                           heading: "What’s on your mind?", showsLogo: true, onSaved: onSaved)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
@@ -94,21 +94,24 @@ struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
     let heading: String
-    /// Today shows the Pingu avatar in the toolbar; opening its picker stops the microphone first.
-    let showsAvatar: Bool
+    /// Today shows the CircleU logo in the toolbar.
+    let showsLogo: Bool
     let onSaved: () -> Void
     @StateObject private var nudge = GuestNudgeModel()
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
+    @State private var choosingPingu = false
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         heading: String = "Start with your words.", showsAvatar: Bool = false,
+         heading: String = "Start with your words.", showsLogo: Bool = false,
          onSaved: @escaping () -> Void) {
         self.journal = journal
         self.heading = heading
-        self.showsAvatar = showsAvatar
+        self.showsLogo = showsLogo
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
     }
@@ -117,12 +120,18 @@ struct GuestWriteView: View {
         // Scrolls rather than squeezing when the keyboard is up; Save stays visible above it.
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(heading)
-                    .font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
-                    .accessibilityAddTraits(.isHeader)
-                // While typing, the microphone shrinks so the nudge and the words fit above the keyboard.
-                if !focused { GuestSummary("Type, or tap the microphone and talk.") }
-                microphone
+                // While typing, the microphone moves up beside the heading so the nudge and the words
+                // fit above the keyboard.
+                if focused {
+                    HStack(spacing: 12) {
+                        headingText
+                        Spacer(minLength: 0)
+                        micButton(size: 52)
+                    }
+                } else {
+                    headingText
+                    micCard
+                }
                 prompts
                 TextEditor(text: $journal.draft)
                     .focused($focused)
@@ -131,6 +140,15 @@ struct GuestWriteView: View {
                     .padding(12)
                     .frame(minHeight: 200)
                     .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                    .overlay(alignment: .topLeading) {
+                        // A pencil instead of placeholder text, only while the box is empty.
+                        if journal.draft.isEmpty {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 18, weight: .semibold)).foregroundStyle(GuestBrand.muted.opacity(0.6))
+                                .padding(.leading, 18).padding(.top, 20)
+                                .allowsHitTesting(false).accessibilityHidden(true)
+                        }
+                    }
                     .accessibilityLabel("Your words")
                 if let message = dictation.message {
                     VStack(alignment: .leading, spacing: 8) {
@@ -152,6 +170,8 @@ struct GuestWriteView: View {
                 }
             }
             .padding(24)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: focused)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: dictation.isActive)
         }
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
@@ -171,12 +191,13 @@ struct GuestWriteView: View {
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if showsAvatar {
+            if showsLogo {
                 ToolbarItem(placement: .topBarLeading) {
-                    GuestAvatarButton(size: 36, beforeOpening: { dictation.interrupt() })
+                    GuestBrandIcon(asset: "GuestIconLogo", size: 32)
                 }
             }
         }
+        .sheet(isPresented: $choosingPingu) { GuestAvatarPicker(selection: $avatarID) }
         // No automatic keyboard: it would cover the microphone. Tap the text to type.
         // Leaving the app or this screen stops listening; the words so far stay in the draft.
         // Only `.background`: the permission alert makes the app `.inactive`, and calls arrive
@@ -186,88 +207,155 @@ struct GuestWriteView: View {
         .onDisappear { dictation.interrupt() }
     }
 
-    /// The big microphone: tap to talk, tap again to stop. Cancel removes only the spoken words.
-    private var microphone: some View {
-        let compact = focused
-        let layout = compact ? AnyLayout(HStackLayout(spacing: 12)) : AnyLayout(VStackLayout(spacing: 10))
-        return layout {
-            Button {
-                focused = false
-                Task { await dictation.toggle() }
-            } label: {
-                Image(systemName: dictation.isActive ? "stop.fill" : "mic.fill")
-                    .font(.system(size: compact ? 22 : 30, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: compact ? 52 : 80, height: compact ? 52 : 80)
-                    .background(GuestBrand.blue, in: Circle())
-                    .overlay(Circle().stroke(GuestBrand.blue.opacity(0.25), lineWidth: dictation.state == .listening ? 10 : 0))
-                    .animation(.easeInOut(duration: 0.2), value: dictation.state)
-            }
-            .disabled(dictation.state == .finishing || journal.isSaving)
-            .accessibilityLabel(dictation.isActive ? "Stop dictation" : "Start dictation")
-            .accessibilityHint(dictation.isActive ? "Keeps the words so far." : "Your words appear in the text, on this iPhone only.")
-            Text(statusText)
-                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                .accessibilityHidden(true)
-            if dictation.state == .listening || dictation.state == .finishing {
-                Button("Cancel dictation") { dictation.cancel() }
-                    .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: compact ? .leading : .center)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: compact)
+    private var headingText: some View {
+        Text(heading)
+            .font(GuestBrand.font(focused ? .title2 : .title, .bold)).foregroundStyle(GuestBrand.ink)
+            .accessibilityAddTraits(.isHeader)
     }
 
-    /// Question chips above the empty box; the "Need a nudge?" bubble once there are words.
+    /// The ice-floe scene with the big microphone on its quiet right side. While listening, Pingu
+    /// listens in the ripples, with stop and cancel below. The art is decorative and left out at
+    /// the largest text sizes, where the microphone stays.
+    private var micCard: some View {
+        let showsArt = !typeSize.isAccessibilitySize
+        return Group {
+            if dictation.isActive {
+                VStack(spacing: 12) {
+                    if showsArt {
+                        GuestScene(asset: "GuestSceneListening")
+                            .transition(.opacity)
+                    }
+                    HStack(spacing: 20) {
+                        if dictation.state == .listening || dictation.state == .finishing {
+                            Button { dictation.cancel() } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 16, weight: .bold)).foregroundStyle(GuestBrand.blue)
+                                    .frame(width: 44, height: 44)
+                                    .background(.white, in: Circle())
+                                    .overlay(Circle().stroke(GuestBrand.blue.opacity(0.3), lineWidth: 1))
+                            }
+                            .accessibilityLabel("Cancel dictation")
+                            .accessibilityHint("Removes only the spoken words.")
+                        }
+                        micButton(size: 56)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, showsArt ? 0 : 20).padding(.bottom, 20)
+            } else if showsArt {
+                // The scene keeps its right side clear for the microphone.
+                GuestScene(asset: "GuestSceneToday")
+                    .overlay(alignment: .trailing) {
+                        micButton(size: 84)
+                            .padding(.trailing, 32).padding(.bottom, 12) // Room for the ring; above the plain bottom.
+                    }
+            } else {
+                micButton(size: 92)
+                    .padding(10) // Room for the ring.
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.trailing, 20).padding(.vertical, 16)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .background(GuestBrand.wash, in: RoundedRectangle(cornerRadius: 28))
+        .clipShape(RoundedRectangle(cornerRadius: 28))
+        .overlay(alignment: .topLeading) { avatarBadge.padding(8) }
+    }
+
+    /// The person's Pingu as a small badge on the scene; tapping it opens the picker, which stops
+    /// the microphone first.
+    private var avatarBadge: some View {
+        // 44 points: a full tap target that stays clear of the scene's Pingu.
+        GuestAvatarButton(size: 34, onChoose: {
+            dictation.interrupt()
+            choosingPingu = true
+        })
+            .frame(width: 44, height: 44)
+            .background(.white, in: Circle())
+            .overlay(Circle().stroke(GuestBrand.blue.opacity(0.2), lineWidth: 1))
+            .shadow(color: GuestBrand.ink.opacity(0.12), radius: 4, y: 1)
+    }
+
+    /// Tap to talk, tap again to stop. Its spoken name says which; any wait is its value.
+    private func micButton(size: CGFloat) -> some View {
+        Button {
+            focused = false
+            Task { await dictation.toggle() }
+        } label: {
+            Image(systemName: dictation.isActive ? "stop.fill" : "mic.fill")
+                .font(.system(size: size * 0.36, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: size, height: size)
+                .background(GuestBrand.blue, in: Circle())
+                .overlay(Circle().stroke(GuestBrand.blue.opacity(0.22), lineWidth: dictation.isActive || size < 60 ? 0 : 10)
+                    .padding(-5))
+        }
+        .disabled(dictation.state == .finishing || journal.isSaving)
+        .accessibilityLabel(dictation.isActive ? "Stop dictation" : "Start dictation")
+        .accessibilityValue(statusText ?? "")
+        .accessibilityHint(dictation.isActive ? "Keeps the words so far." : "Your words appear in the text, on this iPhone only.")
+    }
+
+    /// Question chips above the empty box; the "Need a nudge?" bubble from Pingu once there are words.
     /// Fixed guided prompts: only the starter is added, and only when tapped.
     @ViewBuilder private var prompts: some View {
         let empty = journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if empty, !dictation.isActive {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Not sure where to start?")
-                    .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
-                GuestChipFlow {
-                    ForEach(GuestTodayPrompts.starters, id: \.self) { prompt in
-                        Button(prompt.question) { start(with: prompt.starter) }
-                            .buttonStyle(GuestChipButtonStyle())
-                            .accessibilityHint("Starts your words with “\(prompt.starter.trimmingCharacters(in: .whitespaces))”.")
+            GuestChipFlow {
+                ForEach(GuestTodayPrompts.starters, id: \.self) { prompt in
+                    Button { start(with: prompt.starter) } label: {
+                        HStack(spacing: 8) {
+                            if let icon = prompt.icon { GuestBrandIcon(asset: icon, size: 24) }
+                            Text(prompt.question)
+                        }
                     }
+                    .buttonStyle(GuestChipButtonStyle())
+                    .accessibilityLabel(prompt.question)
+                    .accessibilityHint("Starts your words with “\(prompt.starter.trimmingCharacters(in: .whitespaces))”.")
                 }
             }
         } else if nudge.isShown(for: journal.draft, isDictating: dictation.isActive) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Need a nudge?")
-                    .font(GuestBrand.font(.caption, .bold)).foregroundStyle(.white.opacity(0.9))
-                Text(nudge.prompt.question)
-                    .font(GuestBrand.font(.body)).foregroundStyle(.white)
-                // One row when it fits; stacked at larger text sizes. Each action is 44 points tall.
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 16) { nudgeActions(wrapping: false) }
-                    VStack(alignment: .leading, spacing: 0) { nudgeActions(wrapping: true) }
+            HStack(alignment: .bottom, spacing: 8) {
+                if !typeSize.isAccessibilitySize {
+                    Image("GuestPinguThoughtful").resizable().scaledToFit().frame(width: 56, height: 56)
+                        .accessibilityHidden(true)
                 }
-                .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(.white)
-                .buttonStyle(.borderless)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(nudge.prompt.question)
+                        .font(GuestBrand.font(.body)).foregroundStyle(.white)
+                        .padding(.top, 8)
+                    // Add, then two icon buttons; each is 44 points tall.
+                    HStack(spacing: 4) {
+                        Button { start(with: nil) } label: {
+                            Label("Add", systemImage: "plus")
+                                .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(GuestBrand.blue)
+                                .padding(.horizontal, 14).frame(minHeight: 36)
+                                .background(.white, in: Capsule())
+                                .frame(minHeight: 44).contentShape(Rectangle())
+                        }
+                        .accessibilityLabel("Add to my words")
+                        Button { nudge.next() } label: { nudgeIcon("arrow.clockwise") }
+                            .accessibilityLabel("Another question")
+                        Spacer(minLength: 0)
+                        Button { nudge.hide() } label: { nudgeIcon("xmark") }
+                            .accessibilityLabel("Hide")
+                    }
+                    .buttonStyle(.borderless)
+                }
+                .padding(.leading, 14).padding(.trailing, 4).padding(.bottom, 2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(GuestBrand.blue, in: UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 4,
+                                                                       bottomTrailingRadius: 18, topTrailingRadius: 18))
             }
-            .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(GuestBrand.blue, in: UnevenRoundedRectangle(topLeadingRadius: 16, bottomLeadingRadius: 4,
-                                                                   bottomTrailingRadius: 16, topTrailingRadius: 16))
             .accessibilityElement(children: .contain)
+            .accessibilityLabel("Need a nudge?")
         }
     }
 
-    /// In a row each label keeps its width; stacked, a long label wraps instead of overflowing.
-    @ViewBuilder private func nudgeActions(wrapping: Bool) -> some View {
-        Button { start(with: nil) } label: { nudgeLabel("Add to my words", wrapping: wrapping) }
-        Button { nudge.next() } label: { nudgeLabel("Another question", wrapping: wrapping) }
-        Button { nudge.hide() } label: { nudgeLabel("Hide", wrapping: wrapping) }
-    }
-
-    private func nudgeLabel(_ title: String, wrapping: Bool) -> some View {
-        Text(title)
-            .fixedSize(horizontal: !wrapping, vertical: true)
-            .frame(minWidth: 44, minHeight: 44, alignment: .leading)
-            .contentShape(Rectangle())
+    private func nudgeIcon(_ symbol: String) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: 16, weight: .bold)).foregroundStyle(.white)
+            .frame(width: 44, height: 44).contentShape(Rectangle())
     }
 
     /// Adds a chip's starter (or the nudge's) to the words and puts the cursor there to type.
@@ -280,12 +368,12 @@ struct GuestWriteView: View {
         focused = true
     }
 
-    private var statusText: String {
+    /// Spoken with the microphone while there's a wait; nothing is shown on screen.
+    private var statusText: String? {
         switch dictation.state {
-        case .idle: "Tap to talk"
         case .requestingAccess: "Checking access…"
-        case .listening: "Listening… tap to stop"
         case .finishing: "Finishing…"
+        case .idle, .listening: nil
         }
     }
 }
@@ -315,7 +403,7 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    GuestPinguMessage(asset: "GuestPinguWriting", text: "Nothing saved yet.", height: 160)
+                    GuestSceneMessage(asset: "GuestSceneJournalEmpty", text: "Nothing saved yet.")
                         .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
@@ -327,13 +415,20 @@ struct GuestJournalListView: View {
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                         }
                         if let selectedDay {
-                            HStack {
-                                Text("Showing \(selectedDay.formatted(.dateTime.day().month(.wide)))")
-                                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
-                                Spacer()
-                                Button("Show all") { self.selectedDay = nil }
-                                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                            // The chosen day as a chip; its × shows every entry again.
+                            Button { self.selectedDay = nil } label: {
+                                HStack(spacing: 6) {
+                                    Text(selectedDay, format: .dateTime.day().month())
+                                    Image(systemName: "xmark").font(.system(size: 12, weight: .bold))
+                                }
+                                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                                .padding(.leading, 14).padding(.trailing, 10).frame(minHeight: 36)
+                                .background(GuestBrand.wash, in: Capsule())
+                                .frame(minHeight: 44)
                             }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel("Show all")
+                            .accessibilityValue(Text("Showing \(selectedDay.formatted(.dateTime.day().month(.wide)))"))
                             .listRowBackground(Color.clear)
                         }
                         if entries.isEmpty {
@@ -344,11 +439,9 @@ struct GuestJournalListView: View {
                         }
                         ForEach(entries) { entry in
                             NavigationLink(value: entry.id) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(entry.originalWords).lineLimit(3).foregroundStyle(GuestBrand.ink)
-                                    Text(entry.updatedAt, format: .dateTime.day().month().hour().minute())
-                                        .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
-                                }
+                                // The day is already the chip's when one is chosen.
+                                GuestJournalRow(entry: entry, hasPractice: !practice.linkedMessages(to: entry.id).isEmpty,
+                                                showsDate: selectedDay == nil)
                             }
                         }
                     }
@@ -392,28 +485,109 @@ struct GuestJournalListView: View {
     }
 }
 
-/// After saving: "Saved to your journal", with an optional reflection. Saving never needs one.
+/// One entry in the list: a date tile, the person's words, then status icons and the time.
+private struct GuestJournalRow: View {
+    let entry: GuestJournalEntry
+    let hasPractice: Bool
+    let showsDate: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            if showsDate {
+                VStack(spacing: 0) {
+                    // The day it was written, as the calendar files it; the year only if not this year.
+                    Text(entry.createdAt, format: .dateTime.day())
+                        .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.blue)
+                    Text(entry.createdAt, format: Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
+                         ? .dateTime.month(.abbreviated) : .dateTime.month(.abbreviated).year())
+                        .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
+                }
+                .frame(minWidth: 48).padding(.vertical, 6)
+                .background(GuestBrand.wash, in: RoundedRectangle(cornerRadius: 12))
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(entry.originalWords).lineLimit(3).foregroundStyle(GuestBrand.ink)
+                HStack(spacing: 10) {
+                    HStack(spacing: 10) {
+                        if entry.reflection != nil { GuestBrandIcon(asset: "GuestIconReflection", size: 18) }
+                        if entry.nextStep != nil {
+                            if entry.nextStepDone {
+                                Image(systemName: "checkmark.circle").font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(GuestBrand.blue)
+                            } else {
+                                GuestBrandIcon(asset: "GuestIconNextStep", size: 18)
+                            }
+                        }
+                        if hasPractice { GuestBrandIcon(asset: "GuestIconPractice", size: 18) }
+                    }
+                    // The icons, said in words.
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(statuses)
+                    .accessibilityHidden(statuses.isEmpty)
+                    Spacer(minLength: 0)
+                    Text(entry.createdAt, format: .dateTime.hour().minute())
+                        .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                }
+            }
+        }
+    }
+
+    /// The icons in words, for VoiceOver.
+    private var statuses: String {
+        var parts: [String] = []
+        if entry.reflection != nil { parts.append("Has a reflection") }
+        if entry.nextStep != nil { parts.append(entry.nextStepDone ? "Next step done" : "Next step not done") }
+        if hasPractice { parts.append("Has a practice message") }
+        return parts.joined(separator: ", ")
+    }
+}
+
+/// After saving: a short "Saved" card with an optional reflection. Saving never needs one.
 private struct GuestReflectionOfferCard: View {
     let onReflect: () -> Void
     let onNotNow: () -> Void
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 12) {
-                Image("GuestPinguJournal").resizable().scaledToFit().frame(width: 44, height: 44)
-                    .accessibilityHidden(true)
-                Text("Saved to your journal").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
-                    .accessibilityAddTraits(.isHeader)
-            }
-            GuestSummary("Want a short reflection on it?")
-            HStack(spacing: 10) {
-                Button("Reflect on it", action: onReflect).buttonStyle(GuestBrandButtonStyle())
-                Button("Not now", action: onNotNow).buttonStyle(GuestBrandButtonStyle(filled: false))
-            }
+        // One row; at the largest text sizes the buttons go under the heading.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) { heading; Spacer(minLength: 0); actions }
+            VStack(alignment: .leading, spacing: 10) { heading; HStack { actions } }
         }
-        .padding(16)
+        .padding(.vertical, 10).padding(.leading, 12).padding(.trailing, 6)
         .background(.white, in: RoundedRectangle(cornerRadius: 18))
         .shadow(color: GuestBrand.ink.opacity(0.08), radius: 10, y: 2)
+    }
+
+    private var heading: some View {
+        HStack(spacing: 12) {
+            if !typeSize.isAccessibilitySize {
+                Image("GuestPinguJournal").resizable().scaledToFit().frame(width: 40, height: 40)
+                    .accessibilityHidden(true)
+            }
+            Text("Saved").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
+                .accessibilityAddTraits(.isHeader)
+        }
+    }
+
+    @ViewBuilder private var actions: some View {
+        Button(action: onReflect) {
+            Label {
+                Text("Reflect")
+            } icon: {
+                Image("GuestIconReflection").renderingMode(.template).resizable().scaledToFit()
+                    .frame(width: 18, height: 18)
+            }
+            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(.white)
+            .padding(.horizontal, 16).frame(minHeight: 44)
+            .background(GuestBrand.blue, in: Capsule())
+        }
+        .accessibilityLabel("Reflect on it")
+        Button(action: onNotNow) {
+            Image(systemName: "xmark").font(.system(size: 15, weight: .bold)).foregroundStyle(GuestBrand.muted)
+                .frame(width: 44, height: 44).contentShape(Rectangle())
+        }
+        .accessibilityLabel("Not now")
     }
 }
 
@@ -431,7 +605,7 @@ struct GuestEntryDetailView: View {
     var body: some View {
         content
             .background(GuestBrand.ice.ignoresSafeArea())
-            .navigationTitle("Entry")
+            .navigationTitle(title)
             .navigationDestination(item: $practiceRoute) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
             }
@@ -463,6 +637,14 @@ struct GuestEntryDetailView: View {
             }
     }
 
+    /// The date is the title.
+    private var title: String {
+        guard let entry = journal.entries.first(where: { $0.id == entryID }) else { return "Entry" }
+        let format = Date.FormatStyle.dateTime.weekday(.abbreviated).day().month().hour().minute()
+        return entry.createdAt.formatted(Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
+                                         ? format : format.year())
+    }
+
     @ViewBuilder private var content: some View {
         switch journal.loadState {
         case .loading:
@@ -486,12 +668,10 @@ struct GuestEntryDetailView: View {
     private func detail(for entry: GuestJournalEntry) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text("My words").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                 Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
-                Text(entry.updatedAt, format: .dateTime.day().month().year().hour().minute())
-                    .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                    .accessibilityLabel(Text("My words: \(entry.originalWords)"))
                 GuestEntryReflectionSection(entry: entry, journal: journal)
                 let linked = practice.linkedMessages(to: entry.id)
                 if case .failed(let message) = practice.loadState {
@@ -503,8 +683,6 @@ struct GuestEntryDetailView: View {
                     }
                     .padding(.top, 8)
                 } else if !linked.isEmpty {
-                    Text("Practice").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-                        .padding(.top, 8)
                     ForEach(linked) { message in
                         Button { practiceRoute = .message(message.id) } label: {
                             GuestPracticeRow(message: message, entries: journal.entries)
@@ -525,15 +703,21 @@ struct GuestEntryDetailView: View {
                     Label(deleteError, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
-                Button("Delete entry", role: .destructive) { Task { await askToDelete() } }
-                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
-                    .frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
-                    .padding(.top, 8)
             }
             .padding(24)
         }
         .toolbar {
-            Button("Edit") { editor = GuestEntryEditorViewModel(entry: entry, store: journal.store) }
+            Button { editor = GuestEntryEditorViewModel(entry: entry, store: journal.store) } label: {
+                Image(systemName: "pencil")
+            }
+            .accessibilityLabel("Edit")
+            // Rarely used, so it waits in the ••• menu. Delete stays a word.
+            Menu {
+                Button("Delete entry", systemImage: "trash", role: .destructive) { Task { await askToDelete() } }
+            } label: {
+                Image(systemName: "ellipsis")
+            }
+            .accessibilityLabel("More")
         }
     }
 }
@@ -618,51 +802,56 @@ struct GuestEntryReflectionSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let reflection = entry.reflection {
-                Label { Text("Reflection") } icon: { GuestBrandIcon(asset: "GuestIconReflection", size: 24) }
-                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-                    .padding(.top, 8)
                 VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image("GuestIconReflection").renderingMode(.original).resizable().scaledToFit()
+                            .frame(width: 24, height: 24)
+                            .accessibilityLabel("Reflection").accessibilityAddTraits(.isHeader)
+                        // Where it came from stays in words: an icon alone could mislead.
+                        Text(reflection.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                        Spacer(minLength: 0)
+                        iconAction("xmark", "Remove reflection") {
+                            await update(reflection: nil, nextStep: entry.nextStep, done: entry.nextStepDone)
+                        }
+                    }
                     if !reflection.summary.isEmpty { Text(reflection.summary) }
                     if !reflection.feeling.isEmpty {
-                        Label { Text("Feeling: \(reflection.feeling)") } icon: { GuestBrandIcon(asset: "GuestIconFeelings", size: 22) }
-                            .font(GuestBrand.font(.body, .semibold))
+                        Label { Text(reflection.feeling) } icon: { GuestBrandIcon(asset: "GuestIconFeelings", size: 18) }
+                            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                            .padding(.horizontal, 10).padding(.vertical, 4)
+                            .background(GuestBrand.wash, in: Capsule())
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(Text("Feeling: \(reflection.feeling)"))
                     }
                     if !reflection.insight.isEmpty { Text(reflection.insight) }
+                    if entry.isReflectionStale {
+                        Label("Based on an earlier version of your words.", systemImage: "clock.arrow.circlepath")
+                            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
+                    }
                 }
                 .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
-                Text(reflection.source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                if entry.isReflectionStale {
-                    Label("Based on an earlier version of your words.", systemImage: "clock.arrow.circlepath")
-                        .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
-                }
-                action("Remove reflection") {
-                    await update(reflection: nil, nextStep: entry.nextStep, done: entry.nextStepDone)
-                }
+                .padding(.leading, 16).padding(.trailing, 4).padding(.vertical, 8)
+                .background(.white, in: RoundedRectangle(cornerRadius: 18))
             }
             if let step = entry.nextStep {
-                Label { Text("Next step") } icon: { GuestBrandIcon(asset: "GuestIconNextStep", size: 24) }
-                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-                    .padding(.top, 8)
-                HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: entry.nextStepDone ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(GuestBrand.blue).accessibilityHidden(true)
-                    Text(step).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
-                        .strikethrough(entry.nextStepDone)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
-                .accessibilityElement(children: .combine)
-                .accessibilityValue(entry.nextStepDone ? "Done" : "Not done")
-                HStack(spacing: 20) {
-                    action(entry.nextStepDone ? "Mark not done" : "Mark done") {
+                HStack(spacing: 4) {
+                    iconAction(entry.nextStepDone ? "checkmark.circle.fill" : "circle",
+                               entry.nextStepDone ? "Mark not done" : "Mark done", size: 22) {
                         await update(reflection: entry.reflection, nextStep: step, done: !entry.nextStepDone)
                     }
-                    action("Remove step") {
+                    Text(step).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                        .strikethrough(entry.nextStepDone)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityLabel(Text("Next step: \(step)"))
+                        .accessibilityValue(entry.nextStepDone ? "Done" : "Not done")
+                    GuestBrandIcon(asset: "GuestIconNextStep", size: 22)
+                    iconAction("xmark", "Remove step") {
                         await update(reflection: entry.reflection, nextStep: nil, done: false)
                     }
                 }
+                .padding(.vertical, 4).padding(.leading, 4).padding(.trailing, 4)
+                .background(.white, in: RoundedRectangle(cornerRadius: 18))
             }
             if let error {
                 Label(error, systemImage: "exclamationmark.circle")
@@ -671,11 +860,17 @@ struct GuestEntryReflectionSection: View {
         }
     }
 
-    private func action(_ title: String, _ perform: @escaping () async -> Void) -> some View {
+    /// An icon-only action that keeps its words for VoiceOver, with a 44-point target.
+    private func iconAction(_ symbol: String, _ title: String, size: CGFloat = 14,
+                            _ perform: @escaping () async -> Void) -> some View {
         Button { Task { await perform() } } label: {
-            Text(title).frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+            Image(systemName: symbol)
+                .font(.system(size: size, weight: size > 16 ? .regular : .bold))
+                .foregroundStyle(size > 16 ? GuestBrand.blue : GuestBrand.muted)
+                .frame(width: 44, height: 44).contentShape(Rectangle())
         }
-        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+        .buttonStyle(.borderless)
+        .accessibilityLabel(title)
         .disabled(isUpdating)
     }
 
