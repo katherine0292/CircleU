@@ -303,7 +303,7 @@ struct GuestSettingsView: View {
                     Button {
                         Task { exportURL = await settings.makeExportFile() }
                     } label: {
-                        row("Export my data") { GuestBrandIcon(asset: "GuestIconNextStep", size: 28) }
+                        row("Export my data") { GuestBrandIcon(asset: "GuestIconExport", size: 28) }
                     }
                     .disabled(settings.isWorking)
                     divider
@@ -318,7 +318,7 @@ struct GuestSettingsView: View {
                             GuestSignInView(factory: .live, store: importer, journal: settings.journal,
                                             practice: settings.practice)
                         } label: {
-                            row("Bring in your earlier journal") { GuestBrandIcon(asset: "GuestIconJournal", size: 28) }
+                            row("Bring in your earlier journal") { GuestBrandIcon(asset: "GuestIconEarlierJournal", size: 28) }
                         }
                         divider
                         NavigationLink {
@@ -438,11 +438,12 @@ struct GuestSettingsView: View {
 struct GuestPrivacySheet: View {
     @Environment(\.dismiss) private var dismiss
 
-    private let facts: [(symbol: String, text: String)] = [
-        ("mic.slash", "Suggestions and dictation stay here; no audio is saved."),
-        ("icloud", "Your iPhone’s backups (iCloud or a computer) may include it."),
-        ("clock.arrow.circlepath", "Restoring an older backup can bring back deleted items."),
-        ("square.and.arrow.up", "Exports you saved elsewhere aren’t deleted here."),
+    /// Each fact has its own illustrated icon (BrandArtwork/Expansion03), none shared with another screen.
+    private let facts: [(asset: String, text: String)] = [
+        ("GuestIconNoAudio", "Suggestions and dictation stay here; no audio is saved."),
+        ("GuestIconBackups", "Your iPhone’s backups (iCloud or a computer) may include it."),
+        ("GuestIconRestore", "Restoring an older backup can bring back deleted items."),
+        ("GuestIconSharedCopy", "Exports you saved elsewhere aren’t deleted here."),
     ]
 
     var body: some View {
@@ -460,11 +461,7 @@ struct GuestPrivacySheet: View {
                         ForEach(Array(facts.enumerated()), id: \.offset) { index, fact in
                             if index > 0 { Divider().padding(.leading, 66) }
                             HStack(spacing: 14) {
-                                Image(systemName: fact.symbol).font(.system(size: 17, weight: .semibold))
-                                    .foregroundStyle(GuestBrand.blue)
-                                    .frame(width: 36, height: 36)
-                                    .background(GuestBrand.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
-                                    .accessibilityHidden(true)
+                                GuestBrandIcon(asset: fact.asset, size: 40)
                                 Text(fact.text).font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
