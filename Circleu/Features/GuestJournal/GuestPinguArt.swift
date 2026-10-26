@@ -146,17 +146,20 @@ struct GuestSuccessBanner: View {
     }
 }
 
-/// The avatar shown in Settings; tapping it opens the picker.
+/// The avatar shown as a badge on Today and in Settings; tapping it opens the picker.
 struct GuestAvatarButton: View {
     @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
     var size: CGFloat = 180
+    /// When set, the caller opens the picker instead: Today keeps the sheet outside the card,
+    /// which changes when the microphone stops.
+    var onChoose: (() -> Void)? = nil
     @State private var picking = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         let avatar = GuestAvatars.avatar(id: avatarID)
         Button {
-            picking = true
+            if let onChoose { onChoose() } else { picking = true }
         } label: {
             Image(avatar.id).resizable().scaledToFit()
                 .frame(maxWidth: .infinity)

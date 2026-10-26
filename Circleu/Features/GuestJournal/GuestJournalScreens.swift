@@ -103,6 +103,8 @@ struct GuestWriteView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
+    @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
+    @State private var choosingPingu = false
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
          heading: String = "Start with your words.", showsLogo: Bool = false,
@@ -195,6 +197,7 @@ struct GuestWriteView: View {
                 }
             }
         }
+        .sheet(isPresented: $choosingPingu) { GuestAvatarPicker(selection: $avatarID) }
         // No automatic keyboard: it would cover the microphone. Tap the text to type.
         // Leaving the app or this screen stops listening; the words so far stay in the draft.
         // Only `.background`: the permission alert makes the app `.inactive`, and calls arrive
@@ -256,14 +259,18 @@ struct GuestWriteView: View {
         .frame(maxWidth: .infinity)
         .background(GuestBrand.wash, in: RoundedRectangle(cornerRadius: 28))
         .clipShape(RoundedRectangle(cornerRadius: 28))
-        .overlay(alignment: .topLeading) { avatarBadge.padding(12) }
+        .overlay(alignment: .topLeading) { avatarBadge.padding(8) }
     }
 
     /// The person's Pingu as a small badge on the scene; tapping it opens the picker, which stops
     /// the microphone first.
     private var avatarBadge: some View {
-        GuestAvatarButton(size: 40, beforeOpening: { dictation.interrupt() })
-            .frame(width: 52, height: 52)
+        // 44 points: a full tap target that stays clear of the scene's Pingu.
+        GuestAvatarButton(size: 34, onChoose: {
+            dictation.interrupt()
+            choosingPingu = true
+        })
+            .frame(width: 44, height: 44)
             .background(.white, in: Circle())
             .overlay(Circle().stroke(GuestBrand.blue.opacity(0.2), lineWidth: 1))
             .shadow(color: GuestBrand.ink.opacity(0.12), radius: 4, y: 1)
