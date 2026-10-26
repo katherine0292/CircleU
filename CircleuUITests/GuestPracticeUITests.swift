@@ -14,6 +14,54 @@ final class GuestPracticeUITests: XCTestCase {
         app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: timeout)
     }
 
+    /// P3: copying reflects the current wording; edit/discard preserves the saved version.
+    func testCopyEditAndDiscardKeepTheRightWording() throws {
+        continueAfterFailure = false
+        var app = launchGuest(fresh: true)
+        app.tabBars.buttons["Practice"].tap()
+        app.buttons["Practice a message"].tap()
+        let wording = app.textViews["Your wording"]
+        XCTAssertTrue(wording.waitForExistence(timeout: 5))
+        wording.tap(); wording.typeText("Could we talk on Friday?")
+        app.buttons["Copy"].tap()
+        XCTAssertTrue(app.buttons["Copied"].waitForExistence(timeout: 3))
+        wording.tap(); wording.typeText(" After class.")
+        XCTAssertTrue(app.buttons["Copy"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Copied"].exists)
+        XCTAssertFalse(app.staticTexts["Copied. Not saved or sent."].exists)
+        app.buttons["Save"].tap()
+        XCTAssertTrue(has(app, "Saved · not sent"))
+        app.buttons["Edit"].tap()
+        wording.tap(); wording.typeText(" Unsaved change.")
+        app.buttons["Back"].tap()
+        let discard = app.alerts["Discard your changes?"]
+        XCTAssertTrue(discard.waitForExistence(timeout: 3))
+        discard.buttons["Keep editing"].tap()
+        XCTAssertTrue((wording.value as? String ?? "").contains("Unsaved change."))
+        app.buttons["Back"].tap()
+        discard.buttons["Discard"].tap()
+        let savedWords = "Could we talk on Friday? After class."
+        XCTAssertTrue(app.staticTexts[savedWords].waitForExistence(timeout: 5))
+        app.staticTexts[savedWords].tap()
+        XCTAssertFalse(has(app, "Unsaved change.", 1))
+        app.buttons["Edit"].tap()
+        wording.tap(); wording.typeText(" Please.")
+        // Tapping a TextEditor doesn't guarantee an insertion point at the end.
+        // Verify persistence of the actual edit, independent of UIKit's cursor placement.
+        let editedWords = try XCTUnwrap(wording.value as? String).trimmingCharacters(in: .whitespacesAndNewlines)
+        XCTAssertTrue(editedWords.contains("Please."))
+        XCTAssertTrue(editedWords.contains(savedWords))
+        XCTAssertNotEqual(editedWords, savedWords)
+        app.buttons["Save"].tap()
+        XCTAssertTrue(has(app, "Saved · not sent"))
+        app = launchGuest(fresh: false)
+        app.tabBars.buttons["Practice"].tap()
+        let updated = app.staticTexts[editedWords]
+        XCTAssertTrue(updated.waitForExistence(timeout: 5), "saved edits survive reopening")
+        XCTAssertEqual(app.staticTexts.matching(identifier: editedWords).count, 1)
+        XCTAssertFalse(app.staticTexts[savedWords].exists, "editing must not make a second message")
+    }
+
     func testPracticeDirectFromEntryAndDeleteChoices() throws {
         continueAfterFailure = false
         let tag = Int.random(in: 1000...9999)

@@ -333,6 +333,45 @@ final class GuestPracticeViewModelTests: XCTestCase {
         XCTAssertTrue(composer.canSave, "still unsaved")
     }
 
+    func testEditingCopiedWordingClearsConfirmationUntilCopiedAgain() async {
+        let store = MemoryPracticeStore()
+        let composer = GuestPracticeComposerViewModel(store: store, sourceEntryID: nil)
+        composer.wording = "Can we talk on Friday?"
+        var clipboard = ""
+        composer.copy { clipboard = $0 }
+        composer.wording = "Can we talk on Saturday?"
+        XCTAssertFalse(composer.didCopy, "the clipboard still contains the earlier wording")
+        XCTAssertEqual(clipboard, "Can we talk on Friday?")
+        XCTAssertTrue(composer.canCopy)
+        composer.copy { clipboard = $0 }
+        XCTAssertTrue(composer.didCopy)
+        XCTAssertEqual(clipboard, "Can we talk on Saturday?")
+        XCTAssertNil(composer.saved, "copying and editing never save")
+    }
+
+    func testClearingCopiedWordingClearsConfirmationAndDisablesCopy() {
+        let composer = GuestPracticeComposerViewModel(store: MemoryPracticeStore(), sourceEntryID: nil)
+        composer.wording = "Can we talk?"
+        composer.copy { _ in }
+        composer.wording = ""
+        XCTAssertFalse(composer.didCopy)
+        XCTAssertFalse(composer.canCopy)
+        composer.copy { _ in XCTFail("empty wording must not replace the clipboard") }
+        XCTAssertFalse(composer.didCopy)
+    }
+
+    func testUndoingACopiedSuggestionClearsConfirmation() {
+        let composer = GuestPracticeComposerViewModel(store: MemoryPracticeStore(), sourceEntryID: nil)
+        composer.wording = "My original words"
+        composer.use(GuestWordingOption(tone: "Gentle", text: "Could we talk?"))
+        var clipboard = ""
+        composer.copy { clipboard = $0 }
+        composer.undoSuggestion()
+        XCTAssertEqual(composer.wording, "My original words")
+        XCTAssertEqual(clipboard, "Could we talk?")
+        XCTAssertFalse(composer.didCopy, "Undo restores words that haven't been copied")
+    }
+
     func testFailedSaveKeepsWordsAndShowsError() async {
         let store = MemoryPracticeStore()
         await store.fail(with: .saveFailed("injected"))
