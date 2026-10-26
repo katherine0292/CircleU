@@ -238,7 +238,12 @@ final class GuestPracticeViewModel: ObservableObject {
 final class GuestPracticeComposerViewModel: ObservableObject {
     @Published var situation: String
     @Published var goal: String
-    @Published var wording: String
+    @Published var wording: String {
+        didSet {
+            // Typing, clearing or Undo changes what Copy would place on the clipboard.
+            if wording != oldValue { didCopy = false }
+        }
+    }
     /// The last saved version, or nil for a new message.
     @Published private(set) var saved: GuestPracticeMessage?
     /// A saved message is shown read-only until Edit.

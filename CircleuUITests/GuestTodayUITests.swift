@@ -65,6 +65,38 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Another question"].waitForExistence(timeout: 5), "Hide lasted for the last entry only")
     }
 
+    /// T10.4: the core controls stay reachable at accessibility XXXL, including after typing.
+    func testTodayAtLargestTextKeepsPromptsAvatarAndSaveReachable() throws {
+        continueAfterFailure = false
+        let app = launchGuest(fresh: true,
+                              ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"])
+        let microphone = app.buttons["Start dictation"]
+        XCTAssertTrue(microphone.waitForExistence(timeout: 15))
+        XCTAssertTrue(microphone.isHittable)
+        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu:")).firstMatch
+        XCTAssertTrue(avatar.isHittable)
+        avatar.tap()
+        XCTAssertTrue(app.navigationBars["Choose your Pingu"].waitForExistence(timeout: 5))
+        app.buttons["Done"].tap()
+        let prompt = app.buttons["What do you wish you’d said?"]
+        let save = app.buttons["Save"]
+        // isHittable can be true for a partially covered button; inspect its full bounds too.
+        for _ in 0..<6 {
+            if prompt.isHittable && prompt.frame.maxY <= save.frame.minY { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(prompt.isHittable)
+        XCTAssertLessThanOrEqual(prompt.frame.maxY, save.frame.minY)
+        shot(app, "today-ax5-prompts")
+        prompt.tap()
+        XCTAssertEqual(words(app), "I wish I’d said ")
+        app.typeText("I needed more time")
+        XCTAssertTrue(save.isHittable, "Save remains reachable while editing")
+        shot(app, "today-ax5-writing")
+        save.tap()
+        XCTAssertTrue(has(app, "I wish I’d said I needed more time", 10))
+    }
+
     /// Delete all while a reflection is open closes it and leaves an empty Journal.
     func testDeleteAllClosesAnOpenReflection() throws {
         continueAfterFailure = false

@@ -134,7 +134,7 @@ Screen: Today. States: empty, in progress (listening), filled (writing). Mocked 
 | T10.1 | Given an empty box, when Today opens, then the ice-floe scene and the microphone share one card with my Pingu as a small badge, the question chips show their own icons (not the tab icons), and there's no "Type, or tap the microphone and talk.", "Tap to talk" or "Not sure where to start?". | UI (partial, checks the words are gone and the microphone is there, not the art) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T10.2 | Given I'm listening, when I look, then the scene shows Pingu listening in the ripples, with stop and cancel as icons that VoiceOver names "Stop dictation" and "Cancel dictation". | UI (partial, checks "Stop dictation", not "Cancel dictation" or the art) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
 | T10.3 | Given at least five words, when the nudge shows, then it's a speech bubble from Pingu with the question, Add, and icons named "Another question" and "Hide", and no "Need a nudge?" label. | UI (partial, checks "Another question" and "Hide", not the bubble or the missing label) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T10.4 | Given the largest text sizes, when Today opens, then the scene is left out and the microphone and chips stay. | No test |
+| T10.4 | Given the largest text sizes, when Today opens, then the scene is left out and the microphone, avatar picker, chips and Save remain reachable. | UI (partial: controls and saving are exercised; the hidden scene is checked on screenshots) `GuestTodayUITests.testTodayAtLargestTextKeepsPromptsAvatarAndSaveReachable` |
 
 ## 3. Journal
 
@@ -220,9 +220,11 @@ Screen: Practice message. States: filled, error (stale).
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains` |
+| P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains`; UI (saved edit, reopen and no duplicate; concurrent edits remain unit-tested) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
 | P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeTests.testFailedMessageDeleteKeepsIt` |
 | P3.4 | Given a saved message, when I look at it, then my words are a sent bubble, Copy is the one button, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P3.5 | Given copied wording, when I type, clear it or undo a suggestion, then the Copied confirmation clears; copying again confirms the new wording without saving. | Unit `GuestPracticeViewModelTests.testEditingCopiedWordingClearsConfirmationUntilCopiedAgain`, `testClearingCopiedWordingClearsConfirmationAndDisablesCopy`, `testUndoingACopiedSuggestionClearsConfirmation`; UI (typing and visible confirmation) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
+| P3.6 | Given unsaved edits to a saved message, when I tap Back, then Keep editing preserves those edits and Discard leaves the saved message unchanged. | UI `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
 
 **P4. Practice draft and suggestions.** As a person, I want my unfinished message kept and optional wording ideas, so that I can come back and get unstuck.
 Screen: Practice → Continue your draft. States: filled (restored), in progress, error.
@@ -312,16 +314,16 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 29 stories and 99 criteria (S6 is not counted):
+Counted on 27 October 2026, over 29 stories and 101 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A unit test (19 also have a UI test) | 70 |
-| Only a UI test | 26 |
-| No test | 3 |
-| Marked partial (either kind) | 19 |
+| A unit test (21 also have a UI test) | 71 |
+| Only a UI test | 28 |
+| No test | 2 |
+| Marked partial (either kind) | 20 |
 
-Every criterion but three has a test (T9.4 and J6.1 are layout, checked on screenshots; T10.4, the largest text sizes, is not checked yet); 19 only partly check theirs (see each "(partial)" note).
+Every criterion but two has a test (T9.4 and J6.1 are layout, checked on screenshots); 20 only partly check theirs (see each "(partial)" note).
 
 ### Running the tests
 
