@@ -4,7 +4,7 @@ Updated 26 October 2026. This brief lists the art we need for the Today options 
 
 Follow the [branding guideline](branding-guideline.md):
 - Use soft dimensional illustration: clean shapes and one restrained shadow or highlight, with no sketchy lines or texture.
-- Use the blue, ice and ink palette (`#054FC9`, `#F5FAFF`, `#0D1421`), with the orange beak colour as the only warm accent.
+- Use the blue, ice and ink palette (`#054FC9`, `#F5FAFF`, `#0D1421`), with the orange beak colour as the only warm accent. The one exception is the morning backdrop (ART-5): its peach sky is a pale background tint, not an accent.
 - Use the existing Pingu face and proportions (see `GuestPinguWelcome`).
 
 ## Tension to decide

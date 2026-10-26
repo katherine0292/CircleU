@@ -10,6 +10,7 @@
   - **Unit** is a repo test in `CircleuTests/` (`File.testName`), run by the full `xcodebuild test`.
   - **UI†** is an XCUITest that has only been run from a local runner **outside the repo**. It is evidence but not a lasting check, because nobody can rerun it from a clean checkout. Moving these tests into the repo is the first gap below.
   - **No test** means nothing checks the line.
+- **(partial)** means the test checks part of the line; the note says which part.
 - **Users:**
   - **Person** is anyone using the guest journal.
   - **Returning person** used the earlier CircleU app or had an account.
@@ -23,7 +24,7 @@ Screen: Welcome → Today. States: first launch (empty), returning launch.
 | --- | --- | --- |
 | W1.1 | Given a first launch, when the app opens, then Welcome shows "Get started" and "Log in". | UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | W1.2 | Given Welcome, when I tap Get started, then Today opens and Welcome doesn't appear on later launches. | No test |
-| W1.3 | Given the guest journal is open, when I use it, then Firebase is never contacted. | Unit `GuestSignInTests.testOpeningTheGuestJournalNeverTouchesFirebase` |
+| W1.3 | Given I open the guest journal without logging in, when it loads, then Firebase isn't contacted. | Unit `GuestSignInTests.testOpeningTheGuestJournalNeverTouchesFirebase` |
 | W1.4 | Given a first launch, when the journal opens, then it is empty. | Unit `GuestJournalStoreTests.testFirstLaunchIsEmpty` |
 
 **W2.** As a returning person, I want to log in from Welcome, so that I can bring in my earlier journal before I start.
@@ -63,7 +64,7 @@ Screen: Today (listening). States: empty, in progress (listening), filled.
 | T3.1 | Given I tap the microphone, when I speak, then the words appear in the box as they're recognised, after anything I typed. | Unit `GuestDictationViewModelTests.testSpokenWordsAppearInTheDraftAsTheyAreRecognised`, `testDictationGoesAfterTypedTextAndKeepsIt` |
 | T3.2 | Given I'm listening, when I tap stop, then the words are kept and the final text arrives. | Unit `GuestDictationViewModelTests.testStopKeepsTheWordsAndWaitsForTheFinalText` |
 | T3.3 | Given I'm listening, when I tap Save, then listening stops and the words so far are saved. | Unit `GuestDictationViewModelTests.testSavingWhileListeningStopsAndSavesTheWordsSoFar` |
-| T3.4 | Given several entries in a row, with and without voice, when the app relaunches, then they are all in Journal. | Unit `GuestDictationViewModelTests.testThreeEntriesInARowWithAndWithoutVoice`; UI† `GuestVoiceTabsUITests.testThreeEntriesWithAndWithoutVoiceSurviveRelaunch` |
+| T3.4 | Given several entries in a row, with and without voice, when the app relaunches, then they are all in Journal. | Unit (partial, same session only) `GuestDictationViewModelTests.testThreeEntriesInARowWithAndWithoutVoice`; UI† (relaunch) `GuestVoiceTabsUITests.testThreeEntriesWithAndWithoutVoiceSurviveRelaunch` |
 
 **T4. Microphone denied or unavailable.** As a person who said no to the microphone, I want typing to keep working, so that I'm never stuck.
 Screen: Today. States: permission denied, error (can't start). Mocked in the canvas "States" page.
@@ -91,7 +92,7 @@ Screen: Today → Reflection review. States: in progress, filled, error.
 | --- | --- | --- |
 | T6.1 | Given words, when I tap Get a suggestion and Save with reflection, then the words and reflection are saved apart and survive reopening. | Unit `GuestSuggestionTests.testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI† `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | T6.2 | Given the suggestion fails, when the error shows, then I can still save only my words. | Unit `GuestSuggestionTests.testFailedSuggestionStillLetsTheWordsBeSaved` |
-| T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I typed. | Unit `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
+| T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I typed. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
 | T6.4 | Given I change my words after a suggestion, when I look at it, then it is marked as out of date. | Unit `GuestSuggestionTests.testChangedWordsMarkTheSuggestionStale` |
 
 **T7. Next step.** As a person, I want to choose whether to keep a suggested next step, so that nothing is added without my say.
@@ -136,7 +137,7 @@ Screen: Entry → Edit. States: filled, in progress, error (stale, deleted).
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J4.1 | Given I edit and save, when the entry reopens, then the change is kept, including after a relaunch. | Unit `GuestEntryEditorViewModelTests.testSaveUsesOpenedRevisionAndClearsChanges`, `testSaveAndEditPersistAcrossRelaunch` |
-| J4.2 | Given unsaved edits, when I leave, then the app asks before discarding. | Unit `GuestEntryEditorViewModelTests.testEditingMarksChangesSoLeavingAsksFirst`; UI† `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
+| J4.2 | Given unsaved edits, when I leave, then the app asks before discarding. | Unit (partial, checks unsaved changes, not the dialog) `GuestEntryEditorViewModelTests.testEditingMarksChangesSoLeavingAsksFirst`; UI† `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
 | J4.3 | Given the entry changed or was deleted elsewhere, when I save, then my text is kept with a clear message. | Unit `GuestEntryEditorViewModelTests.testStaleAndDeletedEntriesKeepTextWithClearMessages` |
 | J4.4 | Given an entry with a reflection, when I edit the words, then the reflection is marked as earlier. | Unit `GuestSuggestionTests.testEditingTheWordsMarksTheReflectionAsEarlierAndRemovingItKeepsTheWords` |
 
@@ -157,7 +158,7 @@ Screen: Entry → Practice message. States: empty, filled, in progress, error.
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI† `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P1.2 | Given the source entry is deleted, when I open the message, then my words stay. | Unit `GuestPracticeTests.testDeletedSourceEntryKeepsWords` |
+| P1.2 | Given the source entry was deleted, when I save a message from it, then my words stay. | Unit `GuestPracticeTests.testDeletedSourceEntryKeepsWords` |
 
 **P2. A message on its own.** As a person, I want to practise without an entry, so that I can prepare for something I haven't written about.
 Screen: Practice. States: empty, filled, error.
@@ -194,7 +195,7 @@ Screen: Settings → Privacy and data. States: filled, Learn more open.
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | S1.1 | Given Settings, when I look at Privacy and data, then it says "Kept on this iPhone. Not uploaded or synced." and the detail is behind Learn more. | No test (`GuestCopyLintTests` checks wording rules only) |
-| S1.2 | Given the journal opens, when files are written, then iOS file protection is applied, and the journal won't open if it can't be applied. | Unit `GuestJournalStoreTests.testProtectionIsAppliedToFolderStoreAndSidecars`, `testOpenFailsIfProtectionCannotBeApplied` |
+| S1.2 | Given the journal opens, when files are written, then iOS file protection is applied, and the journal won't open if it can't be applied. | Unit (partial, protection calls are injected) `GuestJournalStoreTests.testProtectionIsAppliedToFolderStoreAndSidecars`, `testOpenFailsIfProtectionCannotBeApplied` |
 
 **S2. Export.** As a person, I want a copy of everything I wrote, so that I can keep it elsewhere.
 Screen: Settings → Your data → share sheet. States: in progress, done, error.
@@ -219,7 +220,7 @@ Screen: Today avatar → Your Pingu. States: filled.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S4.1 | Given the picker, when it opens, then all 21 Pingu avatars show with spoken names. | Unit `GuestPinguArtTests.testAll21AvatarsAndIconsAreBundled`; UI† `GuestPolishUITests.testPinguArtScreens` |
+| S4.1 | Given the picker, when it opens, then all 21 Pingu avatars show with spoken names. | Unit (partial, checks bundled art and names) `GuestPinguArtTests.testAll21AvatarsAndIconsAreBundled`; UI† `GuestPolishUITests.testPinguArtScreens` |
 | S4.2 | Given I pick a Pingu, when the app relaunches, then the same Pingu shows on Today. | No test |
 | S4.3 | Given I'm dictating, when I open the picker, then dictation stops and my words are kept. | No test |
 
@@ -231,17 +232,7 @@ Screen: Log in → Backup preview → Copied. States: filled, in progress, error
 | S5.1 | Given correct details, when I log in, then I see only that account's backup, copying adds it once, and I'm signed out after. | Unit `GuestSignInTests.testLogInPreviewsOnlyThatAccountsBackupCopiesOnceAndSignsOut`; UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S5.2 | Given wrong details, when I log in, then one generic message shows without saying whether the account exists, and repeated tries back off. | Unit `GuestSignInTests.testFailuresAreGenericSignedOutAndBackOff`; UI† `GuestImportUITests.testRealDevRejectsAnInventedAccountGenerically` |
 | S5.3 | Given no connection, when I log in, then it says so plainly. | Unit `GuestSignInTests.testOfflineAndUnavailableAreSaidPlainly` |
-| S5.4 | Given copying fails, when the error shows, then it says "Couldn’t copy your earlier journal. Nothing was added; try again." | Unit `GuestImportTests.testFailedImportAddsNothing` |
-
-**S6. Earlier app on this iPhone.** As a returning person, I want entries from the earlier CircleU app on this iPhone brought in, so that I don't start from nothing.
-Screen: Settings → Bring in your earlier journal. States: empty (nothing found), filled, error.
-
-| # | Given / When / Then | Test |
-| --- | --- | --- |
-| S6.1 | Given nothing is chosen, when the guest journal opens, then nothing from the earlier app is shown or copied. | Unit `GuestImportTests.testByDefaultNothingFromTheEarlierAppIsShownOrCopied` |
-| S6.2 | Given earlier guest data, when I copy it, then it is copied once, the earlier app is untouched, and copying again adds no duplicates. | Unit `GuestImportTests.testImportCopiesOnceKeepsTheEarlierAppUntouchedAndNeverDuplicates` |
-| S6.3 | Given nothing to bring in, when I look, then it says "Nothing from the earlier CircleU app was found in this app on this iPhone." | Unit `GuestImportTests.testNothingFoundIsSaidPlainly` |
-| S6.4 | Given the earlier app was ever signed in, when I look, then its data is sealed and not offered. | Unit `GuestImportTests.testAnySignInHistorySealsEverything` |
+| S5.4 | Given copying the backup fails, when the error shows, then it says "Couldn’t copy your earlier journal. Nothing was added; try again." and nothing is added. | No test |
 
 **S7. Reset password.** As a returning person who forgot my password, I want a reset link, so that I can log in.
 Screen: Log in → Reset password. States: filled, in progress, done, error.
@@ -251,31 +242,43 @@ Screen: Log in → Reset password. States: filled, in progress, done, error.
 | S7.1 | Given an email, when I tap Send reset link, then it says "If an account uses this email, a link is on its way." whether or not the account exists. | No test |
 | S7.2 | Given no connection, when I send, then it says so and no success shows. | No test |
 
-**S8. Delete my account.** As a returning person, I want to delete my earlier account and its cloud data, so that nothing of mine is left online.
+**S8. Delete my account.** As a returning person, I want to delete my earlier account and its cloud journal, so that my account data isn't kept online.
 Screen: Settings → Delete my account. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted and entries on this iPhone stay. | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 
+## Kept but not reachable
+
+**S6. Earlier app on this iPhone (not reachable now).** As a returning person, I want entries from the earlier CircleU app on this iPhone brought in, so that I don't start from nothing.
+Settings no longer opens this screen (Log in replaced it), but the code and tests are kept. Not counted in Coverage. S6.3 checks the empty scan, not the message.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| R6.1 | Given nothing is chosen, when the guest journal opens, then nothing from the earlier app is shown or copied. | Unit `GuestImportTests.testByDefaultNothingFromTheEarlierAppIsShownOrCopied` |
+| R6.2 | Given earlier guest data, when I copy it, then it is copied once, the earlier app is untouched, and copying again adds no duplicates. | Unit `GuestImportTests.testImportCopiesOnceKeepsTheEarlierAppUntouchedAndNeverDuplicates` |
+| R6.3 | Given nothing to bring in, when I look, then it says "Nothing from the earlier CircleU app was found in this app on this iPhone." | Unit `GuestImportTests.testNothingFoundIsSaidPlainly` |
+| R6.4 | Given the earlier app was ever signed in, when I look, then its data is sealed and not offered. | Unit `GuestImportTests.testAnySignInHistorySealsEverything` |
+
 ## Coverage
 
-Counted on 26 October 2026, over 26 stories and 80 criteria:
+Counted on 26 October 2026, over 25 stories and 76 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A repo unit test | 65 |
+| A repo unit test (5 partial) | 60 |
 | Only a UI† test outside the repo | 6 |
-| No test | 9 |
+| No test | 10 |
 
-Stories with a criterion that has no test: W1 (W1.2), J3 (J3.3), P2 (P2.1), S1 (S1.1), S2 (S2.3), S4 (S4.2, S4.3), S7 (S7.1, S7.2). S7 is the only story with no test at all.
+Stories with a criterion that has no test: W1 (W1.2), J3 (J3.3), P2 (P2.1), S1 (S1.1), S2 (S2.3), S4 (S4.2, S4.3), S5 (S5.4), S7 (S7.1, S7.2). S7 is the only story with no test at all.
 
 ### Proposed next
 
 1. **Move the UI tests into the repo** as a `CircleuUITests` target. Use the fake account (`-CircleUFakeAccount YES`) and keep the Dev-Firebase test opt-in. This turns 6 UI-only criteria into lasting checks and backs up 12 unit-tested ones.
-2. **Reset password (S7):** add unit tests, through the fake account service, for the same message whether or not the account exists, and no success when offline. Of all the gaps, this one carries the most privacy risk.
+2. **Reset password (S7) and backup copy failure (S5.4):** add `GuestSignInTests` through the fake account service. Check that reset shows the same message whether or not the account exists, that no success shows when offline, and that a failed copy adds nothing. These carry the most privacy and data risk.
 3. **Your Pingu (S4.2, S4.3):** add a unit test for keeping the choice across relaunch, and one for the picker stopping dictation. Both are small.
 4. **Empty and done states (J3.3, P2.1, S2.3, W1.2):** cover these with UI tests once item 1 lands. They match the canvas "States" page.
 5. **Privacy summary (S1.1):** leave it to copy review. The wording is fixed in the screen content guidelines.
