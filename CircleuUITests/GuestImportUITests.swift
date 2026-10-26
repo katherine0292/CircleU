@@ -23,7 +23,9 @@ final class GuestImportUITests: XCTestCase {
     func testWelcomeLogInPreviewCopySignedOutAndDelete() throws {
         continueAfterFailure = false
         var app = launchGuest(fresh: true, welcomeSeen: nil, ["-CircleUFakeAccount", "YES"])
-        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
         shot(app, "s1-welcome")
         app.buttons["Log in"].tap()
         XCTAssertTrue(has(app, "Nothing uploaded"))
@@ -79,7 +81,9 @@ final class GuestImportUITests: XCTestCase {
     func testRealDevRejectsAnInventedAccountGenerically() throws {
         try requireLiveDev()
         let app = launchGuest(fresh: true, welcomeSeen: nil)
-        XCTAssertTrue(app.buttons["Log in"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(app.buttons["Log in"].waitForExistence(timeout: 5))
         app.buttons["Log in"].tap()
         fill(app, email: "nonexistent-probe-7c1e@example.invalid", password: "not-a-real-password")
         app.buttons["Log in"].firstMatch.tap()
