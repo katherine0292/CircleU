@@ -73,7 +73,7 @@ Screen: Today. States: permission denied, error (can't start). Mocked in the can
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T4.1 | Given microphone or speech access is denied, when I tap the microphone, then it says "Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing." and typing works. | Unit `GuestDictationViewModelTests.testDeniedPermissionLeavesTypingAndOffersSettings`; UI `GuestVoiceTabsUITests.testTabsPracticeAndDictationDenied` |
+| T4.1 | Given microphone or speech access is denied, when I tap the microphone, then it says "Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing." and typing works. | Unit `GuestDictationViewModelTests.testDeniedPermissionLeavesTypingAndOffersSettings`; UI `GuestVoiceTabsUITests.testTabsPracticeAndDictationDenied` (denies the system prompt when it shows, then checks the message; the Debug, Simulator-only `-CircleUAssumeOnDeviceSpeech` launch argument gets past the Simulator’s missing on-device speech model) |
 | T4.2 | Given no on-device speech support, when I tap the microphone, then it never listens or sends audio. | Unit `GuestDictationViewModelTests.testNoOnDeviceSupportNeverListens` |
 | T4.3 | Given dictation can't start, when I tap the microphone, then it says "Dictation couldn’t start. You can keep typing." | Unit `GuestDictationViewModelTests.testStartFailureLeavesTypingAvailable` |
 | T4.4 | Given the permission prompt is showing, when I stop, then listening never starts. | Unit `GuestDictationViewModelTests.testStoppingDuringThePermissionPromptNeverStartsListening` |

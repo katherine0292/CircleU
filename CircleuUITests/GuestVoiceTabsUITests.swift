@@ -16,7 +16,9 @@ final class GuestVoiceTabsUITests: XCTestCase {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.resetAuthorizationStatus(for: .microphone) // Ask again, so the test denies it itself.
-        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
+        // Simulators have no on-device speech model; without this they report dictation unavailable before asking.
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode",
+                                                "-CircleUAssumeOnDeviceSpeech", "YES"]; app.launch()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 15))
         for tab in ["Today", "Journal", "Practice"] { XCTAssertTrue(app.tabBars.buttons[tab].exists, tab) }
         shot(app, "v1-today")
