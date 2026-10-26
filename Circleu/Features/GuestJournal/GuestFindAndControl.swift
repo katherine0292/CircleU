@@ -182,7 +182,7 @@ final class GuestSettingsViewModel: ObservableObject {
     static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
     static let deletedExportPendingMessage = "Everything was deleted. A leftover copy is still here; CircleU will try again to remove it."
-    static let exportedMessage = "Export done. The copy you shared is yours to keep or delete."
+    static let exportedMessage = "Export done."
     static let exportCleanupMessage = "The temporary export copy couldn’t be removed. CircleU will try again next time it opens."
 
     let journal: GuestJournalViewModel
@@ -281,6 +281,7 @@ struct GuestSettingsView: View {
     @StateObject private var settings: GuestSettingsViewModel
     @State private var exportURL: URL?
     @State private var confirmDelete = false
+    @State private var showPrivacy = false
 
     init(journal: GuestJournalViewModel, practice: GuestPracticeViewModel) {
         _settings = StateObject(wrappedValue: GuestSettingsViewModel(journal: journal, practice: practice))
@@ -288,64 +289,54 @@ struct GuestSettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                section("Your Pingu", icon: "GuestPinguWelcome") {
-                    GuestAvatarButton(size: 110)
-                    GuestSummary("Tap to change.")
-                }
-                section("Privacy and data", icon: "GuestIconPrivacy") {
-                    GuestSummary("Kept on this iPhone. Not uploaded or synced.")
-                    GuestLearnMore {
-                        Text("Suggestions and dictation stay on this iPhone; no audio is saved.")
-                        Text("Your iPhone’s own backups (iCloud or a computer) may include your journal.")
-                        Text("Restoring an older backup can bring back things you deleted.")
-                        Text("Exports you saved elsewhere aren’t deleted here.")
-                    }
-                }
-                section("Your data", icon: "GuestIconJournal") {
-                    GuestSummary("A text file you can save or share.")
-                    Button {
-                        Task { exportURL = await settings.makeExportFile() }
-                    } label: {
-                        Label { Text("Export my data") } icon: { GuestBrandIcon(asset: "GuestIconNextStep", size: 24) }
-                    }
-                    .buttonStyle(GuestBrandButtonStyle(filled: false))
-                    .disabled(settings.isWorking)
-                    Button(role: .destructive) { confirmDelete = true } label: {
-                        Text("Delete all data").frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
-                    }
-                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
-                    .disabled(settings.isWorking)
-                }
+            VStack(spacing: 20) {
                 if settings.message == GuestSettingsViewModel.exportedMessage {
                     GuestSuccessBanner(text: GuestSettingsViewModel.exportedMessage, asset: "GuestPinguBackpack")
                 } else if let message = settings.message {
                     Label(message, systemImage: "info.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                pingu
+                privacyChip
+                group("Your data") {
+                    Button {
+                        Task { exportURL = await settings.makeExportFile() }
+                    } label: {
+                        row("Export my data") { GuestBrandIcon(asset: "GuestIconNextStep", size: 28) }
+                    }
+                    .disabled(settings.isWorking)
+                    divider
+                    Button(role: .destructive) { confirmDelete = true } label: {
+                        row("Delete all data", destructive: true, chevron: false) { dangerIcon("trash") }
+                    }
+                    .disabled(settings.isWorking)
                 }
                 if let importer = settings.practice.store as? any GuestImportStore {
-                    section("Earlier CircleU account", icon: "GuestIconJournal") {
-                        GuestSummary("Bring in your journal from an earlier account.")
+                    group("Earlier CircleU account") {
                         NavigationLink {
                             GuestSignInView(factory: .live, store: importer, journal: settings.journal,
                                             practice: settings.practice)
                         } label: {
-                            Text("Log in to bring in your journal")
+                            row("Bring in your earlier journal") { GuestBrandIcon(asset: "GuestIconJournal", size: 28) }
                         }
-                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                        divider
                         NavigationLink {
                             GuestDeleteAccountView(factory: .live)
                         } label: {
-                            Text("Delete my account").frame(maxWidth: .infinity, minHeight: 44)
+                            row("Delete my account", destructive: true) { dangerIcon("person.crop.circle.badge.xmark") }
                         }
-                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
                     }
                 }
-                section("About", icon: "GuestIconLogo") {
+                HStack(spacing: 6) {
+                    GuestBrandIcon(asset: "GuestIconLogo", size: 18)
                     Text("CircleU \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
                 }
+                .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                .accessibilityElement(children: .combine)
             }
-            .padding(24)
+            .buttonStyle(.plain)
+            .padding(20)
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Settings")
@@ -354,8 +345,9 @@ struct GuestSettingsView: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete all", role: .destructive) { Task { await settings.deleteAll() } }
         } message: {
-            Text("Deletes everything in this journal, including drafts. The earlier CircleU app isn’t affected.")
+            Text("Everything in this journal, including drafts.")
         }
+        .sheet(isPresented: $showPrivacy) { GuestPrivacySheet() }
         .sheet(item: Binding(get: { exportURL.map(ExportFile.init) }, set: { if $0 == nil { exportURL = nil } })) { file in
             GuestShareSheet(url: file.url) { completed in
                 // Don't leave a copy behind; say so if it can't be removed.
@@ -370,17 +362,124 @@ struct GuestSettingsView: View {
         var id: String { url.path }
     }
 
-    private func section<Content: View>(_ title: String, icon: String,
-                                        @ViewBuilder _ content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label { Text(title) } icon: { GuestBrandIcon(asset: icon, size: 28) }
-                .font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
-                .accessibilityAddTraits(.isHeader)
-            content().font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+    /// The chosen Pingu, with a pencil badge in place of "Tap to change."
+    private var pingu: some View {
+        VStack(spacing: 6) {
+            GuestAvatarButton(size: 110)
+                .padding(10)
+                .frame(width: 140, height: 140)
+                .background(.white, in: Circle())
+                .overlay(alignment: .bottomTrailing) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
+                        .frame(width: 34, height: 34).background(GuestBrand.blue, in: Circle())
+                        .accessibilityHidden(true)
+                }
+            Text("Your Pingu").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
+                .accessibilityHidden(true) // The button already says it.
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+    }
+
+    /// The privacy promise stays in words; the detail opens as a sheet.
+    private var privacyChip: some View {
+        VStack(spacing: 6) {
+            Button { showPrivacy = true } label: {
+                HStack(spacing: 8) {
+                    GuestBrandIcon(asset: "GuestIconPrivacy", size: 22)
+                    Text("Only on this iPhone")
+                    Image(systemName: "chevron.right").font(.caption.weight(.bold)).accessibilityHidden(true)
+                }
+                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                .padding(.horizontal, 16).frame(minHeight: 44)
+                .background(GuestBrand.blue.opacity(0.1), in: Capsule())
+            }
+            .accessibilityHint("Shows what stays on this iPhone.")
+            GuestSummary("Not uploaded or synced.")
+        }
+    }
+
+    private var divider: some View {
+        Divider().padding(.leading, 56)
+    }
+
+    private func group<Content: View>(_ title: String, @ViewBuilder _ rows: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title).font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
+                .padding(.leading, 16).accessibilityAddTraits(.isHeader)
+            VStack(spacing: 0) { rows() }
+                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+        }
+    }
+
+    private func row<Icon: View>(_ title: String, destructive: Bool = false, chevron: Bool = true,
+                                 @ViewBuilder icon: () -> Icon) -> some View {
+        HStack(spacing: 12) {
+            icon()
+            Text(title).frame(maxWidth: .infinity, alignment: .leading)
+            if chevron {
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold))
+                    .foregroundStyle(GuestBrand.muted.opacity(0.6)).accessibilityHidden(true)
+            }
+        }
+        .font(GuestBrand.font(.body)).foregroundStyle(destructive ? GuestBrand.danger : GuestBrand.ink)
+        .padding(.horizontal, 16).frame(minHeight: 56)
+        .contentShape(Rectangle())
+    }
+
+    private func dangerIcon(_ symbol: String) -> some View {
+        Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(GuestBrand.danger)
+            .frame(width: 28, height: 28)
+            .background(GuestBrand.danger.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+            .accessibilityHidden(true)
+    }
+}
+
+/// What "Only on this iPhone" means: one short line per fact, each with an icon.
+struct GuestPrivacySheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    private let facts: [(symbol: String, text: String)] = [
+        ("mic.slash", "Suggestions and dictation stay here; no audio is saved."),
+        ("icloud", "Your iPhone’s backups (iCloud or a computer) may include it."),
+        ("clock.arrow.circlepath", "Restoring an older backup can bring back deleted items."),
+        ("square.and.arrow.up", "Exports you saved elsewhere aren’t deleted here."),
+    ]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    GuestPinguDecoration(asset: "GuestPinguQuietBreath", height: 140)
+                    VStack(spacing: 4) {
+                        Text("Only on this iPhone").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                            .accessibilityAddTraits(.isHeader)
+                        GuestSummary("Not uploaded or synced.")
+                    }
+                    .multilineTextAlignment(.center)
+                    VStack(spacing: 0) {
+                        ForEach(Array(facts.enumerated()), id: \.offset) { index, fact in
+                            if index > 0 { Divider().padding(.leading, 66) }
+                            HStack(spacing: 14) {
+                                Image(systemName: fact.symbol).font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(GuestBrand.blue)
+                                    .frame(width: 36, height: 36)
+                                    .background(GuestBrand.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+                                    .accessibilityHidden(true)
+                                Text(fact.text).font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(.horizontal, 16).padding(.vertical, 12)
+                        }
+                    }
+                    .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                }
+                .padding(20)
+            }
+            .background(GuestBrand.ice.ignoresSafeArea())
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+            }
+        }
     }
 }
 

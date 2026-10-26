@@ -68,18 +68,21 @@ final class GuestStatesUITests: XCTestCase {
         shot(app, "calendar-empty-day")
     }
 
-    /// S1.1: the privacy summary is one line, with the detail behind Learn more.
+    /// S1.1: the privacy promise stays in words, with the detail in the "Only on this iPhone" sheet.
     func testPrivacySummaryAndLearnMore() throws {
         continueAfterFailure = false
         let app = launchGuest(fresh: true)
         openSettings(app)
-        XCTAssertTrue(has(app, "Kept on this iPhone. Not uploaded or synced.", 10))
-        XCTAssertFalse(app.staticTexts["Restoring an older backup can bring back things you deleted."].exists, "detail starts hidden")
-        let learnMore = app.buttons["Learn more"].firstMatch
-        XCTAssertTrue(learnMore.waitForExistence(timeout: 5))
-        learnMore.tap()
-        XCTAssertTrue(has(app, "Restoring an older backup can bring back things you deleted."))
-        shot(app, "privacy-learn-more")
+        XCTAssertTrue(has(app, "Not uploaded or synced.", 10))
+        XCTAssertFalse(app.staticTexts["Restoring an older backup can bring back deleted items."].exists, "detail starts hidden")
+        let chip = app.buttons["Only on this iPhone"]
+        XCTAssertTrue(chip.waitForExistence(timeout: 5))
+        chip.tap()
+        XCTAssertTrue(has(app, "Restoring an older backup can bring back deleted items."))
+        XCTAssertTrue(has(app, "Exports you saved elsewhere aren’t deleted here."))
+        shot(app, "privacy-sheet")
+        app.buttons["Done"].tap()
+        XCTAssertTrue(chip.waitForExistence(timeout: 5), "back in Settings")
     }
 
     /// S4.2 and S4.3: the chosen Pingu is kept across launches, and opening the picker stops dictation.

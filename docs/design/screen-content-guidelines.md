@@ -14,7 +14,7 @@
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
 | Any string on screen | **≤ 100 characters**, unless marked `// copy: detail` or `// copy: export` (export file text, not a screen). |
 | Labels | Prefer an icon to a label (see "Icons over labels" below). |
-| Section summary pattern (Settings, Privacy) | Heading with icon, then **one** `GuestSummary` line, then optional `GuestLearnMore` with the detail. |
+| Section summary pattern | Heading with icon, then **one** `GuestSummary` line, then optional `GuestLearnMore` with the detail. Settings instead uses grouped icon rows, and its privacy detail is a sheet of one-line icon rows. |
 
 ## Icons over labels
 
@@ -54,10 +54,10 @@ The supporting line is the single line under the heading; "—" means none.
 | Entry | Entry | — | — | Edit; Practice what to say | — |
 | Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
 | Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
-| Settings → Your Pingu | Your Pingu | Tap to change. | — | — | — |
-| Settings → Privacy and data | Privacy and data | Kept on this iPhone. Not uploaded or synced. | — | — | Backups, restore, exports, dictation |
-| Settings → Your data | Your data | A text file you can save or share. (above Export) | — | Export my data; Delete all data | — |
-| Settings → Earlier CircleU account | Earlier CircleU account | Bring in your journal from an earlier account. | — | Log in to bring in your journal; Delete my account | — |
+| Settings | Settings (title) | — (your Pingu with a pencil badge and "Your Pingu" caption; "Only on this iPhone" chip with "Not uploaded or synced." under it; icon rows grouped under "Your data" and "Earlier CircleU account"; version footer) | — | Rows: Export my data; Delete all data (red); Bring in your earlier journal; Delete my account (red) | — (the chip opens the privacy sheet) |
+| Settings → Only on this iPhone (sheet) | Only on this iPhone | Not uploaded or synced. | — | Done (dismiss) | — (four icon rows replace Learn more: dictation, backups, restore, exports) |
+| Settings → Export done | (banner) Export done. | — | — | — | — |
+| Settings → Delete all data? (alert) | Delete all data? | Everything in this journal, including drafts. | Delete all (red) | Cancel | — |
 | Log in | Bring in your earlier journal | Nothing new is uploaded, and you’re signed out after. | Log in | Forgot password?; Continue without logging in (Welcome only) | What logging in does; no new accounts; why on-phone data stays sealed |
 | Backup preview | Your account’s backup | N to copy · N already copied | Copy into this journal | Don’t copy | Not changed; what isn’t copied; what was left out |
 | Copied | (banner) Copied N items into your journal. | You’re signed out. | Continue (Welcome only) | — | Left out (N) |

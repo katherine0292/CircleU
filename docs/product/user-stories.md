@@ -212,11 +212,11 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 ## 5. Settings
 
 **S1. Privacy.** As a person, I want to know where my words are kept, so that I can trust the app.
-Screen: Settings → Privacy and data. States: filled, Learn more open.
+Screen: Settings → "Only on this iPhone" sheet. States: filled, sheet open.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S1.1 | Given Settings, when I look at Privacy and data, then it says "Kept on this iPhone. Not uploaded or synced." and the detail is behind Learn more. | UI `GuestStatesUITests.testPrivacySummaryAndLearnMore` |
+| S1.1 | Given Settings, when I look, then the "Only on this iPhone" chip and "Not uploaded or synced." show, and tapping the chip opens a sheet with one icon row each for dictation, backups, restore and exports. | UI `GuestStatesUITests.testPrivacySummaryAndLearnMore` |
 | S1.2 | Given the journal opens, when files are written, then iOS file protection is applied, and the journal won't open if it can't be applied. | Unit (partial, protection calls are injected) `GuestJournalStoreTests.testProtectionIsAppliedToFolderStoreAndSidecars`, `testOpenFailsIfProtectionCannotBeApplied` |
 
 **S2. Export.** As a person, I want a copy of everything I wrote, so that I can keep it elsewhere.
@@ -226,7 +226,7 @@ Screen: Settings → Your data → share sheet. States: in progress, done, error
 | --- | --- | --- |
 | S2.1 | Given entries and messages, when I tap Export my data, then a readable text file holds all of them, with suggestions labelled. | Unit `GuestFindAndControlTests.testExportIsReadableAndCompleteAndLabelsSuggestions`, `testExportFileContainsTheJournal` |
 | S2.2 | Given something can't be read, when I export, then it says "Couldn’t prepare the export. Try again." and no partial file is made. | Unit `GuestFindAndControlTests.testExportIsRefusedWhenSomethingCantBeRead` |
-| S2.3 | Given the share sheet closes after sharing, when I'm back in Settings, then it says "Export done. The copy you shared is yours to keep or delete." | Unit (partial, the model's decision, not the share sheet) `GuestFindAndControlTests.testExportDoneShowsOnlyAfterSharingAndCleanup` |
+| S2.3 | Given the share sheet closes after sharing, when I'm back in Settings, then a Pingu banner says "Export done." (that shared copies aren't deleted is in the privacy sheet, S1.1) | Unit (partial, the model's decision, not the share sheet) `GuestFindAndControlTests.testExportDoneShowsOnlyAfterSharingAndCleanup` |
 
 **S3. Delete all.** As a person, I want to delete everything in the guest journal, so that nothing is left on this iPhone.
 Screen: Settings → Your data → confirm. States: in progress, done, error.
