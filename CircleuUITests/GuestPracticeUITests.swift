@@ -26,6 +26,7 @@ final class GuestPracticeUITests: XCTestCase {
         shot(app, "p1-home"); audit(app, "practice-home")
         app.buttons["Practice a message"].tap()
         XCTAssertTrue(has(app, "On its own"))
+        app.buttons["Add situation"].tap() // Situation starts folded into a chip.
         let situation = app.descendants(matching: .any).matching(NSPredicate(format: "elementType == %d OR elementType == %d", XCUIElement.ElementType.textField.rawValue, XCUIElement.ElementType.textView.rawValue)).element(boundBy: 0); situation.tap(); situation.typeText("Group project \(tag)")
         let wording = app.textViews["Your wording"]; wording.tap(); wording.typeText("Can we split the slides \(tag)?")
         shot(app, "p2-compose"); audit(app, "compose")

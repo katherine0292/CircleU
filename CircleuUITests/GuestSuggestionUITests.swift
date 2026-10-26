@@ -47,6 +47,7 @@ final class GuestSuggestionUITests: XCTestCase {
 
         app.tabBars.buttons["Practice"].tap()
         app.buttons["Practice a message"].tap()
+        app.buttons["Add situation"].tap() // Situation starts folded into a chip.
         let situation = app.descendants(matching: .any).matching(NSPredicate(format: "elementType == %d OR elementType == %d", XCUIElement.ElementType.textField.rawValue, XCUIElement.ElementType.textView.rawValue)).element(boundBy: 0)
         situation.tap(); situation.typeText("The group project")
         app.buttons["Get a suggestion"].tap()
