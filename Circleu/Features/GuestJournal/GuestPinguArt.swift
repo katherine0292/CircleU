@@ -120,6 +120,8 @@ struct GuestSuccessBanner: View {
 struct GuestAvatarButton: View {
     @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
     var size: CGFloat = 180
+    /// Settings: a white circle with a pencil badge, all inside the tap area.
+    var framed = false
     /// Runs before the picker opens (Today stops the microphone first).
     var beforeOpening: () -> Void = {}
     @State private var picking = false
@@ -131,10 +133,23 @@ struct GuestAvatarButton: View {
             beforeOpening()
             picking = true
         } label: {
-            Image(avatar.id).resizable().scaledToFit()
-                .frame(maxWidth: .infinity)
-                .frame(height: typeSize.isAccessibilitySize ? min(size, 96) : size)
-                .contentShape(Rectangle())
+            if framed {
+                Image(avatar.id).resizable().scaledToFit()
+                    .frame(width: size, height: size)
+                    .padding(size * 0.12)
+                    .background(.white, in: Circle())
+                    .overlay(alignment: .bottomTrailing) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
+                            .frame(width: 34, height: 34).background(GuestBrand.blue, in: Circle())
+                    }
+                    .contentShape(Circle())
+            } else {
+                Image(avatar.id).resizable().scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: typeSize.isAccessibilitySize ? min(size, 96) : size)
+                    .contentShape(Rectangle())
+            }
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Your Pingu: \(avatar.name)")

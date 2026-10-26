@@ -54,10 +54,10 @@ The supporting line is the single line under the heading; "—" means none.
 | Entry | Entry | — | — | Edit; Practice what to say | — |
 | Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
 | Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
-| Settings | Settings (title) | — (your Pingu with a pencil badge and "Your Pingu" caption; "Only on this iPhone" chip with "Not uploaded or synced." under it; icon rows grouped under "Your data" and "Earlier CircleU account"; version footer) | — | Rows: Export my data; Delete all data (red); Bring in your earlier journal; Delete my account (red) | — (the chip opens the privacy sheet) |
-| Settings → Only on this iPhone (sheet) | Only on this iPhone | Not uploaded or synced. | — | Done (dismiss) | — (four icon rows replace Learn more: dictation, backups, restore, exports) |
+| Settings | Settings (title) | — (your Pingu with a pencil badge and "Your Pingu" caption; "Kept on this iPhone" chip with "Not uploaded or synced." under it; icon rows grouped under "Your data" and "Earlier CircleU account"; version footer) | — | Rows: Export my data; Delete all data (red); Bring in your earlier journal; Delete my account (red) | — (the chip opens the privacy sheet) |
+| Settings → Kept on this iPhone (sheet) | Kept on this iPhone | Not uploaded or synced. | — | Done (dismiss) | — (four icon rows replace Learn more: dictation, backups, restore, exports) |
 | Settings → Export done | (banner) Export done. | — | — | — | — |
-| Settings → Delete all data? (alert) | Delete all data? | Everything in this journal, including drafts. | Delete all (red) | Cancel | — |
+| Settings → Delete all data? (alert) | Delete all data? | Deletes this journal and drafts. The earlier app stays. | Delete all (red) | Cancel | — |
 | Log in | Bring in your earlier journal | Nothing new is uploaded, and you’re signed out after. | Log in | Forgot password?; Continue without logging in (Welcome only) | What logging in does; no new accounts; why on-phone data stays sealed |
 | Backup preview | Your account’s backup | N to copy · N already copied | Copy into this journal | Don’t copy | Not changed; what isn’t copied; what was left out |
 | Copied | (banner) Copied N items into your journal. | You’re signed out. | Continue (Welcome only) | — | Left out (N) |

@@ -72,7 +72,7 @@ final class GuestFindControlUITests: XCTestCase {
         // Settings: export and delete all
         app.tabBars.buttons["Today"].tap()
         app.buttons["Settings"].tap()
-        XCTAssertTrue(has(app, "Only on this iPhone"))
+        XCTAssertTrue(has(app, "Kept on this iPhone"))
         shot(app, "f3-settings"); audit(app, "settings")
         app.buttons["Export my data"].tap()
         let close = app.buttons["Close"].firstMatch

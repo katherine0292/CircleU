@@ -68,17 +68,19 @@ final class GuestStatesUITests: XCTestCase {
         shot(app, "calendar-empty-day")
     }
 
-    /// S1.1: the privacy promise stays in words, with the detail in the "Only on this iPhone" sheet.
+    /// S1.1: the privacy promise stays in words, with the detail in the "Kept on this iPhone" sheet.
     func testPrivacySummaryAndLearnMore() throws {
         continueAfterFailure = false
         let app = launchGuest(fresh: true)
         openSettings(app)
         XCTAssertTrue(has(app, "Not uploaded or synced.", 10))
         XCTAssertFalse(app.staticTexts["Restoring an older backup can bring back deleted items."].exists, "detail starts hidden")
-        let chip = app.buttons["Only on this iPhone"]
+        let chip = app.buttons["Kept on this iPhone"]
         XCTAssertTrue(chip.waitForExistence(timeout: 5))
         chip.tap()
         XCTAssertTrue(has(app, "Restoring an older backup can bring back deleted items."))
+        XCTAssertTrue(has(app, "Suggestions and dictation stay here; no audio is saved."))
+        XCTAssertTrue(has(app, "iCloud or computer backups of your iPhone may include your journal."))
         XCTAssertTrue(has(app, "Exports you saved elsewhere aren’t deleted here."))
         shot(app, "privacy-sheet")
         app.buttons["Done"].tap()

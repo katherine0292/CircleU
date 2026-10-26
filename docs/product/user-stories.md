@@ -212,11 +212,11 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 ## 5. Settings
 
 **S1. Privacy.** As a person, I want to know where my words are kept, so that I can trust the app.
-Screen: Settings → "Only on this iPhone" sheet. States: filled, sheet open.
+Screen: Settings → "Kept on this iPhone" sheet. States: filled, sheet open.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S1.1 | Given Settings, when I look, then the "Only on this iPhone" chip and "Not uploaded or synced." show, and tapping the chip opens a sheet with one icon row each for dictation, backups, restore and exports. | UI `GuestStatesUITests.testPrivacySummaryAndLearnMore` |
+| S1.1 | Given Settings, when I look, then the "Kept on this iPhone" chip and "Not uploaded or synced." show, and tapping the chip opens a sheet with one icon row each for dictation, backups, restore and exports. | UI `GuestStatesUITests.testPrivacySummaryAndLearnMore` |
 | S1.2 | Given the journal opens, when files are written, then iOS file protection is applied, and the journal won't open if it can't be applied. | Unit (partial, protection calls are injected) `GuestJournalStoreTests.testProtectionIsAppliedToFolderStoreAndSidecars`, `testOpenFailsIfProtectionCannotBeApplied` |
 
 **S2. Export.** As a person, I want a copy of everything I wrote, so that I can keep it elsewhere.

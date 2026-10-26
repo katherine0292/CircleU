@@ -282,6 +282,7 @@ struct GuestSettingsView: View {
     @State private var exportURL: URL?
     @State private var confirmDelete = false
     @State private var showPrivacy = false
+    @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 28
 
     init(journal: GuestJournalViewModel, practice: GuestPracticeViewModel) {
         _settings = StateObject(wrappedValue: GuestSettingsViewModel(journal: journal, practice: practice))
@@ -303,7 +304,7 @@ struct GuestSettingsView: View {
                     Button {
                         Task { exportURL = await settings.makeExportFile() }
                     } label: {
-                        row("Export my data") { GuestBrandIcon(asset: "GuestIconExport", size: 28) }
+                        row("Export my data") { GuestBrandIcon(asset: "GuestIconExport", size: iconSize) }
                     }
                     .disabled(settings.isWorking)
                     divider
@@ -318,7 +319,7 @@ struct GuestSettingsView: View {
                             GuestSignInView(factory: .live, store: importer, journal: settings.journal,
                                             practice: settings.practice)
                         } label: {
-                            row("Bring in your earlier journal") { GuestBrandIcon(asset: "GuestIconEarlierJournal", size: 28) }
+                            row("Bring in your earlier journal") { GuestBrandIcon(asset: "GuestIconEarlierJournal", size: iconSize) }
                         }
                         divider
                         NavigationLink {
@@ -345,7 +346,7 @@ struct GuestSettingsView: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete all", role: .destructive) { Task { await settings.deleteAll() } }
         } message: {
-            Text("Everything in this journal, including drafts.")
+            Text("Deletes this journal and drafts. The earlier app stays.")
         }
         .sheet(isPresented: $showPrivacy) { GuestPrivacySheet() }
         .sheet(item: Binding(get: { exportURL.map(ExportFile.init) }, set: { if $0 == nil { exportURL = nil } })) { file in
@@ -365,16 +366,7 @@ struct GuestSettingsView: View {
     /// The chosen Pingu, with a pencil badge in place of "Tap to change."
     private var pingu: some View {
         VStack(spacing: 6) {
-            GuestAvatarButton(size: 110)
-                .padding(10)
-                .frame(width: 140, height: 140)
-                .background(.white, in: Circle())
-                .overlay(alignment: .bottomTrailing) {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
-                        .frame(width: 34, height: 34).background(GuestBrand.blue, in: Circle())
-                        .accessibilityHidden(true)
-                }
+            GuestAvatarButton(size: 110, framed: true)
             Text("Your Pingu").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityHidden(true) // The button already says it.
         }
@@ -386,7 +378,7 @@ struct GuestSettingsView: View {
             Button { showPrivacy = true } label: {
                 HStack(spacing: 8) {
                     GuestBrandIcon(asset: "GuestIconPrivacy", size: 22)
-                    Text("Only on this iPhone")
+                    Text("Kept on this iPhone")
                     Image(systemName: "chevron.right").font(.caption.weight(.bold)).accessibilityHidden(true)
                 }
                 .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
@@ -399,7 +391,7 @@ struct GuestSettingsView: View {
     }
 
     private var divider: some View {
-        Divider().padding(.leading, 56)
+        Divider().padding(.leading, iconSize + 28)
     }
 
     private func group<Content: View>(_ title: String, @ViewBuilder _ rows: () -> Content) -> some View {
@@ -428,20 +420,21 @@ struct GuestSettingsView: View {
 
     private func dangerIcon(_ symbol: String) -> some View {
         Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(GuestBrand.danger)
-            .frame(width: 28, height: 28)
+            .frame(width: iconSize, height: iconSize)
             .background(GuestBrand.danger.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
             .accessibilityHidden(true)
     }
 }
 
-/// What "Only on this iPhone" means: one short line per fact, each with an icon.
+/// What "Kept on this iPhone" means: one short line per fact, each with an icon.
 struct GuestPrivacySheet: View {
     @Environment(\.dismiss) private var dismiss
+    @ScaledMetric(relativeTo: .subheadline) private var iconSize: CGFloat = 40
 
     /// Each fact has its own illustrated icon (BrandArtwork/Expansion03), none shared with another screen.
     private let facts: [(asset: String, text: String)] = [
         ("GuestIconNoAudio", "Suggestions and dictation stay here; no audio is saved."),
-        ("GuestIconBackups", "Your iPhone’s backups (iCloud or a computer) may include it."),
+        ("GuestIconBackups", "iCloud or computer backups of your iPhone may include your journal."),
         ("GuestIconRestore", "Restoring an older backup can bring back deleted items."),
         ("GuestIconSharedCopy", "Exports you saved elsewhere aren’t deleted here."),
     ]
@@ -452,16 +445,16 @@ struct GuestPrivacySheet: View {
                 VStack(spacing: 16) {
                     GuestPinguDecoration(asset: "GuestPinguQuietBreath", height: 140)
                     VStack(spacing: 4) {
-                        Text("Only on this iPhone").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                        Text("Kept on this iPhone").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
                             .accessibilityAddTraits(.isHeader)
                         GuestSummary("Not uploaded or synced.")
                     }
                     .multilineTextAlignment(.center)
                     VStack(spacing: 0) {
                         ForEach(Array(facts.enumerated()), id: \.offset) { index, fact in
-                            if index > 0 { Divider().padding(.leading, 66) }
+                            if index > 0 { Divider().padding(.leading, iconSize + 30) }
                             HStack(spacing: 14) {
-                                GuestBrandIcon(asset: fact.asset, size: 40)
+                                GuestBrandIcon(asset: fact.asset, size: iconSize)
                                 Text(fact.text).font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
