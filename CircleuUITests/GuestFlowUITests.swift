@@ -3,10 +3,7 @@ import XCTest
 final class GuestFlowUITests: XCTestCase {
     var findings: [String] = []
 
-    func launch() -> XCUIApplication {
-        let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch(); return app
-    }
+    func launch(fresh: Bool = false) -> XCUIApplication { launchGuest(fresh: fresh) }
     func shot(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
     }
@@ -19,7 +16,7 @@ final class GuestFlowUITests: XCTestCase {
     func testWriteSaveRelaunchEditDiscard() throws {
         continueAfterFailure = false
         let words = "UI test moment \(Int.random(in: 1000...9999))"
-        var app = launch()
+        var app = launch(fresh: true)
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 15))
         audit(app, "today"); shot(app, "g1-today")
         let editor = app.textViews["Your words"]
@@ -41,7 +38,7 @@ final class GuestFlowUITests: XCTestCase {
         let edit = app.textViews["Your words"]
         XCTAssertTrue(edit.waitForExistence(timeout: 5))
         edit.tap()
-        edit.typeText(" (edited) ")
+        edit.typeText(" (edited \(words)) ")
         app.buttons["Back"].tap()
         XCTAssertTrue(app.staticTexts["Discard your changes?"].waitForExistence(timeout: 3) || app.buttons["Discard"].waitForExistence(timeout: 1), "unsaved edits ask first")
         shot(app, "g5-discard-prompt")
@@ -54,13 +51,13 @@ final class GuestFlowUITests: XCTestCase {
         shot(app, "g5b-before-save")
         app.buttons["Save"].tap()
         sleep(2); shot(app, "g6-after-save")
-        let edited = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "(edited)")).firstMatch
+        let edited = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "(edited \(words))")).firstMatch
         XCTAssertTrue(edited.waitForExistence(timeout: 5), "edit saved and shown")
         shot(app, "g6-after-edit")
 
         app = launch()
         app.tabBars.buttons["Journal"].tap()
-        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "(edited)")).firstMatch.waitForExistence(timeout: 10), "edit survives relaunch")
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "(edited \(words))")).firstMatch.waitForExistence(timeout: 10), "edit survives relaunch")
         attach(findings.joined(separator: "\n"), "guest-audit.txt")
     }
 }

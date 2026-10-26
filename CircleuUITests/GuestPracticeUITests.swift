@@ -18,7 +18,7 @@ final class GuestPracticeUITests: XCTestCase {
         continueAfterFailure = false
         let tag = Int.random(in: 1000...9999)
         let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
 
         // Direct practice
         app.tabBars.buttons["Practice"].tap()

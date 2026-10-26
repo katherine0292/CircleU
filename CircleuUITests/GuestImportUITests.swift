@@ -22,14 +22,12 @@ final class GuestImportUITests: XCTestCase {
     /// Fake account (Debug launch argument); invented test credentials only.
     func testWelcomeLogInPreviewCopySignedOutAndDelete() throws {
         continueAfterFailure = false
-        var app = XCUIApplication()
-        app.terminate()
-        app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "NO", "-CircleUFakeAccount", "YES", "-CircleUGuestMode"]
-        app.launch()
+        var app = launchGuest(fresh: true, welcomeSeen: nil, ["-CircleUFakeAccount", "YES"])
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
         shot(app, "s1-welcome")
         app.buttons["Log in"].tap()
         XCTAssertTrue(has(app, "Nothing new is uploaded"))
+        XCTAssertTrue(app.buttons["Continue without logging in"].exists)
         shot(app, "s2-login"); audit(app, "login")
         app.buttons["Learn more"].firstMatch.tap(); sleep(1); shot(app, "s2b-login-learn-more")
         app.buttons["Learn more"].firstMatch.tap()
@@ -39,17 +37,16 @@ final class GuestImportUITests: XCTestCase {
         app.secureTextFields["Password"].tap(); app.secureTextFields["Password"].typeText("test-password-1")
         app.buttons["Log in"].firstMatch.tap()
         let copy = app.buttons["Copy into this journal"]
-        if copy.waitForExistence(timeout: 10) {
-            XCTAssertTrue(has(app, "I told my friend I needed space"))
-            app.buttons["Learn more"].firstMatch.tap()
-            XCTAssertTrue(has(app, "couldn’t be read"), "the broken record is reported")
-            shot(app, "s3-preview"); audit(app, "preview")
-            copy.tap()
-            XCTAssertTrue(has(app, "signed out", 10))
-            shot(app, "s4-done")
-        } else {
-            XCTAssertTrue(has(app, "already copied before"))
-        }
+        XCTAssertTrue(copy.waitForExistence(timeout: 10), "a fresh journal has nothing copied yet")
+        XCTAssertTrue(has(app, "I told my friend I needed space"))
+        app.buttons["Learn more"].firstMatch.tap()
+        XCTAssertTrue(has(app, "couldn’t be read"), "the broken record is reported")
+        shot(app, "s3-preview"); audit(app, "preview")
+        copy.tap()
+        XCTAssertTrue(has(app, "signed out", 10))
+        shot(app, "s4-done")
+        app.buttons["Continue"].tap()
+        XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10), "Continue opens Today")
 
         // Delete my account (fake): needs a fresh log in, keeps local entries.
         app = XCUIApplication()
@@ -76,10 +73,7 @@ final class GuestImportUITests: XCTestCase {
     /// works from the app and that the answer is generic. Sends one sign-in request.
     func testRealDevRejectsAnInventedAccountGenerically() throws {
         try requireLiveDev()
-        let app = XCUIApplication()
-        app.terminate()
-        app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "NO", "-CircleUGuestMode"]
-        app.launch()
+        let app = launchGuest(fresh: true, welcomeSeen: nil)
         XCTAssertTrue(app.buttons["Log in"].waitForExistence(timeout: 10))
         app.buttons["Log in"].tap()
         fill(app, email: "nonexistent-probe-7c1e@example.invalid", password: "not-a-real-password")

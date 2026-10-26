@@ -2,15 +2,6 @@ import XCTest
 
 /// Empty and first-run states from docs/product/user-stories.md (W1.2, J3.3, P2.1, S1.1, S4.2, S4.3).
 final class GuestStatesUITests: XCTestCase {
-    func launch(_ extra: [String] = [], welcomeSeen: Bool? = true) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.terminate()
-        var arguments = ["-CircleUGuestMode"]
-        if let welcomeSeen { arguments += ["-circleu.guest.welcomeSeen.v1", welcomeSeen ? "YES" : "NO"] }
-        app.launchArguments = arguments + extra
-        app.launch()
-        return app
-    }
 
     func has(_ app: XCUIApplication, _ text: String, _ timeout: TimeInterval = 5) -> Bool {
         app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: timeout)
@@ -39,11 +30,11 @@ final class GuestStatesUITests: XCTestCase {
     /// W1.2: Get started opens Today, and Welcome isn't shown on the next launch.
     func testWelcomeShowsOnlyUntilGetStarted() throws {
         continueAfterFailure = false
-        var app = launch(["-CircleUResetWelcome"], welcomeSeen: nil)
+        var app = launchGuest(fresh: true, welcomeSeen: nil)
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
         app.buttons["Get started"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10), "Today opens")
-        app = launch(welcomeSeen: nil) // No override: the app's own saved choice decides.
+        app = launchGuest(fresh: false, welcomeSeen: nil) // No override: the app's own saved choice decides.
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["Get started"].exists, "Welcome isn't shown again")
     }
@@ -51,7 +42,9 @@ final class GuestStatesUITests: XCTestCase {
     /// J1.1, P2.1 and J3.3: empty Journal, empty Practice, and a calendar day with nothing.
     func testEmptyJournalPracticeAndCalendarDay() throws {
         continueAfterFailure = false
-        let app = launch()
+        let calendar = Calendar.current, today = Date()
+        let other = calendar.date(byAdding: .day, value: calendar.component(.day, from: today) == 1 ? 1 : -1, to: today)!
+        let app = launchGuest(fresh: true)
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 15))
         deleteAll(app)
         app.tabBars.buttons["Journal"].tap()
@@ -68,8 +61,6 @@ final class GuestStatesUITests: XCTestCase {
         app.buttons["Save only my words"].tap()
         XCTAssertTrue(has(app, "Only entry today"))
         app.buttons["Show calendar"].tap()
-        let calendar = Calendar.current, today = Date()
-        let other = calendar.date(byAdding: .day, value: calendar.component(.day, from: today) == 1 ? 1 : -1, to: today)!
         let day = app.buttons[other.formatted(.dateTime.day().month(.wide))]
         XCTAssertTrue(day.waitForExistence(timeout: 5))
         day.tap()
@@ -80,7 +71,7 @@ final class GuestStatesUITests: XCTestCase {
     /// S1.1: the privacy summary is one line, with the detail behind Learn more.
     func testPrivacySummaryAndLearnMore() throws {
         continueAfterFailure = false
-        let app = launch()
+        let app = launchGuest(fresh: true)
         openSettings(app)
         XCTAssertTrue(has(app, "Kept on this iPhone. Not uploaded or synced.", 10))
         XCTAssertFalse(app.staticTexts["Restoring an older backup can bring back things you deleted."].exists, "detail starts hidden")
@@ -94,7 +85,7 @@ final class GuestStatesUITests: XCTestCase {
     /// S4.2 and S4.3: the chosen Pingu is kept across launches, and opening the picker stops dictation.
     func testPinguChoiceIsKeptAndThePickerStopsDictation() throws {
         continueAfterFailure = false
-        var app = launch(["-CircleUScriptedDictation", "Spoken before choosing"])
+        var app = launchGuest(fresh: true, ["-CircleUScriptedDictation", "Spoken before choosing"])
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 15))
         app.buttons["Start dictation"].tap()
@@ -108,7 +99,7 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Stop dictation"].exists)
         XCTAssertTrue((editor.value as? String ?? "").contains("Spoken before choosing"), "the words so far are kept")
 
-        app = launch()
+        app = launchGuest(fresh: false)
         XCTAssertTrue(app.buttons["Your Pingu: Pingu reading"].waitForExistence(timeout: 10), "kept across launches")
         shot(app, "pingu-kept")
     }

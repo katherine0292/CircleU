@@ -18,7 +18,7 @@ final class GuestSuggestionUITests: XCTestCase {
         continueAfterFailure = false
         let tag = Int.random(in: 1000...9999)
         let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
         app.tabBars.buttons["Today"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))

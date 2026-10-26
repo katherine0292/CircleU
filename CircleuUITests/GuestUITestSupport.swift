@@ -11,6 +11,18 @@ extension XCTestCase {
         add(attachment)
     }
 
+    /// Launches the guest journal. `fresh` starts from an empty journal (no entries, drafts or
+    /// chosen Pingu); a relaunch inside a test passes `fresh: false` to keep that test's own data.
+    func launchGuest(fresh: Bool, welcomeSeen: Bool? = true, _ extra: [String] = []) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.terminate()
+        var arguments = ["-CircleUGuestMode"] + (fresh ? ["-CircleUResetGuestData"] : [])
+        if let welcomeSeen { arguments += ["-circleu.guest.welcomeSeen.v1", welcomeSeen ? "YES" : "NO"] }
+        app.launchArguments = arguments + extra
+        app.launch()
+        return app
+    }
+
     /// Skips tests that contact the real Firebase Dev project unless they were asked for:
     /// `TEST_RUNNER_CIRCLEU_LIVE_DEV=1 xcodebuild test …`.
     func requireLiveDev() throws {

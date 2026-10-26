@@ -15,7 +15,8 @@ final class GuestVoiceTabsUITests: XCTestCase {
     func testTabsPracticeAndDictationDenied() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
+        app.resetAuthorizationStatus(for: .microphone) // Ask again, so the test denies it itself.
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 15))
         for tab in ["Today", "Journal", "Practice"] { XCTAssertTrue(app.tabBars.buttons[tab].exists, tab) }
         shot(app, "v1-today")
@@ -38,8 +39,11 @@ final class GuestVoiceTabsUITests: XCTestCase {
             }
         }
         sleep(1); shot(app, "v6-after-deny")
-        let message = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "keep typing")).firstMatch
-        XCTAssertTrue(message.waitForExistence(timeout: 5), "a typing-still-works message is shown")
+        // Speech access can't be reset from a test, so an earlier run's denial may skip the prompts.
+        // The message and Open Settings below appear only when access is denied.
+        let message = app.staticTexts["Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing."]
+        XCTAssertTrue(message.waitForExistence(timeout: 5), "the denial message is shown")
+        XCTAssertTrue(app.buttons["Open Settings"].exists, "with a way to Settings")
         findings.append("prompts: \(prompts) | message: \(message.label) | settings: \(app.buttons["Open Settings"].exists)")
         let editor = app.textViews["Your words"]
         editor.tap(); editor.typeText("Typed after denial")
@@ -51,7 +55,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
     func testSaveTwoEntries() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
         for i in 1...2 {
             app.tabBars.buttons["Today"].tap()
             let start = app.textViews["Your words"]
@@ -73,7 +77,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
         continueAfterFailure = false
         let tag = Int.random(in: 1000...9999)
         var app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUScriptedDictation", "Spoken words \(tag)"]; app.launch()
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUScriptedDictation", "Spoken words \(tag)"]; app.launch()
         let expected = ["Typed one \(tag)", "Spoken words \(tag)", "Spoken words \(tag) plus typing"]
         for (i, mode) in ["type", "voice", "voice+type"].enumerated() {
             app.tabBars.buttons["Today"].tap()
@@ -104,7 +108,10 @@ final class GuestVoiceTabsUITests: XCTestCase {
         app.terminate(); app = XCUIApplication()
         app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
         app.tabBars.buttons["Journal"].tap()
-        for text in expected { XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: 10), "after relaunch: \(text)") }
+        func rows(_ text: String) -> XCUIElementQuery { app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)) }
+        XCTAssertTrue(rows(expected[2]).firstMatch.waitForExistence(timeout: 10), "after relaunch: \(expected[2])")
+        XCTAssertEqual(rows(expected[1]).count, 2, "the spoken-only entry and the spoken-plus-typing entry are both kept")
+        XCTAssertEqual(rows(expected[0]).count, 1, "the typed entry is kept once")
         shot(app, "three-relaunch")
     }
 }

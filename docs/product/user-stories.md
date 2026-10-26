@@ -8,7 +8,7 @@
 - **Screen and states:** where the story happens, and the states it must handle. The states are empty, filled, in progress, error and permission denied, where relevant.
 - **Criteria:** 2–4 Given/When/Then lines per story. Each line names its test in the **Test** column:
   - **Unit** is a repo test in `CircleuTests/` (`File.testName`), run by the full `xcodebuild test`.
-  - **UI** is an XCUITest in `CircleuUITests/`, run with the `CircleuUITests` scheme (see "Running the tests" below).
+  - **UI** is an XCUITest in `CircleuUITests/`, run with the `CircleuUITests` scheme (see "Running the tests" below). Each UI test starts from an empty guest journal (Debug-only `-CircleUResetGuestData`).
   - **No test** means nothing checks the line.
 - **(partial)** means the test checks part of the line; the note says which part.
 - **Users:**
@@ -52,7 +52,7 @@ Screen: Today. States: filled (restored), error (unreadable draft).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T2.1 | Given unsaved words, when the app relaunches, then they are back in the box, and saving clears them. | Unit `GuestEntryEditorViewModelTests.testDraftSurvivesRelaunchAndIsClearedAfterSaving`; UI `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
+| T2.1 | Given unsaved words, when the app relaunches, then they are back in the box, and saving clears them. | Unit `GuestEntryEditorViewModelTests.testDraftSurvivesRelaunchAndIsClearedAfterSaving` |
 | T2.2 | Given fast typing, when the draft is kept, then the latest text wins. | Unit `GuestFindAndControlTests.testABurstOfTypingIsCoalescedAndTheLatestTextIsKept` |
 | T2.3 | Given a draft that can't be read, when Today opens, then it is left untouched, not overwritten. | Unit `GuestEntryEditorViewModelTests.testUnreadableDraftIsLeftUntouched` |
 
@@ -110,7 +110,7 @@ Screen: Journal. States: empty, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| J1.1 | Given nothing saved, when Journal opens, then Pingu and "Nothing saved yet." show. | UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll`, `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
+| J1.1 | Given nothing saved, when Journal opens, then Pingu and "Nothing saved yet." show. | UI (partial, checks the text, not the art) `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll`, `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | J1.2 | Given the journal can't be read, when Journal opens or refreshes, then it says "Couldn’t open your journal. Try again." and never shows an empty journal. | Unit `GuestJournalStoreTests.testFailedLoadIsAnErrorNotAnEmptyJournal`, `testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal` |
 | J1.3 | Given the store file is corrupt or missing, when it opens, then it reports an error and keeps the file's bytes. | Unit `GuestJournalStoreTests.testCorruptStoreIsAnErrorAndBytesArePreserved`, `testVanishedStoreFileIsAnError` |
 
@@ -165,7 +165,7 @@ Screen: Practice. States: empty, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | UI `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
+| P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | P2.2 | Given a new message, when it has no wording, then Save is off; once it has wording, it saves and shows as saved. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeTests.testFailedSaveKeepsWordsAndShowsError` |
 
@@ -222,7 +222,7 @@ Screen: Today avatar → Your Pingu. States: filled.
 | --- | --- | --- |
 | S4.1 | Given the picker, when it opens, then all 21 Pingu avatars show with spoken names. | Unit (partial, checks bundled art and names) `GuestPinguArtTests.testAll21AvatarsAndIconsAreBundled`; UI `GuestPolishUITests.testPinguArtScreens` |
 | S4.2 | Given I pick a Pingu, when the app relaunches, then the same Pingu shows on Today. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
-| S4.3 | Given I'm dictating, when I open the picker, then dictation stops and my words are kept. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
+| S4.3 | Given I'm dictating, when I open the picker, then dictation stops and my words are kept. | UI (partial, checked once the picker closes) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
 
 **S5. Log in and bring in my backup.** As a returning person, I want to log in once and copy my earlier account's backup, so that my old journal is here without anything new being uploaded.
 Screen: Log in → Backup preview → Copied. States: filled, in progress, error (wrong details, offline), done.
@@ -239,7 +239,7 @@ Screen: Log in → Reset password. States: filled, in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S7.1 | Given an email, when I tap Send reset link, then it says "If an account uses this email, a link is on its way." whether or not the account exists. | Unit (partial, the Firebase call itself isn't run) `GuestSignInTests.testPasswordResetLooksTheSameWhetherOrNotAnAccountExists` |
+| S7.1 | Given an email, when I tap Send reset link, then it says "If an account uses this email, a link is on its way." whether or not the account exists. | Unit (partial, checks the success state and the error rule separately; the Firebase conversion and the on-screen sentence aren't run) `GuestSignInTests.testPasswordResetLooksTheSameWhetherOrNotAnAccountExists` |
 | S7.2 | Given no connection, when I send, then it says so and no success shows. | Unit `GuestSignInTests.testPasswordResetOfflineSaysSoAndNeverShowsSuccess` |
 
 **S8. Delete my account.** As a returning person, I want to delete my earlier account and its cloud journal, so that my account data isn't kept online.
@@ -247,7 +247,7 @@ Screen: Settings → Delete my account. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 
@@ -269,11 +269,12 @@ Counted on 26 October 2026, over 25 stories and 76 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A unit test (7 partial; 12 also have a UI test) | 64 |
+| A unit test (11 also have a UI test) | 64 |
 | Only a UI test | 12 |
 | No test | 0 |
+| Marked partial (either kind) | 11 |
 
-Every criterion now has a test.
+Every criterion now has a test, but 11 of them only partly check it (see each "(partial)" note).
 
 ### Running the tests
 

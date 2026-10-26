@@ -13,15 +13,12 @@ final class GuestFindControlUITests: XCTestCase {
     func has(_ app: XCUIApplication, _ text: String, _ timeout: TimeInterval = 5) -> Bool {
         app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: timeout)
     }
-    func launch() -> XCUIApplication {
-        let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch(); return app
-    }
+    func launch(fresh: Bool = false) -> XCUIApplication { launchGuest(fresh: fresh) }
 
     func testSearchCalendarDraftExportAndDeleteAll() throws {
         continueAfterFailure = false
         let tag = Int.random(in: 1000...9999)
-        var app = launch()
+        var app = launch(fresh: true)
         for words in ["Alpha moment \(tag)", "Beta moment \(tag)"] {
             app.tabBars.buttons["Today"].tap()
             XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
@@ -45,7 +42,12 @@ final class GuestFindControlUITests: XCTestCase {
         // Calendar
         app.buttons["Show calendar"].tap()
         XCTAssertTrue(app.buttons["Previous month"].waitForExistence(timeout: 3))
+        let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())!.formatted(.dateTime.month(.wide).year())
+        XCTAssertFalse(app.staticTexts[lastMonth].exists)
+        app.buttons["Previous month"].tap()
+        XCTAssertTrue(app.staticTexts[lastMonth].waitForExistence(timeout: 3), "moved to last month")
         app.buttons["Go to today"].tap()
+        XCTAssertFalse(app.staticTexts[lastMonth].waitForExistence(timeout: 2), "back to this month")
         XCTAssertTrue(has(app, "Showing"))
         XCTAssertTrue(has(app, "Alpha moment \(tag)"))
         shot(app, "f2-calendar"); audit(app, "calendar")

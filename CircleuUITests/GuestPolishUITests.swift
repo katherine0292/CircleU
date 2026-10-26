@@ -17,7 +17,7 @@ final class GuestPolishUITests: XCTestCase {
     func testPinguArtScreens() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.terminate(); app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
+        app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
         app.tabBars.buttons["Today"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10), "Today opens straight to writing")
         XCTAssertTrue(app.buttons["Start dictation"].exists, "with the big microphone")
@@ -50,7 +50,7 @@ final class GuestPolishUITests: XCTestCase {
         let search = app.searchFields["Search your journal"]
         if !search.exists { app.swipeDown() }
         search.tap(); search.typeText("zzqx")
-        XCTAssertTrue(has(app, "No entries match"))
+        XCTAssertTrue(has(app, "No entries match “zzqx”."))
         shot(app, "u7-no-results")
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 10))
         let dismiss = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "Done"])).firstMatch

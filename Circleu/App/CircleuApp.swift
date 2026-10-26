@@ -13,13 +13,21 @@ struct CircleuApp: App {
 
     init() {
         // The hidden guest journal (DEBUG only) starts without Firebase or analytics.
-        AppBootstrap.live.run(for: startup)
         #if DEBUG
-        // UI tests: show Welcome again, while still letting Get started save the choice.
-        if startup == .guestJournal, ProcessInfo.processInfo.arguments.contains("-CircleUResetWelcome") {
-            UserDefaults.standard.removeObject(forKey: "circleu.guest.welcomeSeen.v1")
+        // UI tests: start from a fresh guest journal (no entries, drafts, chosen Pingu or Welcome
+        // choice), so each test owns its state. Guest mode only; the legacy app is never touched.
+        if startup == .guestJournal, ProcessInfo.processInfo.arguments.contains("-CircleUResetGuestData"),
+           let support = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask,
+                                                      appropriateFor: nil, create: false) {
+            for folder in ["GuestJournal", "GuestJournalSetup"] {
+                try? FileManager.default.removeItem(at: support.appendingPathComponent(folder))
+            }
+            for key in ["circleu.guest.welcomeSeen.v1", GuestAvatars.storageKey] {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
         }
         #endif
+        AppBootstrap.live.run(for: startup)
     }
 
     var body: some Scene {
