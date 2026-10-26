@@ -190,15 +190,18 @@ Screen: Practice. States: empty, filled, error.
 | P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | P2.2 | Given a new message, when it has no wording, then Save is off; once it has wording, it saves and shows as saved. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeTests.testFailedSaveKeepsWordsAndShowsError` |
+| P2.4 | Given saved messages, when Practice opens, then a Pingu card starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P2.5 | Given a new message, when it opens, then Situation and Goal are "+" chips; tapping one opens its field, and a restored draft that has them shows them open. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 
 **P3. Copy and edit.** As a person, I want to copy or edit a message, so that I can send it myself or improve it.
 Screen: Practice message. States: filled, error (stale).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P3.1 | Given a message, when I tap Copy, then it is copied and not saved or sent. | Unit `GuestPracticeTests.testCopyDoesNotSave` |
+| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains` |
 | P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeTests.testFailedMessageDeleteKeepsIt` |
+| P3.4 | Given a saved message, when I look at it, then my words are a sent bubble, Copy is the one button, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 
 **P4. Practice draft and suggestions.** As a person, I want my unfinished message kept and optional wording ideas, so that I can come back and get unstuck.
 Screen: Practice → Continue your draft. States: filled (restored), in progress, error.
@@ -206,7 +209,7 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | P4.1 | Given an unsaved message, when the app relaunches, then Continue your draft restores it, and once saved it isn't offered again. | Unit `GuestFindAndControlTests.testPracticeDraftSurvivesRelaunchAndIsClearedBySaving`, `testSavedPracticeDraftIsNeverOfferedAgain` |
-| P4.2 | Given a suggestion, when I choose it, then it fills the wording and can be undone. | Unit `GuestSuggestionTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone` |
+| P4.2 | Given a suggestion, when I choose it from the swipeable tone cards, then it fills the wording and can be undone. | Unit `GuestSuggestionTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | P4.3 | Given a suggestion fails, when the error shows, then my wording is kept. | Unit `GuestSuggestionTests.testFailedPracticeSuggestionKeepsWording` |
 
 ## 5. Settings
@@ -288,16 +291,16 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 87 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 90 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A unit test (17 also have a UI test) | 70 |
-| Only a UI test | 16 |
+| A unit test (19 also have a UI test) | 70 |
+| Only a UI test | 19 |
 | No test | 1 |
-| Marked partial (either kind) | 11 |
+| Marked partial (either kind) | 12 |
 
-Every criterion but one has a test (T9.4 is layout, checked on screenshots); 11 only partly check theirs (see each "(partial)" note).
+Every criterion but one has a test (T9.4 is layout, checked on screenshots); 12 only partly check theirs (see each "(partial)" note).
 
 ### Running the tests
 
