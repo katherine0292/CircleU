@@ -12,7 +12,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 1. [Product overview](product/overview.md)
 2. [Product website](index.html)
-3. [App flow](product/app-flow.md)
+3. [App flow](product/app-flow.md) and [guest user stories](product/user-stories.md)
 4. [Demo transcript](product/demo-transcript.md)
 5. [TestFlight description](product/testflight-description.md)
 6. [App snapshots](product/snapshots/README.md)
