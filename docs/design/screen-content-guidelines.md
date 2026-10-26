@@ -1,19 +1,30 @@
 # Screen content guidelines (single source)
 
-26 October 2026. Owner request (Mike): less on-screen text, one enforced guideline for every agent. This file **replaces** [content.md](content.md) as the content source and keeps its voice, terms and truthful-state rules. [AGENTS.md](../../AGENTS.md) requires it, and the test `GuestCopyLintTests` enforces the measurable parts for the guest journal.
+26 October 2026. Owner request (Mike): less on-screen text, one enforced guideline for every agent. Tightened the same day: supporting lines ≤ 60 characters, and icons over labels. This file **replaces** [content.md](content.md) as the content source and keeps its voice, terms and truthful-state rules. [AGENTS.md](../../AGENTS.md) requires it, and the test `GuestCopyLintTests` enforces the measurable parts for the guest journal.
 
 ## Per-screen rules
 
 | Element | Rule |
 | --- | --- |
 | Heading | One per screen, **≤ 40 characters**, sentence case, no full stop. The navigation title may be the heading. |
-| Supporting line | **At most one**, **≤ 90 characters**, in the secondary style (`GuestSummary`: subheadline, muted, Dynamic Type). |
+| Supporting line | **At most one**, **≤ 60 characters**, in the secondary style (`GuestSummary`: subheadline, muted, Dynamic Type). |
 | Primary action | **At most one** filled button per screen (screens that are lists or settings may have none). A destructive primary, such as Delete my account, is a red text button rather than a filled one. |
 | Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items, "Learn more", dismiss controls (Hide, Close) and prompt chips (which add a sentence starter to the person's words) don't count. |
 | Detail | Only where honesty needs it, behind **Learn more** (`GuestLearnMore`, collapsed, footnote, Dynamic Type). At most four short sentences, each **≤ 120 characters**, marked `// copy: detail` when over 100. |
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
 | Any string on screen | **≤ 100 characters**, unless marked `// copy: detail` or `// copy: export` (export file text, not a screen). |
+| Labels | Prefer an icon to a label (see "Icons over labels" below). |
 | Section summary pattern (Settings, Privacy) | Heading with icon, then **one** `GuestSummary` line, then optional `GuestLearnMore` with the detail. |
+
+## Icons over labels
+
+Words are for the person's own writing and for what honesty needs. Everything else should be a picture first.
+
+- **Use an icon instead of a label** for section headings ("My words", "Reflection", "Next step"), field labels, row metadata (source, status, counts) and secondary actions (Edit, Remove, Go to today, Close). Use the app's guest icons and Pingu art first, then SF Symbols.
+- **Every icon-only control keeps its words for VoiceOver:** an `accessibilityLabel` with the wording the label used to have (so UI tests that find it by name keep working), and a 44 × 44 pt target.
+- **Keep words** for the primary action (icon plus a short word is fine), for anything destructive (Delete stays a word), and wherever an icon alone could mislead: privacy promises ("Not uploaded or synced"), local versus cloud deletion, and the source of a reflection.
+- **Rarely used actions** go in a ••• menu rather than a row of text links.
+- **Empty states** are Pingu art with at most one short line.
 
 ## Voice and wording
 
@@ -36,7 +47,7 @@ The supporting line is the single line under the heading; "—" means none.
 
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
-| Welcome | CircleU | A private place to work through a moment and find your words. | Get started | Log in | — |
+| Welcome | CircleU | A private place to find your words. | Get started | Log in | — |
 | Today (capture) | What’s on your mind? | Type, or tap the microphone and talk. (hidden while typing) | Save | Question chips when empty (“Not sure where to start?”, prompts, not actions), or the “Need a nudge?” bubble while writing (Add to my words; Another question; Hide is a dismiss control); microphone (control); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”) | Reflect on it (in the card, after saving) | Not now (in the card); Calendar | — |
@@ -51,10 +62,10 @@ The supporting line is the single line under the heading; "—" means none.
 | Backup preview | Your account’s backup | N to copy · N already copied | Copy into this journal | Don’t copy | Not changed; what isn’t copied; what was left out |
 | Copied | (banner) Copied N items into your journal. | You’re signed out. | Continue (Welcome only) | — | Left out (N) |
 | Reset password | Reset password | We’ll email you a reset link. / If an account uses this email, a link is on its way. | Send reset link | — | — |
-| Delete my account | Delete my account | Deletes your earlier account and its cloud data. Entries on this iPhone stay. | Delete my account | — | What's deleted; circles kept; replies and likes |
+| Delete my account | Delete my account | Deletes the earlier account and its cloud data. (Entries on this iPhone stay: shown as an icon row.) | Delete my account | — | What's deleted; circles kept; replies and likes |
 
 ## Enforcement
 
 - **Test:** `CircleuTests/GuestCopyLintTests.swift` reads every Swift file under the guest journal's feature and service folders, recursively. It fails on banned wording (whole words) and on any multi-word string literal over 100 characters (120 when marked `// copy: detail`). It runs on the Simulator or CI host from the checkout, and skips where the sources aren't reachable, such as on a device.
-- **Not checked automatically:** heading (≤ 40) and supporting-line (≤ 90) limits, the number of actions, and the displayed length of interpolated or combined messages. These are checked in review against the table above. Messages shown together (for example a failure plus "Signing out didn't finish") must each fit on their own.
+- **Not checked automatically:** heading (≤ 40) and supporting-line (≤ 60) limits, icons over labels, the number of actions, and the displayed length of interpolated or combined messages. These are checked in review against the table above. Messages shown together (for example a failure plus "Signing out didn't finish") must each fit on their own.
 - **Review:** before accepting copy, read the screen at normal and larger text sizes: one purpose, one primary action, nothing duplicated, no placeholder repeating a label.
