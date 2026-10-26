@@ -47,7 +47,7 @@ The supporting line is the single line under the heading; "—" means none.
 
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
-| Welcome | CircleU | A private place to find your words. | Get started | Log in | — |
+| Welcome (3 pages, full-bleed Pingu scene) | Something on your mind? · Write or talk it through · Find your words | A private place for the moments that stay with you. · Kept on this iPhone. Not uploaded or synced. · Practise what you want to say, when you’re ready. | Next (round arrow, pages 1–2); Get started (page 3) | Skip (pages 1–2); Log in (page 3) | — |
 | Today (capture) | What’s on your mind? | Type, or tap the microphone and talk. (hidden while typing) | Save | Question chips when empty (“Not sure where to start?”, prompts, not actions), or the “Need a nudge?” bubble while writing (Add to my words; Another question; Hide is a dismiss control); microphone (control); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”) | Reflect on it (in the card, after saving) | Not now (in the card); Calendar | — |
