@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import UIKit
 
 // MARK: - Import from the earlier app
 
@@ -163,11 +164,14 @@ struct GuestImportView: View {
 }
 
 extension GuestImportView {
-    @ViewBuilder static func leftOut(_ skipped: [GuestLegacyScan.Skip]) -> some View {
+    /// `heading: false` inside a "Left out (N)" disclosure, which already names the list.
+    @ViewBuilder static func leftOut(_ skipped: [GuestLegacyScan.Skip], heading: Bool = true) -> some View {
         if !skipped.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
-                    .accessibilityAddTraits(.isHeader)
+                if heading {
+                    Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 ForEach(Array(skipped.enumerated()), id: \.offset) { _, skip in
                     Text("\(skip.what): \(Self.reason(skip.reason))")
                         .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
@@ -189,38 +193,216 @@ extension GuestImportView {
 
 // MARK: - Welcome
 
-/// First launch of the guest journal: what it is, Get started, and Log in for someone who used
-/// CircleU before. Accounts aren't part of this version, so Log in explains that and offers the
-/// earlier journal on this iPhone instead.
+/// First launch of the guest journal: three illustrated pages, then Get started, and Log in for
+/// someone who used CircleU before. Accounts aren't part of this version, so Log in explains that
+/// and offers the earlier journal on this iPhone instead.
 struct GuestWelcomeView: View {
     let store: any GuestImportStore
     let journal: GuestJournalViewModel
     let practice: GuestPracticeViewModel
     let onDone: () -> Void
     @State private var showsLogin = false
+    @State private var page = 0
+    @State private var scrolledPage: Int? = 0
+    @State private var footerHeight: CGFloat = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    static let pages: [GuestOnboardingPage] = [
+        GuestOnboardingPage(asset: "GuestOnboardingHardMoment", title: "Something on your mind?",
+                            line: "A private place for the moments that stay with you."),
+        GuestOnboardingPage(asset: "GuestOnboardingFindWords", title: "Write or talk it through",
+                            line: "Kept on this iPhone. Not uploaded or synced."),
+        GuestOnboardingPage(asset: "GuestOnboardingSayItKindly", title: "Find your words",
+                            line: "Practise what you want to say, when you’re ready."),
+    ]
+    private var isLast: Bool { page == Self.pages.count - 1 }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    Spacer(minLength: 24)
-                    GuestPinguDecoration(asset: "GuestPinguWelcome", height: 200)
-                    Text("CircleU").font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
-                        .accessibilityAddTraits(.isHeader)
-                    GuestSummary("A private place to work through a moment and find your words.")
-                        .multilineTextAlignment(.center)
-                    Button("Get started", action: onDone)
-                        .buttonStyle(GuestBrandButtonStyle())
-                        .padding(.top, 8)
-                    Button("Log in") { showsLogin = true }
-                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+            // Pages fill the whole screen, under the status bar and behind the footer; each keeps its
+            // words above the footer. Sizes are explicit so the paging scroll view can't shrink them.
+            GeometryReader { outer in
+                let top = outer.safeAreaInsets.top, bottom = outer.safeAreaInsets.bottom
+                let width = outer.size.width, height = outer.size.height + top + bottom
+                ZStack(alignment: .bottom) {
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 0) {
+                            ForEach(Self.pages.indices, id: \.self) { index in
+                                GuestOnboardingPageView(page: Self.pages[index], topInset: top,
+                                                        bottomInset: footerHeight + bottom)
+                                    .frame(width: width, height: height)
+                                    .accessibilityHidden(index != page)
+                                    .id(index)
+                            }
+                        }
+                        .scrollTargetLayout()
+                    }
+                    .scrollIndicators(.hidden)
+                    .scrollTargetBehavior(.paging)
+                    .scrollBounceBehavior(.basedOnSize)
+                    .scrollPosition(id: $scrolledPage)
+                    .onChange(of: scrolledPage) { _, new in if let new { page = new } }
+                    // After a rotation the old offset lands between pages; settle back on the current one.
+                    .onChange(of: width) { _, _ in
+                        scrolledPage = nil
+                        DispatchQueue.main.async { scrolledPage = page }
+                    }
+                    footer
+                        .background(GeometryReader { Color.clear.preference(key: GuestFooterHeight.self, value: $0.size.height) })
+                        .padding(.bottom, bottom)
                 }
-                .padding(24)
+                .frame(width: width, height: height)
+                .onPreferenceChange(GuestFooterHeight.self) { footerHeight = $0 }
+                .ignoresSafeArea()
             }
             .background(GuestBrand.ice.ignoresSafeArea())
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showsLogin) {
                 GuestSignInView(factory: .live, store: store, journal: journal, practice: practice, onSkip: onDone)
             }
         }
+    }
+
+    private var footer: some View {
+        VStack(spacing: 20) {
+            GuestPageDots(count: Self.pages.count, selected: page)
+            Group {
+                if isLast {
+                    VStack(spacing: 12) {
+                        Button("Get started", action: onDone).buttonStyle(GuestBrandButtonStyle())
+                        Button("Log in") { showsLogin = true }.buttonStyle(GuestBrandButtonStyle(filled: false))
+                    }
+                } else {
+                    HStack {
+                        Button { go(to: Self.pages.count - 1) } label: {
+                            Text("Skip").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.blue)
+                                .frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+                        }
+                        Spacer()
+                        Button { go(to: page + 1) } label: {
+                            Image(systemName: "arrow.right").font(.title2.weight(.semibold)).foregroundStyle(.white)
+                                .frame(width: 60, height: 60).background(GuestBrand.blue, in: Circle())
+                        }
+                        .accessibilityLabel("Next")
+                    }
+                }
+            }
+            .frame(minHeight: 120, alignment: .bottom)
+        }
+        .padding(.horizontal, 24).padding(.bottom, 16)
+    }
+
+    private func go(to index: Int) {
+        if reduceMotion { scrolledPage = index } else { withAnimation(.easeInOut(duration: 0.3)) { scrolledPage = index } }
+    }
+}
+
+private struct GuestFooterHeight: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+struct GuestOnboardingPage {
+    let asset: String
+    let title: String
+    let line: String
+}
+
+/// One Welcome page: the scene fills from the top and fades into ice, where the words sit. The
+/// scene only takes the height the words and footer leave, so text never sits on the art. At
+/// accessibility text sizes, or when the words don't fit, the scene is a short banner above
+/// scrolling text.
+struct GuestOnboardingPageView: View {
+    let page: GuestOnboardingPage
+    /// The status bar height; the page itself runs under it.
+    let topInset: CGFloat
+    /// The footer and home indicator, which sit over the bottom of the page.
+    let bottomInset: CGFloat
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        GeometryReader { geo in
+            if typeSize.isAccessibilitySize {
+                scrolling(width: geo.size.width, height: geo.size.height)
+            } else {
+                ViewThatFits(in: .vertical) {
+                    fitted(width: geo.size.width)
+                    scrolling(width: geo.size.width, height: geo.size.height)
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+
+    private func fitted(width: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            scene(width: width).frame(minHeight: 160 + topInset)
+            words.padding(.horizontal, 24).padding(.top, 8)
+            Color.clear.frame(height: bottomInset + 20)
+        }
+    }
+
+    private func scrolling(width: CGFloat, height: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            scene(width: width).frame(height: min(180 + topInset, height * 0.3))
+            ScrollView { words.padding(24) }
+            Color.clear.frame(height: bottomInset)
+        }
+    }
+
+    /// The scene in whatever band it's given: from the top when there's room, otherwise centred
+    /// on Pingu (about 38% down), with a soft edge into ice at the bottom.
+    private func scene(width: CGFloat) -> some View {
+        GeometryReader { band in
+            let artHeight = width * aspect, bandHeight = band.size.height
+            let y = max(bandHeight - artHeight, min(0, (bandHeight + topInset) / 2 - artHeight * 0.38))
+            Color.clear
+                .overlay(alignment: .top) { art(width: width).offset(y: y) }
+                .clipped()
+                .overlay(alignment: .bottom) {
+                    LinearGradient(colors: [GuestBrand.ice.opacity(0), GuestBrand.ice], startPoint: .top, endPoint: .bottom)
+                        .frame(height: min(80, bandHeight * 0.3))
+                }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// Height over width; the scenes aren't all the same shape.
+    private var aspect: CGFloat {
+        guard let size = UIImage(named: page.asset)?.size, size.width > 0 else { return 1.5 }
+        return size.height / size.width
+    }
+
+    private func art(width: CGFloat) -> some View {
+        Image(page.asset).resizable().scaledToFill()
+            .frame(width: width, height: width * aspect).clipped()
+            .accessibilityHidden(true)
+    }
+
+    private var words: some View {
+        VStack(spacing: 10) {
+            Text(page.title).font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
+                .accessibilityAddTraits(.isHeader)
+            GuestSummary(page.line)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+/// Page dots: the current one wider and blue. Spoken as "Page N of M".
+struct GuestPageDots: View {
+    let count: Int
+    let selected: Int
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<count, id: \.self) { index in
+                Capsule().fill(index == selected ? GuestBrand.blue : GuestBrand.blue.opacity(0.2))
+                    .frame(width: index == selected ? 24 : 8, height: 8)
+            }
+        }
+        .accessibilityElement()
+        .accessibilityLabel("Page \(selected + 1) of \(count)")
     }
 }

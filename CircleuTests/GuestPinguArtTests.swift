@@ -12,7 +12,10 @@ final class GuestPinguArtTests: XCTestCase {
                                                   "GuestIconReflection", "GuestIconFeelings", "GuestIconNextStep",
                                                   "GuestIconPrivacy", "GuestIconLogo",
                                                   "GuestChipWhatHappened", "GuestChipWhoWith", "GuestChipWishSaid",
-                                                  "GuestSceneToday", "GuestSceneListening", "GuestSceneJournalEmpty"]
+                                                  "GuestSceneToday", "GuestSceneListening", "GuestSceneJournalEmpty",
+                                                  // Settings (Expansion03): one icon per row or fact, no repeats.
+                                                  "GuestIconExport", "GuestIconEarlierJournal", "GuestIconNoAudio",
+                                                  "GuestIconBackups", "GuestIconRestore", "GuestIconSharedCopy"]
         for name in assets { XCTAssertNotNil(UIImage(named: name), name) }
         XCTAssertEqual(GuestAvatars.avatar(id: "unknown").id, GuestAvatars.defaultID, "falls back to the default")
     }

@@ -14,7 +14,7 @@
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
 | Any string on screen | **≤ 100 characters**, unless marked `// copy: detail` or `// copy: export` (export file text, not a screen). |
 | Labels | Prefer an icon to a label (see "Icons over labels" below). |
-| Section summary pattern (Settings, Privacy) | Heading with icon, then **one** `GuestSummary` line, then optional `GuestLearnMore` with the detail. |
+| Section summary pattern | Heading with icon, then **one** `GuestSummary` line, then optional `GuestLearnMore` with the detail. Settings instead uses grouped icon rows, and its privacy detail is a sheet of one-line icon rows. |
 
 ## Icons over labels
 
@@ -47,22 +47,22 @@ The supporting line is the single line under the heading; "—" means none.
 
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
-| Welcome | CircleU | A private place to find your words. | Get started | Log in | — |
+| Welcome (3 pages, full-bleed Pingu scene) | Something on your mind? · Write or talk it through · Find your words | A private place for the moments that stay with you. · Kept on this iPhone. Not uploaded or synced. · Practise what you want to say, when you’re ready. | Next (round arrow, pages 1–2); Get started (page 3) | Skip (pages 1–2); Log in (page 3) | — |
 | Today (capture) | What’s on your mind? | — (the ice-floe scene, the microphone and a Pingu badge share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); Pingu badge (opens the picker); logo and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; rows: date tile, words, status icons, time; after saving: one-row “Saved” card) | Reflect (in the card, after saving) | × Not now (in the card); Calendar (icon); a chosen day is a chip with × | — |
 | Entry | The date (title) | — | — | Edit (pencil); Practice what to say; Delete entry in the ••• menu | — (the reflection keeps its source line in words) |
-| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
-| Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
-| Settings → Your Pingu | Your Pingu | Tap to change. | — | — | — |
-| Settings → Privacy and data | Privacy and data | Kept on this iPhone. Not uploaded or synced. | — | — | Backups, restore, exports, dictation |
-| Settings → Your data | Your data | A text file you can save or share. (above Export) | — | Export my data; Delete all data | — |
-| Settings → Earlier CircleU account | Earlier CircleU account | Bring in your journal from an earlier account. | — | Log in to bring in your journal; Delete my account | — |
-| Log in | Bring in your earlier journal | Nothing new is uploaded, and you’re signed out after. | Log in | Forgot password?; Continue without logging in (Welcome only) | What logging in does; no new accounts; why on-phone data stays sealed |
-| Backup preview | Your account’s backup | N to copy · N already copied | Copy into this journal | Don’t copy | Not changed; what isn’t copied; what was left out |
-| Copied | (banner) Copied N items into your journal. | You’re signed out. | Continue (Welcome only) | — | Left out (N) |
-| Reset password | Reset password | We’ll email you a reset link. / If an account uses this email, a link is on its way. | Send reset link | — | — |
-| Delete my account | Delete my account | Deletes the earlier account and its cloud data. (Entries on this iPhone stay: shown as an icon row.) | Delete my account | — | What's deleted; circles kept; replies and likes |
+| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message (blue card with Pingu) | Continue your draft (card with a one-line preview); saved messages are bubbles with a journal icon and date, no header | — |
+| Practice message | What would you like to say? | Tag (journal icon + From: … / On its own) | Save, or Copy when saved | Situation and Goal "+" chips (open a field); Copy icon in the bubble; Get a suggestion (tinted Pingu bubble); outlined Use this on each suggestion card. Saved: Edit (pencil) and ••• → Delete message in the toolbar | — ("Copied. Not saved or sent." shows after copying, "Copied. Not sent." once saved, replacing the always-on line; pending Mike's OK) |
+| Settings | Settings (title) | — (your Pingu with a pencil badge and "Your Pingu" caption; "Kept on this iPhone" chip with "Not uploaded or synced." under it; icon rows grouped under "Your data" and "Earlier CircleU account"; version footer) | — | Rows: Export my data; Delete all data (red); Bring in your earlier journal; Delete my account (red) | — (the chip opens the privacy sheet) |
+| Settings → Kept on this iPhone (sheet) | Kept on this iPhone | Not uploaded or synced. | — | Done (dismiss) | — (four icon rows replace Learn more: dictation, backups, restore, exports) |
+| Settings → Export done | (banner) Export done. | — | — | — | — |
+| Settings → Delete all data? (alert) | Delete all data? | Deletes this journal and drafts. The earlier app stays. | Delete all (red) | Cancel | — |
+| Log in | Bring in your earlier journal | — (chips: Nothing uploaded; Signed out after) | Log in | Forgot password?; Continue without logging in (Welcome only) | (i) “What logging in does”: what it fetches; no new accounts; why on-phone data stays sealed |
+| Backup preview | Your account’s backup | — (chips: N to copy; N already copied) | Copy into this journal | Don’t copy | (i) “What isn’t copied”: not changed; what isn’t copied. Left out (N), when something was |
+| Copied | Copied N items (with Pingu) | — (chip: Signed out; or “Signing out didn’t finish…”) | Continue (Welcome only) | — | Left out (N) |
+| Reset password | Reset password (envelope art) | — / If an account uses this email, a link is on its way. | Send reset link | — | — |
+| Delete my account | Delete my account | — (two cards: Will be deleted: account, cloud backup, posts, memberships; Stays: entries on this iPhone) | Delete my account | — | Circles kept; replies and likes |
 
 ## Enforcement
 
