@@ -26,6 +26,7 @@ final class GuestFindControlUITests: XCTestCase {
             editor.tap(); editor.typeText(words)
             app.buttons["Save"].tap()
             XCTAssertTrue(has(app, words))
+            app.buttons["Not now"].tap() // The reflection offer; keeps the calendar's rows on screen.
         }
         // Search
         let search = app.searchFields["Search your journal"]

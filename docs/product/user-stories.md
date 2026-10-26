@@ -46,7 +46,7 @@ Screen: Today. States: empty, filled, in progress (saving), error.
 | T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again." | Unit `GuestJournalStoreTests.testFailedSaveKeepsDraftAndShowsError` |
 | T1.3 | Given a save is in progress, when I keep typing, then the new words are kept. | Unit `GuestJournalStoreTests.testTextTypedDuringSaveIsKept` |
 | T1.4 | Given the entry saved but file protection failed, when Journal opens, then a notice says so. | Unit `GuestJournalStoreTests.testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal` |
-| T1.5 | Given Today, when I look at the actions, then there is one Save and nothing else to choose before saving. | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T1.5 | Given Today, when I look at the actions, then there is one Save button (the question prompts only add text). | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 
 **T2. Draft kept.** As a person, I want unsaved words to survive closing the app, so that I never lose a half-written moment.
 Screen: Today. States: filled (restored), error (unreadable draft).

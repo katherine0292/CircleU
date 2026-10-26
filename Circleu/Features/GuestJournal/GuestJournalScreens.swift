@@ -242,8 +242,8 @@ struct GuestWriteView: View {
                     .font(GuestBrand.font(.body)).foregroundStyle(.white)
                 // One row when it fits; stacked at larger text sizes. Each action is 44 points tall.
                 ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 16) { nudgeActions }
-                    VStack(alignment: .leading, spacing: 0) { nudgeActions }
+                    HStack(spacing: 16) { nudgeActions(wrapping: false) }
+                    VStack(alignment: .leading, spacing: 0) { nudgeActions(wrapping: true) }
                 }
                 .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(.white)
                 .buttonStyle(.borderless)
@@ -256,14 +256,18 @@ struct GuestWriteView: View {
         }
     }
 
-    @ViewBuilder private var nudgeActions: some View {
-        Button { start(with: nil) } label: { nudgeLabel("Add to my words") }
-        Button { nudge.next() } label: { nudgeLabel("Another question") }
-        Button { nudge.hide() } label: { nudgeLabel("Hide") }
+    /// In a row each label keeps its width; stacked, a long label wraps instead of overflowing.
+    @ViewBuilder private func nudgeActions(wrapping: Bool) -> some View {
+        Button { start(with: nil) } label: { nudgeLabel("Add to my words", wrapping: wrapping) }
+        Button { nudge.next() } label: { nudgeLabel("Another question", wrapping: wrapping) }
+        Button { nudge.hide() } label: { nudgeLabel("Hide", wrapping: wrapping) }
     }
 
-    private func nudgeLabel(_ title: String) -> some View {
-        Text(title).fixedSize().frame(minWidth: 44, minHeight: 44, alignment: .leading).contentShape(Rectangle())
+    private func nudgeLabel(_ title: String, wrapping: Bool) -> some View {
+        Text(title)
+            .fixedSize(horizontal: !wrapping, vertical: true)
+            .frame(minWidth: 44, minHeight: 44, alignment: .leading)
+            .contentShape(Rectangle())
     }
 
     /// Adds a chip's starter (or the nudge's) to the words and puts the cursor there to type.
@@ -367,7 +371,6 @@ struct GuestJournalListView: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
             }
-            .onChange(of: practice.dataGeneration) { _, _ in reflectingID = nil } // Delete all closes it.
             .navigationDestination(item: $reflectingID) { id in
                 if let entry = journal.entries.first(where: { $0.id == id }) {
                     GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester) { reflectingID = nil }
@@ -384,6 +387,8 @@ struct GuestJournalListView: View {
             }
         }
         .id(practice.dataGeneration) // Delete all closes anything open in Journal.
+        // Outside the reset identity: the route lives in this view's state, so clear it here too.
+        .onChange(of: practice.dataGeneration) { _, _ in reflectingID = nil }
     }
 }
 
