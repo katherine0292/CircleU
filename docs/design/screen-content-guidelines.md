@@ -59,10 +59,10 @@ The supporting line is the single line under the heading; "—" means none.
 | Settings → Your data | Your data | A text file you can save or share. (above Export) | — | Export my data; Delete all data | — |
 | Settings → Earlier CircleU account | Earlier CircleU account | Bring in your journal from an earlier account. | — | Log in to bring in your journal; Delete my account | — |
 | Log in | Bring in your earlier journal | — (chips: Nothing uploaded; Signed out after) | Log in | Forgot password?; Continue without logging in (Welcome only) | (i) “What logging in does”: what it fetches; no new accounts; why on-phone data stays sealed |
-| Backup preview | Your account’s backup | — (chips: N to copy; N already here) | Copy into this journal | Don’t copy | (i) “What isn’t copied”: not changed; what isn’t copied. Left out (N), when something was |
+| Backup preview | Your account’s backup | — (chips: N to copy; N already copied) | Copy into this journal | Don’t copy | (i) “What isn’t copied”: not changed; what isn’t copied. Left out (N), when something was |
 | Copied | Copied N items (with Pingu) | — (chip: Signed out; or “Signing out didn’t finish…”) | Continue (Welcome only) | — | Left out (N) |
 | Reset password | Reset password (envelope art) | — / If an account uses this email, a link is on its way. | Send reset link | — | — |
-| Delete my account | Delete my account | — (two cards: Deleted: account, cloud backup, posts, memberships; Stays: entries on this iPhone) | Delete my account | — | Circles kept; replies and likes |
+| Delete my account | Delete my account | — (two cards: Will be deleted: account, cloud backup, posts, memberships; Stays: entries on this iPhone) | Delete my account | — | Circles kept; replies and likes |
 
 ## Enforcement
 

@@ -64,6 +64,7 @@ final class GuestImportUITests: XCTestCase {
         for _ in 0..<6 where !delete.isHittable { app.swipeUp() }
         delete.tap()
         fill(app, email: "pingu.test@example.com", password: "test-password-1")
+        XCTAssertTrue(has(app, "Will be deleted"), "nothing reads as deleted before it is")
         shot(app, "s5-delete")
         app.buttons["Delete my account"].firstMatch.tap()
         app.alerts.buttons["Delete"].tap()

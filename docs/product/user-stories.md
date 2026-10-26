@@ -270,7 +270,7 @@ Screen: Settings → Delete my account. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted and entries on this iPhone stay. Before deleting, a Deleted card and a Stays card show what goes and what stays, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted and entries on this iPhone stay. Before deleting, a Will be deleted card and a Stays card show what goes and what stays, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 

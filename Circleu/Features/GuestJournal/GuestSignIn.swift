@@ -324,7 +324,7 @@ struct GuestSignInView: View {
             .accessibilityAddTraits(.isHeader)
         GuestChipRow {
             GuestChip(text: "\(backup.entries.count + backup.messages.count) to copy", systemImage: "square.and.arrow.down")
-            if already > 0 { GuestChip(text: "\(already) already here", systemImage: "checkmark", muted: true) }
+            if already > 0 { GuestChip(text: "\(already) already copied", systemImage: "checkmark", muted: true) }
         }
         ForEach(Array(backup.entries.prefix(3).enumerated()), id: \.offset) { _, entry in
             VStack(alignment: .leading, spacing: 4) {
@@ -340,7 +340,7 @@ struct GuestSignInView: View {
                 .buttonStyle(GuestBrandButtonStyle())
         }
         if !backup.skipped.isEmpty {
-            GuestLearnMore(title: "Left out (\(backup.skipped.count))") { GuestImportView.leftOut(backup.skipped) }
+            GuestLearnMore(title: "Left out (\(backup.skipped.count))") { GuestImportView.leftOut(backup.skipped, heading: false) }
         }
         Button("Don’t copy") { model.cancel() }
             .buttonStyle(GuestBrandButtonStyle(filled: false))
@@ -368,7 +368,7 @@ struct GuestSignInView: View {
                 .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
         }
         if !skipped.isEmpty {
-            GuestLearnMore(title: "Left out (\(skipped.count))") { GuestImportView.leftOut(skipped) }
+            GuestLearnMore(title: "Left out (\(skipped.count))") { GuestImportView.leftOut(skipped, heading: false) }
         }
         if let onSkip {
             Button("Continue", action: onSkip).buttonStyle(GuestBrandButtonStyle())
@@ -573,7 +573,7 @@ struct GuestDeleteAccountView: View {
     }
 
     private var deletedCard: some View {
-        GuestFactCard(title: "Deleted", systemImage: "xmark.icloud", tint: GuestBrand.danger,
+        GuestFactCard(title: "Will be deleted", systemImage: "xmark.icloud", tint: GuestBrand.danger,
                       items: ["Account", "Cloud backup", "Posts", "Memberships"])
     }
 
