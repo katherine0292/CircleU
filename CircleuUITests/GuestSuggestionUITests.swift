@@ -29,9 +29,13 @@ final class GuestSuggestionUITests: XCTestCase {
         XCTAssertTrue(has(app, "Guided prompts, not a personal analysis", 10))
         XCTAssertTrue(app.buttons["Save reflection"].exists)
         shot(app, "s1-review"); audit(app, "review")
+        // isHittable is true even under the pinned Save button and tab bar, so scroll until it's above them.
         let add = app.buttons["Add this step"]
-        for _ in 0..<4 where !add.isHittable { app.swipeUp() }
+        let save = app.buttons["Save reflection"]
+        for _ in 0..<6 where add.frame.maxY > save.frame.minY { app.swipeUp() }
+        XCTAssertLessThanOrEqual(add.frame.maxY, save.frame.minY, "Add this step scrolls clear of the Save button")
         add.tap()
+        XCTAssertTrue(app.buttons["Save reflection"].exists, "adding the step keeps the review open")
         app.buttons["Save reflection"].tap()
         XCTAssertTrue(app.navigationBars["Journal"].waitForExistence(timeout: 5), "back on Journal")
         XCTAssertFalse(app.buttons["Reflect on it"].exists, "the offer is used up")

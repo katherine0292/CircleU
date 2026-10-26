@@ -50,12 +50,16 @@ final class SpeechDictationEngine: GuestDictationEngine {
     private var isFinishing = false
     private var finishDeadline: Task<Void, Never>?
 
-    init(locale: Locale = .current) {
+    /// UI tests only: Simulators have no on-device speech model, so the permission prompts never show there.
+    private let assumesOnDeviceSupport: Bool
+
+    init(locale: Locale = .current, assumesOnDeviceSupport: Bool = false) {
         recognizer = SFSpeechRecognizer(locale: locale)
+        self.assumesOnDeviceSupport = assumesOnDeviceSupport
     }
 
     func requestAccess() async -> GuestDictationAccess {
-        guard recognizer?.supportsOnDeviceRecognition == true else { return .onDeviceUnavailable }
+        guard assumesOnDeviceSupport || recognizer?.supportsOnDeviceRecognition == true else { return .onDeviceUnavailable }
         guard await Self.requestSpeechAuthorization() == .authorized else { return .speechDenied }
         return await AVAudioApplication.requestRecordPermission() ? .granted : .microphoneDenied
     }
