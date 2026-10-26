@@ -83,6 +83,17 @@ final class GuestFindAndControlTests: XCTestCase {
         XCTAssertTrue(text.contains("Wording:\nCan we talk?"))
     }
 
+    func testExportDoneShowsOnlyAfterSharingAndCleanup() async throws {
+        let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
+        let settings = GuestSettingsViewModel(journal: journal, practice: practice)
+        settings.noteExportCleanup(succeeded: true, shared: false)
+        XCTAssertNil(settings.message, "closing the share sheet without sharing says nothing")
+        settings.noteExportCleanup(succeeded: true, shared: true)
+        XCTAssertEqual(settings.message, "Export done. The copy you shared is yours to keep or delete.")
+        settings.noteExportCleanup(succeeded: false, shared: true)
+        XCTAssertEqual(settings.message, GuestSettingsViewModel.exportCleanupMessage, "a leftover copy is never hidden")
+    }
+
     func testExportFileContainsTheJournal() async throws {
         let (journal, practice) = try await GuestComposition.local(at: location).makeSession()
         journal.draft = "Exported words"

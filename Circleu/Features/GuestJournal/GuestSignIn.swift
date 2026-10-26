@@ -354,32 +354,59 @@ struct GuestSignInView: View {
 
 // MARK: - Password reset
 
+/// Sends a reset link. The same "on its way" answer shows whether or not an account uses the email.
+@MainActor
+final class GuestPasswordResetModel: ObservableObject {
+    @Published var email = ""
+    @Published private(set) var sent = false
+    @Published private(set) var message: String?
+    @Published private(set) var working = false
+    private let factory: GuestAccountFactory
+
+    init(factory: GuestAccountFactory) { self.factory = factory }
+
+    var canSend: Bool { !working && !email.trimmingCharacters(in: .whitespaces).isEmpty }
+
+    func send() async {
+        guard canSend else { return }
+        working = true
+        message = nil
+        defer { working = false }
+        do {
+            try await factory.make().account.sendPasswordReset(email: email.trimmingCharacters(in: .whitespaces))
+            sent = true
+        } catch {
+            message = GuestAccountMessages.text(for: error)
+        }
+    }
+}
+
 struct GuestPasswordResetView: View {
-    let factory: GuestAccountFactory
-    @State private var email = ""
-    @State private var sent = false
-    @State private var message: String?
-    @State private var working = false
+    @StateObject private var model: GuestPasswordResetModel
+
+    init(factory: GuestAccountFactory) {
+        _model = StateObject(wrappedValue: GuestPasswordResetModel(factory: factory))
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                if sent {
+                if model.sent {
                     Text("Check your email").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
                     GuestSummary("If an account uses this email, a link is on its way.")
                 } else {
                     GuestSummary("We’ll email you a reset link.")
-                    TextField("Email", text: $email)
+                    TextField("Email", text: $model.email)
                         .textContentType(.username).keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
                         .padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
-                    if let message {
+                    if let message = model.message {
                         Label(message, systemImage: "exclamationmark.circle").font(GuestBrand.font(.subheadline))
                     }
-                    Button(working ? "Sending…" : "Send reset link") { Task { await send() } }
+                    Button(model.working ? "Sending…" : "Send reset link") { Task { await model.send() } }
                         .buttonStyle(GuestBrandButtonStyle())
-                        .disabled(working || email.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .disabled(!model.canSend)
                 }
             }
             .padding(24)
@@ -387,18 +414,6 @@ struct GuestPasswordResetView: View {
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Reset password")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private func send() async {
-        working = true
-        defer { working = false }
-        let account = factory.make().account
-        do {
-            try await account.sendPasswordReset(email: email.trimmingCharacters(in: .whitespaces))
-            sent = true
-        } catch {
-            message = GuestAccountMessages.text(for: error)
-        }
     }
 }
 

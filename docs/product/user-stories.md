@@ -8,7 +8,7 @@
 - **Screen and states:** where the story happens, and the states it must handle. The states are empty, filled, in progress, error and permission denied, where relevant.
 - **Criteria:** 2–4 Given/When/Then lines per story. Each line names its test in the **Test** column:
   - **Unit** is a repo test in `CircleuTests/` (`File.testName`), run by the full `xcodebuild test`.
-  - **UI†** is an XCUITest that has only been run from a local runner **outside the repo**. It is evidence but not a lasting check, because nobody can rerun it from a clean checkout. Moving these tests into the repo is the first gap below.
+  - **UI** is an XCUITest in `CircleuUITests/`, run with the `CircleuUITests` scheme (see "Running the tests" below).
   - **No test** means nothing checks the line.
 - **(partial)** means the test checks part of the line; the note says which part.
 - **Users:**
@@ -22,8 +22,8 @@ Screen: Welcome → Today. States: first launch (empty), returning launch.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| W1.1 | Given a first launch, when the app opens, then Welcome shows "Get started" and "Log in". | UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
-| W1.2 | Given Welcome, when I tap Get started, then Today opens and Welcome doesn't appear on later launches. | No test |
+| W1.1 | Given a first launch, when the app opens, then Welcome shows "Get started" and "Log in". | UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| W1.2 | Given Welcome, when I tap Get started, then Today opens and Welcome doesn't appear on later launches. | UI `GuestStatesUITests.testWelcomeShowsOnlyUntilGetStarted` |
 | W1.3 | Given I open the guest journal without logging in, when it loads, then Firebase isn't contacted. | Unit `GuestSignInTests.testOpeningTheGuestJournalNeverTouchesFirebase` |
 | W1.4 | Given a first launch, when the journal opens, then it is empty. | Unit `GuestJournalStoreTests.testFirstLaunchIsEmpty` |
 
@@ -32,8 +32,8 @@ Screen: Welcome → Log in. States: filled, in progress, error. Login details ar
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| W2.1 | Given Welcome, when I tap Log in, then Log in opens with "Continue without logging in". | UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
-| W2.2 | Given I copied my backup from Welcome, when I tap Continue, then Today opens and I'm signed out. | UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| W2.1 | Given Welcome, when I tap Log in, then Log in opens with "Continue without logging in". | UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| W2.2 | Given I copied my backup from Welcome, when I tap Continue, then Today opens and I'm signed out. | UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 
 ## 2. Today capture
 
@@ -52,7 +52,7 @@ Screen: Today. States: filled (restored), error (unreadable draft).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T2.1 | Given unsaved words, when the app relaunches, then they are back in the box, and saving clears them. | Unit `GuestEntryEditorViewModelTests.testDraftSurvivesRelaunchAndIsClearedAfterSaving`; UI† `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
+| T2.1 | Given unsaved words, when the app relaunches, then they are back in the box, and saving clears them. | Unit `GuestEntryEditorViewModelTests.testDraftSurvivesRelaunchAndIsClearedAfterSaving`; UI `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
 | T2.2 | Given fast typing, when the draft is kept, then the latest text wins. | Unit `GuestFindAndControlTests.testABurstOfTypingIsCoalescedAndTheLatestTextIsKept` |
 | T2.3 | Given a draft that can't be read, when Today opens, then it is left untouched, not overwritten. | Unit `GuestEntryEditorViewModelTests.testUnreadableDraftIsLeftUntouched` |
 
@@ -64,14 +64,14 @@ Screen: Today (listening). States: empty, in progress (listening), filled.
 | T3.1 | Given I tap the microphone, when I speak, then the words appear in the box as they're recognised, after anything I typed. | Unit `GuestDictationViewModelTests.testSpokenWordsAppearInTheDraftAsTheyAreRecognised`, `testDictationGoesAfterTypedTextAndKeepsIt` |
 | T3.2 | Given I'm listening, when I tap stop, then the words are kept and the final text arrives. | Unit `GuestDictationViewModelTests.testStopKeepsTheWordsAndWaitsForTheFinalText` |
 | T3.3 | Given I'm listening, when I tap Save, then listening stops and the words so far are saved. | Unit `GuestDictationViewModelTests.testSavingWhileListeningStopsAndSavesTheWordsSoFar` |
-| T3.4 | Given several entries in a row, with and without voice, when the app relaunches, then they are all in Journal. | Unit (partial, same session only) `GuestDictationViewModelTests.testThreeEntriesInARowWithAndWithoutVoice`; UI† (relaunch) `GuestVoiceTabsUITests.testThreeEntriesWithAndWithoutVoiceSurviveRelaunch` |
+| T3.4 | Given several entries in a row, with and without voice, when the app relaunches, then they are all in Journal. | Unit (partial, same session only) `GuestDictationViewModelTests.testThreeEntriesInARowWithAndWithoutVoice`; UI (relaunch) `GuestVoiceTabsUITests.testThreeEntriesWithAndWithoutVoiceSurviveRelaunch` |
 
 **T4. Microphone denied or unavailable.** As a person who said no to the microphone, I want typing to keep working, so that I'm never stuck.
 Screen: Today. States: permission denied, error (can't start). Mocked in the canvas "States" page.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T4.1 | Given microphone or speech access is denied, when I tap the microphone, then it says "Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing." and typing works. | Unit `GuestDictationViewModelTests.testDeniedPermissionLeavesTypingAndOffersSettings`; UI† `GuestVoiceTabsUITests.testTabsPracticeAndDictationDenied` |
+| T4.1 | Given microphone or speech access is denied, when I tap the microphone, then it says "Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing." and typing works. | Unit `GuestDictationViewModelTests.testDeniedPermissionLeavesTypingAndOffersSettings`; UI `GuestVoiceTabsUITests.testTabsPracticeAndDictationDenied` |
 | T4.2 | Given no on-device speech support, when I tap the microphone, then it never listens or sends audio. | Unit `GuestDictationViewModelTests.testNoOnDeviceSupportNeverListens` |
 | T4.3 | Given dictation can't start, when I tap the microphone, then it says "Dictation couldn’t start. You can keep typing." | Unit `GuestDictationViewModelTests.testStartFailureLeavesTypingAvailable` |
 | T4.4 | Given the permission prompt is showing, when I stop, then listening never starts. | Unit `GuestDictationViewModelTests.testStoppingDuringThePermissionPromptNeverStartsListening` |
@@ -90,7 +90,7 @@ Screen: Today → Reflection review. States: in progress, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T6.1 | Given words, when I tap Get a suggestion and Save with reflection, then the words and reflection are saved apart and survive reopening. | Unit `GuestSuggestionTests.testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI† `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| T6.1 | Given words, when I tap Get a suggestion and Save with reflection, then the words and reflection are saved apart and survive reopening. | Unit `GuestSuggestionTests.testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | T6.2 | Given the suggestion fails, when the error shows, then I can still save only my words. | Unit `GuestSuggestionTests.testFailedSuggestionStillLetsTheWordsBeSaved` |
 | T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I typed. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
 | T6.4 | Given I change my words after a suggestion, when I look at it, then it is marked as out of date. | Unit `GuestSuggestionTests.testChangedWordsMarkTheSuggestionStale` |
@@ -110,7 +110,7 @@ Screen: Journal. States: empty, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| J1.1 | Given nothing saved, when Journal opens, then Pingu and "Nothing saved yet." show. | UI† `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
+| J1.1 | Given nothing saved, when Journal opens, then Pingu and "Nothing saved yet." show. | UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll`, `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | J1.2 | Given the journal can't be read, when Journal opens or refreshes, then it says "Couldn’t open your journal. Try again." and never shows an empty journal. | Unit `GuestJournalStoreTests.testFailedLoadIsAnErrorNotAnEmptyJournal`, `testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal` |
 | J1.3 | Given the store file is corrupt or missing, when it opens, then it reports an error and keeps the file's bytes. | Unit `GuestJournalStoreTests.testCorruptStoreIsAnErrorAndBytesArePreserved`, `testVanishedStoreFileIsAnError` |
 
@@ -120,7 +120,7 @@ Screen: Journal (search). States: filled (results), empty (no results).
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J2.1 | Given entries, when I search, then words, reflections and steps match, ignoring case and accents. | Unit `GuestFindAndControlTests.testSearchCoversWordsReflectionAndStepIgnoringCaseAndAccents` |
-| J2.2 | Given no match, when I search, then it says "No entries match “…”." | UI† `GuestPolishUITests.testPinguArtScreens` |
+| J2.2 | Given no match, when I search, then it says "No entries match “…”." | UI `GuestPolishUITests.testPinguArtScreens` |
 
 **J3. Calendar.** As a person, I want a month view, so that I can see when I wrote.
 Screen: Journal → Calendar. States: filled, empty day.
@@ -128,8 +128,8 @@ Screen: Journal → Calendar. States: filled, empty day.
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J3.1 | Given entries, when the calendar opens, then each day shows how many entries it has. | Unit `GuestFindAndControlTests.testCalendarLaysOutTheMonthAndCountsEntriesPerDay` |
-| J3.2 | Given another month, when I tap Go to today, then the current month shows. | UI† `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
-| J3.3 | Given a day with nothing, when I tap it, then it says "Nothing written that day." | No test |
+| J3.2 | Given another month, when I tap Go to today, then the current month shows. | UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
+| J3.3 | Given a day with nothing, when I tap it, then it says "Nothing written that day." | UI `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 
 **J4. Edit.** As a person, I want to edit a saved entry, so that it says what I meant.
 Screen: Entry → Edit. States: filled, in progress, error (stale, deleted).
@@ -137,7 +137,7 @@ Screen: Entry → Edit. States: filled, in progress, error (stale, deleted).
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J4.1 | Given I edit and save, when the entry reopens, then the change is kept, including after a relaunch. | Unit `GuestEntryEditorViewModelTests.testSaveUsesOpenedRevisionAndClearsChanges`, `testSaveAndEditPersistAcrossRelaunch` |
-| J4.2 | Given unsaved edits, when I leave, then the app asks before discarding. | Unit (partial, checks unsaved changes, not the dialog) `GuestEntryEditorViewModelTests.testEditingMarksChangesSoLeavingAsksFirst`; UI† `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
+| J4.2 | Given unsaved edits, when I leave, then the app asks before discarding. | Unit (partial, checks unsaved changes, not the dialog) `GuestEntryEditorViewModelTests.testEditingMarksChangesSoLeavingAsksFirst`; UI `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
 | J4.3 | Given the entry changed or was deleted elsewhere, when I save, then my text is kept with a clear message. | Unit `GuestEntryEditorViewModelTests.testStaleAndDeletedEntriesKeepTextWithClearMessages` |
 | J4.4 | Given an entry with a reflection, when I edit the words, then the reflection is marked as earlier. | Unit `GuestSuggestionTests.testEditingTheWordsMarksTheReflectionAsEarlierAndRemovingItKeepsTheWords` |
 
@@ -146,7 +146,7 @@ Screen: Entry (delete dialog). States: in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI† `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | J5.2 | Given delete fails, when the error shows, then the entry and message are unchanged. | Unit `GuestPracticeTests.testFailedEntryDeleteKeepsEntryAndMessage` |
 | J5.3 | Given a deleted entry, when an old screen saves, then it doesn't come back. | Unit `GuestJournalStoreTests.testUpdateAfterDeleteDoesNotResurrectEntry` |
 
@@ -157,7 +157,7 @@ Screen: Entry → Practice message. States: empty, filled, in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI† `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P1.2 | Given the source entry was deleted, when I save a message from it, then my words stay. | Unit `GuestPracticeTests.testDeletedSourceEntryKeepsWords` |
 
 **P2. A message on its own.** As a person, I want to practise without an entry, so that I can prepare for something I haven't written about.
@@ -165,7 +165,7 @@ Screen: Practice. States: empty, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | No test |
+| P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | UI `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | P2.2 | Given a new message, when it has no wording, then Save is off; once it has wording, it saves and shows as saved. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeTests.testFailedSaveKeepsWordsAndShowsError` |
 
@@ -194,7 +194,7 @@ Screen: Settings → Privacy and data. States: filled, Learn more open.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S1.1 | Given Settings, when I look at Privacy and data, then it says "Kept on this iPhone. Not uploaded or synced." and the detail is behind Learn more. | No test (`GuestCopyLintTests` checks wording rules only) |
+| S1.1 | Given Settings, when I look at Privacy and data, then it says "Kept on this iPhone. Not uploaded or synced." and the detail is behind Learn more. | UI `GuestStatesUITests.testPrivacySummaryAndLearnMore` |
 | S1.2 | Given the journal opens, when files are written, then iOS file protection is applied, and the journal won't open if it can't be applied. | Unit (partial, protection calls are injected) `GuestJournalStoreTests.testProtectionIsAppliedToFolderStoreAndSidecars`, `testOpenFailsIfProtectionCannotBeApplied` |
 
 **S2. Export.** As a person, I want a copy of everything I wrote, so that I can keep it elsewhere.
@@ -204,14 +204,14 @@ Screen: Settings → Your data → share sheet. States: in progress, done, error
 | --- | --- | --- |
 | S2.1 | Given entries and messages, when I tap Export my data, then a readable text file holds all of them, with suggestions labelled. | Unit `GuestFindAndControlTests.testExportIsReadableAndCompleteAndLabelsSuggestions`, `testExportFileContainsTheJournal` |
 | S2.2 | Given something can't be read, when I export, then it says "Couldn’t prepare the export. Try again." and no partial file is made. | Unit `GuestFindAndControlTests.testExportIsRefusedWhenSomethingCantBeRead` |
-| S2.3 | Given the share sheet closes after sharing, when I'm back in Settings, then it says "Export done. The copy you shared is yours to keep or delete." | No test |
+| S2.3 | Given the share sheet closes after sharing, when I'm back in Settings, then it says "Export done. The copy you shared is yours to keep or delete." | Unit (partial, the model's decision, not the share sheet) `GuestFindAndControlTests.testExportDoneShowsOnlyAfterSharingAndCleanup` |
 
 **S3. Delete all.** As a person, I want to delete everything in the guest journal, so that nothing is left on this iPhone.
 Screen: Settings → Your data → confirm. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S3.1 | Given entries, messages and drafts, when I confirm Delete all data, then all of them are gone and my Pingu resets. | Unit `GuestFindAndControlTests.testDeleteAllRemovesEverythingInTheGuestJournalOnly`; `GuestPinguArtTests.testDeleteAllResetsTheChosenPingu`; UI† `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
+| S3.1 | Given entries, messages and drafts, when I confirm Delete all data, then all of them are gone and my Pingu resets. | Unit `GuestFindAndControlTests.testDeleteAllRemovesEverythingInTheGuestJournalOnly`; `GuestPinguArtTests.testDeleteAllResetsTheChosenPingu`; UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
 | S3.2 | Given delete fails partway, when the error shows, then nothing is removed. | Unit `GuestFindAndControlTests.testFailedDeleteAllRemovesNothingIncludingDrafts` |
 | S3.3 | Given a screen opened before delete all, when it tries to save, then it can't. | Unit `GuestFindAndControlTests.testAScreenClosedByDeleteAllCantSave` |
 
@@ -220,34 +220,34 @@ Screen: Today avatar → Your Pingu. States: filled.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S4.1 | Given the picker, when it opens, then all 21 Pingu avatars show with spoken names. | Unit (partial, checks bundled art and names) `GuestPinguArtTests.testAll21AvatarsAndIconsAreBundled`; UI† `GuestPolishUITests.testPinguArtScreens` |
-| S4.2 | Given I pick a Pingu, when the app relaunches, then the same Pingu shows on Today. | No test |
-| S4.3 | Given I'm dictating, when I open the picker, then dictation stops and my words are kept. | No test |
+| S4.1 | Given the picker, when it opens, then all 21 Pingu avatars show with spoken names. | Unit (partial, checks bundled art and names) `GuestPinguArtTests.testAll21AvatarsAndIconsAreBundled`; UI `GuestPolishUITests.testPinguArtScreens` |
+| S4.2 | Given I pick a Pingu, when the app relaunches, then the same Pingu shows on Today. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
+| S4.3 | Given I'm dictating, when I open the picker, then dictation stops and my words are kept. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
 
 **S5. Log in and bring in my backup.** As a returning person, I want to log in once and copy my earlier account's backup, so that my old journal is here without anything new being uploaded.
 Screen: Log in → Backup preview → Copied. States: filled, in progress, error (wrong details, offline), done.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S5.1 | Given correct details, when I log in, then I see only that account's backup, copying adds it once, and I'm signed out after. | Unit `GuestSignInTests.testLogInPreviewsOnlyThatAccountsBackupCopiesOnceAndSignsOut`; UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
-| S5.2 | Given wrong details, when I log in, then one generic message shows without saying whether the account exists, and repeated tries back off. | Unit `GuestSignInTests.testFailuresAreGenericSignedOutAndBackOff`; UI† `GuestImportUITests.testRealDevRejectsAnInventedAccountGenerically` |
+| S5.1 | Given correct details, when I log in, then I see only that account's backup, copying adds it once, and I'm signed out after. | Unit `GuestSignInTests.testLogInPreviewsOnlyThatAccountsBackupCopiesOnceAndSignsOut`; UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S5.2 | Given wrong details, when I log in, then one generic message shows without saying whether the account exists, and repeated tries back off. | Unit `GuestSignInTests.testFailuresAreGenericSignedOutAndBackOff`; UI `GuestImportUITests.testRealDevRejectsAnInventedAccountGenerically` |
 | S5.3 | Given no connection, when I log in, then it says so plainly. | Unit `GuestSignInTests.testOfflineAndUnavailableAreSaidPlainly` |
-| S5.4 | Given copying the backup fails, when the error shows, then it says "Couldn’t copy your earlier journal. Nothing was added; try again." and nothing is added. | No test |
+| S5.4 | Given copying the backup fails, when the error shows, then it says "Couldn’t copy your earlier journal. Nothing was added; try again." and nothing is added. | Unit `GuestSignInTests.testFailedBackupCopyAddsNothingSaysSoAndSignsOut` |
 
 **S7. Reset password.** As a returning person who forgot my password, I want a reset link, so that I can log in.
 Screen: Log in → Reset password. States: filled, in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S7.1 | Given an email, when I tap Send reset link, then it says "If an account uses this email, a link is on its way." whether or not the account exists. | No test |
-| S7.2 | Given no connection, when I send, then it says so and no success shows. | No test |
+| S7.1 | Given an email, when I tap Send reset link, then it says "If an account uses this email, a link is on its way." whether or not the account exists. | Unit (partial, the Firebase call itself isn't run) `GuestSignInTests.testPasswordResetLooksTheSameWhetherOrNotAnAccountExists` |
+| S7.2 | Given no connection, when I send, then it says so and no success shows. | Unit `GuestSignInTests.testPasswordResetOfflineSaysSoAndNeverShowsSuccess` |
 
 **S8. Delete my account.** As a returning person, I want to delete my earlier account and its cloud journal, so that my account data isn't kept online.
 Screen: Settings → Delete my account. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI† `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 
@@ -269,16 +269,19 @@ Counted on 26 October 2026, over 25 stories and 76 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A repo unit test (5 partial) | 60 |
-| Only a UI† test outside the repo | 6 |
-| No test | 10 |
+| A unit test (7 partial; 12 also have a UI test) | 64 |
+| Only a UI test | 12 |
+| No test | 0 |
 
-Stories with a criterion that has no test: W1 (W1.2), J3 (J3.3), P2 (P2.1), S1 (S1.1), S2 (S2.3), S4 (S4.2, S4.3), S5 (S5.4), S7 (S7.1, S7.2). S7 is the only story with no test at all.
+Every criterion now has a test.
+
+### Running the tests
+
+- **Unit:** `xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination "platform=iOS Simulator,name=<iPhone>" CODE_SIGNING_ALLOWED=NO`
+- **UI:** the same command with `-scheme CircleuUITests`. It runs the Debug app in guest mode, takes about 9 minutes, and uses the fake account, so nothing reaches Firebase. `GuestImportUITests.testRealDevRejectsAnInventedAccountGenerically` contacts Firebase Dev and is skipped unless the run sets `TEST_RUNNER_CIRCLEU_LIVE_DEV=1`.
+- Before merging a change to guest behaviour, run both. When a story or test changes, update this file in the same PR.
 
 ### Proposed next
 
-1. **Move the UI tests into the repo** as a `CircleuUITests` target. Use the fake account (`-CircleUFakeAccount YES`) and keep the Dev-Firebase test opt-in. This turns 6 UI-only criteria into lasting checks and backs up 12 unit-tested ones.
-2. **Reset password (S7) and backup copy failure (S5.4):** add `GuestSignInTests` through the fake account service. Check that reset shows the same message whether or not the account exists, that no success shows when offline, and that a failed copy adds nothing. These carry the most privacy and data risk.
-3. **Your Pingu (S4.2, S4.3):** add a unit test for keeping the choice across relaunch, and one for the picker stopping dictation. Both are small.
-4. **Empty and done states (J3.3, P2.1, S2.3, W1.2):** cover these with UI tests once item 1 lands. They match the canvas "States" page.
-5. **Privacy summary (S1.1):** leave it to copy review. The wording is fixed in the screen content guidelines.
+1. **Partial checks:** the most useful upgrades are J4.2 (the discard dialog), S2.3 (a real share completing) and T6.3 (choosing guided prompts when no model is available).
+2. **Today options A/B/C:** write their stories, criteria and tests when Mike picks one, before coding.
