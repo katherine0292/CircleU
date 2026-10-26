@@ -73,7 +73,7 @@ struct GuestTodayView: View {
         NavigationStack {
             // Straight to writing or talking: the text box and the big microphone, no extra tap.
             GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
-                           heading: "What’s on your mind?", showsAvatar: true, onSaved: onSaved)
+                           heading: "What’s on your mind?", showsLogo: true, onSaved: onSaved)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
@@ -94,8 +94,8 @@ struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
     let heading: String
-    /// Today shows the Pingu avatar in the toolbar; opening its picker stops the microphone first.
-    let showsAvatar: Bool
+    /// Today shows the CircleU logo in the toolbar.
+    let showsLogo: Bool
     let onSaved: () -> Void
     @StateObject private var nudge = GuestNudgeModel()
     @FocusState private var focused: Bool
@@ -103,15 +103,13 @@ struct GuestWriteView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
-    /// The person's Pingu, shown beside the microphone.
-    @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         heading: String = "Start with your words.", showsAvatar: Bool = false,
+         heading: String = "Start with your words.", showsLogo: Bool = false,
          onSaved: @escaping () -> Void) {
         self.journal = journal
         self.heading = heading
-        self.showsAvatar = showsAvatar
+        self.showsLogo = showsLogo
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
     }
@@ -191,9 +189,9 @@ struct GuestWriteView: View {
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if showsAvatar {
+            if showsLogo {
                 ToolbarItem(placement: .topBarLeading) {
-                    GuestAvatarButton(size: 36, beforeOpening: { dictation.interrupt() })
+                    GuestBrandIcon(asset: "GuestIconLogo", size: 32)
                 }
             }
         }
@@ -212,23 +210,17 @@ struct GuestWriteView: View {
             .accessibilityAddTraits(.isHeader)
     }
 
-    /// Pingu and the big microphone together in one card. While listening, Pingu listens inside
-    /// the rings, with stop and cancel below. The art is decorative and left out at the largest
-    /// text sizes, where the microphone stays.
+    /// The ice-floe scene with the big microphone on its quiet right side. While listening, Pingu
+    /// listens in the ripples, with stop and cancel below. The art is decorative and left out at
+    /// the largest text sizes, where the microphone stays.
     private var micCard: some View {
         let showsArt = !typeSize.isAccessibilitySize
         return Group {
             if dictation.isActive {
                 VStack(spacing: 12) {
                     if showsArt {
-                        ZStack {
-                            Circle().fill(GuestBrand.blue.opacity(0.12)).frame(width: 170, height: 170)
-                            Circle().fill(GuestBrand.blue.opacity(0.18)).frame(width: 138, height: 138)
-                            Circle().fill(.white).frame(width: 106, height: 106)
-                            Image("GuestPinguListening").resizable().scaledToFit().frame(width: 124, height: 124)
-                        }
-                        .accessibilityHidden(true)
-                        .transition(reduceMotion ? .opacity : .scale(scale: 0.85).combined(with: .opacity))
+                        GuestScene(asset: "GuestSceneListening")
+                            .transition(.opacity)
                     }
                     HStack(spacing: 20) {
                         if dictation.state == .listening || dictation.state == .finishing {
@@ -246,22 +238,19 @@ struct GuestWriteView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
-            } else {
-                HStack(alignment: .bottom, spacing: 12) {
-                    if showsArt {
-                        Image(avatarID).resizable().scaledToFit()
-                            .frame(height: 160)
-                            .accessibilityHidden(true)
+                .padding(.top, showsArt ? 0 : 20).padding(.bottom, 20)
+            } else if showsArt {
+                // The scene keeps its right side clear for the microphone.
+                GuestScene(asset: "GuestSceneToday")
+                    .overlay(alignment: .trailing) {
+                        micButton(size: 84)
+                            .padding(.trailing, 32).padding(.bottom, 12) // Room for the ring; above the plain bottom.
                     }
-                    Spacer(minLength: 0)
-                    micButton(size: 92)
-                        .padding(10) // Room for the ring.
-                        .frame(maxHeight: .infinity)
-                }
-                .frame(height: showsArt ? 180 : nil)
-                .padding(.leading, 12).padding(.trailing, 20)
-                .padding(.vertical, showsArt ? 0 : 16)
+            } else {
+                micButton(size: 92)
+                    .padding(10) // Room for the ring.
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.trailing, 20).padding(.vertical, 16)
             }
         }
         .frame(maxWidth: .infinity)
@@ -396,7 +385,7 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    GuestPinguMessage(asset: "GuestPinguWriting", text: "Nothing saved yet.", height: 160)
+                    GuestSceneMessage(asset: "GuestSceneJournalEmpty", text: "Nothing saved yet.")
                         .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
@@ -488,9 +477,11 @@ private struct GuestJournalRow: View {
         HStack(alignment: .top, spacing: 12) {
             if showsDate {
                 VStack(spacing: 0) {
-                    Text(entry.updatedAt, format: .dateTime.day())
+                    // The day it was written, as the calendar files it; the year only if not this year.
+                    Text(entry.createdAt, format: .dateTime.day())
                         .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.blue)
-                    Text(entry.updatedAt, format: .dateTime.month(.abbreviated))
+                    Text(entry.createdAt, format: Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
+                         ? .dateTime.month(.abbreviated) : .dateTime.month(.abbreviated).year())
                         .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
                 }
                 .frame(minWidth: 48).padding(.vertical, 6)
@@ -516,7 +507,7 @@ private struct GuestJournalRow: View {
                     .accessibilityLabel(statuses)
                     .accessibilityHidden(statuses.isEmpty)
                     Spacer(minLength: 0)
-                    Text(entry.updatedAt, format: .dateTime.hour().minute())
+                    Text(entry.createdAt, format: .dateTime.hour().minute())
                         .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
                 }
             }
@@ -631,7 +622,9 @@ struct GuestEntryDetailView: View {
     /// The date is the title.
     private var title: String {
         guard let entry = journal.entries.first(where: { $0.id == entryID }) else { return "Entry" }
-        return entry.updatedAt.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+        let format = Date.FormatStyle.dateTime.weekday(.abbreviated).day().month().hour().minute()
+        return entry.createdAt.formatted(Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
+                                         ? format : format.year())
     }
 
     @ViewBuilder private var content: some View {

@@ -65,6 +65,18 @@ struct GuestPinguDecoration: View {
     }
 }
 
+/// A wide Pingu scene (1170×600 art) at the full width it's given. Decorative like
+/// `GuestPinguDecoration`; callers leave it out at the largest text sizes.
+struct GuestScene: View {
+    let asset: String
+
+    var body: some View {
+        Image(asset).resizable().aspectRatio(1170 / 600, contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
+    }
+}
+
 /// An illustrated brand icon at icon size, for labels that already say what it means.
 struct GuestBrandIcon: View {
     let asset: String
@@ -86,6 +98,24 @@ struct GuestPinguMessage: View {
     var body: some View {
         VStack(spacing: 12) {
             GuestPinguDecoration(asset: asset, height: height)
+            Text(text).multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+    }
+}
+
+/// A wide scene in a rounded card with a short line, for empty states with room for it.
+struct GuestSceneMessage: View {
+    let asset: String
+    let text: String
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        VStack(spacing: 16) {
+            if !typeSize.isAccessibilitySize {
+                GuestScene(asset: asset).clipShape(RoundedRectangle(cornerRadius: 28))
+            }
             Text(text).multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
         }
         .frame(maxWidth: .infinity)
@@ -116,19 +146,16 @@ struct GuestSuccessBanner: View {
     }
 }
 
-/// The avatar shown on Today and in Settings; tapping it opens the picker.
+/// The avatar shown in Settings; tapping it opens the picker.
 struct GuestAvatarButton: View {
     @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
     var size: CGFloat = 180
-    /// Runs before the picker opens (Today stops the microphone first).
-    var beforeOpening: () -> Void = {}
     @State private var picking = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         let avatar = GuestAvatars.avatar(id: avatarID)
         Button {
-            beforeOpening()
             picking = true
         } label: {
             Image(avatar.id).resizable().scaledToFit()

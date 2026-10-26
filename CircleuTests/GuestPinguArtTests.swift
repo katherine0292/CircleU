@@ -10,7 +10,9 @@ final class GuestPinguArtTests: XCTestCase {
         XCTAssertTrue(GuestAvatars.all.allSatisfy { !$0.name.isEmpty }, "every avatar has a spoken name")
         let assets = GuestAvatars.all.map(\.id) + ["GuestIconToday", "GuestIconJournal", "GuestIconPractice",
                                                   "GuestIconReflection", "GuestIconFeelings", "GuestIconNextStep",
-                                                  "GuestIconPrivacy", "GuestIconLogo"]
+                                                  "GuestIconPrivacy", "GuestIconLogo",
+                                                  "GuestChipWhatHappened", "GuestChipWhoWith", "GuestChipWishSaid",
+                                                  "GuestSceneToday", "GuestSceneListening", "GuestSceneJournalEmpty"]
         for name in assets { XCTAssertNotNil(UIImage(named: name), name) }
         XCTAssertEqual(GuestAvatars.avatar(id: "unknown").id, GuestAvatars.defaultID, "falls back to the default")
     }

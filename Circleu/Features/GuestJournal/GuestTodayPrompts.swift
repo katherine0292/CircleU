@@ -14,9 +14,9 @@ struct GuestPrompt: Equatable, Hashable {
 enum GuestTodayPrompts {
     /// Shown above the empty text box.
     static let starters: [GuestPrompt] = [
-        GuestPrompt(question: "What happened?", starter: "What happened was ", icon: "GuestIconToday"),
-        GuestPrompt(question: "Who was it with?", starter: "I was with ", icon: "GuestIconFeelings"),
-        GuestPrompt(question: "What do you wish you’d said?", starter: "I wish I’d said ", icon: "GuestIconPractice"),
+        GuestPrompt(question: "What happened?", starter: "What happened was ", icon: "GuestChipWhatHappened"),
+        GuestPrompt(question: "Who was it with?", starter: "I was with ", icon: "GuestChipWhoWith"),
+        GuestPrompt(question: "What do you wish you’d said?", starter: "I wish I’d said ", icon: "GuestChipWishSaid"),
     ]
 
     /// "Need a nudge?" follow-ups while writing, one at a time.
