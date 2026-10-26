@@ -1,6 +1,6 @@
 import XCTest
 
-/// Empty and first-run states from docs/product/user-stories.md (W1.2, J3.3, P2.1, S1.1, S4.2, S4.3).
+/// Empty and first-run states from docs/product/user-stories.md (W1.1, W1.2, W1.5, J3.3, P2.1, S1.1, S4.2, S4.3).
 final class GuestStatesUITests: XCTestCase {
 
     func has(_ app: XCUIApplication, _ text: String, _ timeout: TimeInterval = 5) -> Bool {
@@ -31,12 +31,53 @@ final class GuestStatesUITests: XCTestCase {
     func testWelcomeShowsOnlyUntilGetStarted() throws {
         continueAfterFailure = false
         var app = launchGuest(fresh: true, welcomeSeen: nil)
-        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
         app.buttons["Get started"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10), "Today opens")
         app = launchGuest(fresh: false, welcomeSeen: nil) // No override: the app's own saved choice decides.
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["Get started"].exists, "Welcome isn't shown again")
+    }
+
+    /// W1.1 and W1.5: three pages with Skip; Next and Skip both reach Get started and Log in.
+    func testWelcomePagesNextAndSkip() throws {
+        continueAfterFailure = false
+        var app = launchGuest(fresh: true, welcomeSeen: nil)
+        XCTAssertTrue(app.staticTexts["Something on your mind?"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Skip"].exists)
+        shot(app, "w1-page1")
+        XCTAssertFalse(app.buttons["Get started"].exists, "Get started waits for the last page")
+        app.buttons["Next"].tap()
+        XCTAssertTrue(app.staticTexts["Write or talk it through"].waitForExistence(timeout: 5))
+        sleep(1); shot(app, "w2-page2")
+        app.buttons["Next"].tap()
+        XCTAssertTrue(app.staticTexts["Find your words"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Get started"].exists)
+        XCTAssertTrue(app.buttons["Log in"].exists)
+        XCTAssertFalse(app.buttons["Skip"].exists, "the last page has no Skip")
+        sleep(1); shot(app, "w3-page3")
+
+        app = launchGuest(fresh: true, welcomeSeen: nil)
+        XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Log in"].exists)
+    }
+
+    /// W1.5 at the largest text size: the scene is a short banner and both actions are reachable.
+    func testWelcomeLastPageAtLargestText() throws {
+        continueAfterFailure = false
+        let app = launchGuest(fresh: true, welcomeSeen: nil,
+                              ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"])
+        XCTAssertTrue(app.buttons["Skip"].waitForExistence(timeout: 10))
+        shot(app, "w1-page1-ax5")
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
+        sleep(1); shot(app, "w3-page3-ax5")
+        XCTAssertTrue(app.buttons["Get started"].isHittable)
+        XCTAssertTrue(app.buttons["Log in"].isHittable)
     }
 
     /// J1.1, P2.1 and J3.3: empty Journal, empty Practice, and a calendar day with nothing.

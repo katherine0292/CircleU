@@ -1,9 +1,9 @@
 {
   "version": 1,
   "created": "2026-10-26",
-  "status": "review-candidates",
+  "status": "in use: Welcome onboarding (V2 for the hard moment; V1 kept for reference)",
   "tool": "built-in image_gen via codex exec (gpt-6-astra, high effort)",
-  "format": "opaque PNG originals copied without pixel editing. The tool has no size control and returned about 1020x1540 (2:3), not the requested 9:19.5; previews are 390 px wide JPEG. Not in the app asset catalog.",
+  "format": "opaque PNG originals copied without pixel editing. The tool has no size control and returned about 1020x1540 (2:3), not the requested 9:19.5; previews are 390 px wide JPEG. Catalog copies: same pixels, JPEG quality 85, one universal image. V2 came back about 857x1836.",
   "assets": [
     {
       "name": "OnboardingHardMomentV1.png",
@@ -31,7 +31,15 @@
       "bytes": 1359614,
       "sha256": "f303982fc7e14f60b043c1035f6b8c7d1dbc8ac61a27b5338daea99539d0a6f0",
       "candidate": "c2 of 2",
-      "preview": "docs/design/swiftui-previews/onboarding-scenes-expansion-04/OnboardingFindWordsV1-390.jpg"
+      "preview": "docs/design/swiftui-previews/onboarding-scenes-expansion-04/OnboardingFindWordsV1-390.jpg",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestOnboardingFindWords.imageset/GuestOnboardingFindWords.jpg",
+          "width": 1024,
+          "height": 1536,
+          "sha256": "682beefd8f2cb41489881b50a289ee0aed25d33be1d1c8cb2c97484159f37317"
+        }
+      ]
     },
     {
       "name": "OnboardingSayItKindlyV1.png",
@@ -45,7 +53,37 @@
       "bytes": 1537486,
       "sha256": "76e01efe4d1190e810555bbd581366bd869c38e8ba2474048aac7684d2fae53b",
       "candidate": "c2 of 2",
-      "preview": "docs/design/swiftui-previews/onboarding-scenes-expansion-04/OnboardingSayItKindlyV1-390.jpg"
+      "preview": "docs/design/swiftui-previews/onboarding-scenes-expansion-04/OnboardingSayItKindlyV1-390.jpg",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestOnboardingSayItKindly.imageset/GuestOnboardingSayItKindly.jpg",
+          "width": 1020,
+          "height": 1541,
+          "sha256": "fd8de44675b392331c3c9bf62c13d00dd92905124bad420c678ab3b3b3dd89d6"
+        }
+      ]
+    },
+    {
+      "name": "OnboardingHardMomentV2.png",
+      "kind": "scene",
+      "role": "Onboarding page 1: a hard moment (replaces V1: thoughtful, looking away, no props)",
+      "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png; scene and style: Expansion04/OnboardingHardMomentV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: one tall portrait full-bleed CircleU app onboarding scene, fully opaque, no transparency, aspect ratio about 9:19.5 (for example 1290x2796). Match the supplied CircleU artwork reference: clean smooth rounded geometric silhouettes, sophisticated matte 2D editorial illustration with gentle restrained shading, upper-left light, suitable for students and young adults. Palette navy #0D1421, royal blue #054FC9, ice #F5FAFF, sky #47C7FF, small warm orange #FF8538 accents. No sketch lines, hatching, texture, grain, outlines, glossy plastic, clay, photorealism, text, lettering, signage, watermark, frame or border. Calm, quiet and soft, not cheerful-loud; low contrast, gentle gradients, few elements. Layout: all scene content sits in the top 65% of the image. The bottom 35% of the image is a smooth vertical fade into a completely plain, flat, empty ice tone #F5FAFF, with no objects, ground detail, shapes, reflections or texture there at all; the scene dissolves softly into it. Pingu stands in the middle third of the height, centred horizontally, about 25% of image height. Character identity reference: BrandAvatar.png. Preserve EXACT same recognisable Pingu identity, one curved crest, navy head/body, white heart-shaped face and belly, small oval dark eyes, tiny closed orange beak, icy blue scarf, plump proportions, orange feet. Same gentle dimensional shading as reference; do not redesign its face, add eyebrows, blush, clothes or props except those requested. Scene: early evening light rain on a quiet rounded city street, dusk blue palette from royal blue to soft lavender-blue, a few simple rounded buildings with warm orange lit windows, soft diagonal rain streaks kept minimal. Pingu stands alone under a small plain rounded shop awning, dry, its body turned three-quarters, head turned to the side and slightly down, gazing off toward the rainy street, not looking at the viewer. Expression: thoughtful and calm, a quiet reflective moment; beak closed and neutral, no smile, not sad, no tears. Both flippers relaxed at its sides and empty: Pingu holds NOTHING. No journal, no book, no phone, no cup, no umbrella, no bag, no props of any kind; the icy blue scarf is its only accessory. No people, no cars.",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion04/OnboardingHardMomentV2.png",
+      "width": 858,
+      "height": 1834,
+      "bytes": 1501142,
+      "sha256": "cd2ee550e592d4ec63edf5b4536709c700e82d2e7f1966ee10e2d07ee3d928ce",
+      "candidate": "c1 of 3",
+      "preview": "docs/design/swiftui-previews/onboarding-scenes-expansion-04/OnboardingHardMomentV2-390.jpg",
+      "catalog": [
+        {
+          "file": "Circleu/Assets.xcassets/GuestOnboardingHardMoment.imageset/GuestOnboardingHardMoment.jpg",
+          "width": 858,
+          "height": 1834,
+          "sha256": "40cce3b63d1529983e3e0ae18f42b7c53513a0b604c2e8600649113ce6b9d1b0"
+        }
+      ]
     }
   ]
 }

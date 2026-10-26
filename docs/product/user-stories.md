@@ -18,14 +18,15 @@
 ## 1. Welcome
 
 **W1.** As a person, I want to start writing without making an account, so that my words stay on this iPhone.
-Screen: Welcome → Today. States: first launch (empty), returning launch.
+Screen: Welcome (three pages) → Today. States: first launch (empty), returning launch.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| W1.1 | Given a first launch, when the app opens, then Welcome shows "Get started" and "Log in". | UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| W1.1 | Given a first launch, when the app opens, then Welcome shows three illustrated pages, starting with "Something on your mind?", with Skip and Next. | UI `GuestStatesUITests.testWelcomePagesNextAndSkip` |
 | W1.2 | Given Welcome, when I tap Get started, then Today opens and Welcome doesn't appear on later launches. | UI `GuestStatesUITests.testWelcomeShowsOnlyUntilGetStarted` |
 | W1.3 | Given I open the guest journal without logging in, when it loads, then Firebase isn't contacted. | Unit `GuestSignInTests.testOpeningTheGuestJournalNeverTouchesFirebase` |
 | W1.4 | Given a first launch, when the journal opens, then it is empty. | Unit `GuestJournalStoreTests.testFirstLaunchIsEmpty` |
+| W1.5 | Given Welcome, when I tap Next twice or Skip once, then the last page shows "Get started" and "Log in", and Skip isn't shown there. | UI `GuestStatesUITests.testWelcomePagesNextAndSkip` |
 
 **W2.** As a returning person, I want to log in from Welcome, so that I can bring in my earlier journal before I start.
 Screen: Welcome → Log in. States: filled, in progress, error. Login details are in S5.
@@ -291,12 +292,12 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 90 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 91 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
 | A unit test (19 also have a UI test) | 70 |
-| Only a UI test | 19 |
+| Only a UI test | 20 |
 | No test | 1 |
 | Marked partial (either kind) | 12 |
 
