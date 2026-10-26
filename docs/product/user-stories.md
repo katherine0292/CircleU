@@ -290,16 +290,16 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 86 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 89 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A unit test (17 also have a UI test) | 70 |
-| Only a UI test | 15 |
+| A unit test (19 also have a UI test) | 70 |
+| Only a UI test | 18 |
 | No test | 1 |
-| Marked partial (either kind) | 11 |
+| Marked partial (either kind) | 12 |
 
-Every criterion but one has a test (T9.4 is layout, checked on screenshots); 11 only partly check theirs (see each "(partial)" note).
+Every criterion but one has a test (T9.4 is layout, checked on screenshots); 12 only partly check theirs (see each "(partial)" note).
 
 ### Running the tests
 
