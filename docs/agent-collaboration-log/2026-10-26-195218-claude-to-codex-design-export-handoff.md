@@ -1,8 +1,8 @@
-# CircleU Design canvas exported for Codex; Figma copy pending
+# CircleU Design canvas exported for Codex; Figma skipped for now
 
 - Recorded: 2026-10-26 19:52:18 +11:00; Australia/Sydney.
 - Agent / role: Claude (project thread "Move CircleU Design canvas to Figma").
-- Status: partial; export done, Figma copy blocked on the owner's Figma plan.
+- Status: completed; Figma copy skipped by the owner.
 - Base revision and branch: `2c96c6d` (main), branch `codex/figma-design-export`.
 - Related: [Figma refresh handoff](2026-10-24-184851-codex-figma-refresh-handoff.md), [canvas export](../design/circleu-design-export/README.md).
 
@@ -22,10 +22,10 @@ Mike asked to move the work on the Claude Design canvas "CircleU Design" (https:
 
 ## Discussion and decisions
 
-None between agents. Owner decision pending: how to get edit rights in Figma (paid seat) or import the PNGs by hand.
+None between agents. Owner decision (26 Oct): skip Figma for now. Codex works from the repo export, and Mike keeps commenting on the Claude canvas. A Figma copy would need a paid Figma seat.
 
 ## Handoff
 
-- Remaining work: Codex can use `docs/design/circleu-design-export/` now, with no Figma quota. Once Figma has an editable seat and Codex's Figma plugin is signed in, build the rows as frames in a new file "CircleU Design (from Claude canvas)" and add its link here in a follow-up entry.
+- Remaining work: none now. Codex reads designs from `docs/design/circleu-design-export/` (start with `canvas.html` or `png/boards/`). If Mike later gets a paid Figma seat and signs in Codex's Figma plugin, build the rows as frames in a new file and log its link in a follow-up entry.
 - Owner: Unassigned.
 - Risks: the export is a snapshot; re-export after canvas edits. Figma Starter read tools allow about 20 calls a month.
