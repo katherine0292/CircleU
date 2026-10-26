@@ -89,7 +89,7 @@ final class GuestFindAndControlTests: XCTestCase {
         settings.noteExportCleanup(succeeded: true, shared: false)
         XCTAssertNil(settings.message, "closing the share sheet without sharing says nothing")
         settings.noteExportCleanup(succeeded: true, shared: true)
-        XCTAssertEqual(settings.message, "Export done. The copy you shared is yours to keep or delete.")
+        XCTAssertEqual(settings.message, "Export done.")
         settings.noteExportCleanup(succeeded: false, shared: true)
         XCTAssertEqual(settings.message, GuestSettingsViewModel.exportCleanupMessage, "a leftover copy is never hidden")
     }
