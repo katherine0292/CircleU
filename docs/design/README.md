@@ -58,6 +58,8 @@ The prototype labels the approved guest/local, no-CircleU-cloud direction and ex
 
 ## Visual starting point
 
+**26 October Today options:** the CircleU Design canvas (a private Claude artifact) holds options for the illustrated mic (A), the Get a suggestion redesign (B) and the background (C), plus a States page. The art they need is in the [Pingu scene and mic art brief](pingu-scene-art-brief.md).
+
 **Journal calendar:** the owner requested cute date browsing inside Journal. [Demo 03](brand-demo/journal-calendar.md) adds a rounded month grid, selected-day entries and a calm empty-day example to the isolated previews. The owner subsequently requested removing the extra calendar-header icon. Interaction, time-zone grouping and accessibility remain implementation/review work.
 
 **Brand demo 02:** the accepted identity now appears across [Today, Journal, Practice and both editors](brand-demo/flow-previews.md), with a softer Practice icon. This isolated visual pass preserves earlier references; it is not a Figma update or application implementation.

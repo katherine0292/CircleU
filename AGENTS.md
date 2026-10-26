@@ -9,6 +9,7 @@ Read these files explicitly; do not assume a tool automatically expands referenc
 - [Agent log protocol](docs/agent-collaboration-log/README.md), then the latest relevant dated entries and any handoff they reference.
 - [MVP decisions](docs/product/mvp-definition.md) and the plan relevant to the task.
 - [Screen content guidelines](docs/design/screen-content-guidelines.md): the single, enforced source for on-screen text (limits, one primary action, banned wording, the privacy summary pattern). Every agent (Claude, Codex) follows it; `GuestCopyLintTests` enforces it for the guest journal.
+- [Guest user stories](docs/product/user-stories.md): stories by flow with Given/When/Then criteria, states and the test behind each criterion. Update it when guest behaviour or tests change.
 
 Shared baseline: `~/Documents/GitHub/coding-standards/coding_standards.md`. The project standards record deliberate Swift/iOS overrides; if the shared file is unavailable, use the local rules and report that limitation.
 
