@@ -163,11 +163,14 @@ struct GuestImportView: View {
 }
 
 extension GuestImportView {
-    @ViewBuilder static func leftOut(_ skipped: [GuestLegacyScan.Skip]) -> some View {
+    /// `heading: false` inside a "Left out (N)" disclosure, which already names the list.
+    @ViewBuilder static func leftOut(_ skipped: [GuestLegacyScan.Skip], heading: Bool = true) -> some View {
         if !skipped.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
-                    .accessibilityAddTraits(.isHeader)
+                if heading {
+                    Text("Left out").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 ForEach(Array(skipped.enumerated()), id: \.offset) { _, skip in
                     Text("\(skip.what): \(Self.reason(skip.reason))")
                         .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
@@ -207,7 +210,7 @@ struct GuestWelcomeView: View {
                     GuestPinguDecoration(asset: "GuestPinguWelcome", height: 200)
                     Text("CircleU").font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
-                    GuestSummary("A private place to work through a moment and find your words.")
+                    GuestSummary("A private place to find your words.")
                         .multilineTextAlignment(.center)
                     Button("Get started", action: onDone)
                         .buttonStyle(GuestBrandButtonStyle())

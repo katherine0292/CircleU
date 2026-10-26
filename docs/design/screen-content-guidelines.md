@@ -52,17 +52,17 @@ The supporting line is the single line under the heading; "—" means none.
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”) | Reflect on it (in the card, after saving) | Not now (in the card); Calendar | — |
 | Entry | Entry | — | — | Edit; Practice what to say | — |
-| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
-| Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
+| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message (blue card with Pingu) | Continue your draft (card with a one-line preview); saved messages are bubbles with a journal icon and date, no header | — |
+| Practice message | What would you like to say? | Tag (journal icon + From: … / On its own) | Save, or Copy when saved | Situation and Goal "+" chips (open a field); Copy icon in the bubble; Get a suggestion (tinted Pingu bubble); outlined Use this on each suggestion card. Saved: Edit (pencil) and ••• → Delete message in the toolbar | — ("Copied. Not saved or sent." shows after copying, "Copied. Not sent." once saved, replacing the always-on line; pending Mike's OK) |
 | Settings | Settings (title) | — (your Pingu with a pencil badge and "Your Pingu" caption; "Kept on this iPhone" chip with "Not uploaded or synced." under it; icon rows grouped under "Your data" and "Earlier CircleU account"; version footer) | — | Rows: Export my data; Delete all data (red); Bring in your earlier journal; Delete my account (red) | — (the chip opens the privacy sheet) |
 | Settings → Kept on this iPhone (sheet) | Kept on this iPhone | Not uploaded or synced. | — | Done (dismiss) | — (four icon rows replace Learn more: dictation, backups, restore, exports) |
 | Settings → Export done | (banner) Export done. | — | — | — | — |
 | Settings → Delete all data? (alert) | Delete all data? | Deletes this journal and drafts. The earlier app stays. | Delete all (red) | Cancel | — |
-| Log in | Bring in your earlier journal | Nothing new is uploaded, and you’re signed out after. | Log in | Forgot password?; Continue without logging in (Welcome only) | What logging in does; no new accounts; why on-phone data stays sealed |
-| Backup preview | Your account’s backup | N to copy · N already copied | Copy into this journal | Don’t copy | Not changed; what isn’t copied; what was left out |
-| Copied | (banner) Copied N items into your journal. | You’re signed out. | Continue (Welcome only) | — | Left out (N) |
-| Reset password | Reset password | We’ll email you a reset link. / If an account uses this email, a link is on its way. | Send reset link | — | — |
-| Delete my account | Delete my account | Deletes the earlier account and its cloud data. (Entries on this iPhone stay: shown as an icon row.) | Delete my account | — | What's deleted; circles kept; replies and likes |
+| Log in | Bring in your earlier journal | — (chips: Nothing uploaded; Signed out after) | Log in | Forgot password?; Continue without logging in (Welcome only) | (i) “What logging in does”: what it fetches; no new accounts; why on-phone data stays sealed |
+| Backup preview | Your account’s backup | — (chips: N to copy; N already copied) | Copy into this journal | Don’t copy | (i) “What isn’t copied”: not changed; what isn’t copied. Left out (N), when something was |
+| Copied | Copied N items (with Pingu) | — (chip: Signed out; or “Signing out didn’t finish…”) | Continue (Welcome only) | — | Left out (N) |
+| Reset password | Reset password (envelope art) | — / If an account uses this email, a link is on its way. | Send reset link | — | — |
+| Delete my account | Delete my account | — (two cards: Will be deleted: account, cloud backup, posts, memberships; Stays: entries on this iPhone) | Delete my account | — | Circles kept; replies and likes |
 
 ## Enforcement
 

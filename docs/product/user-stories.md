@@ -190,15 +190,18 @@ Screen: Practice. States: empty, filled, error.
 | P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | P2.2 | Given a new message, when it has no wording, then Save is off; once it has wording, it saves and shows as saved. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeTests.testFailedSaveKeepsWordsAndShowsError` |
+| P2.4 | Given saved messages, when Practice opens, then a Pingu card starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P2.5 | Given a new message, when it opens, then Situation and Goal are "+" chips; tapping one opens its field, and a restored draft that has them shows them open. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 
 **P3. Copy and edit.** As a person, I want to copy or edit a message, so that I can send it myself or improve it.
 Screen: Practice message. States: filled, error (stale).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P3.1 | Given a message, when I tap Copy, then it is copied and not saved or sent. | Unit `GuestPracticeTests.testCopyDoesNotSave` |
+| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains` |
 | P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeTests.testFailedMessageDeleteKeepsIt` |
+| P3.4 | Given a saved message, when I look at it, then my words are a sent bubble, Copy is the one button, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 
 **P4. Practice draft and suggestions.** As a person, I want my unfinished message kept and optional wording ideas, so that I can come back and get unstuck.
 Screen: Practice → Continue your draft. States: filled (restored), in progress, error.
@@ -206,7 +209,7 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | P4.1 | Given an unsaved message, when the app relaunches, then Continue your draft restores it, and once saved it isn't offered again. | Unit `GuestFindAndControlTests.testPracticeDraftSurvivesRelaunchAndIsClearedBySaving`, `testSavedPracticeDraftIsNeverOfferedAgain` |
-| P4.2 | Given a suggestion, when I choose it, then it fills the wording and can be undone. | Unit `GuestSuggestionTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone` |
+| P4.2 | Given a suggestion, when I choose it from the swipeable tone cards, then it fills the wording and can be undone. | Unit `GuestSuggestionTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | P4.3 | Given a suggestion fails, when the error shows, then my wording is kept. | Unit `GuestSuggestionTests.testFailedPracticeSuggestionKeepsWording` |
 
 ## 5. Settings
@@ -255,6 +258,7 @@ Screen: Log in → Backup preview → Copied. States: filled, in progress, error
 | S5.2 | Given wrong details, when I log in, then one generic message shows without saying whether the account exists, and repeated tries back off. | Unit `GuestSignInTests.testFailuresAreGenericSignedOutAndBackOff`; UI `GuestImportUITests.testRealDevRejectsAnInventedAccountGenerically` |
 | S5.3 | Given no connection, when I log in, then it says so plainly. | Unit `GuestSignInTests.testOfflineAndUnavailableAreSaidPlainly` |
 | S5.4 | Given copying the backup fails, when the error shows, then it says "Couldn’t copy your earlier journal. Nothing was added; try again." and nothing is added. | Unit `GuestSignInTests.testFailedBackupCopyAddsNothingSaysSoAndSignsOut` |
+| S5.5 | Given Log in, when it opens, then "Nothing uploaded" and "Signed out after" show as chips, and the detail is behind the (i) "What logging in does" button; after copying, a "Signed out" chip shows. | UI `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 
 **S7. Reset password.** As a returning person who forgot my password, I want a reset link, so that I can log in.
 Screen: Log in → Reset password. States: filled, in progress, done, error.
@@ -269,7 +273,7 @@ Screen: Settings → Delete my account. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted, entries on this iPhone stay, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
+| S8.1 | Given I log in again to confirm, when I delete, then the account and its cloud data are deleted and entries on this iPhone stay. Before deleting, a Will be deleted card and a Stays card show what goes and what stays, and Learn more says what's kept (circles, replies and likes on others' posts). | Unit `GuestSignInTests.testDeleteMyAccountNeedsAFreshLogInAndKeepsLocalEntries`; UI (partial, success wording only) `GuestImportUITests.testWelcomeLogInPreviewCopySignedOutAndDelete` |
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 
@@ -287,16 +291,16 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 86 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 90 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A unit test (17 also have a UI test) | 70 |
-| Only a UI test | 15 |
+| A unit test (19 also have a UI test) | 70 |
+| Only a UI test | 19 |
 | No test | 1 |
-| Marked partial (either kind) | 11 |
+| Marked partial (either kind) | 12 |
 
-Every criterion but one has a test (T9.4 is layout, checked on screenshots); 11 only partly check theirs (see each "(partial)" note).
+Every criterion but one has a test (T9.4 is layout, checked on screenshots); 12 only partly check theirs (see each "(partial)" note).
 
 ### Running the tests
 
