@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import UIKit
 
 /// Builds the account service and cloud reader only when Log in is used, so the guest journal
 /// starts without Firebase.
@@ -260,22 +261,45 @@ struct GuestSignInView: View {
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Log in")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItem(placement: .primaryAction) { info } }
         .onDisappear { model.cancel() } // Never stays signed in.
+    }
+
+    /// The detail that used to sit behind Learn more, one tap away on each step.
+    @ViewBuilder private var info: some View {
+        switch model.step {
+        case .form, .working:
+            GuestInfoButton(label: "What logging in does") {
+                Text("Logging in only fetches your account’s backup so you can copy it here.")
+                Text("Accounts can’t be created here.")
+                // copy: detail
+                Text("A journal the earlier app kept only on this iPhone stays sealed, because it can’t be shown to be yours.")
+            }
+        case .preview:
+            GuestInfoButton(label: "What isn’t copied") {
+                Text("Your account’s backup isn’t changed.")
+                Text("Titles, tags, quests, coaching and images aren’t copied.")
+            }
+        case .done:
+            EmptyView()
+        }
     }
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 14) {
+            GuestPinguDecoration(asset: "GuestPinguBackpack", height: 120)
             Text("Bring in your earlier journal").font(GuestBrand.font(.title2, .bold))
                 .foregroundStyle(GuestBrand.ink).accessibilityAddTraits(.isHeader)
-            GuestSummary("Nothing new is uploaded, and you’re signed out after.")
-            labelled("Email") {
-                TextField("Email", text: $model.email)
-                    .textContentType(.username).keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled()
+            GuestChipRow {
+                GuestChip(text: "Nothing uploaded", systemImage: "icloud.slash")
+                GuestChip(text: "Signed out after", systemImage: "rectangle.portrait.and.arrow.right")
             }
-            labelled("Password") {
-                SecureField("Password", text: $model.password).textContentType(.password)
-            }
+            TextField("Email", text: $model.email)
+                .textContentType(.username).keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never).autocorrectionDisabled()
+                .guestField()
+            SecureField("Password", text: $model.password).textContentType(.password)
+                .guestField()
             if let message = model.message {
                 Label(message, systemImage: "exclamationmark.circle")
                     .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
@@ -291,12 +315,6 @@ struct GuestSignInView: View {
                 Button("Continue without logging in", action: onSkip)
                     .buttonStyle(GuestBrandButtonStyle(filled: false))
             }
-            GuestLearnMore {
-                Text("Logging in only fetches your account’s backup so you can copy it here.")
-                Text("Accounts can’t be created here.")
-                // copy: detail
-                Text("A journal the earlier app kept only on this iPhone stays sealed, because it can’t be shown to be yours.")
-            }
         }
         .disabled(model.step == .working)
     }
@@ -304,7 +322,10 @@ struct GuestSignInView: View {
     @ViewBuilder private func preview(_ backup: GuestCloudBackup, already: Int) -> some View {
         Text("Your account’s backup").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
             .accessibilityAddTraits(.isHeader)
-        GuestSummary("\(backup.entries.count + backup.messages.count) to copy" + (already > 0 ? " · \(already) already copied" : ""))
+        GuestChipRow {
+            GuestChip(text: "\(backup.entries.count + backup.messages.count) to copy", systemImage: "square.and.arrow.down")
+            if already > 0 { GuestChip(text: "\(already) already here", systemImage: "checkmark", muted: true) }
+        }
         ForEach(Array(backup.entries.prefix(3).enumerated()), id: \.offset) { _, entry in
             VStack(alignment: .leading, spacing: 4) {
                 Text(entry.originalWords).lineLimit(2).foregroundStyle(GuestBrand.ink)
@@ -318,36 +339,39 @@ struct GuestSignInView: View {
             Button("Copy into this journal") { Task { await model.copy() } }
                 .buttonStyle(GuestBrandButtonStyle())
         }
+        if !backup.skipped.isEmpty {
+            GuestLearnMore(title: "Left out (\(backup.skipped.count))") { GuestImportView.leftOut(backup.skipped) }
+        }
         Button("Don’t copy") { model.cancel() }
             .buttonStyle(GuestBrandButtonStyle(filled: false))
-        GuestLearnMore {
-            Text("Your account’s backup isn’t changed.")
-            Text("Titles, tags, quests, coaching and images aren’t copied.")
-            GuestImportView.leftOut(backup.skipped)
-        }
     }
 
     @ViewBuilder private func done(_ added: Int, _ skipped: [GuestLegacyScan.Skip], _ isProtected: Bool,
                                    _ signedOut: Bool) -> some View {
-        GuestSuccessBanner(text: added == 0 ? "Nothing new to copy." : "Copied \(added) \(added == 1 ? "item" : "items") into your journal.",
-                           asset: "GuestPinguReading")
+        let title = added == 0 ? "Nothing new to copy" : "Copied \(added) \(added == 1 ? "item" : "items")"
+        VStack(spacing: 12) {
+            GuestPinguDecoration(asset: "GuestPinguReading", height: 160)
+            Text(title).font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                .multilineTextAlignment(.center).accessibilityAddTraits(.isHeader)
+            if signedOut {
+                GuestChip(text: "Signed out", systemImage: "rectangle.portrait.and.arrow.right")
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .onAppear { UIAccessibility.post(notification: .announcement, argument: title) }
+        if !signedOut {
+            Label("Signing out didn’t finish. Close and reopen CircleU.", systemImage: "exclamationmark.circle")
+                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+        }
         if !isProtected {
             Label(GuestJournalViewModel.savedButUnprotectedMessage, systemImage: "exclamationmark.shield")
                 .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
         }
-        GuestSummary(signedOut ? "You’re signed out." : "Signing out didn’t finish. Close and reopen CircleU.")
         if !skipped.isEmpty {
             GuestLearnMore(title: "Left out (\(skipped.count))") { GuestImportView.leftOut(skipped) }
         }
         if let onSkip {
             Button("Continue", action: onSkip).buttonStyle(GuestBrandButtonStyle())
-        }
-    }
-
-    private func labelled<Content: View>(_ title: String, @ViewBuilder _ field: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-            field().padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
         }
     }
 }
@@ -391,16 +415,18 @@ struct GuestPasswordResetView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                GuestSymbolArt(systemImage: model.sent ? "envelope.badge" : "envelope")
                 if model.sent {
                     Text("Check your email").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
-                        .accessibilityAddTraits(.isHeader)
+                        .frame(maxWidth: .infinity).accessibilityAddTraits(.isHeader)
+                    // Same answer whether or not an account uses the email.
                     GuestSummary("If an account uses this email, a link is on its way.")
+                        .multilineTextAlignment(.center).frame(maxWidth: .infinity)
                 } else {
-                    GuestSummary("We’ll email you a reset link.")
                     TextField("Email", text: $model.email)
                         .textContentType(.username).keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
-                        .padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
+                        .guestField()
                     if let message = model.message {
                         Label(message, systemImage: "exclamationmark.circle").font(GuestBrand.font(.subheadline))
                     }
@@ -505,18 +531,21 @@ struct GuestDeleteAccountView: View {
                         GuestSummary("\(kept) \(kept == 1 ? "circle" : "circles") kept for other people’s posts.")
                     }
                 } else {
-                    GuestSummary("Deletes your earlier account, backup, posts and memberships. Entries here stay.")
+                    GuestPinguDecoration(asset: "GuestPinguThoughtful", height: 110)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .top, spacing: 10) { deletedCard; staysCard }
+                        VStack(spacing: 10) { deletedCard; staysCard }
+                    }
                     GuestLearnMore {
-                        Text("Your backup, posts and circle memberships are deleted.")
                         // copy: detail
                         Text("Circles you made stay if others posted in them. Replies and likes on others’ posts can’t be removed here.")
                     }
                     TextField("Email", text: $model.email)
                         .textContentType(.username).keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
-                        .padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
+                        .guestField()
                     SecureField("Password", text: $model.password).textContentType(.password)
-                        .padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
+                        .guestField()
                     if let message = model.message {
                         Label(message, systemImage: "exclamationmark.circle")
                             .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
@@ -541,5 +570,118 @@ struct GuestDeleteAccountView: View {
         } message: {
             Text("The account and its cloud backup are deleted for good. Your entries on this iPhone stay.")
         }
+    }
+
+    private var deletedCard: some View {
+        GuestFactCard(title: "Deleted", systemImage: "xmark.icloud", tint: GuestBrand.danger,
+                      items: ["Account", "Cloud backup", "Posts", "Memberships"])
+    }
+
+    private var staysCard: some View {
+        GuestFactCard(title: "Stays", systemImage: "iphone", tint: GuestBrand.ink, items: ["Entries on this iPhone"])
+    }
+}
+
+// MARK: - Icons over labels (docs/design/screen-content-guidelines.md)
+
+/// A short icon-and-word fact, where a sentence used to say the same thing.
+struct GuestChip: View {
+    let text: String
+    let systemImage: String
+    var muted = false
+
+    var body: some View {
+        let tint = muted ? GuestBrand.muted : GuestBrand.blue
+        Label(text, systemImage: systemImage)
+            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(tint)
+            .padding(.horizontal, 12).padding(.vertical, 6)
+            .background(tint.opacity(0.1), in: Capsule())
+    }
+}
+
+/// Chips side by side, stacked when they don't fit (large text).
+struct GuestChipRow<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) { content() }
+            VStack(alignment: .leading, spacing: 8) { content() }
+        }
+    }
+}
+
+/// An (i) toolbar button whose sheet holds the detail a screen used to keep behind Learn more.
+/// Its spoken name is the sheet's title.
+struct GuestInfoButton<Content: View>: View {
+    let label: String
+    @ViewBuilder let content: () -> Content
+    @State private var isOpen = false
+
+    var body: some View {
+        Button { isOpen = true } label: {
+            Image(systemName: "info.circle").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+        }
+        .accessibilityLabel(label)
+        .sheet(isPresented: $isOpen) {
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 10) { content() }
+                        .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(24)
+                }
+                .background(GuestBrand.ice.ignoresSafeArea())
+                .navigationTitle(label)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) { Button("Done") { isOpen = false } }
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
+    }
+}
+
+/// A large decorative symbol at the top of a short screen.
+struct GuestSymbolArt: View {
+    let systemImage: String
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        if !typeSize.isAccessibilitySize {
+            Image(systemName: systemImage).font(.system(size: 64, weight: .light)).foregroundStyle(GuestBrand.blue)
+                .frame(maxWidth: .infinity).padding(.vertical, 12)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// A titled card with a short list, such as what's deleted and what stays.
+struct GuestFactCard: View {
+    let title: String
+    let systemImage: String
+    let tint: Color
+    let items: [String]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: systemImage)
+                .font(GuestBrand.font(.subheadline, .bold)).foregroundStyle(tint)
+                .accessibilityAddTraits(.isHeader)
+            ForEach(items, id: \.self) { Text($0) }
+                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+    }
+}
+
+extension View {
+    /// A text field on a white rounded background; its placeholder is its spoken name.
+    func guestField() -> some View {
+        padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
     }
 }

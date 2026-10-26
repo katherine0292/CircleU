@@ -207,7 +207,7 @@ struct GuestWelcomeView: View {
                     GuestPinguDecoration(asset: "GuestPinguWelcome", height: 200)
                     Text("CircleU").font(GuestBrand.font(.largeTitle, .bold)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
-                    GuestSummary("A private place to work through a moment and find your words.")
+                    GuestSummary("A private place to find your words.")
                         .multilineTextAlignment(.center)
                     Button("Get started", action: onDone)
                         .buttonStyle(GuestBrandButtonStyle())
