@@ -14,3 +14,12 @@
 - **Saved message (P3.4):** words in a blue sent bubble with Pingu thumbs-up and "Saved · not sent"; Copy is the one button; Edit is a toolbar pencil and Delete message is in the ••• menu (still confirms).
 - **Docs:** stories P2.4, P2.5, P3.4 added; P3.1 and P4.2 updated. Guideline rows for Practice and Practice message updated.
 - **Tests:** UI tests tap "Add situation" before typing a situation, check the copy line, the toolbar Edit, and Delete in the ••• menu.
+
+## Verification
+
+- Recorded: 2026-10-26 16:40:00 +11:00; Claude Code on Mike's Mac, worktree `../CircleU-practice`, Simulator clone "CircleU-Practice" (iPhone 17 Pro, iOS 26.5), `CODE_SIGNING_ALLOWED=NO`.
+- **Unit (`Circleu`):** 253 passed, 1 skipped, 0 failed, both before and after the review fixes.
+- **UI (`CircleuUITests`, after fixes):** 14 passed, 1 skipped, 1 failed. All Practice tests pass, including the new check that copying a saved message shows "Copied. Not sent." The failure is `GuestVoiceTabsUITests.testTabsPracticeAndDictationDenied` ("the denial message is shown"): this Simulator reports "On-device dictation isn't available for your language", so no permission prompt or denial message appears. It **fails the same way on `origin/main`** (`7e7f5b9`), so it is environmental and not fixed here.
+- **Codex (gpt-6-astra, high, one read-only pass):** changes requested with two blockers, both fixed. A saved message said "Not saved" after Copy (now "Copied. Not sent."). "Get a suggestion" and "Use this" were filled next to Save (now tinted and outlined). Non-blockers are recorded in [the review entry](2026-10-26-163000-codex-review-practice-visual.md).
+- **Screenshots:** [practice-visual-2026-10-26](../qa/screenshots/practice-visual-2026-10-26/): home with messages, empty Practice, compose, suggestions and a saved message (from UI test attachments). The suggestions shot was taken with the keyboard open, so only the first card's tone shows.
+- **Not run:** phone install, VoiceOver, largest Dynamic Type, Reduce Motion.

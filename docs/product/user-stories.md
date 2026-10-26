@@ -198,7 +198,7 @@ Screen: Practice message. States: filled, error (stale).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied, "Copied. Not saved or sent." shows, and nothing is saved or sent. | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains` |
 | P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeTests.testFailedMessageDeleteKeepsIt` |
 | P3.4 | Given a saved message, when I look at it, then my words are a sent bubble, Copy is the one button, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |

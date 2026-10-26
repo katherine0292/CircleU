@@ -438,9 +438,10 @@ struct GuestPracticeMessageView: View {
                             Image("GuestPinguThoughtful").resizable().scaledToFit().frame(width: 52, height: 52)
                                 .accessibilityHidden(true)
                             Text(composer.isSuggesting ? "Making suggestions…" : "Get a suggestion")
-                                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(.white)
+                                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
                                 .padding(.horizontal, 14).padding(.vertical, 10)
-                                .background(GuestBrand.blue, in: UnevenRoundedRectangle(
+                                // Tinted, not filled: Save is the screen's one primary action.
+                                .background(GuestBrand.blue.opacity(0.12), in: UnevenRoundedRectangle(
                                     topLeadingRadius: 16, bottomLeadingRadius: 4, bottomTrailingRadius: 16,
                                     topTrailingRadius: 16, style: .continuous))
                         }
@@ -488,10 +489,10 @@ struct GuestPracticeMessageView: View {
             Spacer(minLength: 0)
             Button { composer.use(option) } label: {
                 Text("Use this").padding(.horizontal, 18).frame(minHeight: 44)
-                    .background(GuestBrand.blue, in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(GuestBrand.blue, lineWidth: 1.5))
             }
             .buttonStyle(.plain)
-            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(.white)
+            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
             .accessibilityLabel("Use the \(option.tone.lowercased()) option")
         }
         .padding(16)
@@ -515,7 +516,7 @@ struct GuestPracticeMessageView: View {
             .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
             .frame(maxWidth: .infinity, alignment: .trailing)
             if composer.didCopy {
-                Text("Copied. Not saved or sent.")
+                Text("Copied. Not sent.") // Already saved, so only "not sent".
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
