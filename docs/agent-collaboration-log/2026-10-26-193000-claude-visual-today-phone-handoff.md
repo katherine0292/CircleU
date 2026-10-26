@@ -1,6 +1,6 @@
 # Visual Today: badge fix, merge check, phone install and handoff to Codex
 
-- Recorded: 2026-10-26 19:30:00 +11:00
+- Recorded: 2026-10-26 19:30:00 +11:00; Australia/Sydney
 - Agent / role: Claude Code (on the Mac), implementer
 - Status: handoff
 - Base revision and branch: `026f416` (main after PR #34); this entry on `codex/agent-log-visual-today-handoff`
@@ -19,7 +19,7 @@ After the [previous entry](2026-10-26-170500-claude-visual-today-art.md), the co
 - **Merge check.** `d185846` (main with PRs #33, #35 and #36 merged in) needed no fixes. Its tree is identical to `026f416`, so the results below cover current main.
 - **Phone (iPhone 11 Pro Max).** The CircleU and preview-related apps were CircleU Guest Test, CircleU Preview (`com.tuannm3812.circleu.preview`, the Xcode Previews host) and two Apple "Xcode Previews" entries. There were no test runner leftovers, and the real TestFlight CircleU isn't installed on this phone.
   - On Mike's "go", I uninstalled CircleU Preview. Both Xcode Previews entries are untouched.
-  - I updated Guest Test in place (no uninstall, so its entries are kept), built from `026f416` in a clean worktree, then launched it once.
+  - I updated Guest Test in place (no uninstall, so its entries should be kept; Mike's confirmation is pending), built from `026f416` in a clean worktree, then launched it once.
 - **How to update Guest Test** (from a clean `origin/main` worktree, with `Config/Signing.xcconfig` copied from the main checkout):
   1. `xcodebuild -project Circleu.xcodeproj -scheme Circleu -configuration Debug -destination generic/platform=iOS -allowProvisioningUpdates PRODUCT_BUNDLE_IDENTIFIER=com.tuannm3812.circleu.guesttest "INFOPLIST_KEY_CFBundleDisplayName=CircleU Guest Test" 'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) GUEST_JOURNAL_BUILD' build`
   2. Check that the built `Info.plist` bundle ID is `com.tuannm3812.circleu.guesttest`.
@@ -54,7 +54,7 @@ After the [previous entry](2026-10-26-170500-claude-visual-today-art.md), the co
   1. Record Mike's phone check of Guest Test `026f416`: the logo at the top left, the ice-floe scene with the badge, the listening scene, chip icons, Journal's dusk empty state, and entries kept.
   2. Make guest builds identifiable. Every build reports 1.0.0 (1), so the phone can't show which commit is installed. For example, pass `CURRENT_PROJECT_VERSION` as a date-time stamp for Guest Test builds only.
   3. Add a largest-text-size test for T10.4 (the scene is left out, and the microphone, chips and badge stay). It currently has no test ([user stories](../product/user-stories.md)).
-- Agent ideas, not approved by the owner (from the [previous entry](2026-10-26-170500-claude-visual-today-art.md)'s report):
+- Agent ideas, not approved by the owner (Claude's suggestions to Mike in the project thread on 26 October, answering his request for UI ideas; not recorded elsewhere in the repo):
   - change the scene with the time of day;
   - a short Pingu moment for "Saved";
   - a ripple around the microphone while listening (off with Reduce Motion);
