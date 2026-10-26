@@ -4,7 +4,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
     var findings: [String] = []
 
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
     func audit(_ app: XCUIApplication, _ screen: String) {
         try? app.performAccessibilityAudit { issue in
@@ -47,7 +47,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
         findings.append("prompts: \(prompts) | message: \(message.label) | settings: \(app.buttons["Open Settings"].exists)")
         let editor = app.textViews["Your words"]
         editor.tap(); editor.typeText("Typed after denial")
-        XCTAssertTrue(app.buttons["Save only my words"].isEnabled)
+        XCTAssertTrue(app.buttons["Save"].isEnabled)
         shot(app, "v7-typed")
         attach(findings.joined(separator: "\n"), "voice-audit.txt")
     }
@@ -65,7 +65,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
             XCTAssertTrue(editor.waitForExistence(timeout: 5), "editor \(i)")
             editor.tap(); editor.typeText("Entry number \(i) \(Int.random(in: 1000...9999))")
             shot(app, "two-\(i)-write")
-            let save = app.buttons["Save only my words"]
+            let save = app.buttons["Save"]
             XCTAssertTrue(save.isEnabled, "save enabled \(i)")
             save.tap()
             sleep(2); shot(app, "two-\(i)-after")
@@ -99,7 +99,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
             }
             if mode == "voice+type" { editor.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.9)).tap(); app.typeText(" plus typing") }
             shot(app, "three-\(i)-before-save")
-            let save = app.buttons["Save only my words"]
+            let save = app.buttons["Save"]
             XCTAssertTrue(save.isEnabled, "save enabled \(i): editor=\(editor.value ?? "")")
             save.tap()
             XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", expected[i])).firstMatch.waitForExistence(timeout: 5), "entry \(i) listed")

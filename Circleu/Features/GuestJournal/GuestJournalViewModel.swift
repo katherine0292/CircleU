@@ -27,6 +27,8 @@ final class GuestJournalViewModel: ObservableObject {
     @Published private(set) var isSaving = false
     /// When an entry was last saved, for a brief "Saved" moment on Journal.
     @Published private(set) var lastSavedAt: Date?
+    /// The entry just saved without a reflection, so Journal can offer one ("Reflect on it").
+    @Published private(set) var reflectionOfferID: UUID?
     /// Lasting messages shown above every screen until dismissed. They add up, never replace.
     @Published private(set) var notices: [String] = []
     /// Set when the draft couldn't be restored or kept; shown on the Write screen.
@@ -78,6 +80,15 @@ final class GuestJournalViewModel: ObservableObject {
     }
 
     func dismissNotices() { notices.removeAll() }
+
+    /// "Not now", or the offer was taken up.
+    func dismissReflectionOffer() { reflectionOfferID = nil }
+
+    /// The just-saved entry, while it's still there and still has no reflection.
+    var reflectionOffer: GuestJournalEntry? {
+        guard let id = reflectionOfferID else { return nil }
+        return entries.first { $0.id == id && $0.reflection == nil && $0.nextStep == nil }
+    }
 
     /// An older draft couldn't be read; it's left as it was and new writing is kept separately.
     func noteUnreadableDraft() {
@@ -142,6 +153,7 @@ final class GuestJournalViewModel: ObservableObject {
         defer { isSaving = false }
         let submittedID = draftID
         let draftIDToRecord = drafts == nil ? nil : submittedID
+        var offer: UUID?
         do {
             if reflection != nil || nextStep != nil {
                 guard let reflections = store as? any GuestReflectionStore else {
@@ -150,7 +162,7 @@ final class GuestJournalViewModel: ObservableObject {
                 _ = try await reflections.create(originalWords: words, draftID: draftIDToRecord,
                                                  reflection: reflection, nextStep: nextStep)
             } else {
-                _ = try await store.create(originalWords: words, draftID: draftIDToRecord)
+                offer = try await store.create(originalWords: words, draftID: draftIDToRecord).id
             }
             saveError = nil
         } catch GuestJournalError.savedButUnprotected {
@@ -170,6 +182,7 @@ final class GuestJournalViewModel: ObservableObject {
         // Clear only the exact version that was saved (same ID). Any edit while saving, even one
         // that returns to the same words, is a new version: it stays on screen and on the phone.
         lastSavedAt = Date()
+        reflectionOfferID = offer // A reflection is only ever offered, after saving.
         if draftID == submittedID { setDraftQuietly("") }
         removeKeptDraft(id: submittedID)
         await load()

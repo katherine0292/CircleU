@@ -3,7 +3,7 @@ import XCTest
 final class GuestPolishUITests: XCTestCase {
     var findings: [String] = []
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
     func audit(_ app: XCUIApplication, _ screen: String) {
         try? app.performAccessibilityAudit { issue in
@@ -34,15 +34,15 @@ final class GuestPolishUITests: XCTestCase {
 
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("I felt stressed before the group meeting")
-        app.buttons["Get a suggestion"].tap()
+        app.buttons["Save"].tap()
+        XCTAssertTrue(has(app, "Saved to your journal"), "saved moment")
+        shot(app, "u5-saved")
+        app.buttons["Reflect on it"].tap()
         XCTAssertTrue(has(app, "Guided prompts", 10))
         shot(app, "u4-review")
-        app.buttons["Save with reflection"].tap()
-        let banner = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", "Saved to your journal")).firstMatch
-        XCTAssertTrue(banner.waitForExistence(timeout: 5), "saved moment")
-        shot(app, "u5-saved")
+        app.buttons["Save reflection"].tap()
         let row = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "group meeting")).firstMatch
-        sleep(3) // Let the saved moment finish.
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         XCTAssertTrue(has(app, "Reflection"))
         shot(app, "u6-entry"); audit(app, "entry")

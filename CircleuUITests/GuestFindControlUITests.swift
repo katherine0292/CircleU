@@ -3,7 +3,7 @@ import XCTest
 final class GuestFindControlUITests: XCTestCase {
     var findings: [String] = []
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
     func audit(_ app: XCUIApplication, _ screen: String) {
         try? app.performAccessibilityAudit { issue in
@@ -24,7 +24,7 @@ final class GuestFindControlUITests: XCTestCase {
             XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
             let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
             editor.tap(); editor.typeText(words)
-            app.buttons["Save only my words"].tap()
+            app.buttons["Save"].tap()
             XCTAssertTrue(has(app, words))
         }
         // Search

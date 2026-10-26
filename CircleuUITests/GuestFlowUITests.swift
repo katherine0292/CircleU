@@ -5,7 +5,7 @@ final class GuestFlowUITests: XCTestCase {
 
     func launch(fresh: Bool = false) -> XCUIApplication { launchGuest(fresh: fresh) }
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
     func audit(_ app: XCUIApplication, _ screen: String) {
         try? app.performAccessibilityAudit { issue in
@@ -21,10 +21,10 @@ final class GuestFlowUITests: XCTestCase {
         audit(app, "today"); shot(app, "g1-today")
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["Save only my words"].isEnabled, "empty words can't be saved")
+        XCTAssertFalse(app.buttons["Save"].isEnabled, "empty words can't be saved")
         editor.tap(); editor.typeText(words)
         audit(app, "write"); shot(app, "g2-write")
-        app.buttons["Save only my words"].tap()
+        app.buttons["Save"].tap()
         XCTAssertTrue(app.staticTexts[words].waitForExistence(timeout: 5), "saved entry shown in Journal")
         audit(app, "journal"); shot(app, "g3-journal")
 

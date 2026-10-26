@@ -239,10 +239,30 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         return try await GuestComposition.local(at: location).makeSession()
     }
 
+    /// Saves the words as Today does, then returns the saved entry.
+    private func saved(_ words: String, in journal: GuestJournalViewModel) async throws -> GuestJournalEntry {
+        journal.draft = words
+        let ok = await journal.saveDraft()
+        XCTAssertTrue(ok)
+        return try XCTUnwrap(journal.entries.first { $0.originalWords == words })
+    }
+
+    func testSavingOffersAReflectionOnlyForThatEntryUntilDismissed() async throws {
+        let (journal, _) = try await session()
+        XCTAssertNil(journal.reflectionOffer)
+        let entry = try await saved("My groupmate missed the deadline", in: journal)
+        XCTAssertEqual(journal.reflectionOffer?.id, entry.id, "offered right after saving")
+        XCTAssertNil(entry.reflection, "saving never adds a reflection by itself")
+        journal.dismissReflectionOffer()
+        XCTAssertNil(journal.reflectionOffer, "Not now")
+        let second = try await saved("Another moment", in: journal)
+        XCTAssertEqual(journal.reflectionOffer?.id, second.id, "a new save offers again, for the new entry")
+    }
+
     func testEditedSuggestionIsSavedApartFromTheWords() async throws {
         let (journal, _) = try await session()
-        journal.draft = "My groupmate missed the deadline"
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
+        let entry = try await saved("My groupmate missed the deadline", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester())
         await review.load()
         XCTAssertEqual(review.state, .ready)
         review.feeling = "Disappointed"
@@ -251,45 +271,89 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertEqual(review.suggestedNextStep, "Ask for a check-in.")
         review.addSuggestedStep()
         XCTAssertTrue(review.hasEdits, "leaving now asks first")
-        let saved = await review.saveWithReflection()
-        XCTAssertTrue(saved)
-        let entry = journal.entries.first
-        XCTAssertEqual(entry?.originalWords, "My groupmate missed the deadline")
-        XCTAssertEqual(entry?.reflection?.feeling, "Disappointed", "the person's edit is kept")
-        XCTAssertEqual(entry?.reflection?.insight, "")
-        XCTAssertEqual(entry?.reflection?.source, .onDevice)
-        XCTAssertEqual(entry?.nextStep, "Ask for a check-in.")
-        XCTAssertEqual(journal.draft, "")
+        let ok = await review.save()
+        XCTAssertTrue(ok)
+        let updated = try XCTUnwrap(journal.entries.first { $0.id == entry.id })
+        XCTAssertEqual(updated.originalWords, "My groupmate missed the deadline", "the words never change")
+        XCTAssertEqual(updated.reflection?.feeling, "Disappointed", "the person's edit is kept")
+        XCTAssertEqual(updated.reflection?.insight, "")
+        XCTAssertEqual(updated.reflection?.source, .onDevice)
+        XCTAssertEqual(updated.reflection?.basedOnWords, "My groupmate missed the deadline")
+        XCTAssertEqual(updated.nextStep, "Ask for a check-in.")
+        XCTAssertNil(journal.reflectionOffer, "the offer is used up")
     }
 
     func testSuggestedStepIsNotSavedUnlessAdded() async throws {
         let (journal, _) = try await session()
-        journal.draft = "Words"
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
+        let entry = try await saved("Words", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester())
         await review.load()
         XCTAssertFalse(review.hasEdits, "an untouched suggestion can be left without asking")
-        _ = await review.saveWithReflection()
+        _ = await review.save()
         XCTAssertNotNil(journal.entries.first?.reflection)
         XCTAssertNil(journal.entries.first?.nextStep)
     }
 
-    func testReflectionOnWordsAlreadySavedKeepsTheReviewOpen() async throws {
-        let location = GuestJournalLocation(directory: root.appendingPathComponent("Journal"),
-                                            setupMarker: root.appendingPathComponent("Setup/initialized"))
-        let store = try await SwiftDataGuestJournalStore.open(location: location, protection: .init { _ in })
-        let drafts = FileGuestDraftStore(location: location, protection: .init { _ in })
-        let journal = GuestJournalViewModel(store: store, drafts: drafts)
-        journal.draft = "Saved once"
-        await journal.flushDraft()
-        let kept = try await drafts.load()
-        // The same draft version was saved earlier (its cleanup didn't finish).
-        _ = try await store.create(originalWords: "Saved once", draftID: kept?.id)
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
+    func testClearingEverythingAddsNothing() async throws {
+        let (journal, _) = try await session()
+        let entry = try await saved("Just my words", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester())
         await review.load()
-        let saved = await review.saveWithReflection()
-        XCTAssertFalse(saved, "the review stays open; the reflection wasn't stored")
-        XCTAssertEqual(journal.saveError, GuestJournalViewModel.reflectionNotAddedMessage)
-        XCTAssertEqual(journal.draft, "Saved once")
+        review.summary = ""; review.feeling = " "; review.insight = ""; review.nextStep = ""
+        XCTAssertNil(review.keptReflection)
+        XCTAssertFalse(review.canSave, "nothing left to add")
+        let ok = await review.save()
+        XCTAssertFalse(ok)
+        XCTAssertNil(journal.entries.first?.reflection)
+        XCTAssertEqual(journal.entries.first?.revision, entry.revision, "the entry isn't touched")
+    }
+
+    func testFailedSuggestionLeavesTheSavedEntryAsItIs() async throws {
+        let (journal, _) = try await session()
+        let entry = try await saved("Words to keep", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester(fail: true))
+        await review.load()
+        XCTAssertEqual(review.state, .failed)
+        XCTAssertFalse(review.canSave)
+        XCTAssertEqual(journal.entries.map(\.originalWords), ["Words to keep"])
+        XCTAssertNil(journal.entries.first?.reflection)
+    }
+
+    func testReflectionOnAnEntryChangedMeanwhileIsNotAdded() async throws {
+        let (journal, _) = try await session()
+        let entry = try await saved("First words", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester())
+        await review.load()
+        // The entry is edited elsewhere before the reflection is saved.
+        _ = try await journal.store.update(id: entry.id, originalWords: "Edited words", expectedRevision: entry.revision)
+        let ok = await review.save()
+        XCTAssertFalse(ok, "the review stays open")
+        XCTAssertEqual(review.saveError, GuestEntryEditorViewModel.staleMessage)
+        let current = try XCTUnwrap(journal.entries.first)
+        XCTAssertEqual(current.originalWords, "Edited words")
+        XCTAssertNil(current.reflection, "nothing was added to the changed entry")
+    }
+
+    func testNextStepIsVoluntaryAndReversibleFromTheEntry() async throws {
+        let (journal, _) = try await session()
+        let saved = try await saved("Words", in: journal)
+        let review = GuestReflectionReviewViewModel(entry: saved, journal: journal, suggester: FakeSuggester())
+        await review.load()
+        review.addSuggestedStep()
+        _ = await review.save()
+        var entry = try XCTUnwrap(journal.entries.first)
+        var error = await journal.updateReflection(of: entry, reflection: entry.reflection, nextStep: entry.nextStep,
+                                                   nextStepDone: true)
+        XCTAssertNil(error)
+        entry = try XCTUnwrap(journal.entries.first)
+        XCTAssertTrue(entry.nextStepDone)
+        error = await journal.updateReflection(of: entry, reflection: nil, nextStep: entry.nextStep,
+                                               nextStepDone: false)
+        XCTAssertNil(error)
+        entry = try XCTUnwrap(journal.entries.first)
+        XCTAssertNil(entry.reflection, "reflection removed")
+        XCTAssertFalse(entry.nextStepDone, "and undone")
+        XCTAssertEqual(entry.originalWords, "Words")
     }
 
     func testPracticeSuggestionsBecomeStaleWhenTheirInputsChange() async throws {
@@ -309,66 +373,6 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         XCTAssertTrue(composer.suggestionsAreStale, "a manual rewrite is")
         composer.undoSuggestion()
         XCTAssertFalse(composer.suggestionsAreStale)
-    }
-
-    func testClearingEverythingSavesOnlyTheWords() async throws {
-        let (journal, _) = try await session()
-        journal.draft = "Just my words"
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
-        await review.load()
-        review.summary = ""; review.feeling = " "; review.insight = ""; review.nextStep = ""
-        XCTAssertNil(review.keptReflection)
-        XCTAssertNil(review.keptNextStep)
-        let saved = await review.saveWithReflection()
-        XCTAssertTrue(saved)
-        XCTAssertNil(journal.entries.first?.reflection)
-        XCTAssertNil(journal.entries.first?.nextStep)
-    }
-
-    func testFailedSuggestionStillLetsTheWordsBeSaved() async throws {
-        let (journal, _) = try await session()
-        journal.draft = "Words to keep"
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester(fail: true))
-        await review.load()
-        XCTAssertEqual(review.state, .failed)
-        XCTAssertNil(review.keptReflection)
-        let saved = await review.saveWordsOnly()
-        XCTAssertTrue(saved)
-        XCTAssertEqual(journal.entries.map(\.originalWords), ["Words to keep"])
-    }
-
-    func testChangedWordsMarkTheSuggestionStale() async throws {
-        let (journal, _) = try await session()
-        journal.draft = "First words"
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
-        await review.load()
-        XCTAssertFalse(review.isStale)
-        journal.draft = "First words, changed"
-        XCTAssertTrue(review.isStale)
-        await review.load()
-        XCTAssertFalse(review.isStale, "updated")
-    }
-
-    func testNextStepIsVoluntaryAndReversibleFromTheEntry() async throws {
-        let (journal, _) = try await session()
-        journal.draft = "Words"
-        let review = GuestReflectionReviewViewModel(journal: journal, suggester: FakeSuggester())
-        await review.load()
-        review.addSuggestedStep()
-        _ = await review.saveWithReflection()
-        var entry = try XCTUnwrap(journal.entries.first)
-        var error = await journal.updateReflection(of: entry, reflection: entry.reflection, nextStep: entry.nextStep,
-                                                   nextStepDone: true)
-        XCTAssertNil(error)
-        entry = try XCTUnwrap(journal.entries.first)
-        XCTAssertTrue(entry.nextStepDone)
-        error = await journal.updateReflection(of: entry, reflection: nil, nextStep: entry.nextStep,
-                                               nextStepDone: false)
-        XCTAssertNil(error)
-        entry = try XCTUnwrap(journal.entries.first)
-        XCTAssertNil(entry.reflection, "reflection removed")
-        XCTAssertFalse(entry.nextStepDone, "and undone")
-        XCTAssertEqual(entry.originalWords, "Words")
     }
 
     func testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone() async throws {
