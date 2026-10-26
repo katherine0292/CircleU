@@ -35,7 +35,7 @@ final class GuestPolishUITests: XCTestCase {
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("I felt stressed before the group meeting")
         app.buttons["Save"].tap()
-        XCTAssertTrue(has(app, "Saved to your journal"), "saved moment")
+        XCTAssertTrue(has(app, "Saved"), "saved moment")
         shot(app, "u5-saved")
         app.buttons["Reflect on it"].tap()
         XCTAssertTrue(has(app, "Guided prompts", 10))
@@ -44,7 +44,7 @@ final class GuestPolishUITests: XCTestCase {
         let row = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "group meeting")).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
-        XCTAssertTrue(has(app, "Reflection"))
+        XCTAssertTrue(app.images["Reflection"].waitForExistence(timeout: 5), "the reflection icon")
         shot(app, "u6-entry"); audit(app, "entry")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         let search = app.searchFields["Search your journal"]

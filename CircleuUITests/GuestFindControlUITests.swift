@@ -49,7 +49,7 @@ final class GuestFindControlUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts[lastMonth].waitForExistence(timeout: 3), "moved to last month")
         app.buttons["Go to today"].tap()
         XCTAssertFalse(app.staticTexts[lastMonth].waitForExistence(timeout: 2), "back to this month")
-        XCTAssertTrue(has(app, "Showing"))
+        XCTAssertTrue(app.buttons["Show all"].exists, "the day chip")
         XCTAssertTrue(has(app, "Alpha moment \(tag)"))
         shot(app, "f2-calendar"); audit(app, "calendar")
         app.buttons["Show all"].tap()

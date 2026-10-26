@@ -72,6 +72,14 @@ struct GuestCalendarView: View {
                     .font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
+                Button {
+                    month = Date()
+                    selectedDay = calendar.startOfDay(for: Date())
+                } label: {
+                    Image(systemName: "smallcircle.filled.circle").frame(width: 44, height: 44).contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Go to today")
                 Button { shiftMonth(1) } label: {
                     Image(systemName: "chevron.right").frame(width: 44, height: 44).contentShape(Rectangle())
                 }
@@ -89,13 +97,6 @@ struct GuestCalendarView: View {
                     if let date = day.date { dayButton(date, count: day.entryCount) } else { Color.clear.frame(height: 44) }
                 }
             }
-            Button("Go to today") {
-                month = Date()
-                selectedDay = calendar.startOfDay(for: Date())
-            }
-            .buttonStyle(.borderless)
-            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
-            .frame(minHeight: 44)
         }
         .padding(12)
         .background(.white, in: RoundedRectangle(cornerRadius: 18))
@@ -116,7 +117,12 @@ struct GuestCalendarView: View {
             VStack(spacing: 2) {
                 Text(date, format: .dateTime.day())
                     .font(GuestBrand.font(.subheadline, isToday ? .bold : .regular))
-                Circle().frame(width: 5, height: 5).opacity(count > 0 ? 1 : 0)
+                // One dot per entry, up to three.
+                HStack(spacing: 2) {
+                    ForEach(0..<3, id: \.self) { index in
+                        Circle().frame(width: 4, height: 4).opacity(index < count ? 1 : 0)
+                    }
+                }
             }
             .frame(maxWidth: .infinity, minHeight: 44)
             .foregroundStyle(isSelected ? .white : GuestBrand.ink)

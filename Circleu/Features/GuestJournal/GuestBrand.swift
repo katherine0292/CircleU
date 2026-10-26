@@ -9,6 +9,8 @@ enum GuestBrand {
     static let ink = Color(red: 13 / 255, green: 20 / 255, blue: 33 / 255)
     static let blue = Color(red: 5 / 255, green: 79 / 255, blue: 201 / 255)
     static let ice = Color(red: 245 / 255, green: 250 / 255, blue: 255 / 255)
+    /// A soft blue card behind Pingu art (Today's microphone card). Decorative only, never behind text.
+    static let wash = Color(red: 227 / 255, green: 238 / 255, blue: 255 / 255)
     /// Secondary text; 6.1:1 on `ice`, 6.4:1 on white.
     static let muted = Color(red: 79 / 255, green: 96 / 255, blue: 119 / 255)
     /// Delete actions; 6.5:1 on `ice`, so it stays readable at footnote size.

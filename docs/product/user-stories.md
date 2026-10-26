@@ -91,7 +91,7 @@ Screen: Journal ("Saved to your journal" card) → Reflection review. States: fi
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T6.1 | Given I just saved, when Journal opens, then "Saved to your journal" offers Reflect on it and Not now, for that entry only, and Not now closes it. | Unit `GuestSuggestionTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`, `testFinishingAnOlderReflectionKeepsTheNewerOffer`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T6.1 | Given I just saved, when Journal opens, then the "Saved" card offers Reflect (Reflect on it) and × (Not now), for that entry only, and Not now closes it. | Unit `GuestSuggestionTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`, `testFinishingAnOlderReflectionKeepsTheNewerOffer`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T6.2 | Given I tap Reflect on it and Save reflection, when the entry reopens, then my edits to the reflection are kept apart from my unchanged words. | Unit `GuestSuggestionTests.testEditedSuggestionIsSavedApartFromTheWords`, `testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I wrote. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
 | T6.4 | Given the suggestion fails or I clear every part, when I look, then nothing is added and the entry stays as it is. | Unit `GuestSuggestionTests.testFailedSuggestionLeavesTheSavedEntryAsItIs`, `testClearingEverythingAddsNothing` |
@@ -124,6 +124,16 @@ Screen: Today (writing). States: filled, hidden, listening (not shown).
 | T9.2 | Given a question, when I tap Another question, then a different one shows; when I tap Add to my words, then only its starter goes on a new line and the next question shows. | Unit `GuestTodayPromptsTests.testAnotherQuestionCyclesAndAddMovesOn`, `testAStarterGoesOnANewLineAfterExistingWords`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T9.3 | Given the nudge, when I tap Hide, then it stays hidden for this entry and comes back for the next one. | Unit `GuestTodayPromptsTests.testHideLastsForThisEntryOnly`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | T9.4 | Given the keyboard is up, when the nudge shows, then the words are still in view (the microphone gets smaller). | No test (checked on the `t2-nudge` screenshot from `GuestTodayUITests`) |
+
+**T10. Visual Today.** As a person, I want Today to show me what to do with pictures rather than instructions, so that I can start without reading.
+Screen: Today. States: empty, in progress (listening), filled (writing). Mocked in the canvas row "D · Visual Today" (D1–D3). Uses Pingu art already in the app; the new mic and scene art (ART-1 to ART-6) will go in the same card.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| T10.1 | Given an empty box, when Today opens, then my Pingu and the microphone share one card, the question chips show their icons, and there's no "Type, or tap the microphone and talk.", "Tap to talk" or "Not sure where to start?". | UI (partial, checks the words are gone and the microphone is there, not the art) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T10.2 | Given I'm listening, when I look, then Pingu listens inside the rings, with stop and cancel as icons that VoiceOver names "Stop dictation" and "Cancel dictation". | UI (partial, checks the names, not the art) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
+| T10.3 | Given at least five words, when the nudge shows, then it's a speech bubble from Pingu with the question, Add, and icons named "Another question" and "Hide", and no "Need a nudge?" label. | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T10.4 | Given the largest text sizes, when Today opens, then the Pingu art is left out and the microphone and chips stay. | No test |
 
 ## 3. Journal
 
@@ -171,6 +181,16 @@ Screen: Entry (delete dialog). States: in progress, error.
 | J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | J5.2 | Given delete fails, when the error shows, then the entry and message are unchanged. | Unit `GuestPracticeTests.testFailedEntryDeleteKeepsEntryAndMessage` |
 | J5.3 | Given a deleted entry, when an old screen saves, then it doesn't come back. | Unit `GuestJournalStoreTests.testUpdateAfterDeleteDoesNotResurrectEntry` |
+
+**J6. Icons over labels.** As a person, I want Journal to show status and actions as pictures, so that my own words stand out.
+Screen: Journal, Calendar, Entry. States: filled, one day chosen. Mocked in the canvas row "J · Simpler Journal" (JS1–JS3).
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| J6.1 | Given entries, when Journal opens, then each row shows a date tile, the words, icons for a reflection, a next step (a tick when done) and a practice message, and the time; VoiceOver reads the icons in words. | No test |
+| J6.2 | Given I just saved, when Journal opens, then the "Saved" card is one row: Pingu, "Saved", Reflect and ×. | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| J6.3 | Given the calendar, when I choose a day, then a day chip with × replaces "Showing …" and Show all, each day shows up to three dots, and Go to today is an icon. | UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
+| J6.4 | Given an entry, when it opens, then the date is the title, Edit is a pencil, Delete entry is in the ••• menu, and the reflection, feeling and next step show as icons with spoken names. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 
 ## 4. Practice
 
@@ -287,16 +307,16 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 27 stories and 86 criteria (S6 is not counted):
+Counted on 26 October 2026, over 29 stories and 94 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
 | A unit test (17 also have a UI test) | 70 |
-| Only a UI test | 15 |
-| No test | 1 |
-| Marked partial (either kind) | 11 |
+| Only a UI test | 21 |
+| No test | 3 |
+| Marked partial (either kind) | 13 |
 
-Every criterion but one has a test (T9.4 is layout, checked on screenshots); 11 only partly check theirs (see each "(partial)" note).
+Every criterion but three has a test (T9.4, T10.4 and J6.1 are layout, checked on screenshots); 13 only partly check theirs (see each "(partial)" note).
 
 ### Running the tests
 
@@ -307,4 +327,4 @@ Every criterion but one has a test (T9.4 is layout, checked on screenshots); 11 
 ### Proposed next
 
 1. **Partial checks:** the most useful upgrades are J4.2 (the discard dialog), S2.3 (a real share completing) and T6.3 (choosing guided prompts when no model is available).
-2. **Today options A and C:** write their stories, criteria and tests when the art is ready, before coding. Option B is T1.5, T6, T8 and T9.
+2. **Today options A and C:** when the art is ready, it replaces the Pingu and microphone in T10's card; write their criteria and tests then. Option B is T1.5, T6, T8 and T9.

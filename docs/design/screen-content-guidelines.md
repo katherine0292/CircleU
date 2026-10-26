@@ -48,10 +48,10 @@ The supporting line is the single line under the heading; "—" means none.
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
 | Welcome | CircleU | A private place to find your words. | Get started | Log in | — |
-| Today (capture) | What’s on your mind? | Type, or tap the microphone and talk. (hidden while typing) | Save | Question chips when empty (“Not sure where to start?”, prompts, not actions), or the “Need a nudge?” bubble while writing (Add to my words; Another question; Hide is a dismiss control); microphone (control); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
+| Today (capture) | What’s on your mind? | — (Pingu and the microphone share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); avatar and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
-| Journal | Journal | — (empty: Pingu + "Nothing saved yet."; after saving: “Saved to your journal” card, “Want a short reflection on it?”) | Reflect on it (in the card, after saving) | Not now (in the card); Calendar | — |
-| Entry | Entry | — | — | Edit; Practice what to say | — |
+| Journal | Journal | — (empty: Pingu + "Nothing saved yet."; rows: date tile, words, status icons, time; after saving: one-row “Saved” card) | Reflect (in the card, after saving) | × Not now (in the card); Calendar (icon); a chosen day is a chip with × | — |
+| Entry | The date (title) | — | — | Edit (pencil); Practice what to say; Delete entry in the ••• menu | — (the reflection keeps its source line in words) |
 | Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message | Continue your draft | — |
 | Practice message | What would you like to say? | Tag (From: … / On its own) | Save, or Copy when saved | Copy, or Edit when saved | — ("Copying won’t save or send it." stays: approved) |
 | Settings → Your Pingu | Your Pingu | Tap to change. | — | — | — |
