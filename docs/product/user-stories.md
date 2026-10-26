@@ -42,10 +42,11 @@ Screen: Today. States: empty, filled, in progress (saving), error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T1.1 | Given words in the box, when I tap Save only my words, then the entry appears in Journal and the box clears. | Unit `GuestJournalStoreTests.testSuccessfulSaveClearsDraftAndShowsEntry` |
-| T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again. Your words are still here." | Unit `GuestJournalStoreTests.testFailedSaveKeepsDraftAndShowsError` |
+| T1.1 | Given words in the box, when I tap Save, then the entry appears in Journal and the box clears. | Unit `GuestJournalStoreTests.testSuccessfulSaveClearsDraftAndShowsEntry` |
+| T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again." | Unit `GuestJournalStoreTests.testFailedSaveKeepsDraftAndShowsError` |
 | T1.3 | Given a save is in progress, when I keep typing, then the new words are kept. | Unit `GuestJournalStoreTests.testTextTypedDuringSaveIsKept` |
 | T1.4 | Given the entry saved but file protection failed, when Journal opens, then a notice says so. | Unit `GuestJournalStoreTests.testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal` |
+| T1.5 | Given Today, when I look at the actions, then there is one Save button (the question prompts only add text). | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 
 **T2. Draft kept.** As a person, I want unsaved words to survive closing the app, so that I never lose a half-written moment.
 Screen: Today. States: filled (restored), error (unreadable draft).
@@ -85,15 +86,17 @@ Screen: Today. States: error (interrupted).
 | T5.2 | Given I'm listening, when I leave the app, then listening stops and the words are kept. | Unit `GuestDictationViewModelTests.testLeavingTheAppStopsListeningAndKeepsTheWords` |
 | T5.3 | Given I cancel dictation, when late results arrive, then only the spoken words are removed and the next dictation isn't affected. | Unit `GuestDictationViewModelTests.testCancelRemovesOnlyTheSpokenWords`, `testLateEventsFromACancelledDictationDontReachTheNextOne` |
 
-**T6. Suggestions.** As a person, I want an optional reflection on what I wrote, so that I can see it differently, without it replacing my words.
-Screen: Today → Reflection review. States: in progress, filled, error.
+**T6. Reflect after saving.** As a person, I want an optional reflection on an entry after I've saved it, so that I can see it differently, without it changing my words or slowing down saving.
+Screen: Journal ("Saved to your journal" card) → Reflection review. States: filled (offer), in progress, error, dismissed.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T6.1 | Given words, when I tap Get a suggestion and Save with reflection, then the words and reflection are saved apart and survive reopening. | Unit `GuestSuggestionTests.testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
-| T6.2 | Given the suggestion fails, when the error shows, then I can still save only my words. | Unit `GuestSuggestionTests.testFailedSuggestionStillLetsTheWordsBeSaved` |
-| T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I typed. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
-| T6.4 | Given I change my words after a suggestion, when I look at it, then it is marked as out of date. | Unit `GuestSuggestionTests.testChangedWordsMarkTheSuggestionStale` |
+| T6.1 | Given I just saved, when Journal opens, then "Saved to your journal" offers Reflect on it and Not now, for that entry only, and Not now closes it. | Unit `GuestSuggestionTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`, `testFinishingAnOlderReflectionKeepsTheNewerOffer`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T6.2 | Given I tap Reflect on it and Save reflection, when the entry reopens, then my edits to the reflection are kept apart from my unchanged words. | Unit `GuestSuggestionTests.testEditedSuggestionIsSavedApartFromTheWords`, `testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I wrote. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
+| T6.4 | Given the suggestion fails or I clear every part, when I look, then nothing is added and the entry stays as it is. | Unit `GuestSuggestionTests.testFailedSuggestionLeavesTheSavedEntryAsItIs`, `testClearingEverythingAddsNothing` |
+| T6.5 | Given the entry changed somewhere else, when I save the reflection, then it isn't added and I'm told why. | Unit `GuestSuggestionTests.testReflectionOnAnEntryChangedMeanwhileIsNotAdded` |
+| T6.6 | Given a reflection is open, when I delete all data, then it closes and Journal is empty. | UI `GuestTodayUITests.testDeleteAllClosesAnOpenReflection` |
 
 **T7. Next step.** As a person, I want to choose whether to keep a suggested next step, so that nothing is added without my say.
 Screen: Reflection review, Entry. States: filled, done or not done.
@@ -102,6 +105,25 @@ Screen: Reflection review, Entry. States: filled, done or not done.
 | --- | --- | --- |
 | T7.1 | Given a suggested step, when I don't add it, then it isn't saved. | Unit `GuestSuggestionTests.testSuggestedStepIsNotSavedUnlessAdded` |
 | T7.2 | Given a saved step, when I mark it done, undo it or remove it, then the entry updates. | Unit `GuestSuggestionTests.testNextStepCanBeDoneUndoneAndRemovedWithRevisions`, `testNextStepIsVoluntaryAndReversibleFromTheEntry` |
+
+**T8. Question chips.** As a person who isn't sure where to start, I want a few questions above the empty box, so that I can begin without staring at a blank page.
+Screen: Today (empty). States: empty, filled.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| T8.1 | Given an empty box, when Today opens, then "What happened?", "Who was it with?" and "What do you wish you’d said?" show above it. | Unit `GuestTodayPromptsTests.testThreeStarterChipsEachAddOnlyTheirStarter`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T8.2 | Given the chips, when I tap one, then only its sentence starter (such as "I wish I’d said") goes into my words, and the chips go. | Unit `GuestTodayPromptsTests.testThreeStarterChipsEachAddOnlyTheirStarter`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T8.3 | Given I saved, when I'm back on Today, then the box is empty and the chips are back. | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+
+**T9. Need a nudge?** As a person who gets stuck partway, I want one follow-up question while I write, so that I can keep going in my own words.
+Screen: Today (writing). States: filled, hidden, listening (not shown).
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| T9.1 | Given at least five words and no dictation, when I write, then "Need a nudge?" shows one question. | Unit `GuestTodayPromptsTests.testNudgeShowsOnceThereAreWordsAndNotWhileDictating`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T9.2 | Given a question, when I tap Another question, then a different one shows; when I tap Add to my words, then only its starter goes on a new line and the next question shows. | Unit `GuestTodayPromptsTests.testAnotherQuestionCyclesAndAddMovesOn`, `testAStarterGoesOnANewLineAfterExistingWords`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T9.3 | Given the nudge, when I tap Hide, then it stays hidden for this entry and comes back for the next one. | Unit `GuestTodayPromptsTests.testHideLastsForThisEntryOnly`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T9.4 | Given the keyboard is up, when the nudge shows, then the words are still in view (the microphone gets smaller). | No test (checked on the `t2-nudge` screenshot from `GuestTodayUITests`) |
 
 ## 3. Journal
 
@@ -265,16 +287,16 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 26 October 2026, over 25 stories and 76 criteria (S6 is not counted):
+Counted on 26 October 2026, over 27 stories and 86 criteria (S6 is not counted):
 
 | Covered by | Criteria |
 | --- | --- |
-| A unit test (11 also have a UI test) | 64 |
-| Only a UI test | 12 |
-| No test | 0 |
+| A unit test (17 also have a UI test) | 70 |
+| Only a UI test | 15 |
+| No test | 1 |
 | Marked partial (either kind) | 11 |
 
-Every criterion now has a test, but 11 of them only partly check it (see each "(partial)" note).
+Every criterion but one has a test (T9.4 is layout, checked on screenshots); 11 only partly check theirs (see each "(partial)" note).
 
 ### Running the tests
 
@@ -285,4 +307,4 @@ Every criterion now has a test, but 11 of them only partly check it (see each "(
 ### Proposed next
 
 1. **Partial checks:** the most useful upgrades are J4.2 (the discard dialog), S2.3 (a real share completing) and T6.3 (choosing guided prompts when no model is available).
-2. **Today options A/B/C:** write their stories, criteria and tests when Mike picks one, before coding.
+2. **Today options A and C:** write their stories, criteria and tests when the art is ready, before coding. Option B is T1.5, T6, T8 and T9.

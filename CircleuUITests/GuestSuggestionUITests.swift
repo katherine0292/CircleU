@@ -3,7 +3,7 @@ import XCTest
 final class GuestSuggestionUITests: XCTestCase {
     var findings: [String] = []
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
     func audit(_ app: XCUIApplication, _ screen: String) {
         try? app.performAccessibilityAudit { issue in
@@ -23,15 +23,18 @@ final class GuestSuggestionUITests: XCTestCase {
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("I felt stressed when my groupmate missed the deadline \(tag)")
-        app.buttons["Get a suggestion"].tap()
+        app.buttons["Save"].tap()
+        XCTAssertTrue(app.buttons["Reflect on it"].waitForExistence(timeout: 5), "offered after saving")
+        app.buttons["Reflect on it"].tap()
         XCTAssertTrue(has(app, "Guided prompts, not a personal analysis", 10))
-        XCTAssertTrue(app.buttons["Save with reflection"].exists)
-        XCTAssertTrue(app.buttons["Save only my words"].exists)
+        XCTAssertTrue(app.buttons["Save reflection"].exists)
         shot(app, "s1-review"); audit(app, "review")
         let add = app.buttons["Add this step"]
         for _ in 0..<4 where !add.isHittable { app.swipeUp() }
         add.tap()
-        app.buttons["Save with reflection"].tap()
+        app.buttons["Save reflection"].tap()
+        XCTAssertTrue(app.navigationBars["Journal"].waitForExistence(timeout: 5), "back on Journal")
+        XCTAssertFalse(app.buttons["Reflect on it"].exists, "the offer is used up")
         let row = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "deadline \(tag)")).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5)); row.tap()
         XCTAssertTrue(has(app, "Reflection"))

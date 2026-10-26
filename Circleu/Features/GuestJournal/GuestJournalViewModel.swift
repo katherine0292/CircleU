@@ -25,8 +25,8 @@ final class GuestJournalViewModel: ObservableObject {
     }
     @Published private(set) var saveError: String?
     @Published private(set) var isSaving = false
-    /// When an entry was last saved, for a brief "Saved" moment on Journal.
-    @Published private(set) var lastSavedAt: Date?
+    /// The entry just saved without a reflection, so Journal can offer one ("Reflect on it").
+    @Published private(set) var reflectionOfferID: UUID?
     /// Lasting messages shown above every screen until dismissed. They add up, never replace.
     @Published private(set) var notices: [String] = []
     /// Set when the draft couldn't be restored or kept; shown on the Write screen.
@@ -40,7 +40,6 @@ final class GuestJournalViewModel: ObservableObject {
     static let draftUnprotectedMessage = "Your draft is kept, but this phone couldn’t fully secure it."
     static let draftNotClearedMessage = "Saved. The draft copy couldn’t be removed, but it won’t be saved twice."
     static let draftAlreadySavedMessage = "This draft was already saved to your journal."
-    static let reflectionNotAddedMessage = "These words are already in your journal, so this reflection wasn’t added."
 
     /// What the guest root shows when the store can't be opened. Never an empty journal.
     static func openFailureMessage(for error: Error) -> String {
@@ -78,6 +77,20 @@ final class GuestJournalViewModel: ObservableObject {
     }
 
     func dismissNotices() { notices.removeAll() }
+
+    /// "Not now".
+    func dismissReflectionOffer() { reflectionOfferID = nil }
+
+    /// The offer for this entry was taken up. A newer entry's offer stays.
+    func reflectionAdded(to entryID: UUID) {
+        if reflectionOfferID == entryID { reflectionOfferID = nil }
+    }
+
+    /// The just-saved entry, while it's still there and still has no reflection.
+    var reflectionOffer: GuestJournalEntry? {
+        guard let id = reflectionOfferID else { return nil }
+        return entries.first { $0.id == id && $0.reflection == nil && $0.nextStep == nil }
+    }
 
     /// An older draft couldn't be read; it's left as it was and new writing is kept separately.
     func noteUnreadableDraft() {
@@ -132,34 +145,24 @@ final class GuestJournalViewModel: ObservableObject {
     }
 
     /// Saves the draft as a new entry. On failure the draft stays and an error is shown.
-    /// Returns true once the entry is saved (or was already saved before).
-    /// With a `reflection` or `nextStep`, they're saved with the words in the same transaction.
+    /// Returns true once the entry is saved (or was already saved before). Only the words are
+    /// saved; a reflection can be added afterwards ("Reflect on it").
     @discardableResult
-    func saveDraft(reflection: GuestReflection? = nil, nextStep: String? = nil) async -> Bool {
+    func saveDraft() async -> Bool {
         let words = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !words.isEmpty, !isSaving else { return false }
         isSaving = true
         defer { isSaving = false }
         let submittedID = draftID
         let draftIDToRecord = drafts == nil ? nil : submittedID
+        var offer: UUID?
         do {
-            if reflection != nil || nextStep != nil {
-                guard let reflections = store as? any GuestReflectionStore else {
-                    throw GuestJournalError.saveFailed("store can't keep reflections")
-                }
-                _ = try await reflections.create(originalWords: words, draftID: draftIDToRecord,
-                                                 reflection: reflection, nextStep: nextStep)
-            } else {
-                _ = try await store.create(originalWords: words, draftID: draftIDToRecord)
-            }
+            offer = try await store.create(originalWords: words, draftID: draftIDToRecord).id
             saveError = nil
-        } catch GuestJournalError.savedButUnprotected {
+        } catch GuestJournalError.savedButUnprotected(let entryID) {
             saveError = nil
+            offer = entryID
             notices.append(Self.savedButUnprotectedMessage) // Saved: retrying would duplicate it.
-        } catch GuestJournalError.draftAlreadySaved where reflection != nil || nextStep != nil {
-            // The words were saved before, but this reflection wasn't: say so and stay.
-            saveError = Self.reflectionNotAddedMessage
-            return false
         } catch GuestJournalError.draftAlreadySaved {
             saveError = nil
             notices.append(Self.draftAlreadySavedMessage)
@@ -169,7 +172,7 @@ final class GuestJournalViewModel: ObservableObject {
         }
         // Clear only the exact version that was saved (same ID). Any edit while saving, even one
         // that returns to the same words, is a new version: it stays on screen and on the phone.
-        lastSavedAt = Date()
+        reflectionOfferID = offer // A reflection is only ever offered, after saving.
         if draftID == submittedID { setDraftQuietly("") }
         removeKeptDraft(id: submittedID)
         await load()

@@ -26,16 +26,4 @@ final class GuestPinguArtTests: XCTestCase {
         await GuestSettingsViewModel(journal: journal, practice: practice).deleteAll()
         XCTAssertNil(UserDefaults.standard.string(forKey: GuestAvatars.storageKey))
     }
-
-    func testSavingMarksTheSavedMoment() async throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("GuestArt-\(UUID())")
-        defer { try? FileManager.default.removeItem(at: root) }
-        let location = GuestJournalLocation(directory: root.appendingPathComponent("Journal"),
-                                            setupMarker: root.appendingPathComponent("Setup/initialized"))
-        let journal = try await GuestComposition.local(at: location).makeViewModel()
-        XCTAssertNil(journal.lastSavedAt)
-        journal.draft = "Words"
-        _ = await journal.saveDraft()
-        XCTAssertNotNil(journal.lastSavedAt)
-    }
 }

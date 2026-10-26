@@ -14,10 +14,10 @@ struct GuestHomeView: View {
     var body: some View {
         TabView(selection: $tab) {
             GuestTodayView(journal: journal, practice: practice, makeDictationEngine: makeDictationEngine,
-                           suggester: suggester, onSaved: { tab = .journal })
+                           onSaved: { tab = .journal })
                 .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
                 .tag(Tab.today)
-            GuestJournalListView(journal: journal, practice: practice)
+            GuestJournalListView(journal: journal, practice: practice, suggester: suggester)
                 .tabItem { GuestTabLabel(title: "Journal", icon: "GuestIconJournal") }
                 .tag(Tab.journal)
             GuestPracticeHomeView(practice: practice, journal: journal)
@@ -67,19 +67,13 @@ struct GuestTodayView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @ObservedObject var practice: GuestPracticeViewModel
     let makeDictationEngine: () -> any GuestDictationEngine
-    let suggester: any GuestSuggesting
     let onSaved: () -> Void
-    /// Today is the capture screen itself; the reflection review is pushed on top of it.
-    @State private var path: [TodayRoute] = []
-
-    enum TodayRoute: Hashable { case review }
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack {
             // Straight to writing or talking: the text box and the big microphone, no extra tap.
             GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
-                           heading: "What’s on your mind?", showsAvatar: true,
-                           onGetSuggestion: { path.append(.review) }, onSaved: finish)
+                           heading: "What’s on your mind?", showsAvatar: true, onSaved: onSaved)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
@@ -90,20 +84,9 @@ struct GuestTodayView: View {
                         .accessibilityLabel("Settings")
                     }
                 }
-                .navigationDestination(for: TodayRoute.self) { _ in
-                    GuestReflectionReviewView(journal: journal, suggester: suggester, onSaved: finish)
-                }
         }
     }
 }
-
-extension GuestTodayView {
-    fileprivate func finish() {
-        path = []
-        onSaved()
-    }
-}
-
 
 // MARK: - Write
 
@@ -113,19 +96,19 @@ struct GuestWriteView: View {
     let heading: String
     /// Today shows the Pingu avatar in the toolbar; opening its picker stops the microphone first.
     let showsAvatar: Bool
-    let onGetSuggestion: () -> Void
     let onSaved: () -> Void
+    @StateObject private var nudge = GuestNudgeModel()
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
          heading: String = "Start with your words.", showsAvatar: Bool = false,
-         onGetSuggestion: @escaping () -> Void, onSaved: @escaping () -> Void) {
+         onSaved: @escaping () -> Void) {
         self.journal = journal
         self.heading = heading
         self.showsAvatar = showsAvatar
-        self.onGetSuggestion = onGetSuggestion
         self.onSaved = onSaved
         _dictation = StateObject(wrappedValue: GuestDictationViewModel(journal: journal, engine: dictationEngine()))
     }
@@ -137,8 +120,10 @@ struct GuestWriteView: View {
                 Text(heading)
                     .font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
-                GuestSummary("Type, or tap the microphone and talk.")
+                // While typing, the microphone shrinks so the nudge and the words fit above the keyboard.
+                if !focused { GuestSummary("Type, or tap the microphone and talk.") }
                 microphone
+                prompts
                 TextEditor(text: $journal.draft)
                     .focused($focused)
                     .disabled(dictation.isActive) // Spoken words are going in; type again after Stop.
@@ -171,23 +156,14 @@ struct GuestWriteView: View {
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
             let empty = journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            VStack(spacing: 10) {
-                // Opt-in: a suggestion is only made when asked for.
-                Button {
-                    dictation.stopForSave()
-                    onGetSuggestion()
-                } label: {
-                    Label { Text("Get a suggestion") } icon: { GuestBrandIcon(asset: "GuestIconReflection") }
-                }
-                .buttonStyle(GuestBrandButtonStyle(filled: false))
-                Button {
-                    dictation.stopForSave() // Saving while listening keeps the words so far.
-                    Task { if await journal.saveDraft() { onSaved() } }
-                } label: {
-                    Text(journal.isSaving ? "Saving…" : "Save only my words")
-                }
-                .buttonStyle(GuestBrandButtonStyle())
+            // One Save. A reflection is offered afterwards, on Journal, and only if wanted.
+            Button {
+                dictation.stopForSave() // Saving while listening keeps the words so far.
+                Task { if await journal.saveDraft() { onSaved() } }
+            } label: {
+                Text(journal.isSaving ? "Saving…" : "Save")
             }
+            .buttonStyle(GuestBrandButtonStyle())
             .disabled(empty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
             .background(GuestBrand.ice)
@@ -206,20 +182,23 @@ struct GuestWriteView: View {
         // Only `.background`: the permission alert makes the app `.inactive`, and calls arrive
         // as audio-session interruptions.
         .onChange(of: scenePhase) { _, phase in if phase == .background { dictation.interrupt() } }
+        .onChange(of: journal.draft) { _, words in nudge.wordsChanged(to: words) }
         .onDisappear { dictation.interrupt() }
     }
 
     /// The big microphone: tap to talk, tap again to stop. Cancel removes only the spoken words.
     private var microphone: some View {
-        VStack(spacing: 10) {
+        let compact = focused
+        let layout = compact ? AnyLayout(HStackLayout(spacing: 12)) : AnyLayout(VStackLayout(spacing: 10))
+        return layout {
             Button {
                 focused = false
                 Task { await dictation.toggle() }
             } label: {
                 Image(systemName: dictation.isActive ? "stop.fill" : "mic.fill")
-                    .font(.system(size: 30, weight: .semibold))
+                    .font(.system(size: compact ? 22 : 30, weight: .semibold))
                     .foregroundStyle(.white)
-                    .frame(width: 80, height: 80)
+                    .frame(width: compact ? 52 : 80, height: compact ? 52 : 80)
                     .background(GuestBrand.blue, in: Circle())
                     .overlay(Circle().stroke(GuestBrand.blue.opacity(0.25), lineWidth: dictation.state == .listening ? 10 : 0))
                     .animation(.easeInOut(duration: 0.2), value: dictation.state)
@@ -235,7 +214,70 @@ struct GuestWriteView: View {
                     .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: compact ? .leading : .center)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: compact)
+    }
+
+    /// Question chips above the empty box; the "Need a nudge?" bubble once there are words.
+    /// Fixed guided prompts: only the starter is added, and only when tapped.
+    @ViewBuilder private var prompts: some View {
+        let empty = journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if empty, !dictation.isActive {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Not sure where to start?")
+                    .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
+                GuestChipFlow {
+                    ForEach(GuestTodayPrompts.starters, id: \.self) { prompt in
+                        Button(prompt.question) { start(with: prompt.starter) }
+                            .buttonStyle(GuestChipButtonStyle())
+                            .accessibilityHint("Starts your words with “\(prompt.starter.trimmingCharacters(in: .whitespaces))”.")
+                    }
+                }
+            }
+        } else if nudge.isShown(for: journal.draft, isDictating: dictation.isActive) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Need a nudge?")
+                    .font(GuestBrand.font(.caption, .bold)).foregroundStyle(.white.opacity(0.9))
+                Text(nudge.prompt.question)
+                    .font(GuestBrand.font(.body)).foregroundStyle(.white)
+                // One row when it fits; stacked at larger text sizes. Each action is 44 points tall.
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 16) { nudgeActions(wrapping: false) }
+                    VStack(alignment: .leading, spacing: 0) { nudgeActions(wrapping: true) }
+                }
+                .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(.white)
+                .buttonStyle(.borderless)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(GuestBrand.blue, in: UnevenRoundedRectangle(topLeadingRadius: 16, bottomLeadingRadius: 4,
+                                                                   bottomTrailingRadius: 16, topTrailingRadius: 16))
+            .accessibilityElement(children: .contain)
+        }
+    }
+
+    /// In a row each label keeps its width; stacked, a long label wraps instead of overflowing.
+    @ViewBuilder private func nudgeActions(wrapping: Bool) -> some View {
+        Button { start(with: nil) } label: { nudgeLabel("Add to my words", wrapping: wrapping) }
+        Button { nudge.next() } label: { nudgeLabel("Another question", wrapping: wrapping) }
+        Button { nudge.hide() } label: { nudgeLabel("Hide", wrapping: wrapping) }
+    }
+
+    private func nudgeLabel(_ title: String, wrapping: Bool) -> some View {
+        Text(title)
+            .fixedSize(horizontal: !wrapping, vertical: true)
+            .frame(minWidth: 44, minHeight: 44, alignment: .leading)
+            .contentShape(Rectangle())
+    }
+
+    /// Adds a chip's starter (or the nudge's) to the words and puts the cursor there to type.
+    private func start(with starter: String?) {
+        if let starter {
+            journal.draft = GuestTodayPrompts.inserting(starter, into: journal.draft)
+        } else {
+            journal.draft = nudge.add(to: journal.draft)
+        }
+        focused = true
     }
 
     private var statusText: String {
@@ -253,9 +295,10 @@ struct GuestWriteView: View {
 struct GuestJournalListView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @ObservedObject var practice: GuestPracticeViewModel
+    let suggester: any GuestSuggesting
     @State private var query = ""
     @State private var showsCalendar = false
-    @State private var showsSaved = false
+    @State private var reflectingID: UUID?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedDay: Date?
 
@@ -317,19 +360,21 @@ struct GuestJournalListView: View {
             .navigationTitle("Journal")
             // Pushes the list down rather than covering the entry that was just saved.
             .safeAreaInset(edge: .top) {
-                if showsSaved {
-                    GuestSuccessBanner(text: "Saved to your journal")
-                        .padding(.horizontal, 16).padding(.bottom, 4)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                if let entry = journal.reflectionOffer {
+                    GuestReflectionOfferCard {
+                        reflectingID = entry.id
+                    } onNotNow: {
+                        let motion: Animation? = reduceMotion ? nil : .default // No sliding with Reduce Motion.
+                        withAnimation(motion) { journal.dismissReflectionOffer() }
+                    }
+                    .padding(.horizontal, 16).padding(.bottom, 4)
+                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
             }
-            // Runs on first appearance too, so the moment shows when saving switches to this tab.
-            .task(id: journal.lastSavedAt) {
-                guard let saved = journal.lastSavedAt, Date().timeIntervalSince(saved) < 3 else { return }
-                let motion: Animation? = reduceMotion ? nil : .default // No sliding with Reduce Motion.
-                withAnimation(motion) { showsSaved = true }
-                try? await Task.sleep(for: .seconds(2.5))
-                withAnimation(motion) { showsSaved = false }
+            .navigationDestination(item: $reflectingID) { id in
+                if let entry = journal.entries.first(where: { $0.id == id }) {
+                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester) { reflectingID = nil }
+                }
             }
             .toolbar {
                 Button { withAnimation { showsCalendar.toggle() } } label: {
@@ -342,6 +387,33 @@ struct GuestJournalListView: View {
             }
         }
         .id(practice.dataGeneration) // Delete all closes anything open in Journal.
+        // Outside the reset identity: the route lives in this view's state, so clear it here too.
+        .onChange(of: practice.dataGeneration) { _, _ in reflectingID = nil }
+    }
+}
+
+/// After saving: "Saved to your journal", with an optional reflection. Saving never needs one.
+private struct GuestReflectionOfferCard: View {
+    let onReflect: () -> Void
+    let onNotNow: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                Image("GuestPinguJournal").resizable().scaledToFit().frame(width: 44, height: 44)
+                    .accessibilityHidden(true)
+                Text("Saved to your journal").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
+                    .accessibilityAddTraits(.isHeader)
+            }
+            GuestSummary("Want a short reflection on it?")
+            HStack(spacing: 10) {
+                Button("Reflect on it", action: onReflect).buttonStyle(GuestBrandButtonStyle())
+                Button("Not now", action: onNotNow).buttonStyle(GuestBrandButtonStyle(filled: false))
+            }
+        }
+        .padding(16)
+        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+        .shadow(color: GuestBrand.ink.opacity(0.08), radius: 10, y: 2)
     }
 }
 

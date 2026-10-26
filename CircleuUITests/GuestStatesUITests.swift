@@ -8,7 +8,7 @@ final class GuestStatesUITests: XCTestCase {
     }
 
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
 
     func openSettings(_ app: XCUIApplication) {
@@ -58,7 +58,7 @@ final class GuestStatesUITests: XCTestCase {
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("Only entry today")
-        app.buttons["Save only my words"].tap()
+        app.buttons["Save"].tap()
         XCTAssertTrue(has(app, "Only entry today"))
         app.buttons["Show calendar"].tap()
         let day = app.buttons[other.formatted(.dateTime.day().month(.wide))]

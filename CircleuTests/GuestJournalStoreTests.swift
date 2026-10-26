@@ -397,10 +397,12 @@ final class GuestJournalViewModelTests: XCTestCase {
 
     func testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal() async {
         let store = StubJournalStore()
-        await store.configure(createError: .savedButUnprotected(entryID: UUID()))
+        let committed = UUID()
+        await store.configure(createError: .savedButUnprotected(entryID: committed))
         let viewModel = GuestJournalViewModel(store: store)
         viewModel.draft = "Saved once"
         let saved = await viewModel.saveDraft()
+        XCTAssertEqual(viewModel.reflectionOfferID, committed, "the committed entry is still offered a reflection")
         XCTAssertTrue(saved, "committed, so it isn't offered for saving again")
         XCTAssertEqual(viewModel.draft, "")
         XCTAssertNil(viewModel.saveError)

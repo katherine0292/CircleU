@@ -1,8 +1,8 @@
 import Combine
 import SwiftUI
 
-/// "Get a suggestion" after Write: a tentative reflection the person can edit, remove or ignore.
-/// Their own words are always saved as written, and saving without a suggestion stays one tap away.
+/// "Reflect on it" after saving: a tentative reflection on a saved entry that the person can edit,
+/// remove or ignore. Their words are already saved as written and never change here.
 @MainActor
 final class GuestReflectionReviewViewModel: ObservableObject {
     enum State: Equatable { case loading, ready, failed }
@@ -16,31 +16,28 @@ final class GuestReflectionReviewViewModel: ObservableObject {
     /// The suggested step, offered with "Add this step".
     @Published private(set) var suggestedNextStep = ""
     @Published private(set) var source: GuestSuggestionSource?
+    @Published private(set) var isSaving = false
+    @Published private(set) var saveError: String?
     private var generated = ("", "", "")
-    /// The words the suggestion was made from.
-    @Published private(set) var basedOnWords = ""
 
-    static let failedMessage = "A suggestion couldn’t be made right now. Your words are safe, and you can still save them."
+    static let failedMessage = "A suggestion couldn’t be made right now. Your entry is saved as it is."
 
+    let entry: GuestJournalEntry
     let journal: GuestJournalViewModel
     private let suggester: any GuestSuggesting
 
-    init(journal: GuestJournalViewModel, suggester: any GuestSuggesting) {
+    init(entry: GuestJournalEntry, journal: GuestJournalViewModel, suggester: any GuestSuggesting) {
+        self.entry = entry
         self.journal = journal
         self.suggester = suggester
     }
 
     private static func trim(_ text: String) -> String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
 
-    /// The words changed after the suggestion was made.
-    var isStale: Bool { state == .ready && Self.trim(journal.draft) != basedOnWords }
-
     func load() async {
         state = .loading
-        let words = Self.trim(journal.draft)
         do {
-            let suggestion = try await suggester.reflection(for: words)
-            basedOnWords = words
+            let suggestion = try await suggester.reflection(for: entry.originalWords)
             summary = suggestion.summary
             feeling = suggestion.feeling
             insight = suggestion.insight
@@ -59,7 +56,7 @@ final class GuestReflectionReviewViewModel: ObservableObject {
         let parts = (Self.trim(summary), Self.trim(feeling), Self.trim(insight))
         guard !(parts.0.isEmpty && parts.1.isEmpty && parts.2.isEmpty) else { return nil }
         return GuestReflection(summary: parts.0, feeling: parts.1, insight: parts.2, source: source,
-                               basedOnWords: basedOnWords)
+                               basedOnWords: entry.originalWords)
     }
 
     /// The person changed the suggestion or added a step; leaving asks first.
@@ -74,38 +71,44 @@ final class GuestReflectionReviewViewModel: ObservableObject {
         return state == .ready && !step.isEmpty ? step : nil
     }
 
-    func saveWithReflection() async -> Bool {
-        await journal.saveDraft(reflection: keptReflection, nextStep: keptNextStep)
-    }
+    /// Something is left to add to the entry.
+    var canSave: Bool { !isSaving && (keptReflection != nil || keptNextStep != nil) }
 
-    func saveWordsOnly() async -> Bool {
-        await journal.saveDraft()
+    /// Adds what's kept to the entry. False (with `saveError`) if it wasn't added.
+    func save() async -> Bool {
+        guard canSave else { return false }
+        isSaving = true
+        defer { isSaving = false }
+        saveError = await journal.updateReflection(of: entry, reflection: keptReflection, nextStep: keptNextStep,
+                                                   nextStepDone: false)
+        if saveError == nil { journal.reflectionAdded(to: entry.id) }
+        return saveError == nil
     }
 }
 
 struct GuestReflectionReviewView: View {
     @StateObject private var review: GuestReflectionReviewViewModel
-    @ObservedObject private var journal: GuestJournalViewModel
-    let onSaved: () -> Void
+    let onDone: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var confirmDiscard = false
 
-    init(journal: GuestJournalViewModel, suggester: any GuestSuggesting, onSaved: @escaping () -> Void) {
-        _review = StateObject(wrappedValue: GuestReflectionReviewViewModel(journal: journal, suggester: suggester))
-        self.journal = journal
-        self.onSaved = onSaved
+    init(entry: GuestJournalEntry, journal: GuestJournalViewModel, suggester: any GuestSuggesting,
+         onDone: @escaping () -> Void) {
+        _review = StateObject(wrappedValue: GuestReflectionReviewViewModel(entry: entry, journal: journal,
+                                                                           suggester: suggester))
+        self.onDone = onDone
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("My words").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-                Text(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines))
+                Text(review.entry.originalWords)
                     .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
                 suggestion
-                if let error = journal.saveError {
+                if let error = review.saveError {
                     Label(error, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
@@ -114,21 +117,15 @@ struct GuestReflectionReviewView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 10) {
-                if review.keptReflection != nil || review.keptNextStep != nil {
-                    Button(journal.isSaving ? "Saving…" : "Save with reflection") {
-                        Task { if await review.saveWithReflection() { onSaved() } }
-                    }
-                    .buttonStyle(GuestBrandButtonStyle())
+            if review.state == .ready {
+                Button(review.isSaving ? "Saving…" : "Save reflection") {
+                    Task { if await review.save() { onDone() } }
                 }
-                Button("Save only my words") {
-                    Task { if await review.saveWordsOnly() { onSaved() } }
-                }
-                .buttonStyle(GuestBrandButtonStyle(filled: review.keptReflection == nil && review.keptNextStep == nil))
+                .buttonStyle(GuestBrandButtonStyle())
+                .disabled(!review.canSave)
+                .padding(.horizontal, 24).padding(.vertical, 12)
+                .background(GuestBrand.ice)
             }
-            .disabled(journal.isSaving)
-            .padding(.horizontal, 24).padding(.vertical, 12)
-            .background(GuestBrand.ice)
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationTitle("Reflection")
@@ -137,14 +134,14 @@ struct GuestReflectionReviewView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Back") { if review.hasEdits { confirmDiscard = true } else { dismiss() } }
-                    .disabled(journal.isSaving)
+                    .disabled(review.isSaving)
             }
         }
         .alert("Discard your changes to the suggestion?", isPresented: $confirmDiscard) {
             Button("Keep editing", role: .cancel) {}
             Button("Discard", role: .destructive) { dismiss() }
         } message: {
-            Text("Your own words stay in the draft.")
+            Text("Your saved entry stays as it is.")
         }
         .task { if review.state == .loading { await review.load() } }
     }
@@ -170,14 +167,6 @@ struct GuestReflectionReviewView: View {
                 if let source = review.source {
                     Text(source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
-                if review.isStale {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Label("Based on an earlier version of your words.", systemImage: "clock.arrow.circlepath")
-                            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
-                        Button("Update suggestion") { Task { await review.load() } }
-                            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
-                    }
-                }
                 field("What happened", text: $review.summary)
                 field("A feeling that might fit", text: $review.feeling)
                 field("Something to consider", text: $review.insight)
@@ -200,7 +189,7 @@ struct GuestReflectionReviewView: View {
                 field("Your next step (optional)", text: $review.nextStep)
             }
             // Nothing can change while it saves, so what's saved is what's on screen.
-            .disabled(journal.isSaving)
+            .disabled(review.isSaving)
         }
     }
 

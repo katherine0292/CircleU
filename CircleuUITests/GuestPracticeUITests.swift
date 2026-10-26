@@ -3,7 +3,7 @@ import XCTest
 final class GuestPracticeUITests: XCTestCase {
     var findings: [String] = []
     func shot(_ app: XCUIApplication, _ name: String) {
-        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; add(shot)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
     func audit(_ app: XCUIApplication, _ screen: String) {
         try? app.performAccessibilityAudit { issue in
@@ -44,7 +44,7 @@ final class GuestPracticeUITests: XCTestCase {
         app.tabBars.buttons["Today"].tap()
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("Groupmate missed the deadline \(tag)")
-        app.buttons["Save only my words"].tap()
+        app.buttons["Save"].tap()
         let row = app.staticTexts["Groupmate missed the deadline \(tag)"]
         XCTAssertTrue(row.waitForExistence(timeout: 5)); row.tap()
         app.buttons["Practice what to say"].tap()
