@@ -11,9 +11,11 @@ struct GuestComposition {
         if let words = UserDefaults.standard.string(forKey: "CircleUScriptedDictation") {
             return ScriptedDictationEngine(words: words) // UI tests only; set by a launch argument.
         }
+        #if targetEnvironment(simulator)
         if UserDefaults.standard.bool(forKey: "CircleUAssumeOnDeviceSpeech") {
             return SpeechDictationEngine(assumesOnDeviceSupport: true) // UI tests only: reach the real permission prompts.
         }
+        #endif
         #endif
         return SpeechDictationEngine()
     }
