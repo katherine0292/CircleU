@@ -18,23 +18,14 @@ struct GuestPracticeHomeView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Button { path.append(.new(sourceEntryID: nil)) } label: {
-                        Label("Practice a message", systemImage: "arrow.right")
-                            .labelStyle(GuestTrailingIconLabelStyle())
+                VStack(alignment: .leading, spacing: 16) {
+                    if isEmpty {
+                        emptyState
+                    } else {
+                        startCard
+                        if let draft = practice.keptDraft { draftCard(draft) }
+                        history
                     }
-                    .buttonStyle(GuestBrandButtonStyle())
-                    if let draft = practice.keptDraft {
-                        Button { path.append(.new(sourceEntryID: draft.sourceEntryID)) } label: {
-                            Label {
-                                Text("Continue your draft")
-                            } icon: {
-                                Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
-                            }
-                        }
-                        .buttonStyle(GuestBrandButtonStyle(filled: false))
-                    }
-                    history
                 }
                 .padding(24)
             }
@@ -49,6 +40,77 @@ struct GuestPracticeHomeView: View {
         }
     }
 
+    private var isEmpty: Bool {
+        if case .loaded(let messages) = practice.loadState { return messages.isEmpty && practice.keptDraft == nil }
+        return false
+    }
+
+    /// The one primary action, as a picture card.
+    private var startCard: some View {
+        Button { path.append(.new(sourceEntryID: nil)) } label: {
+            HStack(alignment: .bottom, spacing: 0) {
+                HStack(spacing: 8) {
+                    Text("Practice a message")
+                    Image(systemName: "arrow.right").accessibilityHidden(true)
+                }
+                .font(GuestBrand.font(.title3, .bold)).foregroundStyle(.white)
+                .padding(22)
+                Spacer(minLength: 0)
+                Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 140)
+                    .accessibilityHidden(true)
+            }
+            .frame(maxWidth: .infinity, minHeight: 150, alignment: .bottomLeading)
+            .background(GuestBrand.blue, in: RoundedRectangle(cornerRadius: 24))
+            .contentShape(RoundedRectangle(cornerRadius: 24))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Practice a message")
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 18) {
+            Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 220)
+                .accessibilityHidden(true)
+            Text("Nothing practised yet.").foregroundStyle(GuestBrand.muted)
+            Button { path.append(.new(sourceEntryID: nil)) } label: {
+                Label("Practice a message", systemImage: "arrow.right")
+                    .labelStyle(GuestTrailingIconLabelStyle())
+            }
+            .buttonStyle(GuestBrandButtonStyle())
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 40)
+    }
+
+    private func draftCard(_ draft: GuestPracticeDraft) -> some View {
+        let preview = draft.wording.isEmpty ? draft.situation : draft.wording
+        return Button { path.append(.new(sourceEntryID: draft.sourceEntryID)) } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 16, weight: .semibold)).foregroundStyle(GuestBrand.blue)
+                    .frame(width: 36, height: 36)
+                    .background(GuestBrand.blue.opacity(0.1), in: Circle())
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Continue your draft").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                    if !preview.isEmpty {
+                        Text(preview).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted).lineLimit(1)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(12)
+            .background(.white, in: RoundedRectangle(cornerRadius: 18))
+            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(GuestBrand.blue.opacity(0.4), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
+            .contentShape(RoundedRectangle(cornerRadius: 18))
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Continue your draft")
+        .accessibilityValue(preview)
+        .accessibilityAddTraits(.isButton)
+    }
+
     @ViewBuilder private var history: some View {
         switch practice.loadState {
         case .loading:
@@ -59,20 +121,11 @@ struct GuestPracticeHomeView: View {
                 Button("Try again") { Task { await practice.load() } }
             }
             .frame(maxWidth: .infinity)
-        case .loaded(let messages) where messages.isEmpty:
-            VStack(spacing: 12) {
-                Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 160)
-                    .accessibilityHidden(true)
-                Text("Nothing practised yet.").foregroundStyle(GuestBrand.muted)
-            }
-            .frame(maxWidth: .infinity)
         case .loaded(let all):
             let messages = all.filter { GuestSearch.matches($0, query) }
-            if messages.isEmpty {
+            if messages.isEmpty && !query.isEmpty {
                 GuestPinguMessage(asset: "GuestPinguThoughtful", text: "No messages match “\(query)”.", height: 110)
             }
-            Text("Saved messages").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
-                .accessibilityAddTraits(.isHeader)
             ForEach(messages) { message in
                 Button { path.append(.message(message.id)) } label: {
                     GuestPracticeRow(message: message, entries: journal.entries)
@@ -83,26 +136,37 @@ struct GuestPracticeHomeView: View {
     }
 }
 
+/// A saved message as a sent bubble: the words, a journal icon when it came from an entry, and the date.
 struct GuestPracticeRow: View {
     let message: GuestPracticeMessage
     let entries: [GuestJournalEntry]
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(message.wording).lineLimit(2).foregroundStyle(GuestBrand.ink)
-                Text(GuestPracticeTag.label(sourceEntryID: message.sourceEntryID, entries: entries))
-                    .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue).lineLimit(1)
-                Text(message.updatedAt, format: .dateTime.day().month().hour().minute())
-                    .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+        VStack(alignment: .trailing, spacing: 4) {
+            Text(message.wording).lineLimit(3).foregroundStyle(GuestBrand.ink)
+                .padding(.horizontal, 16).padding(.vertical, 12)
+                .background(.white, in: GuestBubbleShape())
+                .overlay(GuestBubbleShape().stroke(GuestBrand.muted.opacity(0.18)))
+            HStack(spacing: 6) {
+                if message.sourceEntryID != nil {
+                    GuestBrandIcon(asset: "GuestIconJournal", size: 16)
+                }
+                Text(message.updatedAt, format: .dateTime.day().month())
             }
-            Spacer(minLength: 8)
-            Image(systemName: "chevron.right").foregroundStyle(GuestBrand.muted).accessibilityHidden(true)
+            .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+        .padding(.leading, 40)
+        .frame(maxWidth: .infinity, alignment: .trailing)
         .contentShape(Rectangle())
+        .accessibilityHint(GuestPracticeTag.label(sourceEntryID: message.sourceEntryID, entries: entries))
+    }
+}
+
+/// A chat bubble with its tail corner at the bottom right, for the person's own message.
+struct GuestBubbleShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        UnevenRoundedRectangle(topLeadingRadius: 22, bottomLeadingRadius: 22, bottomTrailingRadius: 6,
+                               topTrailingRadius: 22, style: .continuous).path(in: rect)
     }
 }
 
@@ -194,14 +258,17 @@ struct GuestPracticeMessageView: View {
     @State private var confirmDiscard = false
     @State private var confirmDelete = false
     @State private var deleteError: String?
+    /// Situation and Goal stay folded into chips until opened, or until they have words.
+    @State private var showSituation = false
+    @State private var showGoal = false
+    @FocusState private var focus: Field?
+
+    private enum Field { case situation, goal }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(GuestPracticeTag.label(sourceEntryID: composer.sourceEntryID, entries: journal.entries))
-                    .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
-                    .padding(.horizontal, 10).padding(.vertical, 5)
-                    .background(.white, in: Capsule())
+                tag
                 if composer.isEditing { form } else { savedMessage }
                 // Both can apply: a save warning, then a failed delete.
                 ForEach([deleteError, composer.saveError].compactMap { $0 }, id: \.self) { error in
@@ -228,6 +295,19 @@ struct GuestPracticeMessageView: View {
                 }
                 .disabled(!composer.canLeave)
             }
+            if composer.saved != nil && !composer.isEditing {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button { composer.edit() } label: { Image(systemName: "pencil") }
+                        .accessibilityLabel("Edit")
+                    // Rarely used, so it waits in the ••• menu; it still asks first.
+                    Menu {
+                        Button("Delete message", systemImage: "trash", role: .destructive) { confirmDelete = true }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("More")
+                }
+            }
         }
         .alert("Discard your changes?", isPresented: $confirmDiscard) {
             Button("Keep editing", role: .cancel) {}
@@ -241,6 +321,17 @@ struct GuestPracticeMessageView: View {
         }
     }
 
+    /// Where the message came from: a journal icon and the entry's opening words, or "On its own".
+    private var tag: some View {
+        HStack(spacing: 6) {
+            if composer.sourceEntryID != nil { GuestBrandIcon(asset: "GuestIconJournal", size: 16) }
+            Text(GuestPracticeTag.label(sourceEntryID: composer.sourceEntryID, entries: journal.entries))
+        }
+        .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+        .padding(.horizontal, 10).padding(.vertical, 6)
+        .background(.white, in: Capsule())
+    }
+
     private var form: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("What would you like to say?")
@@ -250,16 +341,12 @@ struct GuestPracticeMessageView: View {
                 Label(warning, systemImage: "info.circle")
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
             }
-            field("Situation", text: $composer.situation, prompt: "What’s going on?")
-            field("Goal", text: $composer.goal, prompt: "What do you hope happens?")
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Your wording").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-                TextEditor(text: $composer.wording)
-                    .scrollContentBackground(.hidden)
-                    .padding(12)
-                    .frame(minHeight: 160)
-                    .background(.white, in: RoundedRectangle(cornerRadius: 18))
-                    .accessibilityLabel("Your wording")
+            details
+            wordingBubble
+            if composer.didCopy {
+                Text("Copied. Not saved or sent.")
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
             suggestionsSection
             Button {
@@ -276,109 +363,189 @@ struct GuestPracticeMessageView: View {
             }
             .buttonStyle(GuestBrandButtonStyle())
             .disabled(!composer.canSave)
-            copyButton(filled: false)
-            Text("Copying won’t save or send it.")
-                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
         }
         // Nothing changes while saving, so what's saved (and cleared from drafts) is what's shown.
         .disabled(composer.isSaving)
+        .onAppear {
+            showSituation = showSituation || !composer.situation.isEmpty
+            showGoal = showGoal || !composer.goal.isEmpty
+        }
+    }
+
+    /// Situation and Goal: optional, so they start as "+" chips and open into a field.
+    @ViewBuilder private var details: some View {
+        if !showSituation || !showGoal {
+            HStack(spacing: 8) {
+                if !showSituation { addChip("Situation") { showSituation = true; focus = .situation } }
+                if !showGoal { addChip("Goal") { showGoal = true; focus = .goal } }
+            }
+        }
+        if showSituation {
+            field("Situation", icon: "person.2", text: $composer.situation, prompt: "What’s going on?")
+                .focused($focus, equals: .situation)
+        }
+        if showGoal {
+            field("Goal", icon: "scope", text: $composer.goal, prompt: "What do you hope happens?")
+                .focused($focus, equals: .goal)
+        }
+    }
+
+    private func addChip(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: "plus")
+                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                .padding(.horizontal, 14).frame(minHeight: 44)
+                .background(.white, in: Capsule())
+                .overlay(Capsule().strokeBorder(GuestBrand.blue.opacity(0.3)))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Add \(title.lowercased())")
+    }
+
+    /// The person's words in a sent-message bubble, with Copy in its corner.
+    private var wordingBubble: some View {
+        ZStack(alignment: .bottomTrailing) {
+            TextEditor(text: $composer.wording)
+                .scrollContentBackground(.hidden)
+                .padding(.horizontal, 12).padding(.top, 12).padding(.bottom, 52)
+                .frame(minHeight: 180)
+                .background(.white, in: GuestBubbleShape())
+                .accessibilityLabel("Your wording")
+            Button {
+                composer.copy { UIPasteboard.general.string = $0 }
+            } label: {
+                Image(systemName: composer.didCopy ? "checkmark" : "doc.on.doc")
+                    .font(.system(size: 17, weight: .semibold)).foregroundStyle(GuestBrand.blue)
+                    .frame(width: 44, height: 44)
+                    .background(GuestBrand.blue.opacity(0.1), in: Circle())
+            }
+            .buttonStyle(.plain)
+            .padding(10)
+            .disabled(!composer.canCopy)
+            .opacity(composer.canCopy ? 1 : 0.45)
+            .accessibilityLabel(composer.didCopy ? "Copied" : "Copy")
+        }
     }
 
     @ViewBuilder private var suggestionsSection: some View {
         if composer.suggester != nil {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 10) {
                     Button {
                         Task { await composer.suggest() }
                     } label: {
-                        Label {
+                        HStack(spacing: 10) {
+                            Image("GuestPinguThoughtful").resizable().scaledToFit().frame(width: 52, height: 52)
+                                .accessibilityHidden(true)
                             Text(composer.isSuggesting ? "Making suggestions…" : "Get a suggestion")
-                        } icon: {
-                            GuestBrandIcon(asset: "GuestIconReflection", size: 24)
+                                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                                .padding(.horizontal, 14).padding(.vertical, 10)
+                                // Tinted, not filled: Save is the screen's one primary action.
+                                .background(GuestBrand.blue.opacity(0.12), in: UnevenRoundedRectangle(
+                                    topLeadingRadius: 16, bottomLeadingRadius: 4, bottomTrailingRadius: 16,
+                                    topTrailingRadius: 16, style: .continuous))
                         }
                     }
-                    .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                    .buttonStyle(.plain)
                     .disabled(composer.isSuggesting)
                     Spacer()
                     if composer.wordingBeforeSuggestion != nil {
                         Button("Undo") { composer.undoSuggestion() }
                             .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+                            .frame(minHeight: 44)
                             .accessibilityLabel("Undo suggestion")
                     }
                 }
-                .frame(minHeight: 44)
                 if let error = composer.suggestionError {
                     Text(error).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
                 if let suggestions = composer.suggestions {
-                    Text(suggestions.source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    Text(suggestions.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
                     if composer.suggestionsAreStale {
-                        Label("Based on earlier details or wording. Get a suggestion again to update.",
+                        Label("Based on earlier words. Get a suggestion again to update.",
                               systemImage: "clock.arrow.circlepath")
                             .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
                     }
-                    ForEach(suggestions.options) { option in
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(option.tone).font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
-                            Text(option.text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
-                            Button { composer.use(option) } label: {
-                                Text("Use this").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
-                            }
-                            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
-                                .accessibilityLabel("Use the \(option.tone.lowercased()) option")
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(alignment: .top, spacing: 12) {
+                            ForEach(suggestions.options) { option in optionCard(option) }
                         }
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                        .scrollTargetLayout()
                     }
+                    .scrollTargetBehavior(.viewAligned)
+                    .padding(.horizontal, -24).contentMargins(.horizontal, 24, for: .scrollContent)
                 }
             }
         }
     }
 
+    private func optionCard(_ option: GuestWordingOption) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(option.tone).font(GuestBrand.font(.caption, .bold)).foregroundStyle(GuestBrand.blue)
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(GuestBrand.blue.opacity(0.1), in: Capsule())
+            Text(option.text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Button { composer.use(option) } label: {
+                Text("Use this").padding(.horizontal, 18).frame(minHeight: 44)
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(GuestBrand.blue, lineWidth: 1.5))
+            }
+            .buttonStyle(.plain)
+            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+            .accessibilityLabel("Use the \(option.tone.lowercased()) option")
+        }
+        .padding(16)
+        .frame(width: 272, alignment: .leading)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .background(.white, in: RoundedRectangle(cornerRadius: 20))
+    }
+
     private var savedMessage: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if !composer.situation.isEmpty { labelled("Situation", composer.situation) }
-            if !composer.goal.isEmpty { labelled("Goal", composer.goal) }
-            Text(composer.wording).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
-            Label { Text("Saved · not sent") } icon: { GuestBrandIcon(asset: "GuestPinguWelcome", size: 34) }
-                .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
-            copyButton(filled: true)
-            Button("Edit") { composer.edit() }
-                .buttonStyle(GuestBrandButtonStyle(filled: false))
-            Button("Delete message", role: .destructive) { confirmDelete = true }
-                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.danger)
-                .frame(maxWidth: .infinity, minHeight: 44).contentShape(Rectangle())
+            if !composer.situation.isEmpty { detail("Situation", icon: "person.2", composer.situation) }
+            if !composer.goal.isEmpty { detail("Goal", icon: "scope", composer.goal) }
+            Text(composer.wording).font(GuestBrand.font(.title3)).foregroundStyle(.white)
+                .padding(18).background(GuestBrand.blue, in: GuestBubbleShape())
+                .padding(.leading, 32)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            HStack(spacing: 8) {
+                GuestBrandIcon(asset: "GuestPinguThumbsUp", size: 40)
+                Text("Saved · not sent")
+            }
+            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            if composer.didCopy {
+                Text("Copied. Not sent.") // Already saved, so only "not sent".
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            Button {
+                composer.copy { UIPasteboard.general.string = $0 }
+            } label: {
+                Label(composer.didCopy ? "Copied" : "Copy", systemImage: composer.didCopy ? "checkmark" : "doc.on.doc")
+            }
+            .buttonStyle(GuestBrandButtonStyle())
+            .disabled(!composer.canCopy)
         }
     }
 
-    private func copyButton(filled: Bool) -> some View {
-        Button {
-            composer.copy { UIPasteboard.general.string = $0 }
-        } label: {
-            Label(composer.didCopy ? "Copied" : "Copy", systemImage: composer.didCopy ? "checkmark" : "doc.on.doc")
-        }
-        .buttonStyle(GuestBrandButtonStyle(filled: filled))
-        .disabled(!composer.canCopy)
-    }
-
-    private func field(_ title: String, text: Binding<String>, prompt: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+    private func field(_ title: String, icon: String, text: Binding<String>, prompt: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: icon).foregroundStyle(GuestBrand.muted).accessibilityHidden(true)
             TextField(title, text: text, prompt: Text(prompt), axis: .vertical)
                 .lineLimit(1...4)
-                .padding(12)
-                .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                .accessibilityLabel(title)
         }
+        .padding(12)
+        .background(.white, in: RoundedRectangle(cornerRadius: 14))
     }
 
-    private func labelled(_ title: String, _ text: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
-            Text(text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
-        }
+    private func detail(_ title: String, icon: String, _ text: String) -> some View {
+        Label { Text(text) } icon: { Image(systemName: icon) }
+            .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(title): \(text)")
     }
 
     private func delete() async {
