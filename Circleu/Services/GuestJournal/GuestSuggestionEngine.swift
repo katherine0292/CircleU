@@ -32,6 +32,15 @@ nonisolated enum GuestSuggestionError: Error, Equatable { case noWords }
 protocol GuestSuggesting {
     func reflection(for words: String) async throws -> GuestReflectionSuggestion
     func wordingOptions(situation: String, goal: String, draft: String) async throws -> GuestWordingSuggestions
+    func conversationOptions(situation: String, goal: String, draft: String,
+                             conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions
+}
+
+extension GuestSuggesting {
+    func conversationOptions(situation: String, goal: String, draft: String,
+                             conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions {
+        try await wordingOptions(situation: situation, goal: goal, draft: draft)
+    }
 }
 
 extension GuestSuggestionSource {
@@ -76,6 +85,36 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
         #endif
         return GuestWordingSuggestions(options: Self.guidedWordingOptions(situation: situation, goal: goal, draft: draft),
                                        source: .guided)
+    }
+
+    func conversationOptions(situation: String, goal: String, draft: String,
+                             conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions {
+        #if canImport(FoundationModels)
+        if !guidedOnly, #available(iOS 26.0, *), case .available = SystemLanguageModel.default.availability,
+           let options = try? await Self.modelWordingOptions(
+            situation: situation + "\n" + conversation.suggestionContext,
+            goal: goal, draft: draft), !options.isEmpty {
+            return GuestWordingSuggestions(options: options, source: .onDevice)
+        }
+        #endif
+        // Guided wording never interpolates someone else's reply or model metadata as the user's voice.
+        let options: [GuestWordingOption]
+        let latestAdditions = conversation.turns.reversed().prefix { $0.kind != .wording }
+        let hasReply = latestAdditions.contains { $0.kind == .theirReply }
+        if !hasReply {
+            options = Self.guidedWordingOptions(situation: situation, goal: goal, draft: draft)
+        } else {
+            let core = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+            let middle = core.isEmpty ? "Could we agree on the next step?" : core
+            options = [
+                .init(tone: "Gentle", text: "Thanks for getting back to me. \(middle)"),
+                .init(tone: "Clear", text: "Thanks for your reply. \(middle)"),
+                .init(tone: "Firm", text: "I’d like us to be clear about this. \(middle)")
+            ]
+        }
+        let preferred = conversation.tone == "Soft" ? "Gentle" : conversation.tone == "Firm" ? "Firm" : "Clear"
+        return GuestWordingSuggestions(options: options.filter { $0.tone == preferred }
+            + options.filter { $0.tone != preferred }, source: .guided)
     }
 
     private static func suggestion(from result: AIReflectionResult, source: GuestSuggestionSource)

@@ -17,7 +17,7 @@ enum GuestSearch {
     static func matches(_ message: GuestPracticeMessage, _ query: String) -> Bool {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return true }
-        return [message.situation, message.goal, message.wording].contains { $0.localizedStandardContains(query) }
+        return [message.situation, message.goal, message.wording, message.conversation?.searchableText ?? ""].contains { $0.localizedStandardContains(query) }
     }
 }
 
@@ -171,6 +171,13 @@ enum GuestExport {
             lines += ["", "— \(message.createdAt.formatted(date)) · \(GuestPracticeTag.label(sourceEntryID: message.sourceEntryID, entries: entries))"]
             if !message.situation.isEmpty { lines.append("Situation: \(message.situation)") }
             if !message.goal.isEmpty { lines.append("Goal: \(message.goal)") }
+            if let conversation = message.conversation {
+                lines += ["Scene: \(conversation.scene)", "Tone: \(conversation.tone)",
+                          "Original words: \(conversation.originalWords)"]
+                lines += conversation.turns.map { "\($0.kind.label): \($0.text)" }
+                if !conversation.pendingReply.isEmpty { lines.append("Unfinished reply: \(conversation.pendingReply)") }
+                if !conversation.pendingContext.isEmpty { lines.append("Unfinished context: \(conversation.pendingContext)") }
+            }
             lines += ["Wording:", message.wording]
         }
         return lines.joined(separator: "\n") + "\n"

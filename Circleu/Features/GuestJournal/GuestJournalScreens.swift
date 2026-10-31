@@ -244,7 +244,16 @@ struct GuestWriteView: View {
                 .padding(.top, showsArt ? 0 : 20).padding(.bottom, 20)
             } else if showsArt {
                 // The scene keeps its right side clear for the microphone.
-                GuestScene(asset: "GuestSceneToday")
+                // Crop quiet sky first, leaving more room for writing below the scene.
+                Color.clear.aspectRatio(2.2, contentMode: .fit)
+                    .overlay {
+                        GeometryReader { geometry in
+                            Image("GuestSceneToday").resizable().scaledToFill()
+                                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .bottom)
+                                .clipped()
+                        }
+                        .accessibilityHidden(true)
+                    }
                     .overlay(alignment: .trailing) {
                         micButton(size: 84)
                             .padding(.trailing, 32).padding(.bottom, 12) // Room for the ring; above the plain bottom.
@@ -322,7 +331,7 @@ struct GuestWriteView: View {
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text(nudge.prompt.question)
-                        .font(GuestBrand.font(.body)).foregroundStyle(.white)
+                        .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                         .padding(.top, 8)
                     // Add, then two icon buttons; each is 44 points tall.
                     HStack(spacing: 4) {
@@ -331,6 +340,7 @@ struct GuestWriteView: View {
                                 .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(GuestBrand.blue)
                                 .padding(.horizontal, 14).frame(minHeight: 36)
                                 .background(.white, in: Capsule())
+                                .overlay(Capsule().strokeBorder(GuestBrand.blue.opacity(0.3)))
                                 .frame(minHeight: 44).contentShape(Rectangle())
                         }
                         .accessibilityLabel("Add to my words")
@@ -344,7 +354,7 @@ struct GuestWriteView: View {
                 }
                 .padding(.leading, 14).padding(.trailing, 4).padding(.bottom, 2)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(GuestBrand.blue, in: UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 4,
+                .background(GuestBrand.blue.opacity(0.08), in: UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 4,
                                                                        bottomTrailingRadius: 18, topTrailingRadius: 18))
             }
             .accessibilityElement(children: .contain)
@@ -354,7 +364,7 @@ struct GuestWriteView: View {
 
     private func nudgeIcon(_ symbol: String) -> some View {
         Image(systemName: symbol)
-            .font(.system(size: 16, weight: .bold)).foregroundStyle(.white)
+            .font(.system(size: 16, weight: .bold)).foregroundStyle(GuestBrand.blue)
             .frame(width: 44, height: 44).contentShape(Rectangle())
     }
 
@@ -449,6 +459,7 @@ struct GuestJournalListView: View {
                     .searchable(text: $query, prompt: "Search your journal")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
             // Pushes the list down rather than covering the entry that was just saved.
@@ -606,6 +617,7 @@ struct GuestEntryDetailView: View {
         content
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $practiceRoute) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
             }
@@ -640,7 +652,7 @@ struct GuestEntryDetailView: View {
     /// The date is the title.
     private var title: String {
         guard let entry = journal.entries.first(where: { $0.id == entryID }) else { return "Entry" }
-        let format = Date.FormatStyle.dateTime.weekday(.abbreviated).day().month().hour().minute()
+        let format = Date.FormatStyle.dateTime.day().month(.abbreviated)
         return entry.createdAt.formatted(Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
                                          ? format : format.year())
     }
@@ -668,6 +680,9 @@ struct GuestEntryDetailView: View {
     private func detail(for entry: GuestJournalEntry) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
+                Text(entry.createdAt, format: .dateTime.hour().minute())
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
                 Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))

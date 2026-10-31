@@ -51,17 +51,18 @@ final class GuestSuggestionUITests: XCTestCase {
 
         app.tabBars.buttons["Practice"].tap()
         app.buttons["Practice a message"].tap()
-        app.buttons["Add situation"].tap() // Situation starts folded into a chip.
-        let situation = app.descendants(matching: .any).matching(NSPredicate(format: "elementType == %d OR elementType == %d", XCUIElement.ElementType.textField.rawValue, XCUIElement.ElementType.textView.rawValue)).element(boundBy: 0)
-        situation.tap(); situation.typeText("The group project")
+        let wording = app.textViews["Your wording"]
+        wording.tap(); wording.typeText("Can we talk about the group project?")
+        app.buttons["Continue"].tap()
+        let suggest = app.buttons["Get a suggestion"]
+        for _ in 0..<6 where !suggest.isHittable { app.swipeUp() }
         app.buttons["Get a suggestion"].tap()
         XCTAssertTrue(app.buttons["Use the clear option"].waitForExistence(timeout: 10))
         shot(app, "s4-options"); audit(app, "options")
         app.buttons["Use the clear option"].tap()
-        let wording = app.textViews["Your wording"]
         XCTAssertTrue((wording.value as? String ?? "").contains("the group project"), "option in the wording box")
         app.buttons["Undo suggestion"].tap()
-        XCTAssertEqual((wording.value as? String ?? ""), "", "undone")
+        XCTAssertEqual((wording.value as? String ?? ""), "Can we talk about the group project?", "undone")
         attach(findings.joined(separator: "\n"), "suggestion-audit.txt")
     }
 }

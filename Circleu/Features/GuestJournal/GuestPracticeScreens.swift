@@ -14,6 +14,7 @@ struct GuestPracticeHomeView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @State private var path: [GuestPracticeRoute] = []
     @State private var query = ""
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -48,19 +49,27 @@ struct GuestPracticeHomeView: View {
     /// The one primary action, as a picture card.
     private var startCard: some View {
         Button { path.append(.new(sourceEntryID: nil)) } label: {
-            HStack(alignment: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                if !typeSize.isAccessibilitySize {
+                    Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 100)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 12).padding(.bottom, 8)
+                        .accessibilityHidden(true)
+                }
                 HStack(spacing: 8) {
                     Text("Practice a message")
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 8)
                     Image(systemName: "arrow.right").accessibilityHidden(true)
                 }
-                .font(GuestBrand.font(.title3, .bold)).foregroundStyle(.white)
-                .padding(22)
-                Spacer(minLength: 0)
-                Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 140)
-                    .accessibilityHidden(true)
+                .font(GuestBrand.font(.headline, .semibold)).foregroundStyle(.white)
+                .padding(.horizontal, 20).padding(.vertical, 16)
+                .frame(maxWidth: .infinity, minHeight: 54)
+                .background(GuestBrand.blue)
             }
-            .frame(maxWidth: .infinity, minHeight: 150, alignment: .bottomLeading)
-            .background(GuestBrand.blue, in: RoundedRectangle(cornerRadius: 24))
+            .frame(maxWidth: .infinity)
+            .background(GuestBrand.wash)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
             .contentShape(RoundedRectangle(cornerRadius: 24))
         }
         .buttonStyle(.plain)
@@ -69,17 +78,11 @@ struct GuestPracticeHomeView: View {
 
     private var emptyState: some View {
         VStack(spacing: 18) {
-            Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 220)
-                .accessibilityHidden(true)
+            startCard
             Text("Nothing practised yet.").foregroundStyle(GuestBrand.muted)
-            Button { path.append(.new(sourceEntryID: nil)) } label: {
-                Label("Practice a message", systemImage: "arrow.right")
-                    .labelStyle(GuestTrailingIconLabelStyle())
-            }
-            .buttonStyle(GuestBrandButtonStyle())
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 40)
     }
 
     private func draftCard(_ draft: GuestPracticeDraft) -> some View {
@@ -262,38 +265,88 @@ struct GuestPracticeMessageView: View {
     @State private var showSituation = false
     @State private var showGoal = false
     @FocusState private var focus: Field?
+    @State private var voiceTarget: VoiceTarget?
+    @Environment(\.dynamicTypeSize) private var typeSize
+    private enum VoiceTarget: String, Identifiable {
+        case wording, reply, context
+        var id: String { rawValue }
+    }
 
-    private enum Field { case situation, goal }
+    private enum Field { case situation, goal, wording }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 tag
-                if composer.isEditing { form } else { savedMessage }
+                if composer.isEditing {
+                    switch composer.stage {
+                    case .prepare: prepareForm
+                    case .refine: form
+                    case .reply: replyForm
+                    }
+                } else { savedMessage }
                 // Both can apply: a save warning, then a failed delete.
-                ForEach([deleteError, composer.saveError].compactMap { $0 }, id: \.self) { error in
+                ForEach([deleteError, composer.isEditing ? nil : composer.saveError].compactMap { $0 }, id: \.self) { error in
                     Label(error, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
                 }
             }
             .padding(24)
         }
+        .accessibilityIdentifier("Practice form")
         .scrollDismissesKeyboard(.interactively)
+        .safeAreaInset(edge: .bottom) {
+            if composer.isEditing {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let error = composer.saveError {
+                        Label(error, systemImage: "exclamationmark.circle")
+                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    switch composer.stage {
+                    case .prepare:
+                        Button("Continue") { focus = nil; composer.prepareRefinement() }
+                            .buttonStyle(GuestBrandButtonStyle()).disabled(!composer.canCopy)
+                    case .reply:
+                        Button("Continue") { focus = nil; composer.continueReply() }
+                            .buttonStyle(GuestBrandButtonStyle()).disabled(!composer.canContinueReply)
+                    case .refine: saveButton
+                    }
+                }
+                .padding(.horizontal, 24).padding(.vertical, 12)
+                .background(GuestBrand.ice)
+            }
+        }
+        .onChange(of: composer.saveError) { _, error in
+            if let error {
+                // Give failure feedback room without discarding the person's draft.
+                focus = nil
+                UIAccessibility.post(notification: .announcement, argument: error)
+            }
+        }
         .background(GuestBrand.ice.ignoresSafeArea())
-        .navigationTitle(composer.saved == nil ? "Practice" : "Message")
+        .navigationTitle(composer.isEditing ? stageTitle : "Conversation")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Back") {
                     // A new message's words are kept as a draft; an edit to a saved one asks first.
-                    if composer.saved != nil && composer.isEditing && composer.hasChanges {
+                    if composer.isEditing && composer.stage == .reply {
+                        focus = nil
+                        composer.stage = .refine
+                    } else if composer.saved != nil && composer.isEditing && composer.hasChanges {
                         confirmDiscard = true
                     } else {
                         dismiss()
                     }
                 }
                 .disabled(!composer.canLeave)
+            }
+            if composer.isEditing && composer.stage == .refine {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Details", systemImage: "slider.horizontal.3") { focus = nil; composer.stage = .prepare }
+                }
             }
             if composer.saved != nil && !composer.isEditing {
                 ToolbarItemGroup(placement: .primaryAction) {
@@ -309,6 +362,15 @@ struct GuestPracticeMessageView: View {
                 }
             }
         }
+        .sheet(item: $voiceTarget) { target in
+            GuestVoiceReviewSheet(engine: practice.makeDictationEngine()) { text in
+                switch target {
+                case .wording: composer.wording = append(text, to: composer.wording)
+                case .reply: composer.replyText = append(text, to: composer.replyText)
+                case .context: composer.replyContext = append(text, to: composer.replyContext)
+                }
+            }
+        }
         .alert("Discard your changes?", isPresented: $confirmDiscard) {
             Button("Keep editing", role: .cancel) {}
             Button("Discard", role: .destructive) { if composer.canLeave { dismiss() } }
@@ -319,6 +381,137 @@ struct GuestPracticeMessageView: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) { Task { await delete() } }
         }
+    }
+
+    private var stageTitle: String {
+        switch composer.stage {
+        case .prepare: "Prepare"
+        case .refine: "Refine"
+        case .reply: "Their reply"
+        }
+    }
+
+    private var prepareForm: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            hero("What would you like to say", asset: "GuestPinguPractising")
+            wordingBubble
+            voiceButton(.wording)
+            Text("Choose a scene").font(GuestBrand.font(.headline, .semibold))
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: typeSize.isAccessibilitySize ? 140 : 100))], spacing: 10) {
+                ForEach(["Work", "Family", "Friends", "Relationship", "Other"], id: \.self) { scene in
+                    Button { composer.scene = scene } label: {
+                        VStack(spacing: 6) {
+                            Image(sceneAsset(scene)).resizable().scaledToFit().frame(height: 56).accessibilityHidden(true)
+                            Text(scene).font(GuestBrand.font(.caption, .semibold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            if composer.scene == scene { Image(systemName: "checkmark.circle.fill").accessibilityHidden(true) }
+                        }
+                        .frame(maxWidth: .infinity).padding(10)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(
+                            composer.scene == scene ? GuestBrand.blue : .clear, lineWidth: 2))
+                    }
+                    .buttonStyle(.plain).accessibilityAddTraits(composer.scene == scene ? .isSelected : [])
+                }
+            }
+            Text("Tone").font(GuestBrand.font(.headline, .semibold))
+            ViewThatFits(in: .horizontal) {
+                HStack { toneButtons }
+                VStack(alignment: .leading) { toneButtons }
+            }
+            details
+            if let warning = practice.draftWarning {
+                Text(warning).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            }
+        }
+        .onAppear {
+            showSituation = showSituation || !composer.situation.isEmpty
+            showGoal = showGoal || !composer.goal.isEmpty
+        }
+    }
+
+    private var toneButtons: some View {
+        ForEach(["Soft", "Balanced", "Firm"], id: \.self) { tone in
+            Button { composer.tone = tone } label: {
+                Text(tone).font(GuestBrand.font(.subheadline, .semibold)).fixedSize()
+                    .padding(.horizontal, 16).frame(minHeight: 44)
+                    .background(composer.tone == tone ? GuestBrand.blue.opacity(0.15) : .white, in: Capsule())
+            }
+            .buttonStyle(.plain).accessibilityAddTraits(composer.tone == tone ? .isSelected : [])
+        }
+    }
+
+    private var replyForm: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            hero("Keep the conversation going", asset: "GuestPinguListening")
+            Text("Paste their reply, add context, or both")
+                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+            conversationHistory
+            if !composer.wording.isEmpty {
+                DisclosureGroup("Your prepared wording") { Text(composer.wording).font(GuestBrand.font(.body)) }
+            }
+            Text("Their reply").font(GuestBrand.font(.headline, .semibold))
+            TextEditor(text: $composer.replyText).scrollContentBackground(.hidden)
+                .frame(minHeight: 120).padding(12).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .accessibilityLabel("Their reply")
+            voiceButton(.reply)
+            Text("More context").font(GuestBrand.font(.headline, .semibold))
+            TextEditor(text: $composer.replyContext).scrollContentBackground(.hidden)
+                .frame(minHeight: 100).padding(12).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .accessibilityLabel("More context")
+            voiceButton(.context)
+        }
+    }
+
+    @ViewBuilder private var conversationHistory: some View {
+        if let conversation = composer.conversation, !conversation.turns.isEmpty {
+            DisclosureGroup("Conversation · \(conversation.turns.count) notes") {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(conversation.turns) { turn in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(turn.kind.label).font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+                            Text(turn.text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+            }
+            .font(GuestBrand.font(.subheadline, .semibold))
+        }
+    }
+
+    private func hero(_ title: String, asset: String) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(title).font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
+            if !typeSize.isAccessibilitySize {
+                Spacer(minLength: 0)
+                Image(asset).resizable().scaledToFit().frame(width: 88, height: 100).accessibilityHidden(true)
+            }
+        }
+    }
+
+    private func voiceButton(_ target: VoiceTarget) -> some View {
+        Button { focus = nil; voiceTarget = target } label: { Label("Record", systemImage: "mic") }
+            .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
+            .accessibilityLabel(target == .wording ? "Record your words" : target == .reply ? "Record their reply" : "Record context")
+    }
+
+    private func sceneAsset(_ scene: String) -> String {
+        switch scene {
+        case "Work": "GuestPinguWorkTag"
+        case "Family": "GuestPinguFamilyTag"
+        case "Friends": "GuestPinguFriendsTag"
+        case "Relationship": "GuestPinguRelationshipTag"
+        default: "GuestPinguThoughtful"
+        }
+    }
+
+    private func append(_ text: String, to existing: String) -> String {
+        [existing.trimmingCharacters(in: .whitespacesAndNewlines), text]
+            .filter { !$0.isEmpty }.joined(separator: "\n")
     }
 
     /// Where the message came from: a journal icon and the entry's opening words, or "On its own".
@@ -334,35 +527,33 @@ struct GuestPracticeMessageView: View {
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("What would you like to say?")
+            hero("Make it sound like you", asset: "GuestPinguThoughtful")
+            conversationHistory
+            if let original = composer.conversation?.originalWords, !original.isEmpty {
+                DisclosureGroup("Your first words") {
+                    Text(original).font(GuestBrand.font(.body)).frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+            }
+            Text("Your wording")
                 .font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
             if let warning = practice.draftWarning {
                 Label(warning, systemImage: "info.circle")
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
             }
-            details
             wordingBubble
+            voiceButton(.wording)
+            Button("Continue conversation", systemImage: "bubble.left.and.bubble.right") {
+                focus = nil; composer.openReply()
+            }
+            .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
             if composer.didCopy {
                 Text("Copied. Not saved or sent.")
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             suggestionsSection
-            Button {
-                Task {
-                    let wasNew = composer.saved == nil
-                    let owned = composer.ownsDraft
-                    if await composer.save() {
-                        if wasNew, owned, let id = composer.draftID { practice.clearDraft(id: id) }
-                        await practice.load()
-                    }
-                }
-            } label: {
-                Text(composer.isSaving ? "Saving…" : "Save")
-            }
-            .buttonStyle(GuestBrandButtonStyle())
-            .disabled(!composer.canSave)
         }
         // Nothing changes while saving, so what's saved (and cleared from drafts) is what's shown.
         .disabled(composer.isSaving)
@@ -370,6 +561,25 @@ struct GuestPracticeMessageView: View {
             showSituation = showSituation || !composer.situation.isEmpty
             showGoal = showGoal || !composer.goal.isEmpty
         }
+    }
+
+    /// Kept outside the scroll content so suggestions and the keyboard cannot push it away.
+    private var saveButton: some View {
+        Button {
+            Task {
+                let wasNew = composer.saved == nil
+                let owned = composer.ownsDraft
+                focus = nil
+                if await composer.save() {
+                    if wasNew, owned, let id = composer.draftID { practice.clearDraft(id: id) }
+                    await practice.load()
+                }
+            }
+        } label: {
+            Text(composer.isSaving ? "Saving…" : "Save")
+        }
+        .buttonStyle(GuestBrandButtonStyle())
+        .disabled(!composer.canSave)
     }
 
     /// Situation and Goal: optional, so they start as "+" chips and open into a field.
@@ -406,6 +616,7 @@ struct GuestPracticeMessageView: View {
     private var wordingBubble: some View {
         ZStack(alignment: .bottomTrailing) {
             TextEditor(text: $composer.wording)
+                .focused($focus, equals: .wording)
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 12).padding(.top, 12).padding(.bottom, 52)
                 .frame(minHeight: 180)
@@ -496,13 +707,16 @@ struct GuestPracticeMessageView: View {
             .accessibilityLabel("Use the \(option.tone.lowercased()) option")
         }
         .padding(16)
-        .frame(width: 272, alignment: .leading)
+        .containerRelativeFrame(.horizontal, alignment: .leading) { width, _ in
+            min(320, max(180, width - 64))
+        }
         .frame(maxHeight: .infinity, alignment: .topLeading)
         .background(.white, in: RoundedRectangle(cornerRadius: 20))
     }
 
     private var savedMessage: some View {
         VStack(alignment: .leading, spacing: 16) {
+            conversationHistory
             if !composer.situation.isEmpty { detail("Situation", icon: "person.2", composer.situation) }
             if !composer.goal.isEmpty { detail("Goal", icon: "scope", composer.goal) }
             Text(composer.wording).font(GuestBrand.font(.title3)).foregroundStyle(.white)
@@ -527,6 +741,8 @@ struct GuestPracticeMessageView: View {
             }
             .buttonStyle(GuestBrandButtonStyle())
             .disabled(!composer.canCopy)
+            Button("Continue conversation", systemImage: "bubble.left.and.bubble.right") { composer.openReply() }
+                .buttonStyle(GuestBrandButtonStyle(filled: false))
         }
     }
 

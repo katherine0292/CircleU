@@ -93,6 +93,7 @@ nonisolated struct GuestPracticeMessage: Identifiable, Equatable, Sendable {
     let revision: Int
     let createdAt: Date
     var updatedAt: Date
+    var conversation: GuestPracticeConversation? = nil
 }
 
 /// What happens to practice messages linked to a journal entry that's being deleted.
