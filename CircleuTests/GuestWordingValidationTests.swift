@@ -27,6 +27,12 @@ final class GuestWordingValidationTests: XCTestCase {
         XCTAssertEqual(options.map(\.tone), ["Firm"])
     }
 
+    func testExactlySixtyWordsAndNewlineAroundToneAreKept() {
+        let sixty = Array(repeating: "word", count: LocalFirstSuggestionEngine.maximumOptionWords).joined(separator: " ")
+        let options = LocalFirstSuggestionEngine.validatedOptions([("Odd", "x"), ("Clear\n", sixty)])
+        XCTAssertEqual(options.map(\.tone), ["Clear"], "an invalid option doesn't block the next one")
+    }
+
     func testNothingValidLeavesTheGuidedFallbackToTheEngine() {
         XCTAssertTrue(LocalFirstSuggestionEngine.validatedOptions([("Odd", "x")]).isEmpty)
     }

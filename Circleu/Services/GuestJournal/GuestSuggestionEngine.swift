@@ -178,7 +178,7 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
         var options: [GuestWordingOption] = []
         for (rawTone, rawText) in raw {
             let text = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard let tone = supportedTones.first(where: { $0.caseInsensitiveCompare(rawTone.trimmingCharacters(in: .whitespaces)) == .orderedSame }),
+            guard let tone = supportedTones.first(where: { $0.caseInsensitiveCompare(rawTone.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame }),
                   !seen.contains(tone), !text.isEmpty,
                   text.split { $0.isWhitespace }.count <= maximumOptionWords else { continue }
             seen.insert(tone)
