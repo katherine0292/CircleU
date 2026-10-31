@@ -51,10 +51,7 @@ struct GuestPracticeHomeView: View {
         Button { path.append(.new(sourceEntryID: nil)) } label: {
             VStack(spacing: 0) {
                 if !typeSize.isAccessibilitySize {
-                    Image("GuestPinguPractising").resizable().scaledToFit().frame(height: 100)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 12).padding(.bottom, 8)
-                        .accessibilityHidden(true)
+                    GuestScene(.practiceStudio)
                 }
                 HStack(spacing: 8) {
                     Text("Practice a message")

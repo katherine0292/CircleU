@@ -91,6 +91,7 @@ struct GuestReflectionReviewView: View {
     let onDone: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var confirmDiscard = false
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     init(entry: GuestJournalEntry, journal: GuestJournalViewModel, suggester: any GuestSuggesting,
          onDone: @escaping () -> Void) {
@@ -102,6 +103,9 @@ struct GuestReflectionReviewView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if !typeSize.isAccessibilitySize {
+                    GuestScene(.reflectionGarden).clipShape(RoundedRectangle(cornerRadius: 24))
+                }
                 Text("My words").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                 Text(review.entry.originalWords)
                     .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)

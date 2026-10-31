@@ -237,6 +237,7 @@ struct GuestSignInView: View {
     @StateObject private var model: GuestSignInViewModel
     let onSkip: (() -> Void)?
     let factory: GuestAccountFactory
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     init(factory: GuestAccountFactory, store: any GuestImportStore, journal: GuestJournalViewModel,
          practice: GuestPracticeViewModel, onSkip: (() -> Void)? = nil) {
@@ -287,7 +288,9 @@ struct GuestSignInView: View {
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 14) {
-            GuestPinguDecoration(asset: "GuestPinguBackpack", height: 120)
+            if !typeSize.isAccessibilitySize {
+                GuestScene(.keepsakeShelf).clipShape(RoundedRectangle(cornerRadius: 24))
+            }
             Text("Bring in your earlier journal").font(GuestBrand.font(.title2, .bold))
                 .foregroundStyle(GuestBrand.ink).accessibilityAddTraits(.isHeader)
             GuestChipRow {

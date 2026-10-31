@@ -122,7 +122,7 @@ struct GuestWriteView: View {
                 if !typeSize.isAccessibilitySize && !focused {
                     Color.clear.aspectRatio(2, contentMode: .fit)
                         .overlay {
-                            Image(dictation.isActive ? "GuestSceneVoiceCorner" : "GuestSceneWindowPause")
+                            Image(GuestSceneArt.today(listening: dictation.isActive).asset)
                                 .resizable().scaledToFill()
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 24)).accessibilityHidden(true)
@@ -323,7 +323,7 @@ struct GuestJournalListView: View {
                     }
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
-                    GuestSceneMessage(asset: "GuestSceneJournalEmpty", text: "Nothing saved yet.")
+                    GuestSceneMessage(scene: .journalDesk, text: "Nothing saved yet.")
                         .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
