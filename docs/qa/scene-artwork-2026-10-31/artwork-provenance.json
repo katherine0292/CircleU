@@ -1,0 +1,78 @@
+{
+  "recorded": "2026-10-31",
+  "note": "Exact copies of existing Codex scene masters; no new generation. Every copy's SHA-256 matches its master.",
+  "scenes": [
+    {
+      "asset": "GuestSceneWindowPause",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes06/SceneWindowPauseV1.png",
+      "sha256": "8b0c4ab76c32847c1ec2ed9ab9b34015bf27904b7465212c7d9b87b550d11aa8",
+      "width": 1774,
+      "height": 887,
+      "use": "Today, writing (default)"
+    },
+    {
+      "asset": "GuestSceneVoiceCorner",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneVoiceCornerV1.png",
+      "sha256": "f63a895ea478eef11b8c8a4c11c90c055b1ecab835db21f3cf66d3a3273fe5e1",
+      "width": 1774,
+      "height": 887,
+      "use": "Today, while dictation is listening"
+    },
+    {
+      "asset": "GuestSceneReflectionGarden",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneReflectionGardenV1.png",
+      "sha256": "dfe61b05370d463387509f50e90ed88566d39330340080e99a575632424f3fa2",
+      "width": 1774,
+      "height": 887,
+      "use": "Reflection review sheet"
+    },
+    {
+      "asset": "GuestSceneRefineWorkbench",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneRefineWorkbenchV1.png",
+      "sha256": "3c638faa46fc73be0c5a1edd333cdf5f5dec2969da45c836ab068a75bd9e95a9",
+      "width": 1774,
+      "height": 887,
+      "use": "Practice refine (placement follows in the message-first PR)"
+    },
+    {
+      "asset": "GuestSceneReplyReading",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneReplyReadingV1.png",
+      "sha256": "a209e2f6f71c0e00a5c613727a1dc1a3c86656f8e895eb2c0b06ea535a18d3af",
+      "width": 1774,
+      "height": 887,
+      "use": "Practice reply (placement follows in the message-first PR)"
+    },
+    {
+      "asset": "GuestSceneKeepsakeShelf",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneKeepsakeShelfV1.png",
+      "sha256": "18e9e9340df5c599954e93e4cce32a2d316446ef9c4494a4eac88d1d4a80f419",
+      "width": 1774,
+      "height": 887,
+      "use": "Bring in your earlier journal"
+    },
+    {
+      "asset": "GuestSceneWelcomePath",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneWelcomePathV1.png",
+      "sha256": "6338d96c7dfbd82bfed6cc3872b65b6b719d7a3e3096f76fe42cc243b498a7f3",
+      "width": 1774,
+      "height": 887,
+      "use": "Bundled; Welcome keeps its three approved full-bleed pages"
+    },
+    {
+      "asset": "GuestSceneJournalDesk",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes06/SceneJournalDeskV1.png",
+      "sha256": "aada373bc6ab0bd4f249531c56fa2b7485a418c43f0b7c91f006075f4a7cb423",
+      "width": 1774,
+      "height": 887,
+      "use": "Journal, nothing saved yet"
+    },
+    {
+      "asset": "GuestScenePracticeStudio",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes06/ScenePracticeStudioV1.png",
+      "sha256": "2bb7d53d4ea8f26434baf151ff0407c83508a3d4f34a367492cb3bc6856fbb39",
+      "width": 1774,
+      "height": 887,
+      "use": "Practice home start card"
+    }
+  ]
+}

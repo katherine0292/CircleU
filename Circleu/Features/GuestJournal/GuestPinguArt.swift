@@ -65,13 +65,52 @@ struct GuestPinguDecoration: View {
     }
 }
 
-/// A wide Pingu scene (1170×600 art) at the full width it's given. Decorative like
-/// `GuestPinguDecoration`; callers leave it out at the largest text sizes.
+/// The approved Pingu scene family (Codex brand artwork, ScreenScenes 06 and 07), one 2:1 asset
+/// each, mirroring Figma's `CircleU / Scene artwork` component so a screen can change its scene
+/// without changing its layout. Decorative only: never a mood, score or reward.
+enum GuestSceneArt: String, CaseIterable {
+    /// Today, writing (the default).
+    case windowPause = "GuestSceneWindowPause"
+    /// Today, while dictation is listening.
+    case voiceCorner = "GuestSceneVoiceCorner"
+    /// Writing or editing a reflection.
+    case reflectionGarden = "GuestSceneReflectionGarden"
+    /// Practice: finding better wording.
+    case refineWorkbench = "GuestSceneRefineWorkbench"
+    /// Practice: reading their reply and adding context.
+    case replyReading = "GuestSceneReplyReading"
+    /// Bringing in an earlier journal.
+    case keepsakeShelf = "GuestSceneKeepsakeShelf"
+    /// Welcome and first steps.
+    case welcomePath = "GuestSceneWelcomePath"
+    /// Journal with nothing saved yet.
+    case journalDesk = "GuestSceneJournalDesk"
+    /// Practice home.
+    case practiceStudio = "GuestScenePracticeStudio"
+
+    var asset: String { rawValue }
+
+    static func today(listening: Bool) -> GuestSceneArt { listening ? .voiceCorner : .windowPause }
+}
+
+/// A wide Pingu scene at the full width it's given. Decorative like `GuestPinguDecoration`;
+/// callers leave it out at the largest text sizes. Older 1170×600 art passes its own ratio.
 struct GuestScene: View {
     let asset: String
+    var ratio: CGFloat = 2
+
+    init(asset: String, ratio: CGFloat = 1170 / 600) {
+        self.asset = asset
+        self.ratio = ratio
+    }
+
+    init(_ scene: GuestSceneArt) {
+        asset = scene.asset
+        ratio = 2
+    }
 
     var body: some View {
-        Image(asset).resizable().aspectRatio(1170 / 600, contentMode: .fit)
+        Image(asset).resizable().aspectRatio(ratio, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .accessibilityHidden(true)
     }
@@ -107,14 +146,14 @@ struct GuestPinguMessage: View {
 
 /// A wide scene in a rounded card with a short line, for empty states with room for it.
 struct GuestSceneMessage: View {
-    let asset: String
+    let scene: GuestSceneArt
     let text: String
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         VStack(spacing: 16) {
             if !typeSize.isAccessibilitySize {
-                GuestScene(asset: asset).clipShape(RoundedRectangle(cornerRadius: 28))
+                GuestScene(scene).clipShape(RoundedRectangle(cornerRadius: 28))
             }
             Text(text).multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
         }
