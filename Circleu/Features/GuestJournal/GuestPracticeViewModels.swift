@@ -247,7 +247,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
             if wording != oldValue { didCopy = false }
         }
     }
-    enum Stage { case prepare, refine, reply }
+    /// Message first: write, optionally ask for guidance, review the result, then refine and save.
+    enum Stage { case prepare, guide, result, refine, reply }
     @Published var stage: Stage = .prepare
     @Published var conversation: GuestPracticeConversation?
     var scene: String {
@@ -277,6 +278,76 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     }
 
     func openReply() { edit(); stage = .reply }
+
+    // MARK: Message-first entry (P9)
+
+    /// Words alone are enough to ask for a review; no situation, goal or tone is required.
+    var canReviewWording: Bool { !Self.trim(wording).isEmpty && !isSuggesting }
+
+    /// "Review wording": keep my first words, then ask for a suggestion on the result screen.
+    func reviewWording() async {
+        guard canReviewWording else { return }
+        var value = conversation ?? GuestPracticeConversation()
+        if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
+        conversation = value
+        resultIsFromIntent = false
+        stage = .result
+        await suggest()
+    }
+
+    /// Blank start: an intent from guidance, and no words yet, can ask for words.
+    var canFindWordsFromIntent: Bool { Self.trim(wording).isEmpty && !Self.trim(goal).isEmpty && !isSuggesting }
+
+    /// "Find words from my intent": the result is labelled as made from intent, never as my message.
+    func findWordsFromIntent() async {
+        guard canFindWordsFromIntent else { return }
+        resultIsFromIntent = true
+        stage = .result
+        await suggest()
+    }
+
+    /// The result came from an intent only, so it must not be shown as words I wrote.
+    @Published private(set) var resultIsFromIntent = false
+
+    /// "Help me get started": optional, and it never requests anything by itself.
+    func openGuidance() { stage = .guide }
+    var canContinueGuidance: Bool { !Self.trim(goal).isEmpty }
+    /// Back to my words with the intent kept; nothing is requested.
+    func continueGuidance() {
+        guard canContinueGuidance else { return }
+        stage = .prepare
+    }
+    func closeGuidance() { stage = .prepare }
+
+    /// The one wording shown first on the result screen: the chosen tone, when there is one.
+    var suggestedWording: GuestWordingOption? { suggestions?.options.first }
+    /// The other tones, for "Compare with mine".
+    var otherWordings: [GuestWordingOption] { Array(suggestions?.options.dropFirst() ?? []) }
+
+    /// "Use this wording": the suggestion goes into my words to edit; Undo restores them.
+    func useSuggestedWording() {
+        guard let option = suggestedWording else { return }
+        use(option)
+        stage = .refine
+    }
+
+    /// "Keep my wording": nothing changes, and a review still running is let go.
+    func keepMyWording() {
+        suggestionRequest += 1 // A late result is ignored.
+        if !Self.trim(wording).isEmpty {
+            var value = conversation ?? GuestPracticeConversation()
+            if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
+            conversation = value
+        }
+        stage = .refine
+    }
+
+    /// "Save without feedback": my words, as they are, with no request made and no review history.
+    @discardableResult
+    func saveWithoutFeedback() async -> Bool {
+        guard !Self.trim(wording).isEmpty else { return false }
+        return await save()
+    }
 
     /// Freeze the previous prepared wording, keeping attribution. The new wording starts empty.
     func continueReply() {
@@ -418,12 +489,21 @@ final class GuestPracticeComposerViewModel: ObservableObject {
                 result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1, draft: inputs.2)
             }
             guard request == suggestionRequest else { return }
-            suggestions = result
+            suggestions = Self.preferredFirst(result, tone: tone)
             suggestedFrom = inputs
         } catch {
             guard request == suggestionRequest else { return }
             suggestionError = Self.suggestionFailedMessage
         }
+    }
+
+    /// The chosen tone leads; the engine's own order is kept for the rest.
+    static func preferredFirst(_ result: GuestWordingSuggestions, tone: String) -> GuestWordingSuggestions {
+        let preferred = tone == "Soft" ? "Gentle" : tone == "Firm" ? "Firm" : "Clear"
+        guard result.options.contains(where: { $0.tone == preferred }) else { return result }
+        var value = result
+        value.options = result.options.filter { $0.tone == preferred } + result.options.filter { $0.tone != preferred }
+        return value
     }
 
     /// The situation, goal or wording changed after the options were made (using an option doesn't count).
