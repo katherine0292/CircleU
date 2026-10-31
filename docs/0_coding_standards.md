@@ -67,7 +67,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test \
   -destination "platform=iOS Simulator,id=$CIRCLEU_TEST_SIMULATOR_ID"
 ```
 
-Xcode 27.1 was verified in the planning session; the existing CI workflow still selects Xcode 16.0. Neither that observation nor these commands establish a passing baseline. Do not install a formatter, alter CI or change global Xcode settings incidentally while applying documentation rules.
+The 31 October audit verified Xcode 27.2 (27B52) and iOS 27.0 Simulator locally. The current CI workflow selects the available Xcode and is manual-only; it is not a required pull-request gate. Use dated test reports for a passing baseline. Do not install a formatter, alter CI or change global Xcode settings incidentally while applying documentation rules.
 
 ## 5. Git and collaboration
 

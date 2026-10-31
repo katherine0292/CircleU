@@ -1,0 +1,69 @@
+{
+  "environment": "Xcode 27.2 (27B52), iPhone 18 Pro Simulator, iOS 27.0",
+  "runs": [
+    {
+      "label": "Full unit suite before final visual adjustments",
+      "result": "Passed",
+      "passedTests": 274,
+      "failedTests": 0,
+      "skippedTests": 1
+    },
+    {
+      "label": "Full UI suite before final visual adjustments",
+      "result": "Passed",
+      "passedTests": 24,
+      "failedTests": 0,
+      "skippedTests": 1
+    },
+    {
+      "label": "Final focused unit coverage",
+      "result": "Passed",
+      "passedTests": 5,
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    {
+      "label": "Final long-entry UI regression",
+      "result": "Passed",
+      "passedTests": 1,
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    {
+      "label": "Full unit suite after initial guest-schema compatibility fix",
+      "result": "Passed",
+      "passedTests": 276,
+      "failedTests": 0,
+      "skippedTests": 1
+    },
+    {
+      "label": "Strengthened initial-schema timestamp/tag regression",
+      "result": "Passed",
+      "passedTests": 1,
+      "failedTests": 0,
+      "skippedTests": 0
+    }
+  ],
+  "affectedUIFollowup": {
+    "passed": 5,
+    "fixtureMismatch": 1,
+    "resolution": "The final long-entry run corrects the fixture trailing-space expectation and passes. No code change was needed for that expectation."
+  },
+  "physicalDeviceRun": false,
+  "cloudDeployment": false,
+  "existingSimulatorMigration": {
+    "result": "Passed",
+    "schema": "6.0.0",
+    "originalFieldsUnchanged": [
+      "entry count",
+      "ID",
+      "original words",
+      "revision",
+      "createdAt",
+      "updatedAt"
+    ],
+    "privateBackupRetained": true,
+    "journalContentLogged": false
+  },
+  "guestReviewBuild": "Passed; installed and launched on existing iPhone 18 Pro simulator"
+}

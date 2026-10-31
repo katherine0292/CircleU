@@ -98,3 +98,7 @@ Audit test artifacts are local to this Mac: `/tmp/circleu-audit-20261031-unit.xc
 5. **Qualify the private beta:** resolve release identity and legacy recovery, validate rules, run unit/UI and physical checks on the actual build, then verify the invitation/QR destination.
 
 Immediate recommendation: a small reliability-and-documentation cleanup, followed by the approved Today/Journal visual integration. Do not start a new server or rebuild the whole application.
+
+## Follow-up implementation
+
+Owner-approved remediation is tracked in the [native alignment report](../native-alignment-2026-10-31/README.md). Checkpoints preserve the earlier native/design work; the shared reflection decoder is repaired and optional V6 Journal tags/native layouts have been implemented. Refer to that report for fresh verification rather than treating the original audit's findings or test counts as current. The Firebase ownership, live recovery, retired provider and Release qualification findings remain open.

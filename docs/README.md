@@ -97,3 +97,5 @@ For UI work, follow **[brief](product/overview.md) → [MVP requirements](produc
 Keep active docs short, current, and action-oriented. A current doc should answer what the team should do now; historical implementation notes belong in `archive/`.
 
 When behavior, architecture, or process changes, update the matching active doc in the same commit. If a doc is important for new contributors, link it from this index and from the root `README.md`.
+
+- [31 October native Today/Journal alignment](qa/native-alignment-2026-10-31/README.md): parser fix, optional tag migration, native UI and verification evidence.

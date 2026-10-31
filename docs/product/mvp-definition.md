@@ -1,6 +1,6 @@
 # CircleU MVP definition and user flow
 
-Updated 29 October 2026. Read the [product brief](overview.md) first. This register records approved direction and proposed detailed requirements; the [flow checklist](flow-status-checklist.md) owns delivery status and [user stories](user-stories.md) own acceptance/test coverage. Documentation or prototype approval does not approve a new native/cloud implementation or release.
+Updated 31 October 2026. Read the [product brief](overview.md) first. This register records approved direction and proposed detailed requirements; the [flow checklist](flow-status-checklist.md) owns delivery status and [user stories](user-stories.md) own acceptance/test coverage. Documentation or prototype approval does not approve a new native/cloud implementation or release.
 
 Owner-approved direction: audience A; Today/Journal/Practice; circles/rewards later; original native proportions with new branding; guest-first local use with optional existing-account recovery; polished private beta first. Optional selected-text AI feedback and communication style are accepted for planning/prototyping. Their detailed native requirements remain proposed; live cloud activation is not approved. See the [Practice feedback design](../superpowers/specs/2026-10-27-practice-ai-feedback-design.md).
 
@@ -36,7 +36,7 @@ Preserve legacy accounts and data. The [transition plan](../superpowers/plans/20
 
 The audit follow-up is approved for the guest review configuration: the accepted Today question picker and Journal cards/tags now have an implementation plan. Today questions guide writing without inserting or replacing words. Context (Study, Work, Friends, Family) and feeling (Calm, Worried, Overloaded, Happy, Sad, Frustrated) are independent, optional user choices. Existing entries keep nil tags; no feelings are inferred from wording or AI reflections. Tags persist locally, survive edits, appear in export/search and are removed with their entry. Cancel leaves tags unchanged; Done uses the entry revision and preserves choices after a failed save.
 
-See [implementation and verification plan](../superpowers/plans/2026-10-31-audit-follow-up-native-alignment.md). Implementation and tests are in progress; this approval does not enable cloud services or change Release routing.
+See [implementation and verification plan](../superpowers/plans/2026-10-31-audit-follow-up-native-alignment.md). The native guest/review slice is implemented with [bounded QA evidence](../qa/native-alignment-2026-10-31/README.md); this approval does not enable cloud services or change Release routing.
 
 ## MVP feature register
 

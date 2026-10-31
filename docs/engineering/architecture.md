@@ -1,6 +1,6 @@
 # Circleu Architecture
 
-Circleu uses a SwiftUI architecture with feature-first folders, local persistence and active Firebase integrations. Updated 24 October 2026 to distinguish current source from the approved guest-local direction, which is not yet implemented. The [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) governs that change.
+Circleu uses SwiftUI with feature-first folders and separate guest and legacy dependency graphs. Updated 31 October 2026: guest/review is implemented; standard Release still follows the legacy Firebase/account startup. The [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) governs that change.
 
 ## Dependency Flow
 
@@ -25,10 +25,10 @@ Shared reusable SwiftUI pieces live in `Circleu/Components/` only after more tha
 
 ## Local-First Boundary
 
-The current app stores reflections, tips, profile data, AI session history and circles locally, but local persistence does not establish an offline-only boundary. [CircleuApp](../../Circleu/App/CircleuApp.swift) configures Firebase, [ContentView](../../Circleu/App/ContentView.swift) constructs/wires backend-aware stores, and [RootView](../../Circleu/App/RootView.swift) schedules restore/upload work on appearance and mutations. This is source inspection, not a fresh runtime/network test.
+The legacy app stores reflections, tips, profile data, AI session history and circles locally, but local persistence does not establish an offline-only boundary. On the legacy startup path, [CircleuApp](../../Circleu/App/CircleuApp.swift) configures Firebase, [ContentView](../../Circleu/App/ContentView.swift) constructs/wires backend-aware stores, and [RootView](../../Circleu/App/RootView.swift) schedules restore/upload work on appearance and mutations. This is source inspection, not a fresh runtime/network test.
 
-The approved new guest path must have a separate dependency graph with no automatic Firebase activation or new-content cloud backup; explicit legacy recovery remains a separate networked flow. That split, failure-aware persistence and migration are pending. Backend work belongs behind service protocols/payload mapping. CloudKit documentation is a historical alternative, not an approved new-MVP dependency.
+The guest path has a separate dependency graph with local SwiftData and no normal Firebase activation/new-content upload. Explicit legacy recovery uses a separate named Firebase app restricted to the Dev project. V6 adds optional, validated context/feeling fields and migrates V1–V5 plus the restored initial Entry-only snapshot; conversation history and kept drafts remain in the same transaction boundary. ViewModels own revision-aware writes and truthful failure states. Source isolation and simulator tests are evidence for these contracts, not complete device/network or production recovery qualification. Backend work belongs behind service protocols/payload mapping. CloudKit documentation is a historical alternative, not an approved new-MVP dependency.
 
 ## Testing Boundary
 
-Prefer unit tests for ViewModels, Stores, Engines, data flow, backend contracts, and CloudKit mapping. Use phone QA for microphone, speech recognition, signing, Apple Intelligence availability, and full user-flow checks.
+Prefer unit tests for ViewModels, Stores, Engines, data flow, backend contracts, and migration mapping. Use phone QA for microphone, speech recognition, signing, Apple Intelligence availability, and full user-flow checks.

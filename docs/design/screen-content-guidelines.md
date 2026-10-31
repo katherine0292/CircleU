@@ -9,7 +9,7 @@
 | Heading | One per screen, **≤ 40 characters**, sentence case, no full stop. The navigation title may be the heading. |
 | Supporting line | **At most one**, **≤ 60 characters**, in the secondary style (`GuestSummary`: subheadline, muted, Dynamic Type). |
 | Primary action | **At most one** filled button per screen (screens that are lists or settings may have none). A destructive primary, such as Delete my account, is a red text button rather than a filled one. |
-| Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items, "Learn more", dismiss controls (Hide, Close) and prompt chips (which add a sentence starter to the person's words) don't count. |
+| Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items, "Learn more", dismiss controls (Hide, Close) and question choices (which guide without editing the person's words) don't count. |
 | Detail | Only where honesty needs it, behind **Learn more** (`GuestLearnMore`, collapsed, footnote, Dynamic Type). At most four short sentences, each **≤ 120 characters**, marked `// copy: detail` when over 100. |
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
 | Any string on screen | **≤ 100 characters**, unless marked `// copy: detail` or `// copy: export` (export file text, not a screen). |
@@ -18,7 +18,7 @@
 
 ## Icons over labels
 
-Journal review 14 prototype exception: feelings retain short visible labels because expressions alone are ambiguous. Conversation context uses Study, Work, Friends and Family; feelings use Calm, Worried, Overloaded, Happy, Sad and Frustrated. Both categories are optional and user-selected. The picker uses “Conversation context”, “Feeling · optional”, “Tap a selected tag to remove it” and one primary “Done”; empty category controls are “+ Context” and “+ Feeling”. This is prototype copy, not a native feature release.
+Journal review 14 / approved native alignment exception: feelings retain short visible labels because expressions alone are ambiguous. Conversation context uses Study, Work, Friends and Family; feelings use Calm, Worried, Overloaded, Happy, Sad and Frustrated. Both categories are optional and user-selected. The picker uses “Conversation context”, “Feeling · optional”, “Tap a selected tag to remove it” and one primary “Done”; empty category controls are “+ Context” and “+ Feeling”. This copy is approved for the native guest/review tag picker; it does not establish a production release.
 
 Words are for the person's own writing and for what honesty needs. Everything else should be a picture first.
 
@@ -112,3 +112,7 @@ Clarification shows the existing Your words or Your intent distinctly; it must n
 | Clipboard failure | — | Couldn’t copy. Select your words and try again |
 
 Guidance Continue does not generate or share anything. Intent-only confirmation and comparison say Your intent, never Your original words. Review wording remains the only filled action in Prepare. No Record button is simulated in this browser slice; existing native recording/transcript review needs separate integration.
+
+## Native alignment — 31 October
+
+Today uses review 20 guidance: “Write your words…” in the empty editor; “What stayed with you?” in its footer (VoiceOver: “Suggest a question”), then “Change question”. The question sheet offers only the three reviewed questions; selecting/removing one never edits original words. The microphone retains “Start dictation” / “Stop dictation” accessibility names. Window/voice artwork is decorative; there is one Save action. Journal context and feeling retain visible short labels and 44pt hit targets even though their artwork/chips are compact. Native system search/navigation are retained and large text may reflow vertically.

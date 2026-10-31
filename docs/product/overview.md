@@ -1,5 +1,12 @@
 # CircleU product brief
 
+## Native alignment approved — 31 October audit follow-up
+
+The owner approved implementing the accepted Today and Journal designs after the full-project audit, with parser repair and data preservation first. This supersedes the prototype-only restriction below **for this bounded native guest/review slice**: optional question guidance, date-grouped Journal cards, explicit context/feeling tags, matching Codex artwork and accessibility checks. Context and feeling remain independent optional choices, never inferred. Selection changes do not rewrite original words; Done saves tags, Cancel does not. V5 data migrates with tags unset. See the [approved plan](../superpowers/plans/2026-10-31-audit-follow-up-native-alignment.md), [MVP rules](mvp-definition.md#native-alignment-approved--31-october) and T8–T10/J7 [stories](user-stories.md).
+
+Cloud AI, sync, signup, circles, production recovery and guest Release enablement remain outside this approval. Poster and slides remain the showcase deliverables; no video or deadline was added.
+
+
 31 October owner acceptance: the compact Today composer and optional question sheet are the current approved prototype direction. Artwork can be refreshed frequently within that layout. Set up interchangeable existing Codex scene components (Window pause default, Reflection garden alternative, Voice corner for recording) at the same 2:1 dimensions. This is an editor workflow, not automatic rotation during writing or approval for native implementation.
 
 31 October prompt-picker prototype: owner approved trying the quiet question control as a bottom-sheet picker. Offer “What happened?”, “How did it make you feel?” and “What would you like to say next?”. Selection displays the question above the writing area; changing/dismissing it preserves existing words. Keep one compact footer row, existing artwork and fixed navigation. Curated questions, no AI call; Figma-only approval.

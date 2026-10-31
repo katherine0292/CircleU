@@ -38,9 +38,9 @@ Files: create `Circleu/Engines/ReflectionResponseDecoder.swift`, `CircleuTests/R
 
 Interface: `ReflectionResponseDecoder.decode(_ response: String) throws -> AIReflectionResult`, throwing `ReflectionEngineError.invalidModelResponse`.
 
-- [ ] RED: valid raw/fenced/prefixed JSON, braces in quoted values, reversed/missing braces, malformed/schema-invalid JSON. Run the new XCTest class and observe missing decoder failure.
-- [ ] GREEN: decode complete trimmed JSON first, then ordered first/last-object bounds; reuse in both engines without changing provider/fallback behavior.
-- [ ] Run decoder, engine behavior, cloud fallback and guest suggestion tests; commit the scoped fix.
+- [x] RED: valid raw/fenced/prefixed JSON, braces in quoted values, reversed/missing braces, malformed/schema-invalid JSON. Run the new XCTest class and observe missing decoder failure.
+- [x] GREEN: decode complete trimmed JSON first, then ordered first/last-object bounds; reuse in both engines without changing provider/fallback behavior.
+- [x] Run decoder, engine behavior, cloud fallback and guest suggestion tests; commit the scoped fix.
 
 ## Task 3: Durable Journal tags
 
@@ -48,9 +48,9 @@ Files: `GuestJournalStore.swift`, new `GuestEntryTags.swift`, `SwiftDataGuestJou
 
 Interface: optional `context: GuestEntryContext?`, `feeling: GuestEntryFeeling?` on `GuestJournalEntry`; `GuestEntryTagStore.updateTags(id:context:feeling:expectedRevision:) async throws -> GuestJournalEntry`.
 
-- [ ] RED: nil defaults, save/reopen/deselect, original/reflection preservation, stale/deleted rejection, rollback, V5 migration, export/search and delete-all scope.
-- [ ] GREEN: V6 optional string fields with validated enum mapping, versioned migration, serial revision checks/rollback/protection using existing helpers; export user tags distinctly.
-- [ ] Run tag/store/conversation/export tests; commit once this layer passes.
+- [x] RED: nil defaults, save/reopen/deselect, original/reflection preservation, stale/deleted rejection, rollback, V5 migration, export/search and delete-all scope.
+- [x] GREEN: V6 optional string fields with validated enum mapping, versioned migration, serial revision checks/rollback/protection using existing helpers; export user tags distinctly.
+- [x] Run tag/store/conversation/export tests; commit once this layer passes.
 
 ## Task 4: Approved native layouts and interactions
 
@@ -58,17 +58,29 @@ Files: `GuestJournalScreens.swift`, `GuestTodayPrompts.swift`, new `GuestEntryTa
 
 Interface: question selection local to the current draft; picker receives entry snapshot + tag store, refreshes journal after a successful save. Existing storage APIs remain authoritative.
 
-- [ ] Update product brief and story criteria before behavior changes. Record native implementation authorization and retained release boundaries.
-- [ ] RED: question selection/change/remove preserve typed words and Save stays disabled for an empty draft; tag Done/cancel/deselect/relaunch and large-text controls.
-- [ ] Implement 2:1 window/voice scenes, 24pt heading, compact editor footer with question/mic, optional question sheet and pinned Save. Preserve permission/cancel/save-error paths and Settings/Pingu access.
-- [ ] Implement date-grouped Journal cards with time, words and separate context/feeling controls; retain search/calendar/detail/reflection/linked Practice. Use current transparent Pingu assets; no decorative calendar icon additions.
-- [ ] Run full unit/UI suites, inspect native captures at standard/large text; fix regressions and commit. Native system chrome and accessibility reflow may differ from fixed Figma geometry.
+- [x] Update product brief and story criteria before behavior changes. Record native implementation authorization and retained release boundaries.
+- [x] RED: question selection/change/remove preserve typed words and Save stays disabled for an empty draft; tag Done/cancel/deselect/relaunch and large-text controls.
+- [x] Implement 2:1 window/voice scenes, 24pt heading, compact editor footer with question/mic, optional question sheet and pinned Save. Preserve permission/cancel/save-error paths and Settings/Pingu access.
+- [x] Implement date-grouped Journal cards with time, words and separate context/feeling controls; retain search/calendar/detail/reflection/linked Practice. Use current transparent Pingu assets; no decorative calendar icon additions.
+- [x] Run full unit/UI suites, inspect native captures at standard/large text; fix regressions and commit. Native system chrome and accessibility reflow may differ from fixed Figma geometry.
 
 ## Task 5: Reconcile and hand off
 
 Files: `AGENTS.md`, coding standards, architecture, backend assessment, overview/MVP/flow/user stories, content rules, QA evidence and new dated log.
 
-- [ ] Correct guest versus Release status, schema version, actual CI behavior, current Figma evidence and poster/slides-only deliverables. Keep historical logs unchanged.
-- [ ] Preserve unresolved security, release, recovery and hardware gates; update audit resolution evidence without implying all findings fixed.
-- [ ] Validate links/JSON/whitespace; perform independent code review under executing-plans; record real exchanges and fixes.
-- [ ] Open this worktree's Xcode project and leave the guest review build available with screenshots and test results. No physical-phone installation without checking its current availability.
+- [x] Correct guest versus Release status, schema version, actual CI behavior, current Figma evidence and poster/slides-only deliverables. Keep historical logs unchanged.
+- [x] Preserve unresolved security, release, recovery and hardware gates; update audit resolution evidence without implying all findings fixed.
+- [x] Validate links/JSON/whitespace; perform independent code review under executing-plans; record real exchanges and fixes.
+- [x] Open this worktree's Xcode project and leave the guest review build available with screenshots and test results. No physical-phone installation without checking its current availability.
+
+## Completion evidence
+
+Checkpoints: `150214e` (native baseline), `019368c` (design/assets/docs). Implementation: `e6d548f` (parser), `188d0fe` (tag persistence), `343875c` (native UI/assets/tests). [Final QA report](../../qa/native-alignment-2026-10-31/README.md) records the full unit/UI runs, focused follow-ups, native captures and unresolved release/device gates. Physical-phone installation was not performed. Xcode received the project-open request; toolbar selection could not be verified because the UI-control bridge timed out. The dedicated Guest Review scheme built successfully.
+
+Rulings: reuse completed full-suite evidence rather than rerunning unaffected tests; focused retests cover the final preview/toolbar changes. Journal history uses four normal/six accessibility lines; complete words remain in detail/edit. The long-entry fixture was corrected to avoid a trailing space because the existing save contract trims outer whitespace. The largest-text tag test now checks full button bounds and persisted context, not partial hittability alone. Local-only branch/worktree retention follows the approved plan, so no extra integration-choice prompt or push was needed.
+
+## Discovered review-store compatibility gap
+
+Launching the existing simulator Guest Review store exposed Core Data 134504: its initial one-model V1 schema was replaced in place when SavedDraft was added in `e9c8a3c`. The original definition is preserved in `2a7b630`. Add an exact synthetic original-schema fixture, prove the opening failure, and extend the migration path without changing current snapshots or resetting data. Verify all migration/store tests and the existing simulator data through a protected local backup and unchanged original-field digest. This is a discovered data-preservation defect within the current review path, not permission for cloud recovery or release.
+
+Resolved in `5046f73`: independent original-1.0 schema fixture first reproduced the opening error; restored preceding snapshot passed the full 276-test unit suite (one device-only skip). Strengthened timestamp/tag assertions passed separately. The installed simulator store migrated to V6 with unchanged entry count and original fields, checked against a private consistent backup. Guest Review rebuilt and launched to onboarding; Xcode and the installed simulator viewer were opened. No reset, metadata rewrite, real-device install, cloud action or push.

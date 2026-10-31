@@ -1,15 +1,15 @@
 # Guest app user stories
 
-31 October visual follow-up: [Today review 18](../design/figma-today-layout-review-18/README.md) reuses scene artwork and groups writing, prompts and voice while preserving fixed footers. Player and geometry evidence only; native behavior and test status are unchanged.
+Historical prototype evidence, before native alignment: [Today review 18](../design/figma-today-layout-review-18/README.md) reuses scene artwork and groups writing, prompts and voice while preserving fixed footers. That review supplied player/geometry evidence only; native alignment is now covered by T8–T10 and J7.
 
-Updated 29 October 2026. Start with the [product brief](overview.md) and [MVP register](mvp-definition.md); use the [flow checklist](flow-status-checklist.md) for delivery status. Existing stories describe the native guest/review configuration, not the standard Release app. **P7, P8 and S9 are proposed native criteria supported by a partial browser prototype, not implemented behaviour.** Existing quoted copy describes the native baseline; future on-screen wording must follow the [screen content guidelines](../design/screen-content-guidelines.md).
+Updated 31 October 2026. Start with the [product brief](overview.md) and [MVP register](mvp-definition.md); use the [flow checklist](flow-status-checklist.md) for delivery status. Existing stories describe the native guest/review configuration, not the standard Release app. **P7, P8 and S9 are proposed native criteria supported by a partial browser prototype, not implemented behaviour.** Existing quoted copy describes the native baseline; future on-screen wording must follow the [screen content guidelines](../design/screen-content-guidelines.md).
 
 ## How to read this
 
 - **Story:** "As a [user], I want [goal], so that [benefit]."
 - **Screen and states:** where the story happens, and the states it must handle. The states are empty, filled, in progress, error and permission denied, where relevant.
 - **Criteria:** Given/When/Then lines for the behaviour and relevant failure states. Each line names its test in the **Test** column:
-  - **Unit** is a repo test in `CircleuTests/` (`File.testName`), run by the full `xcodebuild test`.
+  - **Unit** is a repo test in `CircleuTests/` (`XCTestClass.testName`), run by the full `xcodebuild test`.
   - **UI** is an XCUITest in `CircleuUITests/`, run with the `CircleuUITests` scheme (see "Running the tests" below). Each UI test starts from an empty guest journal (Debug-only `-CircleUResetGuestData`).
   - **No test** means nothing checks the line.
 - **Proposed / no native test** means an acceptance target, not a test that exists or passed. Browser evidence is separately scoped.
@@ -48,20 +48,13 @@ Screen: Today. States: empty, filled, in progress (saving), error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T1.1 | Given words in the box, when I tap Save, then the entry appears in Journal and the box clears. | Unit `GuestJournalStoreTests.testSuccessfulSaveClearsDraftAndShowsEntry` |
-| T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again." | Unit `GuestJournalStoreTests.testFailedSaveKeepsDraftAndShowsError` |
-| T1.3 | Given a save is in progress, when I keep typing, then the new words are kept. | Unit `GuestJournalStoreTests.testTextTypedDuringSaveIsKept` |
-| T1.4 | Given the entry saved but file protection failed, when Journal opens, then a notice says so. | Unit `GuestJournalStoreTests.testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal` |
-| T1.5 | Given Today, when I look at the actions, then there is one Save button (the question prompts only add text). | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T1.1 | Given words in the box, when I tap Save, then the entry appears in Journal and the box clears. | Unit `GuestJournalViewModelTests.testSuccessfulSaveClearsDraftAndShowsEntry` |
+| T1.2 | Given saving fails, when the error shows, then my words are still in the box and it says "Couldn’t save. Try again." | Unit `GuestJournalViewModelTests.testFailedSaveKeepsDraftAndShowsError` |
+| T1.3 | Given a save is in progress, when I keep typing, then the new words are kept. | Unit `GuestJournalViewModelTests.testTextTypedDuringSaveIsKept` |
+| T1.4 | Given the entry saved but file protection failed, when Journal opens, then a notice says so. | Unit `GuestJournalViewModelTests.testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal` |
+| T1.5 | Given Today, when I look at the actions, then there is one Save button and question guidance never edits my words. | UI `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave` |
 
-**T1-P. Optional question picker — Figma prototype only, 31 October.** This explores replacing T1.5's native text-inserting chips with non-destructive guidance; it does not change that native behavior or its test claim.
-
-| # | Given / When / Then | Evidence |
-| --- | --- | --- |
-| T1-P.1 | Given Today, when I tap the question/chevron, then a sheet offers the three curated questions; closing it preserves my entry and selection. | [Review 20](../design/figma-today-prompts-review-20/README.md), Figma player |
-| T1-P.2 | Given an empty or filled entry, when I choose or change a question, then it appears separately above the writing, without inserting an answer or replacing existing words. | Review 20 fixture checks; no native test |
-| T1-P.3 | Given a selected question, when I remove it, then only the question is hidden and the words remain. | Review 20 fixture checks; no native test |
-| T1-P.4 | Given a selected question, when an entry saves or its draft is discarded, then the next capture starts without that selection; save failure retains it. | Prototype reaction inspection; not native persistence coverage |
+**T1-P. Prototype origin.** [Review 20](../design/figma-today-prompts-review-20/README.md) established the non-destructive question picker. Native criteria now live in T8–T10 below; the earlier text-inserting chip behavior is superseded.
 
 **T2. Draft kept.** As a person, I want unsaved words to survive closing the app, so that I never lose a half-written moment.
 Screen: Today. States: filled (restored), error (unreadable draft).
@@ -106,11 +99,11 @@ Screen: Journal ("Saved to your journal" card) → Reflection review. States: fi
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T6.1 | Given I just saved, when Journal opens, then the "Saved" card offers Reflect (Reflect on it) and × (Not now), for that entry only, and Not now closes it. | Unit `GuestSuggestionTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`, `testFinishingAnOlderReflectionKeepsTheNewerOffer`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T6.2 | Given I tap Reflect on it and Save reflection, when the entry reopens, then my edits to the reflection are kept apart from my unchanged words. | Unit `GuestSuggestionTests.testEditedSuggestionIsSavedApartFromTheWords`, `testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
-| T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I wrote. | Unit (partial, guided engine forced) `GuestSuggestionTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
-| T6.4 | Given the suggestion fails or I clear every part, when I look, then nothing is added and the entry stays as it is. | Unit `GuestSuggestionTests.testFailedSuggestionLeavesTheSavedEntryAsItIs`, `testClearingEverythingAddsNothing` |
-| T6.5 | Given the entry changed somewhere else, when I save the reflection, then it isn't added and I'm told why. | Unit `GuestSuggestionTests.testReflectionOnAnEntryChangedMeanwhileIsNotAdded` |
+| T6.1 | Given I just saved, when Journal opens, then the "Saved" card offers Reflect (Reflect on it) and × (Not now), for that entry only, and Not now closes it. | Unit `GuestSuggestionViewModelTests.testSavingOffersAReflectionOnlyForThatEntryUntilDismissed`, `testFinishingAnOlderReflectionKeepsTheNewerOffer`; UI `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave` |
+| T6.2 | Given I tap Reflect on it and Save reflection, when the entry reopens, then my edits to the reflection are kept apart from my unchanged words. | Unit `GuestSuggestionViewModelTests.testEditedSuggestionIsSavedApartFromTheWords`, `testReflectionAndNextStepAreSavedWithTheWordsAndSurviveReopen`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| T6.3 | Given no on-device model, when a suggestion shows, then it is labelled as guided prompts and uses only what I wrote. | Unit (partial, guided engine forced) `GuestSuggestionViewModelTests.testGuidedEngineIsLabelledAndUsesOnlyWhatWasTyped` |
+| T6.4 | Given the suggestion fails or I clear every part, when I look, then nothing is added and the entry stays as it is. | Unit `GuestSuggestionViewModelTests.testFailedSuggestionLeavesTheSavedEntryAsItIs`, `testClearingEverythingAddsNothing` |
+| T6.5 | Given the entry changed somewhere else, when I save the reflection, then it isn't added and I'm told why. | Unit `GuestSuggestionViewModelTests.testReflectionOnAnEntryChangedMeanwhileIsNotAdded` |
 | T6.6 | Given a reflection is open, when I delete all data, then it closes and Journal is empty. | UI `GuestTodayUITests.testDeleteAllClosesAnOpenReflection` |
 
 **T7. Next step.** As a person, I want to choose whether to keep a suggested next step, so that nothing is added without my say.
@@ -118,8 +111,8 @@ Screen: Reflection review, Entry. States: filled, done or not done.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T7.1 | Given a suggested step, when I don't add it, then it isn't saved. | Unit `GuestSuggestionTests.testSuggestedStepIsNotSavedUnlessAdded` |
-| T7.2 | Given a saved step, when I mark it done, undo it or remove it, then the entry updates. | Unit `GuestSuggestionTests.testNextStepCanBeDoneUndoneAndRemovedWithRevisions`, `testNextStepIsVoluntaryAndReversibleFromTheEntry` |
+| T7.1 | Given a suggested step, when I don't add it, then it isn't saved. | Unit `GuestSuggestionViewModelTests.testSuggestedStepIsNotSavedUnlessAdded` |
+| T7.2 | Given a saved step, when I mark it done, undo it or remove it, then the entry updates. | Unit `GuestReflectionStoreTests.testNextStepCanBeDoneUndoneAndRemovedWithRevisions`, `testNextStepIsVoluntaryAndReversibleFromTheEntry` |
 
 **T8. Optional question guidance — native alignment approved, 31 October.** Today offers a compact question picker in the writing-card footer, alongside the microphone. Questions guide; they never insert or replace original words.
 
@@ -127,7 +120,7 @@ Screen: Reflection review, Entry. States: filled, done or not done.
 | --- | --- | --- |
 | T8.1 | Given an empty or filled draft, when I open Suggest a question / Change question, then I can choose What happened?, How did it make you feel?, or What would you like to say next?. | UI `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave` (new native slice) |
 | T8.2 | Given a draft, when I select, change, remove or cancel a question, then every original character remains unchanged. | Same UI test |
-| T8.3 | Given a successful save and an empty next draft, when I return, then the selected question resets. A failed save retains words and guidance. | Same UI test; `GuestTodayUITests.testFailedSaveKeepsQuestionAndWords` |
+| T8.3 | Given a successful save and an empty next draft, when I return, then the selected question resets. A failed save retains words and guidance. | Same UI test; `GuestNativeAlignmentTests.testFailedSaveKeepsQuestionAndWords`, `GuestJournalViewModelTests.testTextTypedDuringSaveIsKept` |
 
 **T9. Earlier starter/nudge interaction superseded.** Review 20 replaces automatic sentence starters and the follow-up bubble with T8. Existing helper tests are retained for the older prototype utilities, not evidence of the new screen.
 
@@ -147,20 +140,20 @@ Screen: Journal. States: empty, filled, error.
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J1.1 | Given nothing saved, when Journal opens, then the dusk scene (Pingu with an open journal) and "Nothing saved yet." show. | UI (partial, checks the text, not the art) `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll`, `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
-| J1.2 | Given the journal can't be read, when Journal opens or refreshes, then it says "Couldn’t open your journal. Try again." and never shows an empty journal. | Unit `GuestJournalStoreTests.testFailedLoadIsAnErrorNotAnEmptyJournal`, `testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal` |
+| J1.2 | Given the journal can't be read, when Journal opens or refreshes, then it says "Couldn’t open your journal. Try again." and never shows an empty journal. | Unit `GuestJournalViewModelTests.testFailedLoadIsAnErrorNotAnEmptyJournal`, `testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal` |
 | J1.3 | Given the store file is corrupt or missing, when it opens, then it reports an error and keeps the file's bytes. | Unit `GuestJournalStoreTests.testCorruptStoreIsAnErrorAndBytesArePreserved`, `testVanishedStoreFileIsAnError` |
 
-**J7. Optional context and feeling tags — native alignment approved, 31 October.** Each saved entry can hold one user-selected context and one feeling, independently. Tags never rewrite original words or replace a suggested reflection feeling. Native implementation and verification are in progress under the audit follow-up plan.
+**J7. Optional context and feeling tags — native alignment approved, 31 October.** Each saved entry can hold one user-selected context and one feeling, independently. Tags never rewrite original words or replace a suggested reflection feeling. Native implementation and scoped verification are recorded in the [alignment report](../qa/native-alignment-2026-10-31/README.md).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J7.1 | Given an old or new untagged entry, when loaded, then tags remain unset and no feeling is inferred. | `GuestEntryTagTests.testV5MigrationPreservesEntriesReflectionConversationAndDraftsWithNoInventedTags` |
 | J7.2 | Given the picker, when Done succeeds, then the left context chip and right labelled feeling portrait reflect the independent selections. | `GuestJournalTagsUITests.testTagsSaveCancelClearAndReopen` |
 | J7.3 | Given saved tags, when I change or deselect them, then Done changes only tags and Cancel leaves saved values unchanged. | Same UI test; `GuestEntryTagTests.testTagsSurviveReopenAndWordEditsAndCanBeClearedIndependently` |
-| J7.4 | Given a failed, stale or deleted-entry save, when Done runs, then it does not overwrite newer words or recreate the entry. | `GuestEntryTagTests.testStaleDeletedAndFailedTagSavesNeverOverwriteSavedWords`; picker ViewModel tests |
+| J7.4 | Given a failed, stale or deleted-entry save, when Done runs, then it does not overwrite newer words or recreate the entry. | `GuestEntryTagTests.testStaleDeletedAndFailedTagSavesNeverOverwriteSavedWords`; `GuestNativeAlignmentTests.testTagPickerRejectsStaleSaveAndKeepsChoicesWithoutOverwritingWords`, `testTagPickerFailedSaveKeepsChoicesAndCanRetry` |
 | J7.5 | Given largest text, when choosing tags, then labels and Done remain reachable with visible selections and VoiceOver labels. | `GuestJournalTagsUITests.testTagPickerAtLargestText`; physical VoiceOver follow-up pending |
 | J7.6 | Given persisted tags, when I reopen, edit, search, export or delete data, then tags follow their entry. | `GuestEntryTagTests.testTagsSurviveReopenAndWordEditsAndCanBeClearedIndependently` |
-| J7.7 | Given history, when browsing, then cards group by creation day with time, words, optional context and feeling. | UI screenshots; grouping unit test |
+| J7.7 | Given history, when browsing, then cards group by creation day with time, words, optional context and feeling. Long words use a bounded preview; detail/edit retain the complete entry. | `GuestNativeAlignmentTests.testJournalGroupingUsesCreationDayRatherThanLastEdit`; `GuestJournalTagsUITests.testLongEntryAtLargestTextKeepsTagActionsAndFullWords` |
 
 **J2. Search.** As a person, I want to search my entries, so that I can find a moment again.
 Screen: Journal (search). States: filled (results), empty (no results).
@@ -189,15 +182,15 @@ Screen: Entry → Edit. States: filled, in progress, error (stale, deleted).
 | J4.1 | Given I edit and save, when the entry reopens, then the change is kept, including after a relaunch. | Unit `GuestEntryEditorViewModelTests.testSaveUsesOpenedRevisionAndClearsChanges`, `testSaveAndEditPersistAcrossRelaunch` |
 | J4.2 | Given unsaved edits, when I leave, then the app asks before discarding. | Unit (partial, checks unsaved changes, not the dialog) `GuestEntryEditorViewModelTests.testEditingMarksChangesSoLeavingAsksFirst`; UI `GuestFlowUITests.testWriteSaveRelaunchEditDiscard` |
 | J4.3 | Given the entry changed or was deleted elsewhere, when I save, then my text is kept with a clear message. | Unit `GuestEntryEditorViewModelTests.testStaleAndDeletedEntriesKeepTextWithClearMessages` |
-| J4.4 | Given an entry with a reflection, when I edit the words, then the reflection is marked as earlier. | Unit `GuestSuggestionTests.testEditingTheWordsMarksTheReflectionAsEarlierAndRemovingItKeepsTheWords` |
+| J4.4 | Given an entry with a reflection, when I edit the words, then the reflection is marked as earlier. | Unit `GuestReflectionStoreTests.testEditingTheWordsMarksTheReflectionAsEarlierAndRemovingItKeepsTheWords` |
 
 **J5. Delete an entry.** As a person, I want to delete an entry and choose what happens to its practice message, so that I control what's kept.
 Screen: Entry (delete dialog). States: in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| J5.2 | Given delete fails, when the error shows, then the entry and message are unchanged. | Unit `GuestPracticeTests.testFailedEntryDeleteKeepsEntryAndMessage` |
+| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeStoreTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| J5.2 | Given delete fails, when the error shows, then the entry and message are unchanged. | Unit `GuestPracticeStoreTests.testFailedEntryDeleteKeepsEntryAndMessage` |
 | J5.3 | Given a deleted entry, when an old screen saves, then it doesn't come back. | Unit `GuestJournalStoreTests.testUpdateAfterDeleteDoesNotResurrectEntry` |
 
 **J6. Icons over labels.** As a person, I want Journal to show status and actions as pictures, so that my own words stand out.
@@ -206,7 +199,7 @@ Screen: Journal, Calendar, Entry. States: filled, one day chosen. Mocked in the 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | J6.1 | Given entries, when Journal opens, then each row shows a date tile, the words, icons for a reflection, a next step (a tick when done) and a practice message, and the time; VoiceOver reads the icons in words. | No test (layout checked on screenshots; VoiceOver speech not checked) |
-| J6.2 | Given I just saved, when Journal opens, then the "Saved" card is one row: Pingu, "Saved", Reflect and ×. | UI (partial, checks "Saved" and Reflect, not the one-row layout) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| J6.2 | Given I just saved, when Journal opens, then the "Saved" card is one row: Pingu, "Saved", Reflect and ×. | UI (partial, checks "Saved" and Reflect, not the one-row layout) `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave` |
 | J6.3 | Given the calendar, when I choose a day, then a day chip with × replaces "Showing …" and Show all, each day shows up to three dots, and Go to today is an icon. | UI (partial, checks the day chip and Go to today, not the dots) `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
 | J6.4 | Given an entry, when it opens, then a compact date is the inline title and the time below exposes the full creation timestamp to accessibility, Edit is a pencil, Delete entry is in the ••• menu, and the reflection, feeling and next step show as icons with spoken names. | UI (partial, checks the actions, not the title or every spoken name) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 
@@ -217,8 +210,8 @@ Screen: Entry → Practice message. States: empty, filled, in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P1.2 | Given the source entry was deleted, when I save a message from it, then my words stay. | Unit `GuestPracticeTests.testDeletedSourceEntryKeepsWords` |
+| P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeStoreTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P1.2 | Given the source entry was deleted, when I save a message from it, then my words stay. | Unit `GuestPracticeViewModelTests.testDeletedSourceEntryKeepsWords` |
 
 **P2. A message on its own.** As a person, I want to practise without an entry, so that I can prepare for something I haven't written about.
 Screen: Practice. States: empty, filled, error.
@@ -226,8 +219,8 @@ Screen: Practice. States: empty, filled, error.
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | P2.1 | Given no messages, when Practice opens, then the shared Pingu start card and "Nothing practised yet." show; decorative art is omitted at accessibility text sizes. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
-| P2.2 | Given Prepare has no wording, Continue is off; after entering words and continuing to Refine, Save stores them and shows the saved conversation. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
-| P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeTests.testFailedSaveKeepsWordsAndShowsError` |
+| P2.2 | Given Prepare has no wording, Continue is off; after entering words and continuing to Refine, Save stores them and shows the saved conversation. | Unit `GuestPracticeViewModelTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
+| P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeViewModelTests.testFailedSaveKeepsWordsAndShowsError` |
 | P2.4 | Given saved messages, when Practice opens, then an ice-toned Pingu card with one blue action strip starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P2.5 | Given Prepare, when I choose a scene and tone or expand Situation and Goal, those values remain part of my draft; existing details reopen expanded. | Automated scene/detail interaction not yet covered; draft coding covered by `GuestConversationTests.testDraftRoundTripPreservesPendingReplyAndOriginalWords` |
 | P2.6 | Given Refine and the software keyboard are open, when I write or scroll at default or largest text, then Save stays fully above the keyboard; saving dismisses the keyboard and preserves my wording. | UI `GuestPracticeUITests.testPracticeSaveStaysAboveKeyboard`, `testPracticeSaveStaysAboveKeyboardAtLargestText` |
@@ -237,9 +230,9 @@ Screen: Practice message. States: filled, error (stale).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains`; UI (saved edit, reopen and no duplicate; concurrent edits remain unit-tested) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
-| P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeTests.testFailedMessageDeleteKeepsIt` |
+| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeViewModelTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeViewModelTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains`; UI (saved edit, reopen and no duplicate; concurrent edits remain unit-tested) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
+| P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeViewModelTests.testFailedMessageDeleteKeepsIt` |
 | P3.4 | Given a saved message, when I look at it, then my words are a blue prepared-wording bubble labelled Saved · not sent, Copy is primary, Continue conversation is secondary, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P3.5 | Given copied wording, when I type, clear it or undo a suggestion, then the Copied confirmation clears; copying again confirms the new wording without saving. | Unit `GuestPracticeViewModelTests.testEditingCopiedWordingClearsConfirmationUntilCopiedAgain`, `testClearingCopiedWordingClearsConfirmationAndDisablesCopy`, `testUndoingACopiedSuggestionClearsConfirmation`; UI (typing and visible confirmation) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
 | P3.6 | Given unsaved edits to a saved message, when I tap Back, then Keep editing preserves those edits and Discard leaves the saved message unchanged. | UI `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
@@ -250,8 +243,8 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 | # | Given / When / Then | Test |
 | --- | --- | --- |
 | P4.1 | Given an unsaved message, when the app relaunches, then Continue your draft restores it, and once saved it isn't offered again. | Unit `GuestFindAndControlTests.testPracticeDraftSurvivesRelaunchAndIsClearedBySaving`, `testSavedPracticeDraftIsNeverOfferedAgain` |
-| P4.2 | Given a suggestion, when I choose it from the swipeable tone cards, then it fills the wording and can be undone. | Unit `GuestSuggestionTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
-| P4.3 | Given a suggestion fails, when the error shows, then my wording is kept. | Unit `GuestSuggestionTests.testFailedPracticeSuggestionKeepsWording` |
+| P4.2 | Given a suggestion, when I choose it from the swipeable tone cards, then it fills the wording and can be undone. | Unit `GuestSuggestionViewModelTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| P4.3 | Given a suggestion fails, when the error shows, then my wording is kept. | Unit `GuestSuggestionViewModelTests.testFailedPracticeSuggestionKeepsWording` |
 
 **P5. Continue a conversation.** As a person, I want to add their reply or more context without losing earlier wording.
 Screens: Prepare → Refine → Their reply → Refine → Conversation. States: empty, editable, saved, unreadable, stale revision.

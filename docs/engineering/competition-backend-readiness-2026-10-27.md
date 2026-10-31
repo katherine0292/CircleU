@@ -1,5 +1,12 @@
 # Backend readiness for a design competition
 
+## 31 October follow-up
+
+The original assessment below is historical. Native Practice conversation/voice work is checkpointed in `150214e`; the guest store now has V1–V6 migrations. V5 added attributed conversation history; V6 adds optional user-selected Journal context and feeling. V5 migration tests preserve entries, accepted reflections, linked conversation history, receipts and kept drafts. Guest tags share existing revision/rollback/protection behavior; no cloud data is changed. The shared reflection decoder now safely rejects reversed JSON delimiters (`e6d548f`).
+
+Current delivery is poster and slides only, without a deadline. Standard Release still opens the legacy app, and Dev-only recovery remains separately gated. The [31 October audit](../qa/project-audit-2026-10-31/README.md) records repository Firestore ownership weaknesses, live deployment uncertainty and the retired legacy cloud model; none is resolved by the UI/storage work. Do not release or activate cloud features based on these local checks.
+
+
 Assessed 27 October 2026 against `9967a1057310c84e569c8ffecc434a3c7db905c9`, branch `codex/app-upgrade-plan`. This is a source-backed assessment and proposed qualification scope, not implemented changes or permission to release. Competition requirements, deadline and submission format remain unconfirmed.
 
 ## 1. Decision
