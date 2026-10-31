@@ -16,6 +16,15 @@ private struct ScriptedSuggester: GuestSuggesting {
     }
 }
 
+/// Answers after a short wait, so a review can be let go while it runs.
+private struct SlowSuggester: GuestSuggesting {
+    func reflection(for words: String) async throws -> GuestReflectionSuggestion { throw GuestSuggestionError.noWords }
+    func wordingOptions(situation: String, goal: String, draft: String) async throws -> GuestWordingSuggestions {
+        try await Task.sleep(nanoseconds: 200_000_000)
+        return GuestWordingSuggestions(options: [.init(tone: "Clear", text: "Late: \(draft)")], source: .guided)
+    }
+}
+
 private actor QuietPracticeStore: GuestPracticeStore {
     func loadPractice() throws -> [GuestPracticeMessage] { [] }
     func createPractice(situation: String, goal: String, wording: String, sourceEntryID: UUID?, draftID: UUID?) throws -> GuestPracticeMessage {
@@ -121,6 +130,22 @@ final class GuestPracticeMessageFirstTests: XCTestCase {
         XCTAssertNil(composer.wordingBeforeSuggestion, "an Undo from the earlier review no longer applies")
         XCTAssertEqual(composer.suggestedWording?.text, "Clear: Second try, edited by hand", "only the new result can be used")
         XCTAssertEqual(composer.conversation?.originalWords, "First try", "my first words stay as the first words")
+    }
+
+    /// Keeping my words while a review is still running ends the waiting state at once.
+    func testKeepMyWordingWhileReviewingStopsWaiting() async {
+        let composer = GuestPracticeComposerViewModel(store: QuietPracticeStore(), sourceEntryID: nil,
+                                                      suggester: SlowSuggester())
+        composer.wording = "Can you take a fair share?"
+        let review = Task { await composer.reviewWording() }
+        await Task.yield()
+        XCTAssertTrue(composer.isSuggesting)
+        composer.keepMyWording()
+        XCTAssertFalse(composer.isSuggesting, "not waiting on a review I let go")
+        XCTAssertEqual(composer.stage, .refine)
+        await review.value
+        XCTAssertNil(composer.suggestions, "the late result is ignored")
+        XCTAssertEqual(composer.wording, "Can you take a fair share?")
     }
 
     func testFailedNewReviewLeavesNothingToUse() async {

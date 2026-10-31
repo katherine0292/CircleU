@@ -343,7 +343,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
 
     /// "Keep my wording": nothing changes, and a review still running is let go.
     func keepMyWording() {
-        suggestionRequest += 1 // A late result is ignored.
+        suggestionRequest += 1 // A review still running is let go: its result is ignored.
+        isSuggesting = false
         if !Self.trim(wording).isEmpty {
             var value = conversation ?? GuestPracticeConversation()
             if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
@@ -485,11 +486,11 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     func suggest() async {
         guard let suggester, !isSuggesting else { return }
         isSuggesting = true
-        defer { isSuggesting = false }
         suggestionError = nil
         suggestionRequest += 1
         let request = suggestionRequest
         let inputs = suggestionInputs
+        // A request that was let go (Keep my wording, or a newer request) changes nothing when it returns.
         do {
             let result: GuestWordingSuggestions
             if let conversation {
@@ -499,10 +500,13 @@ final class GuestPracticeComposerViewModel: ObservableObject {
                 result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1, draft: inputs.2)
             }
             guard request == suggestionRequest else { return }
-            suggestions = Self.preferredFirst(result, tone: tone)
+            isSuggesting = false
+            // On the result screen the chosen tone leads; "Get a suggestion" keeps the engine's order.
+            suggestions = stage == .result ? Self.preferredFirst(result, tone: tone) : result
             suggestedFrom = inputs
         } catch {
             guard request == suggestionRequest else { return }
+            isSuggesting = false
             suggestionError = Self.suggestionFailedMessage
         }
     }
