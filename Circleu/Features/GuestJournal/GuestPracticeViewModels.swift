@@ -291,8 +291,18 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
         conversation = value
         resultIsFromIntent = false
-        stage = .result
+        startReview()
         await suggest()
+    }
+
+    /// A new review: earlier options can't be used while it runs, and an older Undo no longer
+    /// applies to the words being reviewed.
+    private func startReview() {
+        suggestions = nil
+        suggestedFrom = nil
+        suggestionError = nil
+        wordingBeforeSuggestion = nil
+        stage = .result
     }
 
     /// Blank start: an intent from guidance, and no words yet, can ask for words.
@@ -302,7 +312,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     func findWordsFromIntent() async {
         guard canFindWordsFromIntent else { return }
         resultIsFromIntent = true
-        stage = .result
+        startReview()
         await suggest()
     }
 

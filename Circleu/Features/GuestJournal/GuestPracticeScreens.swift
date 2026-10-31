@@ -318,7 +318,10 @@ struct GuestPracticeMessageView: View {
                         }
                         Button("Save without feedback") {
                             focus = nil
-                            Task { if await composer.saveWithoutFeedback() { await finishSave() } }
+                            Task {
+                                let wasNew = composer.saved == nil
+                                if await composer.saveWithoutFeedback() { await finishSave(wasNew: wasNew) }
+                            }
                         }
                         .buttonStyle(GuestBrandButtonStyle(filled: false)).disabled(!composer.canCopy || composer.isSaving)
                     case .guide:
@@ -723,9 +726,9 @@ struct GuestPracticeMessageView: View {
     }
 
     /// Kept outside the scroll content so suggestions and the keyboard cannot push it away.
-    /// After a save: a new message's kept draft is cleared, and the history refreshed.
-    private func finishSave() async {
-        if composer.ownsDraft, let id = composer.draftID { practice.clearDraft(id: id) }
+    /// After any save the history is refreshed; a new message's kept draft is cleared too.
+    private func finishSave(wasNew: Bool) async {
+        if wasNew, composer.ownsDraft, let id = composer.draftID { practice.clearDraft(id: id) }
         await practice.load()
     }
 
@@ -734,7 +737,7 @@ struct GuestPracticeMessageView: View {
             Task {
                 let wasNew = composer.saved == nil
                 focus = nil
-                if await composer.save(), wasNew { await finishSave() }
+                if await composer.save() { await finishSave(wasNew: wasNew) }
             }
         } label: {
             Text(composer.isSaving ? "Saving…" : "Save")

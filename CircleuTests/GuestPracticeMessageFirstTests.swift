@@ -108,6 +108,30 @@ final class GuestPracticeMessageFirstTests: XCTestCase {
         XCTAssertTrue(composer.canSave, "still my words, still saveable")
     }
 
+    /// A new review hides the earlier options and drops an older Undo, so neither acts on newer words.
+    func testNewReviewInvalidatesEarlierOptionsAndUndo() async {
+        let composer = composer()
+        composer.wording = "First try"
+        await composer.reviewWording()
+        composer.useSuggestedWording()
+        XCTAssertNotNil(composer.wordingBeforeSuggestion)
+        composer.wording = "Second try, edited by hand"
+        await composer.reviewWording()
+        XCTAssertEqual(composer.stage, .result)
+        XCTAssertNil(composer.wordingBeforeSuggestion, "an Undo from the earlier review no longer applies")
+        XCTAssertEqual(composer.suggestedWording?.text, "Clear: Second try, edited by hand", "only the new result can be used")
+        XCTAssertEqual(composer.conversation?.originalWords, "First try", "my first words stay as the first words")
+    }
+
+    func testFailedNewReviewLeavesNothingToUse() async {
+        let composer = composer(fail: true)
+        composer.wording = "Only try"
+        await composer.reviewWording()
+        XCTAssertNil(composer.suggestedWording)
+        XCTAssertTrue(composer.otherWordings.isEmpty)
+        XCTAssertNil(composer.wordingBeforeSuggestion)
+    }
+
     func testSaveWithoutFeedbackSavesMyWordsAsTheyAre() async {
         let composer = composer()
         composer.wording = "Can you take a fair share?"
