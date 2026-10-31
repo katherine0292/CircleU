@@ -1,6 +1,30 @@
 import Foundation
 import SwiftData
 
+/// The first guest build shipped only Entry, before SavedDraft was added to V1 in place.
+/// Keep its exact model shape so those stores remain recognisable. The earlier identifier
+/// orders this snapshot before V1; migration matching uses the model checksum.
+nonisolated enum GuestJournalSchemaInitial: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(0, 9, 0) }
+    static var models: [any PersistentModel.Type] { [Entry.self] }
+
+    @Model final class Entry {
+        @Attribute(.unique) var id: UUID
+        var originalWords: String
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+
+        init(id: UUID, originalWords: String, revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.originalWords = originalWords
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+}
+
 /// Version 1 of the guest journal schema. Add a new version plus a migration stage for changes;
 /// backfill derived values such as `updatedAt` in that stage rather than relying on defaults.
 nonisolated enum GuestJournalSchemaV1: VersionedSchema {
@@ -414,12 +438,13 @@ nonisolated enum GuestJournalSchemaV6: VersionedSchema {
 
 nonisolated enum GuestJournalMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self, GuestJournalSchemaV4.self, GuestJournalSchemaV5.self, GuestJournalSchemaV6.self]
+        [GuestJournalSchemaInitial.self, GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self, GuestJournalSchemaV4.self, GuestJournalSchemaV5.self, GuestJournalSchemaV6.self]
     }
     /// V1 → V2 adds a model and V2 → V3 adds optional fields, so lightweight stages keep every
     /// entry, saved draft and practice message.
     static var stages: [MigrationStage] {
-        [.lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self),
+        [.lightweight(fromVersion: GuestJournalSchemaInitial.self, toVersion: GuestJournalSchemaV1.self),
+         .lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self),
          .lightweight(fromVersion: GuestJournalSchemaV2.self, toVersion: GuestJournalSchemaV3.self),
          .lightweight(fromVersion: GuestJournalSchemaV3.self, toVersion: GuestJournalSchemaV4.self),
          .lightweight(fromVersion: GuestJournalSchemaV4.self, toVersion: GuestJournalSchemaV5.self),

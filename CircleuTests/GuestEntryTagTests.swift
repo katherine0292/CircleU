@@ -1,5 +1,6 @@
 import XCTest
 import SwiftData
+import CoreData
 import os
 @testable import Circleu
 
@@ -123,5 +124,55 @@ final class GuestEntryTagTests: XCTestCase {
         XCTAssertTrue(receipt)
         let draft = try await store.keptDraft(slot: "write")
         XCTAssertEqual(draft?.text, "Unsaved")
+    }
+    func testEarliestSingleModelV1MigratesWithoutChangingOriginalEntries() async throws {
+        try FileManager.default.createDirectory(at: location.directory, withIntermediateDirectories: true)
+        let id = UUID(), date = Date(timeIntervalSince1970: 1_700_000_000)
+        let editedDate = date.addingTimeInterval(90)
+        do {
+            let container = try ModelContainer(for: Schema(versionedSchema: OriginalSingleModelV1.self),
+                                                configurations: ModelConfiguration(url: location.storeURL))
+            let context = ModelContext(container)
+            context.insert(OriginalSingleModelV1.Entry(id: id, originalWords: "An early moment", revision: 3,
+                                                       createdAt: date, updatedAt: editedDate))
+            try context.save()
+        }
+        let metadata = try NSPersistentStoreCoordinator.metadataForPersistentStore(
+            ofType: NSSQLiteStoreType, at: location.storeURL)
+        XCTAssertEqual(metadata["NSStoreModelVersionChecksumKey"] as? String,
+                       "oc0roTTQZ2rapWjMBFYZnBXfPuEXTLAGWpfmP70J/7A=", "matches the earliest simulator schema")
+        let store = try await open()
+        let entries = try await store.loadAll()
+        let row = try XCTUnwrap(entries.first)
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertEqual(row.id, id)
+        XCTAssertEqual(row.originalWords, "An early moment")
+        XCTAssertEqual(row.revision, 3)
+        XCTAssertEqual(row.createdAt, date)
+        XCTAssertEqual(row.updatedAt, editedDate)
+        XCTAssertNil(row.context)
+        XCTAssertNil(row.feeling)
+        let tagged = try await store.updateTags(id: id, context: .work, feeling: .calm, expectedRevision: 3)
+        XCTAssertEqual(tagged.originalWords, row.originalWords)
+        XCTAssertEqual(tagged.context, .work)
+        XCTAssertEqual(tagged.feeling, .calm)
+    }
+
+}
+
+/// Exact first-slice schema from 2a7b630, before SavedDraft was added to V1 in place.
+nonisolated private enum OriginalSingleModelV1: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Entry.self] }
+    @Model final class Entry {
+        @Attribute(.unique) var id: UUID
+        var originalWords: String
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+        init(id: UUID, originalWords: String, revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id; self.originalWords = originalWords; self.revision = revision
+            self.createdAt = createdAt; self.updatedAt = updatedAt
+        }
     }
 }
