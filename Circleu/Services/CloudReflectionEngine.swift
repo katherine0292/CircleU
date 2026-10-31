@@ -91,25 +91,8 @@ struct CloudReflectionEngine: ReflectionAnalyzing {
             throw ReflectionEngineError.invalidModelResponse
         }
 
-        return try decodeReflectionResult(from: textResponse)
+        return try ReflectionResponseDecoder.decode(textResponse)
     }
 
-    private func decodeReflectionResult(from rawResponse: String) throws -> AIReflectionResult {
-        let trimmed = rawResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-        let jsonText: String
 
-        if let start = trimmed.firstIndex(of: "{"),
-           let end = trimmed.lastIndex(of: "}") {
-            jsonText = String(trimmed[start...end])
-        } else {
-            jsonText = trimmed
-        }
-
-        guard let jsonData = jsonText.data(using: .utf8),
-              let result = try? JSONDecoder().decode(AIReflectionResult.self, from: jsonData) else {
-            throw ReflectionEngineError.invalidModelResponse
-        }
-
-        return result
-    }
 }
