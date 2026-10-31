@@ -10,7 +10,7 @@ enum GuestSearch {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return true }
         let fields = [entry.originalWords, entry.reflection?.summary, entry.reflection?.feeling,
-                      entry.reflection?.insight, entry.nextStep].compactMap { $0 }
+                      entry.reflection?.insight, entry.nextStep, entry.context?.title, entry.feeling?.title].compactMap { $0 }
         return fields.contains { $0.localizedStandardContains(query) }
     }
 
@@ -152,6 +152,8 @@ enum GuestExport {
                      "", "JOURNAL"]
         for entry in entries.sorted(by: { $0.createdAt < $1.createdAt }) {
             lines += ["", "— \(entry.createdAt.formatted(date))", "My words:", entry.originalWords]
+            if let context = entry.context { lines.append("Context: \(context.title)") }
+            if let feeling = entry.feeling { lines.append("My feeling: \(feeling.title)") }
             if let reflection = entry.reflection {
                 let source = switch reflection.source {
                 case .onDevice: "suggested by Apple Intelligence on this iPhone"

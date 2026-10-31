@@ -32,6 +32,12 @@ The [privacy/storage and recovery plan](privacy-storage-plan.md) defines retenti
 
 Preserve legacy accounts and data. The [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) still gates network isolation, shipped-project mapping, migration and distribution. Source isolation tests do not establish all deployed/network behaviour.
 
+## Native alignment approved — 31 October
+
+The audit follow-up is approved for the guest review configuration: the accepted Today question picker and Journal cards/tags now have an implementation plan. Today questions guide writing without inserting or replacing words. Context (Study, Work, Friends, Family) and feeling (Calm, Worried, Overloaded, Happy, Sad, Frustrated) are independent, optional user choices. Existing entries keep nil tags; no feelings are inferred from wording or AI reflections. Tags persist locally, survive edits, appear in export/search and are removed with their entry. Cancel leaves tags unchanged; Done uses the entry revision and preserves choices after a failed save.
+
+See [implementation and verification plan](../superpowers/plans/2026-10-31-audit-follow-up-native-alignment.md). Implementation and tests are in progress; this approval does not enable cloud services or change Release routing.
+
 ## MVP feature register
 
 P0 means a baseline beta requirement, not a claim of completion. Existing capability must be verified and adapted where needed. P1 items can follow the first beta. Proposed extensions M09/M10 must not silently become release blockers before their scope is approved.

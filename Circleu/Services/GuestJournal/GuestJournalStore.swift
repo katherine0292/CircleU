@@ -12,6 +12,8 @@ nonisolated struct GuestJournalEntry: Identifiable, Equatable, Sendable {
     /// One optional next step; nil when skipped.
     var nextStep: String? = nil
     var nextStepDone = false
+    var context: GuestEntryContext? = nil
+    var feeling: GuestEntryFeeling? = nil
 }
 
 /// Where a suggestion came from, so a template is never presented as a personal AI analysis.

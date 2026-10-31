@@ -121,34 +121,23 @@ Screen: Reflection review, Entry. States: filled, done or not done.
 | T7.1 | Given a suggested step, when I don't add it, then it isn't saved. | Unit `GuestSuggestionTests.testSuggestedStepIsNotSavedUnlessAdded` |
 | T7.2 | Given a saved step, when I mark it done, undo it or remove it, then the entry updates. | Unit `GuestSuggestionTests.testNextStepCanBeDoneUndoneAndRemovedWithRevisions`, `testNextStepIsVoluntaryAndReversibleFromTheEntry` |
 
-**T8. Question chips.** As a person who isn't sure where to start, I want a few questions above the empty box, so that I can begin without staring at a blank page.
-Screen: Today (empty). States: empty, filled.
+**T8. Optional question guidance — native alignment approved, 31 October.** Today offers a compact question picker in the writing-card footer, alongside the microphone. Questions guide; they never insert or replace original words.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T8.1 | Given an empty box, when Today opens, then "What happened?", "Who was it with?" and "What do you wish you’d said?" show above it. | Unit `GuestTodayPromptsTests.testThreeStarterChipsEachAddOnlyTheirStarter`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T8.2 | Given the chips, when I tap one, then only its sentence starter (such as "I wish I’d said") goes into my words, and the chips go. | Unit `GuestTodayPromptsTests.testThreeStarterChipsEachAddOnlyTheirStarter`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T8.3 | Given I saved, when I'm back on Today, then the box is empty and the chips are back. | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+| T8.1 | Given an empty or filled draft, when I open Suggest a question / Change question, then I can choose What happened?, How did it make you feel?, or What would you like to say next?. | UI `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave` (new native slice) |
+| T8.2 | Given a draft, when I select, change, remove or cancel a question, then every original character remains unchanged. | Same UI test |
+| T8.3 | Given a successful save and an empty next draft, when I return, then the selected question resets. A failed save retains words and guidance. | Same UI test; `GuestTodayUITests.testFailedSaveKeepsQuestionAndWords` |
 
-**T9. Need a nudge?** As a person who gets stuck partway, I want one follow-up question while I write, so that I can keep going in my own words.
-Screen: Today (writing). States: filled, hidden, listening (not shown).
+**T9. Earlier starter/nudge interaction superseded.** Review 20 replaces automatic sentence starters and the follow-up bubble with T8. Existing helper tests are retained for the older prototype utilities, not evidence of the new screen.
 
-| # | Given / When / Then | Test |
-| --- | --- | --- |
-| T9.1 | Given at least five words and no dictation, when I write, then "Need a nudge?" shows one question. | Unit `GuestTodayPromptsTests.testNudgeShowsOnceThereAreWordsAndNotWhileDictating`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T9.2 | Given a question, when I tap Another question, then a different one shows; when I tap Add to my words, then only its starter goes on a new line and the next question shows. | Unit `GuestTodayPromptsTests.testAnotherQuestionCyclesAndAddMovesOn`, `testAStarterGoesOnANewLineAfterExistingWords`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T9.3 | Given the nudge, when I tap Hide, then it stays hidden for this entry and comes back for the next one. | Unit `GuestTodayPromptsTests.testHideLastsForThisEntryOnly`; UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T9.4 | Given the keyboard is up, when the nudge shows, then the words are still in view (the microphone gets smaller). | No test (checked on the `t2-nudge` screenshot from `GuestTodayUITests`) |
-
-**T10. Visual Today.** As a person, I want Today to show me what to do with pictures rather than instructions, so that I can start without reading.
-Screen: Today. States: empty, in progress (listening), filled (writing). Mocked in the canvas row "D · Visual Today" (D1–D3). Uses the expansion 02 art: the ice-floe scenes and the chip icons ([prompts](../design/brand-demo/asset-expansion-02-prompts.json)). The CircleU logo sits at the top left.
+**T10. Visual Today.** Use the accepted window scene above a white writing card; voice activity uses the voice-corner scene. Questions and microphone share the footer. Save remains the one filled primary action. Native navigation, Settings and the avatar picker stay accessible; artwork is decorative and omitted at accessibility sizes.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| T10.1 | Given an empty box, when Today opens, then the ice-floe scene and the microphone share one card with my Pingu as a small badge, the question chips show their own icons (not the tab icons), and there's no "Type, or tap the microphone and talk.", "Tap to talk" or "Not sure where to start?". | UI (partial, checks the words are gone and the microphone is there, not the art) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T10.2 | Given I'm listening, when I look, then the scene shows Pingu listening in the ripples, with stop and cancel as icons that VoiceOver names "Stop dictation" and "Cancel dictation". | UI (partial, checks "Stop dictation", not "Cancel dictation" or the art) `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
-| T10.3 | Given at least five words, when the nudge shows, then it's a speech bubble from Pingu with the question, Add, and icons named "Another question" and "Hide", and no "Need a nudge?" label. | UI (partial, checks "Another question" and "Hide", not the bubble or the missing label) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
-| T10.4 | Given the largest text sizes, when Today opens, then the scene is left out and the microphone, avatar picker, chips and Save remain reachable. | UI (partial: controls and saving are exercised; the hidden scene is checked on screenshots) `GuestTodayUITests.testTodayAtLargestTextKeepsPromptsAvatarAndSaveReachable` |
+| T10.1 | Given Today, when I write or dictate, then the microphone stays in the composer footer and Save stays above the keyboard. | UI `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave`; existing voice UI suite |
+| T10.2 | Given dictation, when I stop/cancel or choose my Pingu, then listening stops and text handling keeps its existing contract. | UI `GuestStatesUITests.testPinguChoiceIsKeptAndThePickerStopsDictation` |
+| T10.3 | Given largest text, when I scroll Today and its question picker, then questions, microphone, avatar and Save remain reachable. | UI `GuestTodayUITests.testTodayAtLargestTextKeepsPromptsAvatarAndSaveReachable`; physical follow-up pending |
 
 ## 3. Journal
 
@@ -161,19 +150,17 @@ Screen: Journal. States: empty, filled, error.
 | J1.2 | Given the journal can't be read, when Journal opens or refreshes, then it says "Couldn’t open your journal. Try again." and never shows an empty journal. | Unit `GuestJournalStoreTests.testFailedLoadIsAnErrorNotAnEmptyJournal`, `testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal` |
 | J1.3 | Given the store file is corrupt or missing, when it opens, then it reports an error and keeps the file's bytes. | Unit `GuestJournalStoreTests.testCorruptStoreIsAnErrorAndBytesArePreserved`, `testVanishedStoreFileIsAnError` |
 
-**J7. Optional activity and feeling tags — prototype proposal, 31 October.** As a person, I want to label a saved moment in my own terms, so I can recognise its context when browsing. This is a design-review scope, not native implementation approval.
+**J7. Optional context and feeling tags — native alignment approved, 31 October.** Each saved entry can hold one user-selected context and one feeling, independently. Tags never rewrite original words or replace a suggested reflection feeling. Native implementation and verification are in progress under the audit follow-up plan.
 
-| Criterion | Given / When / Then | Evidence |
+| # | Given / When / Then | Test |
 | --- | --- | --- |
-| J7.1 | Given an untagged entry, when I leave it untagged, then the saved words remain valid and unchanged. | Figma review 12; native persistence coverage pending |
-| J7.2 | Given + Context or + Feeling, when I choose a conversation context and optionally a feeling and tap Done, then the context appears as a blue activity chip on the left and the feeling as a labelled face portrait on the right. | [Figma review 14](../design/figma-journal-emotions-review-14/README.md); invented scenario only |
-| J7.3 | Given an existing tag, when I reopen the picker and choose another value or deselect it, then Done updates or removes the tag without rewriting the words. | Figma review 12; native edit/export/migration coverage pending |
-| J7.4 | Given only an activity or only a feeling, when I tap Done, then the other category remains unset; no automatic inference occurs. | Figma review 12; no model involved |
-| J7.5 | Given a larger text setting or VoiceOver, when I use the native picker, then labels, selection state and controls remain understandable and reachable. | Required for a future native slice; not established by fixed-size Figma frames |
-| J7.6 | Given saved tags, when I change selections then close the picker without Done, then saved tags stay unchanged. Done commits the choices; clearing a category restores + Context or + Feeling independently. | Review 14 player: cancelled Frustrated retained Happy; removing Happy retained Friends and restored + Feeling |
-| J7.7 | Given a saved tag or wording edit, when I switch between Journal and Practice and return, then the saved values remain associated with the same entry. | Review 13 prototype-session variables; checked in player, not durable native storage |
-| J7.8 | Given the feeling picker, when I choose Calm, Worried, Overloaded, Happy, Sad or Frustrated, then I can select at most one feeling, independently of context; no feeling is inferred. | Review 14 prototype proposal: six labelled choices; Happy selection and deselection checked, other reaction definitions share the same construction; native coverage pending |
-| J7.9 | Given saved entries, when I browse history, then entries are grouped by date, with time inside the card and the person's words above the tags. | Review 14 main history visual inspection; native grouping not changed |
+| J7.1 | Given an old or new untagged entry, when loaded, then tags remain unset and no feeling is inferred. | `GuestEntryTagTests.testV5MigrationPreservesEntriesReflectionConversationAndDraftsWithNoInventedTags` |
+| J7.2 | Given the picker, when Done succeeds, then the left context chip and right labelled feeling portrait reflect the independent selections. | `GuestJournalTagsUITests.testTagsSaveCancelClearAndReopen` |
+| J7.3 | Given saved tags, when I change or deselect them, then Done changes only tags and Cancel leaves saved values unchanged. | Same UI test; `GuestEntryTagTests.testTagsSurviveReopenAndWordEditsAndCanBeClearedIndependently` |
+| J7.4 | Given a failed, stale or deleted-entry save, when Done runs, then it does not overwrite newer words or recreate the entry. | `GuestEntryTagTests.testStaleDeletedAndFailedTagSavesNeverOverwriteSavedWords`; picker ViewModel tests |
+| J7.5 | Given largest text, when choosing tags, then labels and Done remain reachable with visible selections and VoiceOver labels. | `GuestJournalTagsUITests.testTagPickerAtLargestText`; physical VoiceOver follow-up pending |
+| J7.6 | Given persisted tags, when I reopen, edit, search, export or delete data, then tags follow their entry. | `GuestEntryTagTests.testTagsSurviveReopenAndWordEditsAndCanBeClearedIndependently` |
+| J7.7 | Given history, when browsing, then cards group by creation day with time, words, optional context and feeling. | UI screenshots; grouping unit test |
 
 **J2. Search.** As a person, I want to search my entries, so that I can find a moment again.
 Screen: Journal (search). States: filled (results), empty (no results).

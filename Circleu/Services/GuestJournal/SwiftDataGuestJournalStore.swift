@@ -327,9 +327,94 @@ nonisolated enum GuestJournalSchemaV5: VersionedSchema {
 }
 
 
+nonisolated enum GuestJournalSchemaV6: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(6, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Entry.self, SavedDraft.self, PracticeMessage.self, KeptDraftRecord.self] }
+
+    @Model final class Entry {
+        @Attribute(.unique) var id: UUID
+        var originalWords: String
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+        /// A suggestion the person accepted (and may have edited); nil when they saved only their words.
+        var reflectionSummary: String?
+        var reflectionFeeling: String?
+        var reflectionInsight: String?
+        /// `GuestSuggestionSource.rawValue`: on-device model or guided prompts.
+        var reflectionSource: String?
+        var reflectionBasedOn: String?
+        /// One optional next step; done is voluntary and reversible.
+        var nextStep: String?
+        var nextStepDoneAt: Date?
+        var contextRaw: String?
+        var feelingRaw: String?
+
+        init(id: UUID, originalWords: String, revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.originalWords = originalWords
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+
+    @Model final class SavedDraft {
+        @Attribute(.unique) var id: UUID
+        var savedAt: Date
+
+        init(id: UUID, savedAt: Date) {
+            self.id = id
+            self.savedAt = savedAt
+        }
+    }
+
+    /// Wording practised in Practice. Saved here only; never sent anywhere.
+    @Model final class PracticeMessage {
+        @Attribute(.unique) var id: UUID
+        var situation: String
+        var goal: String
+        var wording: String
+        var conversationData: Data?
+        /// The journal entry it was practised from; nil when it stands on its own.
+        var sourceEntryID: UUID?
+        var revision: Int
+        var createdAt: Date
+        var updatedAt: Date
+
+        init(id: UUID, situation: String, goal: String, wording: String, sourceEntryID: UUID?,
+             revision: Int, createdAt: Date, updatedAt: Date) {
+            self.id = id
+            self.situation = situation
+            self.goal = goal
+            self.wording = wording
+            self.sourceEntryID = sourceEntryID
+            self.revision = revision
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+        }
+    }
+
+    /// One unsaved draft per slot ("write", "practice"), kept until it's saved or cleared.
+    @Model final class KeptDraftRecord {
+        @Attribute(.unique) var slot: String
+        var id: UUID
+        var text: String
+        var updatedAt: Date
+
+        init(slot: String, id: UUID, text: String, updatedAt: Date) {
+            self.slot = slot
+            self.id = id
+            self.text = text
+            self.updatedAt = updatedAt
+        }
+    }
+}
+
+
 nonisolated enum GuestJournalMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self, GuestJournalSchemaV4.self, GuestJournalSchemaV5.self]
+        [GuestJournalSchemaV1.self, GuestJournalSchemaV2.self, GuestJournalSchemaV3.self, GuestJournalSchemaV4.self, GuestJournalSchemaV5.self, GuestJournalSchemaV6.self]
     }
     /// V1 → V2 adds a model and V2 → V3 adds optional fields, so lightweight stages keep every
     /// entry, saved draft and practice message.
@@ -337,7 +422,8 @@ nonisolated enum GuestJournalMigrationPlan: SchemaMigrationPlan {
         [.lightweight(fromVersion: GuestJournalSchemaV1.self, toVersion: GuestJournalSchemaV2.self),
          .lightweight(fromVersion: GuestJournalSchemaV2.self, toVersion: GuestJournalSchemaV3.self),
          .lightweight(fromVersion: GuestJournalSchemaV3.self, toVersion: GuestJournalSchemaV4.self),
-         .lightweight(fromVersion: GuestJournalSchemaV4.self, toVersion: GuestJournalSchemaV5.self)]
+         .lightweight(fromVersion: GuestJournalSchemaV4.self, toVersion: GuestJournalSchemaV5.self),
+         .lightweight(fromVersion: GuestJournalSchemaV5.self, toVersion: GuestJournalSchemaV6.self)]
     }
 }
 
@@ -383,11 +469,11 @@ nonisolated struct GuestJournalFaults: Sendable {
 /// `GuestJournalStoreRegistry`), and actor isolation serializes every read-check-write.
 /// Access from another process (for example an extension) is not supported.
 actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, GuestReflectionStore, GuestDataStore,
-    GuestImportStore, ModelActor {
-    typealias Entry = GuestJournalSchemaV5.Entry
-    typealias SavedDraft = GuestJournalSchemaV5.SavedDraft
-    typealias PracticeMessage = GuestJournalSchemaV5.PracticeMessage
-    typealias KeptDraftRecord = GuestJournalSchemaV5.KeptDraftRecord
+    GuestImportStore, GuestEntryTagStore, ModelActor {
+    typealias Entry = GuestJournalSchemaV6.Entry
+    typealias SavedDraft = GuestJournalSchemaV6.SavedDraft
+    typealias PracticeMessage = GuestJournalSchemaV6.PracticeMessage
+    typealias KeptDraftRecord = GuestJournalSchemaV6.KeptDraftRecord
 
     nonisolated let modelExecutor: any ModelExecutor
     nonisolated let modelContainer: ModelContainer
@@ -428,7 +514,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, Gue
 
         let container: ModelContainer
         do {
-            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV5.self),
+            container = try ModelContainer(for: Schema(versionedSchema: GuestJournalSchemaV6.self),
                                            migrationPlan: GuestJournalMigrationPlan.self,
                                            configurations: ModelConfiguration(url: location.storeURL, cloudKitDatabase: .none))
         } catch {
@@ -467,7 +553,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, Gue
         modelContext.insert(row)
         if let draftID { modelContext.insert(SavedDraft(id: draftID, savedAt: now)) } // Same transaction.
         try commit(entryID: row.id)
-        return Self.value(row)
+        return try Self.value(row)
     }
 
     func isDraftSaved(_ draftID: UUID) throws -> Bool {
@@ -490,7 +576,24 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, Gue
         row.revision += 1
         row.updatedAt = Date()
         try commit(entryID: id)
-        return Self.value(row)
+        return try Self.value(row)
+    }
+
+    func updateTags(id: UUID, context: GuestEntryContext?, feeling: GuestEntryFeeling?,
+                    expectedRevision: Int) throws -> GuestJournalEntry {
+        guard let row = try fetch(FetchDescriptor<Entry>(predicate: #Predicate { $0.id == id })).first else {
+            throw GuestJournalError.notFound
+        }
+        _ = try Self.value(row) // Refuse to overwrite an unreadable tag.
+        guard row.revision == expectedRevision else {
+            throw GuestJournalError.staleRevision(current: row.revision, expected: expectedRevision)
+        }
+        row.contextRaw = context?.rawValue
+        row.feelingRaw = feeling?.rawValue
+        row.revision += 1
+        row.updatedAt = Date()
+        try commit(entryID: id)
+        return try Self.value(row)
     }
 
     func updateReflection(id: UUID, reflection: GuestReflection?, nextStep: String?, nextStepDone: Bool,
@@ -505,7 +608,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, Gue
         row.revision += 1
         row.updatedAt = Date()
         try commit(entryID: id)
-        return Self.value(row)
+        return try Self.value(row)
     }
 
     private static func apply(_ reflection: GuestReflection?, nextStep: String?, nextStepDone: Bool, to row: Entry) {
@@ -815,7 +918,12 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, Gue
                              createdAt: row.createdAt, updatedAt: row.updatedAt, conversation: conversation)
     }
 
-    private static func value(_ row: Entry) -> GuestJournalEntry {
+    private static func value(_ row: Entry) throws -> GuestJournalEntry {
+        let context = row.contextRaw.flatMap(GuestEntryContext.init(rawValue:))
+        let feeling = row.feelingRaw.flatMap(GuestEntryFeeling.init(rawValue:))
+        guard (row.contextRaw == nil || context != nil), (row.feelingRaw == nil || feeling != nil) else {
+            throw GuestJournalError.storeUnavailable("Journal tags could not be read")
+        }
         let reflection = row.reflectionSource.flatMap(GuestSuggestionSource.init(rawValue:)).map { source in
             GuestReflection(summary: row.reflectionSummary ?? "", feeling: row.reflectionFeeling ?? "",
                             insight: row.reflectionInsight ?? "", source: source,
@@ -823,7 +931,7 @@ actor SwiftDataGuestJournalStore: GuestJournalStore, GuestConversationStore, Gue
         }
         return GuestJournalEntry(id: row.id, originalWords: row.originalWords, revision: row.revision,
                                  createdAt: row.createdAt, updatedAt: row.updatedAt, reflection: reflection,
-                                 nextStep: row.nextStep, nextStepDone: row.nextStepDoneAt != nil)
+                                 nextStep: row.nextStep, nextStepDone: row.nextStepDoneAt != nil, context: context, feeling: feeling)
     }
 }
 
