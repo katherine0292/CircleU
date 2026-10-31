@@ -8,6 +8,7 @@ extension XCTestCase {
         guard !text.isEmpty else { return }
         let attachment = XCTAttachment(string: text)
         attachment.name = name
+        attachment.lifetime = .keepAlways
         add(attachment)
     }
 

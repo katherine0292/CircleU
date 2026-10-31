@@ -75,3 +75,11 @@ final class GuestNudgeModel: ObservableObject {
         if words.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { isHidden = false }
     }
 }
+
+/// Optional guidance, kept separate from the person's original words.
+enum GuestWritingQuestion: String, CaseIterable, Identifiable {
+    case happened = "What happened?"
+    case feeling = "How did it make you feel?"
+    case next = "What would you like to say next?"
+    var id: String { rawValue }
+}

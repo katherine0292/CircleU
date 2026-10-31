@@ -442,11 +442,13 @@ final class GuestJournalViewModelTests: XCTestCase {
         let store = SuspendedSaveStore()
         let viewModel = GuestJournalViewModel(store: store)
         viewModel.draft = "A"
+        viewModel.selectedQuestion = .next
         let saving = Task { await viewModel.saveDraft() }
         while await !store.isWaiting { await Task.yield() }
         viewModel.draft = "A, and then B"
         await store.release()
         await saving.value
         XCTAssertEqual(viewModel.draft, "A, and then B", "newer text must survive the earlier save")
+        XCTAssertEqual(viewModel.selectedQuestion, .next, "guidance stays with the newer draft")
     }
 }
