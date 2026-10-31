@@ -20,3 +20,7 @@ Owner chose "message-first Practice in native" from the 31 October review. Port 
 ## Verification
 
 Focused unit run: `GuestPracticeMessageFirstTests` and `GuestPracticeViewModelTests` pass with the copy lint. Full unit and UI suites, and the Codex pass, are recorded in the PR. Simulator only; no physical keyboard, VoiceOver or speech check.
+
+## Review
+
+Codex (`gpt-6-astra`, read-only, Swift diff), first pass: three blockers. (1) Options from an earlier review stayed usable while a new review loaded or failed. (2) An Undo snapshot survived a newer review and could wipe hand edits. (3) The save refactor refreshed history only for new messages, so an edited conversation could reopen stale. Fixed in `3fb1085`: `startReview()` clears options, error and Undo before each request; `finishSave(wasNew:)` reloads history after every save and clears the kept draft only for new messages; two unit tests added. Second pass: all three resolved, no new regression, no blockers. Non-blocking notes kept for later: delayed-suggester tests (Keep during generation, Back/edit/re-review, failure after success), a loading-state assertion, and largest-text/VoiceOver coverage for guidance and the result footer.
