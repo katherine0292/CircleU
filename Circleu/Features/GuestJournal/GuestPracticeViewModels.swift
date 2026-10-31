@@ -343,8 +343,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
 
     /// "Keep my wording": nothing changes, and a review still running is let go.
     func keepMyWording() {
-        suggestionRequest += 1 // A review still running is let go: its result is ignored.
-        isSuggesting = false
+        dropPendingSuggestion()
         if !Self.trim(wording).isEmpty {
             var value = conversation ?? GuestPracticeConversation()
             if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
@@ -375,8 +374,14 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         suggestions = nil
         suggestedFrom = nil
         wordingBeforeSuggestion = nil
-        suggestionRequest += 1
+        dropPendingSuggestion()
         stage = .refine
+    }
+
+    /// A request still running is let go: its result is ignored, and nothing waits on it.
+    private func dropPendingSuggestion() {
+        suggestionRequest += 1
+        isSuggesting = false
     }
 
     /// The last saved version, or nil for a new message.

@@ -148,6 +148,23 @@ final class GuestPracticeMessageFirstTests: XCTestCase {
         XCTAssertEqual(composer.wording, "Can you take a fair share?")
     }
 
+    /// Continuing the conversation while a suggestion is still running also stops the waiting.
+    func testContinueReplyWhileSuggestingStopsWaiting() async {
+        let composer = GuestPracticeComposerViewModel(store: QuietPracticeStore(), sourceEntryID: nil,
+                                                      suggester: SlowSuggester())
+        composer.wording = "Can you take a fair share?"
+        let pending = Task { await composer.suggest() }
+        await Task.yield()
+        XCTAssertTrue(composer.isSuggesting)
+        composer.openReply()
+        composer.replyText = "Tomorrow works"
+        composer.continueReply()
+        XCTAssertFalse(composer.isSuggesting, "Get a suggestion is usable again")
+        await pending.value
+        XCTAssertFalse(composer.isSuggesting)
+        XCTAssertNil(composer.suggestions, "the late result is ignored")
+    }
+
     func testFailedNewReviewLeavesNothingToUse() async {
         let composer = composer(fail: true)
         composer.wording = "Only try"
