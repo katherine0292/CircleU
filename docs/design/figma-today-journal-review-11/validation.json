@@ -1,0 +1,52 @@
+{
+  "pageId": "60:16925",
+  "screenCount": 59,
+  "internalLinks": 1290,
+  "externalPracticeLinks": 59,
+  "invalidDestinations": [],
+  "clippedChildren": [],
+  "copyViolations": [],
+  "fonts": [
+    "Plus Jakarta Sans"
+  ],
+  "tabY": [
+    764
+  ],
+  "textLayerCount": 1744,
+  "instanceCount": 218,
+  "calendarDayStates": 31,
+  "startingPoints": [
+    {
+      "nodeId": "60:16948",
+      "name": "01 · Today → Journal"
+    },
+    {
+      "nodeId": "60:17209",
+      "name": "02 · Journal — after saving"
+    },
+    {
+      "nodeId": "60:21516",
+      "name": "03 · Calendar"
+    },
+    {
+      "nodeId": "60:17378",
+      "name": "04 · Empty journal"
+    },
+    {
+      "nodeId": "60:17064",
+      "name": "05 · Save failure"
+    },
+    {
+      "nodeId": "60:17095",
+      "name": "06 · Dictation unavailable"
+    },
+    {
+      "nodeId": "60:17420",
+      "name": "07 · Journal unavailable"
+    },
+    {
+      "nodeId": "60:17885",
+      "name": "08 · Edit failure"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+[
+  {
+    "title": "Today",
+    "description": "Shallower scene; more space for writing",
+    "group": "refined",
+    "file": "t1-chips.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "013E16A3-05C0-44DE-A474-B38CCDADDC81.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "t1-chips_0_519096C6-670B-4DC5-A120-5E44A9926D2C.png",
+      "timestamp": 1793050433.601
+    },
+    "sha256": "938dc64888d8eb41cf75110e1c535e1c02d12c0200a96759e46dc624daf670d1",
+    "sourceRun": "circleu-ui-refine-today-final-shots"
+  },
+  {
+    "title": "Today \u00b7 writing",
+    "description": "Quieter prompt, one prominent Save",
+    "group": "refined",
+    "file": "t2-nudge.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "85D6802D-D898-4728-93A3-0C1CA8C7013A.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "t2-nudge_0_69AABF19-D942-4B8A-87FF-2B8E644800F3.png",
+      "timestamp": 1793050437.931
+    },
+    "sha256": "e24bd5bfede727da537a41be3205da75683d69c8bf4c01ae79aa908a5096e778",
+    "sourceRun": "circleu-ui-refine-today-final-shots"
+  },
+  {
+    "title": "Journal",
+    "description": "Saved entry and optional reflection",
+    "group": "refined",
+    "file": "u5-saved.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "A349D106-577B-4342-85A0-D2CD286DECA6.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "u5-saved_0_DDC33D5E-A259-423E-9D35-25E6ABD6CBAB.png",
+      "timestamp": 1793049804.812
+    },
+    "sha256": "289b7cf8b9501fa88ef0602b56a97978a0abe33d45400c111443a78d8663c078",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Journal \u00b7 empty",
+    "description": "Continuous ice background",
+    "group": "refined",
+    "file": "journal-empty.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "54F313DC-E135-479F-8C86-E17FEB5B9A7C.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "journal-empty_0_53585BF8-DE87-4BD8-A3ED-90C84AA23F2F.png",
+      "timestamp": 1793049974.116
+    },
+    "sha256": "b2844c019c483171b019708a535cc62473092ff4093589e4a481a430fd46ca47",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Entry detail",
+    "description": "Compact date and readable original words",
+    "group": "refined",
+    "file": "u6-entry.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "4CAEE596-B7A2-446C-A4A5-C28BF62B93CC.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "u6-entry_0_0BCD1215-86B6-4F61-B21E-0ECA67F55567.png",
+      "timestamp": 1793049810.197
+    },
+    "sha256": "b01ed3fdb0f0234205fdd6af3d4bbbe52b452ab6e28470b10a3392b4ee43a08a",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Practice",
+    "description": "Shared illustrated start card",
+    "group": "refined",
+    "file": "p4-history.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "4214BA44-7F85-4B91-9C76-6A86235B99C1.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "p4-history_0_14B54421-811D-4F20-A2EF-2CD0F1361E26.png",
+      "timestamp": 1793049902.169
+    },
+    "sha256": "faef1f64c22802eb85d338a7aa1fbe290f7ede26052876d796db6d7930aa95ab",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Practice \u00b7 keyboard",
+    "description": "Save stays above the software keyboard",
+    "group": "refined",
+    "file": "practice-pinned-save.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "C3A4EE49-1DC1-4BFD-9E67-13934D4618A8.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "practice-pinned-save_0_3CEC92E9-4037-42E5-AF5C-CC2E55DAD7CF.png",
+      "timestamp": 1793050343.339
+    },
+    "sha256": "cd8c5882bd9466f4b85d15469b8b4a5668f690343c72227cfd4938597d92fa4c",
+    "sourceRun": "circleu-ui-refine-final-focused-shots"
+  },
+  {
+    "title": "Practice \u00b7 largest text",
+    "description": "Scrolling content; fixed Save",
+    "group": "refined",
+    "file": "practice-pinned-save-ax5.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "CAE91247-D61C-406B-A83E-3FF7C5A4AD2C.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "practice-pinned-save-ax5_0_A4281818-6590-4FD7-BB33-8E684DF69762.png",
+      "timestamp": 1793050363.567
+    },
+    "sha256": "f55fe50cd1d7e753e31d76ccfc8947a49f7dae4f666746794a981cf97c8e5e84",
+    "sourceRun": "circleu-ui-refine-final-focused-shots"
+  },
+  {
+    "title": "Welcome",
+    "description": "Existing introduction preserved",
+    "group": "retained",
+    "file": "w3-page3.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "5912EB93-A3FC-4FFF-8165-F98F932DB325.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "w3-page3_0_4FDF2788-39FE-4E96-9897-EC4632F41A59.png",
+      "timestamp": 1793050047.826
+    },
+    "sha256": "7b5cba1b8b6b05f76a351da31ad2ec25b8ee6a1eb8a2fa41d86f3d70d4e3d479",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Reflection",
+    "description": "Existing source labels and pinned action",
+    "group": "retained",
+    "file": "u4-review.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "793E074A-B4A2-4CCA-9184-A0F745917819.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "u4-review_0_35AF40C1-C532-4693-A25D-DF715239C277.png",
+      "timestamp": 1793049806.65
+    },
+    "sha256": "56e25729c96917d411e81d0eb23d19b2b9e4bd0f9f388e7a07cccd0b462dfa99",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Settings",
+    "description": "Existing data controls preserved",
+    "group": "retained",
+    "file": "u9-settings.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "4ACF0A71-5A78-4E58-BCBF-2B390F906C13.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "u9-settings_0_7CFD3E2A-F3A5-451E-9167-B01079E1F011.png",
+      "timestamp": 1793049830.06
+    },
+    "sha256": "abce85332cdb62882a99d9203fd44adba102df1547424dec942166908938ce07",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  },
+  {
+    "title": "Earlier account",
+    "description": "Existing recovery-only route preserved",
+    "group": "retained",
+    "file": "s2-login.png",
+    "source": {
+      "configurationName": "Test Scheme Action",
+      "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+      "deviceName": "iPhone 17",
+      "exportedFileName": "370F8ECC-A53A-4844-B95B-908C09B8EF43.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "s2-login_0_5FC210DF-DD0B-4085-B0BA-3A5FB30C569F.png",
+      "timestamp": 1793049743.071
+    },
+    "sha256": "2d398b1eb07712b4c892d6dab390ef5951bbc37f29971c8ea415d5fdb2976109",
+    "sourceRun": "circleu-ui-refine-full-shots"
+  }
+]

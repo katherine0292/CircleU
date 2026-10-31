@@ -10,7 +10,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 ## Start Here
 
-1. [Product overview](product/overview.md)
+1. [Product brief](product/overview.md) — current audience, scope and screen boundaries
 2. [Product website](index.html)
 3. [App flow](product/app-flow.md) and [guest user stories](product/user-stories.md)
 4. [Demo transcript](product/demo-transcript.md)
@@ -28,7 +28,21 @@ This folder holds the current project knowledge the team should follow while bui
 16. [Git workflow](process/git-workflow.md)
 17. [Team standards](process/team-standards.md)
 
+For UI work, follow **[brief](product/overview.md) → [MVP requirements](product/mvp-definition.md) → [user stories](product/user-stories.md) → [flow status](product/flow-status-checklist.md)**. Update intent and acceptance criteria before refining screens; keep prototype, native and verified status separate.
+
 ## Project Reviews
+
+- [Project audit — 31 October](qa/project-audit-2026-10-31/README.md): prioritised code, Firebase, release, Figma and documentation findings; fresh unit/UI verification and recommended next work.
+
+- [Practice usability session guide — 30 October](design/practice-usability-session-2026-10-30.md): neutral review 08 tasks, moderator setup, anonymous results template and explicit prototype limitations; sessions pending.
+
+- [Message-first Practice — 30 October](superpowers/specs/2026-10-30-message-first-practice-design.md): owner-selected preparation-led demonstration and optional guidance; short flow design and proposed P9 criteria, pending detailed review.
+
+- [Practice feedback browser review](../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/README.md): branded selected-text confirmation, editable feedback, reply intent, failure states and screenshot evidence; fixed fixtures, no online AI.
+- [Practice AI feedback design — 27 October](superpowers/specs/2026-10-27-practice-ai-feedback-design.md): optional online feedback planning, concise review flow, selected-text consent, provider qualification and private-beta gates; no cloud activation approved.
+- [App upgrade plan — 27 October](superpowers/plans/2026-10-27-app-upgrade-roadmap.md): proposed private-beta roadmap, current guest baseline, priorities, acceptance gates and separate legacy/release decisions.
+- [Native Practice conversation review](qa/native-practice-2026-10-27/README.md): Prepare, Refine, attributed replies, voice transcript review and Xcode/iPhone setup.
+- [Native core screen refinement — 27 October](design/core-screen-refinement-2026-10-27.md): Today, Journal and Practice presentation changes, keyboard-safe Save and review evidence.
 
 - [Original-layout reuse review](design/original-layout-reuse.md): owner's preferred native proportions, concrete layout findings and a focused color/content/branding refinement path.
 - [Original Simulator build repair](qa/simulator-build-repair-2026-10-24.md): missing Pingu pose compatibility, preserved asset originals, Device Hub selection, successful original-app launch and two remaining test failures.
@@ -37,7 +51,7 @@ This folder holds the current project knowledge the team should follow while bui
 - [Content standard](design/content.md): concise copy, punctuation, shared terms and truthful state/data language; draft for new/revised screens.
 - [Account-onboarding revision](design/account-onboarding.md): guest-first local use, concise Pingu Welcome and optional existing-account login/recovery; supersedes the required-account proposal.
 - [Mobile onboarding and content research](design/onboarding-patterns-research-2026-10-24.md): publisher examples, concise screen-copy proposals, actual font audit and the local motion refinement.
-- [Flow and delivery checklist](product/flow-status-checklist.md): all MVP journeys, prepared artifacts, pending prototype work and separate production/device/release gates.
+- [Flow and delivery checklist](product/flow-status-checklist.md): M/F/story mapping, native versus prototype status, scoped evidence and the next UI review actions.
 - [Focused onboarding review](qa/onboarding-flow-review-2026-10-24.md): local earlier-data choices, safe-opening/error states, re-entry checks and remaining owner/Figma/runtime gates.
 - [Next prototype-review milestone](superpowers/plans/2026-10-24-prototype-review-milestone.md): proposed reflection/practice/retrieval review tasks, reuse boundaries and scoped subagent roles.
 - [Core-journey review brief](design/prototype-review-brief.md): missing branded route specimens, calendar interaction proposals and five neutral walkthrough tasks.

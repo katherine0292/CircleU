@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-30",
+  "method": "Built-in imagegen edited artwork; Artifact Tool editable-text composition and PowerPoint export",
+  "prompt_file": "artwork-prompt.txt",
+  "source_artwork": "../refinement-05/poster-artwork.png",
+  "screen_references": [
+    "ScreenScenes06/SceneWindowPauseV1.png",
+    "ScreenScenes06/SceneJournalDeskV1.png",
+    "ScreenScenes06/ScenePracticeStudioV1.png"
+  ],
+  "assets": [
+    {
+      "file": "poster-artwork.png",
+      "bytes": 1709596,
+      "sha256": "abc1fb81446a1f159ac432507f6f1029caedbf58c2c1df93a7e6be4bbce978d5"
+    },
+    {
+      "file": "CircleU-Poster-v6.png",
+      "bytes": 2862107,
+      "sha256": "1290e4db8340d2627706347a8e1a3c160440659bbd0ff4ff25af2105087bf0dd"
+    },
+    {
+      "file": "CircleU-Poster-v6.pptx",
+      "bytes": 1635162,
+      "sha256": "22643660b623fa018866dfe3314fb37be31c29a0f0f33390fe5a772931c2fd49"
+    }
+  ]
+}

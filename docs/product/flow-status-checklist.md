@@ -1,129 +1,96 @@
-# CircleU flow and delivery checklist
+# CircleU flow status and next actions
 
-Updated 25 October 2026, Australia/Sydney. Core-flow snapshot through `e8e148b`, subsequent native-onboarding evidence through `84476ba`, and the approved return to concise guest-first onboarding. This tracks the agreed MVP and its supporting work; it does not approve production implementation.
+31 October F03 prompt exploration: [review 20](../design/figma-today-prompts-review-20/README.md) adds an optional curated-question sheet and non-destructive selection above writing. T1-P criteria are prototype-only; native chip behavior and test status remain unchanged.
 
-**Prepared** means the named plan, wireframe or preview exists. **Partial** means some design or verification is still missing. **Pending** means the stated outcome has not been established. No percentage-complete estimate is used: a screen image, connected Figma state and working app feature are different deliverables.
+31 October visual follow-up: [Today review 18](../design/figma-today-layout-review-18/README.md) reuses scene artwork and groups writing, prompts and voice while preserving fixed footers. Player and geometry evidence only; native behavior and test status are unchanged.
 
-## Current position
+31 October Today prototype evidence for F03/F04/F06/F07/F09: [review 17](../design/figma-today-flow-review-17/README.md) restores missing artwork, exposes draft resumption, preserves typed words when dictation is cancelled, and adds blank/writing/save/retry/discard reflection states with saved-entry reopening. Fixed fixture and session-state checks only; native implementation and test status are unchanged.
 
-**Latest access decision:** guest-first local use, with Get started and optional Log in for existing-account recovery. The required-account proposal is superseded. See [onboarding](../design/account-onboarding.md) and [content rules](../design/content.md). Signup remains deferred; no new cloud service is approved.
+31 October prototype evidence for F08/F14/F15: [Journal review 16](../design/figma-journal-flow-review-16/README.md) repairs blank search, calendar counts, mismatched discard copy and editor tab exits. Player checks cover search/tag/edit return, selected-date return, empty day/month, one-to-two entry counts and calendar scrolling. Native status below is unchanged; no app tests were rerun.
 
-- [x] Agree Today / Journal / Practice, guest-first local use and deferring circles/rewards.
-- [x] Prepare connected core and recovery wireframes in Draft 02; the earlier audit documents 125 reachable screen states. This is historical prototype evidence, not real authentication, storage or deletion.
-- [x] Prepare branded SwiftUI hubs, editors, reflection/direct-practice journeys and Journal calendar specimens.
-- [x] Store the accepted Pingu direction, logo/font references, illustrated icons and 21-avatar collection.
-- [x] Build an isolated native motion comparison and check selected Mac interactions; capture initial layouts on two iPhone Simulators.
-- [x] Prepare a clean local onboarding proposal and its copy/flow handoff.
-- [x] Extend local onboarding with earlier-data choices, simulated opening/locked/read-error states and checked nested return/re-entry routes; correct the failed-read back-route bypass.
-- [ ] Apply that onboarding and accepted branding to an editable Figma prototype; remove review-only text from the depicted screens.
-- [ ] Complete owner walkthroughs and record observations. The existing worksheet contains no completed sessions.
-- [ ] Approve the detailed implementation scope and validate authentication, local-content and recovery boundaries before production coding.
+Updated 29 October 2026. Read the [product brief](overview.md) first, then the [MVP register](mvp-definition.md) and [user stories](user-stories.md). This is the single current delivery-status register; earlier dated QA/logs remain historical evidence.
 
-The existing Swift app has MVVM and account/Firebase/cloud paths. The guest-local production behavior is not implemented or verified by these specimens.
+## Reading the status
 
-## Main journeys
+- **Planned:** documented requirement; no implementation implied.
+- **Prototyped:** a visual/interactive specimen exists. It may use fixtures and temporary state.
+- **Native implemented:** source exists in the guest/review configuration, possibly uncommitted. It does not imply Release/TestFlight availability.
+- **Verified:** use only for the specific behaviour, build/configuration and device recorded in evidence. A test name is not a fresh passing run, and no whole flow below is declared fully verified.
 
-These are intended routes, not a claim that every transition runs in the production app:
+Verification summaries below are inherited from dated evidence; **no app tests or device checks were rerun for this documentation update**. Detailed per-criterion test coverage lives in the stories, not duplicated here.
 
-1. **First use:** Welcome → Get started → local workspace readiness → Today. Log in opens optional earlier-account recovery; no account required. Privacy details are accessible before meaningful input.
-2. **Reflection:** Today → type a situation → review/edit reflection → save → Journal entry detail. Save only my words is an alternative; Practice and a next step are optional.
-3. **Voice:** explicit recording action → permission/capability check → record → review/edit transcript → reflection or words-only save. Typing remains available.
-4. **Direct Practice:** Today / Practice → situation, goal and optional draft → wording → edit → Copy and/or Save → Practice detail/history.
-5. **Linked Practice:** saved reflection → review selected context → wording/edit → Copy and/or Save → linked result. A changed source requires review of earlier wording.
-6. **Retrieval:** Journal list/calendar/search → saved detail → edit/save/reopen; standalone messages stay in Practice history.
-7. **Data control:** Settings or entry options → review scope → export/delete → confirmed outcome or recoverable failure.
-8. **Earlier data:** explicit recovery route → verify source/ownership → preview → preserve/export/import → verify outcome; old-account deletion is a separate choice.
+Evidence references:
 
-## Flow-by-flow status
+- **Stories:** [native criterion/test inventory](user-stories.md). Partial checks are explicitly marked; a named test does not establish present working-tree status.
+- **Native Practice QA:** [27 October review](../qa/native-practice-2026-10-27/README.md): unit run 266 passed / 1 skipped; affected UI checks across multiple runs, not a full UI-suite pass. Physical Record → Stop → Use text confirmed on iPhone 11 Pro Max; permission, append/edit and VoiceOver coverage remains bounded.
+- **Onboarding QA:** [25 October review](../qa/native-onboarding-final-review-2026-10-25.md): isolated preview keyboard, largest-text and VoiceOver owner reports. Do not transfer that sign-off to every later guest screen.
+- **Feedback prototype:** [browser review](../../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/README.md), [compact Refine](../agent-collaboration-log/2026-10-28-refine-prototype-focus.md), [communication style](../agent-collaboration-log/2026-10-29-communication-style-prototype.md). Fixed responses, no live AI; volatile style preferences.
+- **Release boundary:** [backend assessment](../engineering/competition-backend-readiness-2026-10-27.md). Standard Release remains the original app; legacy Firebase mapping and recovery/distribution qualification remain open.
 
-“Next” describes work still required for the prototype/review milestone. All production acceptance criteria remain subject to the implementation and validation gates below.
+## Flow register
 
-| ID | Flow | Prepared / checked so far | Next / pending |
+IDs F01–F22 are retained from the earlier checklist. F23/F24 cover the newer proposed extensions. “Native” below always means the guest/review implementation, never a release claim.
+
+| Flow / requirement / stories | Implementation or prototype status | Verification evidence and limits | Next review / pending work |
 | --- | --- | --- | --- |
-| F01 | Welcome and optional login | Simplified native Welcome and routes checked; accessibility1/5 layouts inspected; owner reported Privacy/recovery gestures and new Log in/reset-request scrolling and controls working at accessibility5 | Selected physical login/reset keyboard, VoiceOver labels/error/Back and largest-text Welcome/Privacy/earlier-data reachability passed by owner report; see the [25 October review](../qa/native-onboarding-final-review-2026-10-25.md). New password Next/mismatch/completion passed in Simulator and all three physical VoiceOver/maximum-text checks passed by owner report. The owner's phone screenshot confirms the restored normal entry opens on Log in with empty fields. Inspector warnings and broader gesture/compact-height coverage remain. The [concise copy pass](../design/account-onboarding.md#concise-copy-pass--25-october) and full-width Welcome Log in were checked on the phone and approved by the owner on 25 October (merged in PR #2). Real authentication/readiness is unimplemented; production still has signup/signin/Skip |
-| F02 | Privacy before/after starting | Draft 02 states; local optional details and nested return paths checked, including earlier-data choice and storage failures | Review understanding of device backups, data-loss limits and earlier-account separation; reconcile release copy with actual behavior |
-| F03 | Today and main navigation | Three-tab structure approved; wireframes, branded hub and empty-Today proposal | Concise [copy trim](../design/today-walkthrough-script-2026-10-25.md#applied-on-codextoday-copy-trim) on preview boards, approved by the owner on 25 October (PR #4). The Today walkthrough itself is still pending. Consolidate branded Figma; distinguish first visit, retained draft and returning saved history |
-| F04 | Typed situation capture | Wireframe and branded capture, including words-only exit | **Guest slice (Debug-only switch):** typed Write screen with Save only my words implemented; owner phone check OK 25 Oct ([QA](../qa/guest-journal-first-slice-2026-10-25.md)). Walk through input clarity, validation and route choices; real capture is not implemented in static boards |
-| F05 | Voice, permissions and transcript | Wireframe recording/transcript/denied/interruption scenarios | Review optional entry and interruption recovery; verify actual microphone, on-device recognition and text fallback on devices later |
-| F06 | Reflection review and correction | Tentative interpretation separated from original words; branded review/editor | Review edit discoverability and ability to reject suggestions; complete consistent branded Figma |
-| F07 | Save only original words | Wireframe branch and branded action/detail specimens | Walk through note-only save and reopening without an accepted interpretation |
-| F08 | Saved reflection edit/discard/reopen | Connected preset Figma states; native isolated editor has real text input and simulated Save feedback | **Guest slice:** edit with revision check and Keep editing / Discard prompt implemented; owner phone check OK 25 Oct ([QA](../qa/guest-journal-first-slice-2026-10-25.md)). Owner walkthrough of Save/Discard/Keep draft meanings; actual persistence, stable identity and relaunch verification later |
-| F09 | Unsaved draft, leave and return | Keep/discard/continue wireframe scenarios; native samples retain in-process drafts | **Guest slice:** draft kept on the phone across relaunch with durable version IDs ([QA](../qa/guest-journal-first-slice-2026-10-25.md)). Review copy and destinations; app relaunch/process-death restoration is unverified |
-| F10 | Direct Practice | Context/goal, wording and saved-detail wireframes plus branded specimens | Review usefulness, tone/goal selection and standalone history; rebrand connected Figma |
-| F11 | Practice from a reflection | Selected-context and changed-source specimens; linked-result wireframes | Walk through explicit context choice and edit ordering without changing the other saved item |
-| F12 | Message editing, Copy and Save | Preset edit/copy/save/reopen wireframes; native text input, validation and independent feedback checked | Review Copy versus Save comprehension; real clipboard, saving and latest-version reopening remain unverified |
-| F13 | Optional next step | Optional placement in entry/result; chosen/none wireframe variants | Review skip/edit/postpone/reverse behavior; avoid introducing a separate mandatory quest journey |
-| F14 | Journal list, details and search | List/detail/reopen wireframes; branded hub/detail specimens | Walk through finding the intended latest version; first-use empty Journal and real search need validation |
-| F15 | Calendar and date retrieval | Saved-day, empty-day and multiple-entry static views; decorative header icon removed | Decide date selection, month changes, Today, All entries, search return, locale/time-zone and adequate hit areas; interactive calendar not built |
-| F16 | Standalone Practice history | Wireframe matching saved/edited messages and branded Practice hub/detail | Review history retrieval and source distinction; keep standalone messages out of Journal date counts |
-| F17 | Changed original words / stale suggestions | Source-changed, regenerate and revised words-only wireframes; branded linked-context comparison | Review warning, retained draft and regeneration choices; runtime cancellation/revision behavior later |
-| F18 | Loading, invalid input and failures | Cancellable loading, empty input, failed generation/save/copy and preserved-edit scenarios in Draft 02 | Walk through each representative recovery path; native demo does not simulate real I/O failures |
-| F19 | Offline, model unavailable and protected storage | Manual-fallback, unavailable-model, read-failure and locked-storage wireframes/plans | Validate useful manual flow and distinguish unavailable/failed/empty; verify actual capability and network boundaries later |
-| F20 | Export, deletion and linked content | Scope choices, cancellation/retry, linked-data choices and failure wireframes | Review exact scope and confirmation; real exports, atomic deletion and no resurrection require implementation tests |
-| F21 | Previous device/account/cloud data | Legacy recovery wireframes; TestFlight/Firebase and format research recorded | Add unresolved ownership and portable-archive gaps; establish shipped Firebase mapping, preserved sources and authorized recovery distribution |
-| F22 | Old-account deletion and management | Separate reauthentication/pending/failure/completion wireframe route | Resolve shared-content scope and provider/backup limits; verify ownership, partial failures and actual completion later |
+| **F01 Welcome and optional Log in** · M01 · W1–W2 | Native guest entry; earlier onboarding specimens | Stories list welcome/navigation tests; isolated Onboarding QA is historical | Review current guest version at large text/VoiceOver; retain guest start and optional recovery |
+| **F02 Privacy** · M01/M07 · S1 | Native guest summary/details | S1 UI test; storage protection is partly injected | Verify comprehension and backup limits; revise copy before any online feature |
+| **F03 Today/navigation** · M02 · T1, T8–T10 | Native three-tab app and capture; browser companion is partial | Story UI tests partially cover art/controls | Review current layout while retaining capture/drafts; no replacement by the companion specimen |
+| **F04 Typed capture** · M02 · T1 | Native save and failure handling | Unit criteria cover save/failure/concurrent typing; UI coverage linked | Walk through keyboard, empty input and failed-save recovery on target devices |
+| **F05 Voice** · M02 · T3–T5, P6 | Native Today dictation and separate Practice transcript review | Native Practice QA verifies a physical basic path; scripted/injected failures | Check denied/interrupted speech, transcript editing, append and VoiceOver physically; preserve typing |
+| **F06 Reflection** · M03 · T6 | Native optional reflection after original save | Story tests cover suggestions/fallback with partial UI coverage | Review accepting/editing/rejecting suggestions and source labels; assess actual model quality separately |
+| **F07 Original-words save** · M02/M03 · T1, T6 | Native save without reflection | Store tests and linked UI coverage | Confirm the primary route stays clear and useful with no model |
+| **F08 Saved entry editing** · M06 · J4 | Native revision-aware edit, discard and reopen | Unit + UI tests, including discard; no full new device qualification | Review latest-entry reopening and stale/deleted-item recovery |
+| **F09 Draft retention** · M06 · T2, P4–P5 | Native durable new-entry/practice drafts | Relaunch/round-trip unit tests; saved-message edits require explicit Save | Exercise process interruption and keep/discard meanings across both editors |
+| **F10 Direct Practice** · M04 · P2, P5 | Native Prepare → Refine → saved conversation, actual reply/context continuation | Native Practice QA; scene/detail selection not fully automated | Review scene/tone, reply attribution and empty next draft; use F23 for new feedback |
+| **F11 Linked Practice** · M04 · P1, P5 | Native explicit source link and conversation continuation | Unit/UI link/reopen tests; actual shared-context review still needed | Confirm correct source and independence of saved reflection/message edits |
+| **F12 Edit / Copy / Save** · M04/M06 · P3 | Native independent actions, copy-status invalidation, edit/discard | Native Practice QA and named unit/UI tests | Check comprehensibility and accessibility on phone; no implication a message was sent |
+| **F13 Optional next step** · M05 · T7 | Native suggested/editable step behaviour | Per-criterion tests in stories | Review skipping, editing and reversing completion without a quest/streak journey |
+| **F14 Journal/search/detail** · M06 · J1–J2, J4, J6 | Native retrieval, editing and error states | Store/search/UI coverage; some visual/spoken labels unverified | Review density, meaningful icons, search-empty versus read-failure states |
+| **F15 Calendar** · M06 · J3, J6 | Native month/day retrieval; not just static art | Calendar unit + UI tests; visual dot layout partly inspected | Check locale/time-zone boundaries, hit areas and VoiceOver; no extra calendar mascots |
+| **F16 Practice history** · M04/M06 · P3, P5 | Native saved conversations and attributed turns | Native Practice QA; migration/export/search tests | Review long conversations, source tags and saved-versus-sent distinction |
+| **F17 Stale suggestions** · M03/M04 · J4, P4; proposed P7 | Native source/revision protections; new feedback rules proposed | Current unit coverage does not verify future online races | Test edits/tone/context/style changes against late responses before new integration |
+| **F18 Loading/validation/errors** · M01–M07; proposed M09 | Native representative errors; browser online fixtures | Criteria-specific tests; no claim every error/state is covered | Review each changed screen's empty/loading/cancel/failure path, never false success |
+| **F19 Offline/protected storage** · M02/M06/M07 · T1–T5, J1, S1 | Native manual/guided fallback and store protection; Release gate open | Injected protection/capability tests; not complete device/network evidence | Verify locked-file behaviour, offline use and network boundaries on release candidate |
+| **F20 Export/delete** · M07 · S2–S3, J5 | Native guest scope and linked-data choices | Store tests; share-sheet completion only partial | Physically complete export; check atomic failure and no resurrection; future style data in S9 |
+| **F21 Earlier data/recovery** · M07 · W2, S5, S7; retained S6/R6 | Native explicit account route; local legacy scanner retained but unreachable | Fake-account/unit evidence; old shipped Firebase project not proven | Resolve ownership/project mapping and safe recovery distribution; preserve sources |
+| **F22 Old-account deletion** · M07 · S8 | Native adapter/confirmation path | Unit/injected failure tests and partial UI; no blanket deployed guarantee | Verify exact cloud/shared-content scope, ownership and partial failures before release |
+| **F23 Refine feedback + optional online request** · M09 · P7–P8 | Planned + browser prototype only; no live provider/native feedback extension | Fixed fixture interaction checks; no model-quality, native or network pass | Review concise feedback, editable rewrite, Use/Undo, payload and failures; approve native slice separately |
+| **F24 Communication style** · M10 · S9 | Planned + browser prototype; preferences in memory only | Browser save/clear, unchecked sharing, formal/brief fixture and original-entry checks | Review optional settings and per-request sharing; decide durable/export/delete contract before native work |
 
-## Cross-cutting checklist
+M08 follow-up is P1 and deferred from the first beta unless selected. No new implemented follow-up flow is implied by F13's next-step behaviour.
 
-### Prototype finish
+Latest [Refine/style review follow-up](../design/refine-story-review-2026-10-29.md#resolution--browser-review-06): R01 clarification, R02 prior Undo and R03 saved-off style status are fixed and retested in browser review 06. Native integration/verification remains pending. R04 selected-payload separation remains required before transport.
 
-- [x] Complete publisher-based [onboarding/content research and font audit](../design/onboarding-patterns-research-2026-10-24.md); shorter copy and finite motion are in the local onboarding review. Other-screen copy, owner comprehension and native accessibility remain pending.
-- [x] Review larger-text Welcome and record owner-reported Privacy/recovery scrolling and bottom-action checks at accessibility1/5. See [native QA](../qa/native-onboarding-interaction-review-2026-10-24.md).
-- [x] Replace the external handoff with [native login/reset/recovery previews](../design/brand-demo/native-recovery.md), validation/error/Back states and selected Simulator input/button checks.
-- [x] Record the owner-reported Log in/reset-request walkthrough at accessibility5: both forms scroll; text, fields and controls are readable/reachable; Forgot password?, Send reset link and Back are reachable. See [recovery QA](../qa/native-recovery-preview-2026-10-24.md).
-- [x] Exercise selected native software-keyboard focus, Next/Done, validation, reset submission and Back routes; fix focused-field visibility, route scroll reset and secondary-action hit regions. See [keyboard/accessibility QA](../qa/native-recovery-keyboard-accessibility-2026-10-24.md).
-- [x] Record selected physical login/reset keyboard, VoiceOver labels/error/Back and largest-text regular onboarding/Privacy/earlier-data reachability by owner report. See the [25 October review](../qa/native-onboarding-final-review-2026-10-25.md).
-- [x] Exercise New password Next/mismatch/completion in Simulator and restore the normal Log in entry point. All three physical VoiceOver/maximum-text New password checks subsequently passed by explicit owner report; the owner's phone screenshot confirms the restored Log in entry with empty fields. See the [25 October review](../qa/native-onboarding-final-review-2026-10-25.md).
-- [x] Run `performAccessibilityAudit()` on all 26 onboarding/recovery preview states at default and largest text; hit areas fixed, no contrast findings, old 1.09:1 reading not reproduced; the fixed-size wordmark is the only remaining finding, accepted by the owner as a branding exception. See the [audit](../qa/native-onboarding-final-review-2026-10-25.md#automated-accessibility-audit-after-the-copy-trim-claude-25-october).
-- [ ] **Before release:** full manual VoiceOver pass (deferred by owner agreement on 25 October), plus swipe-to-dismiss, rotation/compact-height, intermediate sizes and hardware keyboard. Real authentication/reset/recovery remains a later transition-plan task.
-- [x] Complete the coordinator's [focused onboarding checks](../qa/onboarding-flow-review-2026-10-24.md); owner comprehension review and production verification remain pending.
-- [ ] Resolve Figma MCP access before attempting canvas work. The focused onboarding pass rechecked a known node and still received the Starter-plan tool-call limit.
-- [ ] Bring accepted Pingu artwork, Plus Jakarta Sans and brand colors into the connected editable Figma screens, preserving the existing recovery coverage.
-- [ ] Move Sample / Draft / Brand demo / preset-state instructions outside depicted phone screens. Keep genuine validation, capability, storage and error messages. Existing Figma/SwiftUI boards have not received this file-wide cleanup.
-- [ ] Settle F15 calendar behavior and connect the approved cases; static tiles are not interaction evidence.
-- [ ] Complete the five tasks in the walkthrough worksheet and add the onboarding check. Record actual assistance, misunderstandings, changes and retests.
-- [ ] Check icon-only editing discoverability, readable type, contrast and motion comfort; resolve critical findings before freezing the prototype.
+Browser review 07 adds the existing Pingu scene, writing/source cards and outline navigation icons. Editor/result and larger-text clarification/style were inspected, and affected editing/navigation controls exercised. [Visual evidence](../../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/README.md). This updates F23/F24 presentation evidence only; native criteria remain pending.
 
-### Swift and production readiness
+## Next UI review order
 
-- [x] Identify the existing MVVM structure and feature folders; a wholesale architecture conversion is unnecessary.
-- [ ] Approve the detailed first production slice. Proposed order remains manual typed capture → reliable local save → Journal/detail → edit/reopen, after the guest-runtime/local-storage feasibility work.
-- [ ] Validate versioned/protected storage, draft retention, interrupted writes, disk-full/read errors, stable IDs and linked operations.
-- [ ] Establish a guest dependency graph without automatic Firebase/cloud AI/backup; verify launch, background/resume and late callbacks. Keep explicit legacy login/recovery separate.
-- [ ] Verify on-device model and speech availability, cancellation and useful manual fallbacks; do not infer availability from a Simulator or mock.
-- [ ] Test original versus accepted edits, stale suggestions, retries, duplicate saves, Copy independent of Save, deletion and relaunch recovery.
-- [ ] Keep small Views, screen-level ViewModels and injected Store/Engine/Service boundaries; refactor the authorized slice rather than migrating every observable type at once.
+30 October owner selection: lead the demonstration with preparation and message-first Practice, with optional guidance. Review the [short flow design](../superpowers/specs/2026-10-30-message-first-practice-design.md) and proposed P9 criteria before the next F10/F23 prototype iteration. This changes the review focus, not implementation status or default launch navigation. Review 07 does not yet implement this new entry route.
 
-### Device, accessibility and release gates
+Follow-up: owner approved the short design; browser review 08 now demonstrates typed message-first entry and optional intent guidance, with partial P9 checks and [screenshots](../../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/README.md). Native implementation, voice integration into the new entry, durable history and live feedback remain separate work. No F10/F23 whole-flow completion is claimed.
 
-- [x] Check isolated motion-demo launch/layout on iPhone 18 Pro/iOS 27.0 and iPhone 17e/iOS 26.5; these are not full-app qualification.
-- [ ] Finish live iOS keyboard/Done, scrolling, rotation, motion/lifecycle and focus checks. The last task could not resolve a Simulator GUI despite working CLI runtimes.
-- [ ] Validate physical-device voice/model/offline behavior, Dynamic Type, VoiceOver, real system Reduce Motion, dark mode and compact layouts.
-- [ ] Resolve new-MVP supported OS/device scope separately from the legacy iOS 17/iPad recovery requirement.
-- [ ] Establish a passing main-app build/test baseline and appropriate CI toolchain; prototype builds and a Git push are not CI/release passes.
-- [ ] Resolve the personal Apple distribution route and necessary UTS involvement; the last recorded account status is UTS team access only, with no separate paid personal enrollment confirmed.
-- [ ] Complete legacy source/ownership inventory, safe export/import/recovery and explicit old-account controls before narrowing access or retiring cloud dependencies. The exact shipped Firebase mapping remains unresolved in the recorded research.
-- [ ] Qualify all P0 criteria, observed privacy/network behavior and release declarations before beta distribution. No merge, upload, enrollment, transfer or release is authorized by this checklist.
+1. **Refine (F23) and style (F24):** original wording, selected tone, useful concise feedback, editable rewrite and safe Use/Undo; distinguish manual work from optional online review. Validate the failure states against P7/P8/S9 before any native port.
+2. **Today (F03–F07/F09):** preserve direct writing, draft resume and post-save reflection; refine hierarchy, Pingu art and copy using the current native layout.
+3. **Journal (F08/F14/F15):** preserve calendar/search/editing; review activity icons and density without adding decoration to calendar cells.
+4. **Conversation/history and Settings (F10–F12/F16/F20):** long reply threads, data controls and honest source/privacy labels.
+5. **Beta qualification:** full guest unit/UI suites, physical accessibility/permissions, model capability/quality, legacy recovery and a deliberate Release configuration decision.
 
-## Recommended next order
+This is a review sequence, not permission to implement every proposed feature or activate cloud services.
 
-1. Review F01–F03 now using the local onboarding and agreed main navigation.
-2. Finish editable branded Figma onboarding and review-label cleanup when MCP access is available.
-3. Walk through F04–F12: one reflection, original-words save, edits, direct/linked Practice, Copy and Save.
-4. Decide F14–F16 retrieval/calendar behavior and inspect F17–F22 recovery/data-control cases.
-5. Record owner walkthrough findings and run the planned research sessions; none have been recorded as complete. No outreach is authorized by this checklist.
-6. Agree the implementation specification and first slice while resolving local-runtime feasibility and legacy/release prerequisites. Then code and validate in the appropriate order.
+## Checklist for every changed screen
 
-These are priorities, not scheduled background jobs, dates or agent assignments. Circles, rewards, streaks/badges, community, cross-device sync, screenshot understanding and multi-turn roleplay remain deferred. Gentle follow-up is optional P1 and remains outside the first core pass.
+- [ ] Brief updated first if purpose, scope or data handling changes; owner decisions and proposals labelled separately.
+- [ ] M requirement, F flow and story criterion IDs linked in the task/change record.
+- [ ] Happy path plus relevant empty, validation, loading/cancel, error, offline and stale states specified.
+- [ ] Copy follows the content standard; existing branding/tokens reused; no duplicate primary actions.
+- [ ] Keyboard, large text, VoiceOver and reduced motion requirements identified; actual checks labelled by environment.
+- [ ] Prototype feedback recorded; retained native functionality explicitly accounted for.
+- [ ] Authorised implementation and its tests linked; no invented passing tests or fixture-as-production claims.
+- [ ] Flow status and dated agent log updated with evidence and a concrete remaining action.
 
-## Evidence and maintenance
+## Release and research gates still open
 
-- [MVP and P0 acceptance criteria](mvp-definition.md); [research plan](research-findings.md).
-- [Draft 02 reference and earlier structural checks](../design/README.md); [legacy recovery coverage and gaps](../design/legacy-recovery-flow.md).
-- [Clean onboarding proposal / Figma continuation](../design/brand-demo/onboarding-review.md).
-- [Branded core routes](../design/brand-demo/core-journeys.md); [lighter icon variant](../design/brand-demo/lighter-icon-journeys.md); [calendar](../design/brand-demo/journal-calendar.md).
-- [Motion evidence and limitations](../design/brand-demo/motion-demo.md); [walkthrough worksheet — no completed sessions](../design/prototype-review-results.md).
-- [Architecture](../engineering/architecture.md); [local-first transition tasks](../superpowers/plans/2026-10-23-local-first-transition.md); [legacy inventory](../engineering/legacy-data-inventory.md).
-- [Device matrix](supported-devices.md); [personal-account release research](personal-account-release-plan.md); [privacy/storage](privacy-storage-plan.md).
+[Practice review 08 session guide](../design/practice-usability-session-2026-10-30.md) is prepared for a small moderated batch: direct entry, optional guidance, Use/Copy/Save comprehension and same-session replies. Recruitment and participant sessions remain pending; browser fixtures cannot test real AI quality or durable history.
 
-Update this checklist after a meaningful completed task or new evidence; do not mark a prototype row production-complete because a screenshot looks finished. Link an observed walkthrough result or runtime check before changing a validation status. This document organizes existing decisions and work; source plans retain the detailed contracts.
+The UI showcase needs poster, video and presentation; its exact deadline/submission specifications are unverified. Participant research and usefulness thresholds remain pending. Confirm audience age/language and the [device matrix](supported-devices.md). Preserve earlier users' data and finish the [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) gates. Figma, browser prototypes, guest Debug and standard Release are separate deliverables.

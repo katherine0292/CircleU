@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-31",
+  "method": "Local keyframed composition of unchanged transparent PNGs",
+  "width": 720,
+  "height": 720,
+  "fps": 30,
+  "duration_seconds": 6,
+  "audio": false,
+  "credits_used": 0,
+  "assets": [
+    {
+      "file": "PinguIdle-keyframe-v1.mp4",
+      "source": "Activities01/PinguQuietBreathV1.png",
+      "source_sha256": "8bb06c5a44b41640a234ec632da79d08b6dbce80c19a675c6b0306add1fd8821",
+      "sha256": "cb9f78235603f58763ff64ba4230a8d1b85ac489b4aae7cd4725f988adde884d",
+      "bytes": 251320,
+      "verified": "180 frames, 6 seconds, 720 square, H.264, no audio; full decode passed",
+      "motion": "6 px sprite lift over 3 seconds"
+    },
+    {
+      "file": "PinguVoice-keyframe-v1.mp4",
+      "source": "Activities01/PinguPractisingV1.png",
+      "source_sha256": "e755d6219cb7b26311a7d4b0036d88ba9c9ce938fae6df27eaed810118d0e3af",
+      "sha256": "22013cab635e9864f7a14e70732418c02f48d1979f92d4b890fba9cce2aea1bb",
+      "bytes": 319013,
+      "verified": "180 frames, 6 seconds, 720 square, H.264, no audio; full decode passed",
+      "motion": "6 px sprite lift over 3 seconds plus illustrative waves, not microphone-driven"
+    }
+  ]
+}

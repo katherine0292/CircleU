@@ -1,0 +1,14 @@
+Use case: text-localization
+Asset type: landscape CircleU showcase poster, review draft.
+Edit target: supplied CircleU landscape poster.
+Change only the left copy below the introduction and the tiny lower-left footer. Keep CircleU logo, headline "Find your words", introduction, entire illustrated arctic sunset, all three angled phone mockups and their screen content, foreground scarf penguin, colors and framing unchanged. Preserve 1672:941 landscape composition.
+Remove the three repeated Today / Journal / Practice feature rows and their round icons. In that same left area create an elegant compact editorial before-and-after conversation example. No three-feature list. Match existing modern rounded navy typography. Use a subtle pale-blue rounded speech shape only for the improved wording, integrated into the quiet white area.
+Exact text, in order:
+"From a difficult moment"
+"You never help with our project."
+"To a clearer request"
+"Could we agree on which parts each of us will handle?"
+"Explore your wording. Keep your meaning."
+Set first/third lines as small blue labels. Quotes comfortably readable, with generous spacing, and improved wording larger emphasis. Fit all text above y=795, below current introduction around y=480; maintain x=78 to x=550 bounds, no overlap with phones. Small discreet "Illustrative example" below example.
+Remove "SwiftUI · Interaction design" footer entirely. Leave quiet EMPTY space in bottom-left y=820–930 for future real QR code and official program attribution; do not invent or draw a QR code, App Store badge, TestFlight badge, institutional logo or additional text. Keep bottom-right "Design mockups".
+Keep the rich original appearance; do not flatten the poster or redesign the phones.

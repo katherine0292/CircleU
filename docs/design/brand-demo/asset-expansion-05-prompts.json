@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "created": "2026-10-27",
+  "status": "Owner-requested asset expansion; candidates for placement review, not integrated into production",
+  "tool": "built-in image_gen",
+  "preservation": "PNG originals copied without pixel edits; previous assets retained",
+  "assets": [
+    {
+      "name": "SceneWritingNookV1.png",
+      "kind": "scene",
+      "role": "Today writing nook",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/SceneWritingNookV1.png",
+      "prompt": "Use case: stylized-concept. Create a new landscape hero illustration for CircleU Today, approx 2:1. Reference 1 is character identity; reference 2 is the existing environment, which needs richer art direction. Match the supplied CircleU reference identity exactly: single curved crest, navy plump penguin, white heart-shaped face and belly, small oval dark eyes, tiny orange beak and feet, ice-blue scarf. Clean smooth softly dimensional matte editorial illustration, restrained shadows, no sketch strokes, no grain, no glossy toy look. Palette royal blue #054FC9, ink #0D1421, ice #F5FAFF, sky #47C7FF with restrained warm orange. No typography, lettering, logos, watermark or UI. Scene: a small cosy open-air writing nook on an ice island, sweeping curved snowy ridge behind it, a rounded arch framing a calm blue inlet and layered distant mountains. Pingu sits on the left third writing in an open blue journal on a small ice bench, thoughtful relaxed expression. Include restrained narrative detail: a little stack of two notebooks, a warm amber lantern tucked beside the bench, curved foreground snow and three broad water reflection bands. Sophisticated spatial depth through foreground/middle/distance, readable silhouette at phone size. Richer environment but not cluttered. Leave the rightmost third as quiet pale blue water/sky for a future real microphone control; DO NOT draw a microphone or fake button. Pale ice bottom edge. Entire scene contained, no frame, no other characters. No repeated tiny decoration.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestSceneTodayV1.png"
+      ],
+      "width": 1774,
+      "height": 887,
+      "bytes": 1567290,
+      "sha256": "423a2c7dec801aff9713d2bd9fb674c9b5053886ff262ebb0eea8758721f36fa",
+      "pngColourType": 2
+    },
+    {
+      "name": "ScenePracticeCoveV1.png",
+      "kind": "scene",
+      "role": "Practice cove",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/ScenePracticeCoveV1.png",
+      "prompt": "Use case: stylized-concept. Create one new wide landscape illustration approximately 2:1 for CircleU Practice, as a coordinated sibling to the supplied identity/environment references. Match the supplied CircleU reference identity exactly: single curved crest, navy plump penguin, white heart-shaped face and belly, small oval dark eyes, tiny orange beak and feet, ice-blue scarf. Clean smooth softly dimensional matte editorial illustration, restrained shadows, no sketch strokes, no grain, no glossy toy look. Palette royal blue #054FC9, ink #0D1421, ice #F5FAFF, sky #47C7FF with restrained warm orange. No typography, lettering, logos, watermark or UI. Scene: an inviting sheltered blue ice cove, clean curved ice steps and a low rounded bench, three sweeping layered mountain shapes across calm water, a graceful snowy arch framing the left side. Pingu sits on the RIGHT third holding a small blank rounded conversation cue card in one flipper, the other flipper open gently as if rehearsing words, calm attentive expression, closed beak. No printed writing or abstract symbols on card. Add one closed blue journal on bench and a tiny amber lantern beside it. Morning side light, blue sky, crisp modern editorial shapes, less intricate than storybook scenery. LEFT third is quiet sky/water with gentle ice tone, usable for a heading outside the image or a real control later. Strong foreground/middle/background depth, generous negative space, detailed enough to feel like a place, only one penguin. No speech bubbles, buttons, microphone, text, lettering, stars, hearts or celebratory particles. Fully opaque, edge to edge.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png",
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion02/GuestSceneTodayV1.png"
+      ],
+      "width": 1774,
+      "height": 887,
+      "bytes": 1575749,
+      "sha256": "8d2908f10ef00d73790f24af0f224614f68a307fc78ca5656dfae864d5824fde",
+      "pngColourType": 2
+    },
+    {
+      "name": "PinguGreetingV1.png",
+      "kind": "pose",
+      "role": "Greeting",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/PinguGreetingV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: ONE full-body CircleU mascot pose on true transparent background, square canvas. Match the supplied CircleU reference identity exactly: single curved crest, navy plump penguin, white heart-shaped face and belly, small oval dark eyes, tiny orange beak and feet, ice-blue scarf. Clean smooth softly dimensional matte editorial illustration, restrained shadows, no sketch strokes, no grain, no glossy toy look. Palette royal blue #054FC9, ink #0D1421, ice #F5FAFF, sky #47C7FF with restrained warm orange. No typography, lettering, logos, watermark or UI. Reference is identity only. New pose: penguin stands upright facing viewer, one flipper lifted outwards in a gentle open greeting, other flipper rests near belly. No journal, no extra props, no particles, no badge, no text. Scarf drapes toward right. Warm composed closed-beak expression. Full silhouette including crest, scarf tips and orange feet inside generous 12 percent transparent margins. Same face and round proportions as reference. This will be used as a single isolated puppet in a finite tilt animation, so no shadow or backdrop, no motion lines, crisp soft matte edges.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png"
+      ],
+      "width": 1254,
+      "height": 1254,
+      "bytes": 855312,
+      "sha256": "132e7cd917ac50469650ff17a4f7def9f201822e0d114f61355ef2ded70ae9c6",
+      "pngColourType": 6,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        54,
+        1226,
+        1174
+      ],
+      "alphaAbove32Bounds": [
+        117,
+        57,
+        1142,
+        1164
+      ]
+    },
+    {
+      "name": "PinguConsideringV1.png",
+      "kind": "pose",
+      "role": "Thoughtful pause",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/PinguConsideringV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: ONE new full-body CircleU mascot pose on genuine transparent background, square canvas. Match the supplied CircleU reference identity exactly: single curved crest, navy plump penguin, white heart-shaped face and belly, small oval dark eyes, tiny orange beak and feet, ice-blue scarf. Clean smooth softly dimensional matte editorial illustration, restrained shadows, no sketch strokes, no grain, no glossy toy look. Palette royal blue #054FC9, ink #0D1421, ice #F5FAFF, sky #47C7FF with restrained warm orange. No typography, lettering, logos, watermark or UI. New pose: seated penguin with one flipper gently touching side of cheek below beak, other flipper relaxed across belly, head very slightly tilted, eyes looking gently to the upper left, neutral thoughtful closed beak. No raised eyebrows, no worried frown, no tears, no oversized smile. Scarf and feet completely visible. No props, thought bubbles, symbols, particles, text, floor or cast shadow. Generous clear margin all sides, identical heart-shaped face, body proportions, crest and scarf identity as reference. Matte editorial shading, low-detail silhouette suitable for 120-point display. Designed for a finite whole-illustration thoughtful tilt, no implied analysing or thinking service.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/BrandAvatar.png"
+      ],
+      "width": 1254,
+      "height": 1254,
+      "bytes": 876694,
+      "sha256": "635e56947bc80a5d434e8eac10eb6914b4a42790960ea144c70c1c5196406012",
+      "pngColourType": 6,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        93,
+        23,
+        1240,
+        1222
+      ],
+      "alphaAbove32Bounds": [
+        236,
+        88,
+        1134,
+        1186
+      ]
+    },
+    {
+      "name": "BrandConversationV1.png",
+      "kind": "icon",
+      "role": "Conversation",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/BrandConversationV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: CircleU illustrated icon for conversation context. Match the supplied CircleU icon reference's smooth rounded soft-dimensional shape language but use restrained MATTE highlights, not shiny plastic. Royal blue #054FC9, ice #F5FAFF, sky #47C7FF, ink #0D1421 and a tiny warm orange accent. One clear central motif, very simple broad shapes, generous 16 percent transparent margin. Designed for readability at 32 to 48 points. No text, letters, numbers, watermark, background tile, scenery, noise, grain, sketch lines, drop shadow outside object or extra decorative sparkle. Genuine transparent background. Square canvas. ONE cohesive motif made from two overlapping rounded speech bubbles: larger royal blue bubble in front with white interior, small solid pale-sky-blue bubble tucked behind upper right. One short thick orange dash centred inside front bubble as a restrained brand accent, no ellipsis, no heart. Nearly front-facing, shallow depth, crisp silhouette. This is a labelled context icon, not a message-sending button.",
+      "revisionPrompt": "Edit only the interior mark in the supplied conversation icon. Replace the single orange horizontal dash, which can look like a minus sign, with THREE small evenly spaced round royal-blue dots in a horizontal row. Preserve exactly the two overlapping speech-bubble silhouettes, blue rim, white interior, pale-blue rear bubble, lighting, scale, composition, transparent background and padding. No other changes. No text.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandReflectionV1.png"
+      ],
+      "width": 1254,
+      "height": 1254,
+      "bytes": 632504,
+      "sha256": "f47b1cab061ce08caeac4fa23e3a8976a598c7e42b29c749ec0afd30a37e292e",
+      "pngColourType": 6,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        33,
+        1214,
+        1254
+      ],
+      "alphaAbove32Bounds": [
+        224,
+        245,
+        1089,
+        1040
+      ]
+    },
+    {
+      "name": "BrandDraftV1.png",
+      "kind": "icon",
+      "role": "Draft",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/BrandDraftV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: CircleU illustrated icon for an unfinished draft. Match the supplied CircleU icon reference's smooth rounded soft-dimensional shape language but use restrained MATTE highlights, not shiny plastic. Royal blue #054FC9, ice #F5FAFF, sky #47C7FF, ink #0D1421 and a tiny warm orange accent. One clear central motif, very simple broad shapes, generous 16 percent transparent margin. Designed for readability at 32 to 48 points. No text, letters, numbers, watermark, background tile, scenery, noise, grain, sketch lines, drop shadow outside object or extra decorative sparkle. Genuine transparent background. Square canvas. One rounded upright ice-white sheet of paper with royal blue thick rim and a small folded upper-right corner. One short dark blue horizontal line near top, one shorter line below. A simple short blue pencil with tiny orange tip rests diagonally across lower-right corner. Three broad elements only: sheet, lines, pencil. Straight-on view, no lettering or actual words, no check mark, no cloud, no save disc. Cohesive smooth soft-shaded matte icon, bold silhouette.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandReflectionV1.png"
+      ],
+      "width": 1254,
+      "height": 1254,
+      "bytes": 822162,
+      "sha256": "fc7beca783528b026e6a687f866e2348c31355a16446b9c45d12fdff0d2182f1",
+      "pngColourType": 6,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        33,
+        33,
+        1227,
+        1254
+      ],
+      "alphaAbove32Bounds": [
+        243,
+        164,
+        1084,
+        1081
+      ]
+    },
+    {
+      "name": "BrandListeningV1.png",
+      "kind": "icon",
+      "role": "Listening",
+      "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/BrandListeningV1.png",
+      "prompt": "Use case: stylized-concept. Asset type: CircleU illustrated icon for attentive listening. Match the supplied CircleU icon reference's smooth rounded soft-dimensional shape language but use restrained MATTE highlights, not shiny plastic. Royal blue #054FC9, ice #F5FAFF, sky #47C7FF, ink #0D1421 and a tiny warm orange accent. One clear central motif, very simple broad shapes, generous 16 percent transparent margin. Designed for readability at 32 to 48 points. No text, letters, numbers, watermark, background tile, scenery, noise, grain, sketch lines, drop shadow outside object or extra decorative sparkle. Genuine transparent background. Square canvas. A single rounded royal-blue ear outline with a pale ice interior, one short soft orange curved sound arc on the right. Broad smooth shapes, simplified ear geometry, friendly nonclinical appearance. Ear and arc form one central icon. No headphones, microphone, speaker, letters or dots. Nearly front view with very shallow dimensional shading. Use as a labelled listening theme accent, never to imply an active microphone or that recording is running.",
+      "references": [
+        "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/BrandReflectionV1.png"
+      ],
+      "width": 1254,
+      "height": 1254,
+      "bytes": 593994,
+      "sha256": "ab0a6b4c84b3e0f01953131e0c7e80f3d578619c2a513edfde69ed4ba0fef76b",
+      "pngColourType": 6,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        33,
+        31,
+        1240,
+        1254
+      ],
+      "alphaAbove32Bounds": [
+        276,
+        178,
+        1086,
+        1050
+      ]
+    }
+  ]
+}

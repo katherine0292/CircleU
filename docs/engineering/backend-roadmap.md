@@ -1,5 +1,7 @@
 # Circleu Backend Roadmap
 
+> Historical legacy-app roadmap. For the current guest-first MVP and 27 October progress, use [backend readiness](competition-backend-readiness-2026-10-27.md). The guest core now uses SwiftData; Firebase remains in the original app and explicit legacy recovery. The build order below is not approval for new sync, mandatory accounts, circles, rewards or cloud AI.
+
 Circleu should stay local-first until backend features are needed for real users. Add backend work in small, reversible slices behind service contracts.
 
 ## Current Position

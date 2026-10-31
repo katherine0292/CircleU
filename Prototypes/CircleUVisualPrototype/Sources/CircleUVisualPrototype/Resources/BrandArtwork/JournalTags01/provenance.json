@@ -1,0 +1,78 @@
+[
+  {
+    "name": "PinguOverloadedV1",
+    "label": "Overloaded",
+    "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguOverloadedV1.png",
+    "prompt": "Use case: stylized-concept. Asset type: compact illustrated badge for CircleU journal cards. Reference image is a CHARACTER AND STYLE REFERENCE ONLY, not an edit target. Create one new standalone transparent PNG, square canvas, no words, no lettering, no border or background disk. Preserve this exact penguin identity: deep navy rounded head and body, white face, single crest, orange small beak, pale blue scarf. Modern matte softly dimensional illustration, clean edges, restrained shading, no sketch texture. Compact head-and-upper-body composition filling 80% of canvas with clear safe padding, not full body, large simple silhouette readable at 40\u201348 points. One simple distinctive prop only, no scattered tiny accessories. Palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, small orange beak. No glossy plastic, no medical symbols, no celebratory rewards. Feeling badge: penguin with mildly tired brows and one flipper resting against its temple; one simple blue tangled loop thought cloud directly above its head. No tears, panic, anger, dizziness stars, burden pile or smiling celebration. Keep its face gentle and recognisable; blue scarf visible.",
+    "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+    "generator": "built-in image_gen",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bytes": 958215,
+    "sha256": "1eea0b0c4190bb3ceaf0118187d3557eab525e28761776fd0c2d10332b85809c"
+  },
+  {
+    "name": "PinguStudyTagV1",
+    "label": "Study",
+    "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguStudyTagV1.png",
+    "prompt": "Use case: stylized-concept. Asset type: compact illustrated badge for CircleU journal cards. Reference image is a CHARACTER AND STYLE REFERENCE ONLY, not an edit target. Create one new standalone transparent PNG, square canvas, no words, no lettering, no border or background disk. Preserve this exact penguin identity: deep navy rounded head and body, white face, single crest, orange small beak, pale blue scarf. Modern matte softly dimensional illustration, clean edges, restrained shading, no sketch texture. Compact head-and-upper-body composition filling 80% of canvas with clear safe padding, not full body, large simple silhouette readable at 40\u201348 points. One simple distinctive prop only, no scattered tiny accessories. Palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, small orange beak. No glossy plastic, no medical symbols, no celebratory rewards. Activity/context badge: penguin holding one large simple open blue book in front of its chest, thoughtful attentive expression, eyes visible above book. No text, letters, graduation cap, pencil or extra props.",
+    "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+    "generator": "built-in image_gen",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bytes": 932267,
+    "sha256": "4e90a70b6ae611ede195a20f3e24494453700dafdbfcc91f0e35b9d725b6114b"
+  },
+  {
+    "name": "PinguWorkTagV1",
+    "label": "Work",
+    "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguWorkTagV1.png",
+    "prompt": "Use case: stylized-concept. Asset type: compact illustrated badge for CircleU journal cards. Reference image is a CHARACTER AND STYLE REFERENCE ONLY, not an edit target. Create one new standalone transparent PNG, square canvas, no words, no lettering, no border or background disk. Preserve this exact penguin identity: deep navy rounded head and body, white face, single crest, orange small beak, pale blue scarf. Modern matte softly dimensional illustration, clean edges, restrained shading, no sketch texture. Compact head-and-upper-body composition filling 80% of canvas with clear safe padding, not full body, large simple silhouette readable at 40\u201348 points. One simple distinctive prop only, no scattered tiny accessories. Palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, small orange beak. No glossy plastic, no medical symbols, no celebratory rewards. Activity/context badge: penguin holding one compact rounded blue briefcase at chest level, simple white handle detail, calm attentive expression. The briefcase is the single identifying prop; no laptop, tie, hat, or text.",
+    "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+    "generator": "built-in image_gen",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bytes": 1006209,
+    "sha256": "d3c6bf707682bd7ccba8533da722a7b195e46908eee000d8c7da663ff51d3f9b"
+  },
+  {
+    "name": "PinguFriendsTagV1",
+    "label": "Friends",
+    "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguFriendsTagV1.png",
+    "prompt": "Use case: stylized-concept. Asset type: compact illustrated badge for CircleU journal cards. Reference image is a CHARACTER AND STYLE REFERENCE ONLY, not an edit target. Create one new standalone transparent PNG, square canvas, no words, no lettering, no border or background disk. Preserve this exact penguin identity: deep navy rounded head and body, white face, single crest, orange small beak, pale blue scarf. Modern matte softly dimensional illustration, clean edges, restrained shading, no sketch texture. Compact head-and-upper-body composition filling 80% of canvas with clear safe padding, not full body, large simple silhouette readable at 40\u201348 points. One simple distinctive prop only, no scattered tiny accessories. Palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, small orange beak. No glossy plastic, no medical symbols, no celebratory rewards. Activity/context badge: two small matching penguin heads side by side with their pale blue scarves, gently facing each other, a single simple blue speech bubble between and above them. This two-character silhouette itself is the distinctive motif. No hearts, no text, no crowd.",
+    "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+    "generator": "built-in image_gen",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bytes": 1005534,
+    "sha256": "a0843135e22eaf432e721b3b1d700c8e17ebf1ce728ff8f520236f1ade7b8c54"
+  }
+]

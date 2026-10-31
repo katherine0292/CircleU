@@ -1,0 +1,141 @@
+{
+  "screenCount": 28,
+  "overflow": [],
+  "brokenLinks": [],
+  "linkCount": 71,
+  "fontFamilies": [
+    "Plus Jakarta Sans"
+  ],
+  "screenIds": [
+    {
+      "id": "39:7",
+      "name": "R09 / start / Practice"
+    },
+    {
+      "id": "39:20",
+      "name": "R09 / blank / What would you like to say?"
+    },
+    {
+      "id": "39:31",
+      "name": "R09 / filled / What would you like to say?"
+    },
+    {
+      "id": "39:44",
+      "name": "R09 / guide / What do you want to happen?"
+    },
+    {
+      "id": "39:55",
+      "name": "R09 / intent / What would you like to say?"
+    },
+    {
+      "id": "39:70",
+      "name": "R09 / consent / Review selected text"
+    },
+    {
+      "id": "39:84",
+      "name": "R09 / consentIntent / Review selected text"
+    },
+    {
+      "id": "39:98",
+      "name": "R09 / loading / Reviewing your wording"
+    },
+    {
+      "id": "39:110",
+      "name": "R09 / loadingIntent / Preparing wording"
+    },
+    {
+      "id": "39:122",
+      "name": "R09 / result / Find your words"
+    },
+    {
+      "id": "39:141",
+      "name": "R09 / resultIntent / Find your words"
+    },
+    {
+      "id": "39:160",
+      "name": "R09 / applied / Your wording"
+    },
+    {
+      "id": "39:175",
+      "name": "R09 / appliedIntent / Your wording"
+    },
+    {
+      "id": "39:190",
+      "name": "R09 / edited / Your wording"
+    },
+    {
+      "id": "39:203",
+      "name": "R09 / savedOriginal / Conversation"
+    },
+    {
+      "id": "39:217",
+      "name": "R09 / saved / Conversation"
+    },
+    {
+      "id": "39:231",
+      "name": "R09 / savedEdited / Conversation"
+    },
+    {
+      "id": "39:245",
+      "name": "R09 / reply / Add their reply"
+    },
+    {
+      "id": "39:259",
+      "name": "R09 / replyOriginal / Add their reply"
+    },
+    {
+      "id": "39:273",
+      "name": "R09 / replyEdited / Add their reply"
+    },
+    {
+      "id": "39:287",
+      "name": "R09 / conversation / Conversation"
+    },
+    {
+      "id": "39:304",
+      "name": "R09 / conversationOriginal / Conversation"
+    },
+    {
+      "id": "39:321",
+      "name": "R09 / conversationEdited / Conversation"
+    },
+    {
+      "id": "39:338",
+      "name": "R09 / next / What would you like to say?"
+    },
+    {
+      "id": "39:352",
+      "name": "R09 / nextOriginal / What would you like to say?"
+    },
+    {
+      "id": "39:366",
+      "name": "R09 / nextEdited / What would you like to say?"
+    },
+    {
+      "id": "39:380",
+      "name": "R09 / error / Couldn’t get feedback"
+    },
+    {
+      "id": "41:41",
+      "name": "R09 / discard / Leave this draft?"
+    }
+  ],
+  "editability": {
+    "text": 203,
+    "instances": 41
+  },
+  "startingPoints": [
+    {
+      "nodeId": "39:7",
+      "name": "Practice · direct wording and replies"
+    },
+    {
+      "nodeId": "39:44",
+      "name": "Practice · optional guidance"
+    },
+    {
+      "nodeId": "39:380",
+      "name": "Practice · failure recovery"
+    }
+  ]
+}

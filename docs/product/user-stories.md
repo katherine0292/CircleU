@@ -1,15 +1,18 @@
 # Guest app user stories
 
-26 October 2026. These are the user stories for the guest journal (the local-only app behind the guest switch), grouped by flow. On-screen wording follows the [screen content guidelines](../design/screen-content-guidelines.md). Quoted text is what the app shows today.
+31 October visual follow-up: [Today review 18](../design/figma-today-layout-review-18/README.md) reuses scene artwork and groups writing, prompts and voice while preserving fixed footers. Player and geometry evidence only; native behavior and test status are unchanged.
+
+Updated 29 October 2026. Start with the [product brief](overview.md) and [MVP register](mvp-definition.md); use the [flow checklist](flow-status-checklist.md) for delivery status. Existing stories describe the native guest/review configuration, not the standard Release app. **P7, P8 and S9 are proposed native criteria supported by a partial browser prototype, not implemented behaviour.** Existing quoted copy describes the native baseline; future on-screen wording must follow the [screen content guidelines](../design/screen-content-guidelines.md).
 
 ## How to read this
 
 - **Story:** "As a [user], I want [goal], so that [benefit]."
 - **Screen and states:** where the story happens, and the states it must handle. The states are empty, filled, in progress, error and permission denied, where relevant.
-- **Criteria:** 2–4 Given/When/Then lines per story. Each line names its test in the **Test** column:
+- **Criteria:** Given/When/Then lines for the behaviour and relevant failure states. Each line names its test in the **Test** column:
   - **Unit** is a repo test in `CircleuTests/` (`File.testName`), run by the full `xcodebuild test`.
   - **UI** is an XCUITest in `CircleuUITests/`, run with the `CircleuUITests` scheme (see "Running the tests" below). Each UI test starts from an empty guest journal (Debug-only `-CircleUResetGuestData`).
   - **No test** means nothing checks the line.
+- **Proposed / no native test** means an acceptance target, not a test that exists or passed. Browser evidence is separately scoped.
 - **(partial)** means the test checks part of the line; the note says which part.
 - **Users:**
   - **Person** is anyone using the guest journal.
@@ -38,6 +41,8 @@ Screen: Welcome → Log in. States: filled, in progress, error. Login details ar
 
 ## 2. Today capture
 
+31 October Figma evidence: [Today review 17](../design/figma-today-flow-review-17/README.md) exercises T1 capture/save/retry, a T2 draft round trip, typed-word retention on dictation cancellation, and T6 optional reflection writing/edit/discard/save/reopen. Reflection starts blank, cannot save empty, and remains separate from original words. These are predefined prototype fixtures with session variables, not fresh native test results, real recording or persistence evidence. Original-word edits after a saved reflection still need a dedicated stale-reflection prototype review (J4.4).
+
 **T1. Typing.** As a person, I want to type what happened and save it, so that it's in my journal.
 Screen: Today. States: empty, filled, in progress (saving), error.
 
@@ -48,6 +53,15 @@ Screen: Today. States: empty, filled, in progress (saving), error.
 | T1.3 | Given a save is in progress, when I keep typing, then the new words are kept. | Unit `GuestJournalStoreTests.testTextTypedDuringSaveIsKept` |
 | T1.4 | Given the entry saved but file protection failed, when Journal opens, then a notice says so. | Unit `GuestJournalStoreTests.testSavedButUnprotectedClearsDraftAndShowsNoticeOnJournal` |
 | T1.5 | Given Today, when I look at the actions, then there is one Save button (the question prompts only add text). | UI `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
+
+**T1-P. Optional question picker — Figma prototype only, 31 October.** This explores replacing T1.5's native text-inserting chips with non-destructive guidance; it does not change that native behavior or its test claim.
+
+| # | Given / When / Then | Evidence |
+| --- | --- | --- |
+| T1-P.1 | Given Today, when I tap the question/chevron, then a sheet offers the three curated questions; closing it preserves my entry and selection. | [Review 20](../design/figma-today-prompts-review-20/README.md), Figma player |
+| T1-P.2 | Given an empty or filled entry, when I choose or change a question, then it appears separately above the writing, without inserting an answer or replacing existing words. | Review 20 fixture checks; no native test |
+| T1-P.3 | Given a selected question, when I remove it, then only the question is hidden and the words remain. | Review 20 fixture checks; no native test |
+| T1-P.4 | Given a selected question, when an entry saves or its draft is discarded, then the next capture starts without that selection; save failure retains it. | Prototype reaction inspection; not native persistence coverage |
 
 **T2. Draft kept.** As a person, I want unsaved words to survive closing the app, so that I never lose a half-written moment.
 Screen: Today. States: filled (restored), error (unreadable draft).
@@ -147,6 +161,20 @@ Screen: Journal. States: empty, filled, error.
 | J1.2 | Given the journal can't be read, when Journal opens or refreshes, then it says "Couldn’t open your journal. Try again." and never shows an empty journal. | Unit `GuestJournalStoreTests.testFailedLoadIsAnErrorNotAnEmptyJournal`, `testFailedRefreshIsAnErrorNotAnEmptyOrDeletedJournal` |
 | J1.3 | Given the store file is corrupt or missing, when it opens, then it reports an error and keeps the file's bytes. | Unit `GuestJournalStoreTests.testCorruptStoreIsAnErrorAndBytesArePreserved`, `testVanishedStoreFileIsAnError` |
 
+**J7. Optional activity and feeling tags — prototype proposal, 31 October.** As a person, I want to label a saved moment in my own terms, so I can recognise its context when browsing. This is a design-review scope, not native implementation approval.
+
+| Criterion | Given / When / Then | Evidence |
+| --- | --- | --- |
+| J7.1 | Given an untagged entry, when I leave it untagged, then the saved words remain valid and unchanged. | Figma review 12; native persistence coverage pending |
+| J7.2 | Given + Context or + Feeling, when I choose a conversation context and optionally a feeling and tap Done, then the context appears as a blue activity chip on the left and the feeling as a labelled face portrait on the right. | [Figma review 14](../design/figma-journal-emotions-review-14/README.md); invented scenario only |
+| J7.3 | Given an existing tag, when I reopen the picker and choose another value or deselect it, then Done updates or removes the tag without rewriting the words. | Figma review 12; native edit/export/migration coverage pending |
+| J7.4 | Given only an activity or only a feeling, when I tap Done, then the other category remains unset; no automatic inference occurs. | Figma review 12; no model involved |
+| J7.5 | Given a larger text setting or VoiceOver, when I use the native picker, then labels, selection state and controls remain understandable and reachable. | Required for a future native slice; not established by fixed-size Figma frames |
+| J7.6 | Given saved tags, when I change selections then close the picker without Done, then saved tags stay unchanged. Done commits the choices; clearing a category restores + Context or + Feeling independently. | Review 14 player: cancelled Frustrated retained Happy; removing Happy retained Friends and restored + Feeling |
+| J7.7 | Given a saved tag or wording edit, when I switch between Journal and Practice and return, then the saved values remain associated with the same entry. | Review 13 prototype-session variables; checked in player, not durable native storage |
+| J7.8 | Given the feeling picker, when I choose Calm, Worried, Overloaded, Happy, Sad or Frustrated, then I can select at most one feeling, independently of context; no feeling is inferred. | Review 14 prototype proposal: six labelled choices; Happy selection and deselection checked, other reaction definitions share the same construction; native coverage pending |
+| J7.9 | Given saved entries, when I browse history, then entries are grouped by date, with time inside the card and the person's words above the tags. | Review 14 main history visual inspection; native grouping not changed |
+
 **J2. Search.** As a person, I want to search my entries, so that I can find a moment again.
 Screen: Journal (search). States: filled (results), empty (no results).
 
@@ -166,6 +194,8 @@ Screen: Journal → Calendar. States: filled, empty day.
 
 **J4. Edit.** As a person, I want to edit a saved entry, so that it says what I meant.
 Screen: Entry → Edit. States: filled, in progress, error (stale, deleted).
+
+31 October prototype evidence: [Journal review 16](../design/figma-journal-flow-review-16/README.md) applies J4.2 to Back and tab exits across four entry editors. The player verified the work-entry draft, Keep editing, then Practice → confirmation → Discard → Practice. Search-based wording/tag edits returned to the same result; calendar-based entry navigation retained the selected date. J2/J3 checks also covered populated/empty query fixtures, empty day/month, and one-to-two entry counts after a fixture save. These are bounded Figma session checks, not fresh native test results or relaunch persistence evidence.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
@@ -191,7 +221,7 @@ Screen: Journal, Calendar, Entry. States: filled, one day chosen. Mocked in the 
 | J6.1 | Given entries, when Journal opens, then each row shows a date tile, the words, icons for a reflection, a next step (a tick when done) and a practice message, and the time; VoiceOver reads the icons in words. | No test (layout checked on screenshots; VoiceOver speech not checked) |
 | J6.2 | Given I just saved, when Journal opens, then the "Saved" card is one row: Pingu, "Saved", Reflect and ×. | UI (partial, checks "Saved" and Reflect, not the one-row layout) `GuestTodayUITests.testChipsStartTheWordsAndTheNudgeHelpsWhileWriting` |
 | J6.3 | Given the calendar, when I choose a day, then a day chip with × replaces "Showing …" and Show all, each day shows up to three dots, and Go to today is an icon. | UI (partial, checks the day chip and Go to today, not the dots) `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
-| J6.4 | Given an entry, when it opens, then the date is the title, Edit is a pencil, Delete entry is in the ••• menu, and the reflection, feeling and next step show as icons with spoken names. | UI (partial, checks the actions, not the title or every spoken name) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| J6.4 | Given an entry, when it opens, then a compact date is the inline title and the time below exposes the full creation timestamp to accessibility, Edit is a pencil, Delete entry is in the ••• menu, and the reflection, feeling and next step show as icons with spoken names. | UI (partial, checks the actions, not the title or every spoken name) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 
 ## 4. Practice
 
@@ -208,11 +238,12 @@ Screen: Practice. States: empty, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P2.1 | Given no messages, when Practice opens, then Pingu and "Nothing practised yet." show. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
-| P2.2 | Given a new message, when it has no wording, then Save is off; once it has wording, it saves and shows as saved. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
+| P2.1 | Given no messages, when Practice opens, then the shared Pingu start card and "Nothing practised yet." show; decorative art is omitted at accessibility text sizes. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
+| P2.2 | Given Prepare has no wording, Continue is off; after entering words and continuing to Refine, Save stores them and shows the saved conversation. | Unit `GuestPracticeTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeTests.testFailedSaveKeepsWordsAndShowsError` |
-| P2.4 | Given saved messages, when Practice opens, then a Pingu card starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P2.5 | Given a new message, when it opens, then Situation and Goal are "+" chips; tapping one opens its field, and a restored draft that has them shows them open. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| P2.4 | Given saved messages, when Practice opens, then an ice-toned Pingu card with one blue action strip starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P2.5 | Given Prepare, when I choose a scene and tone or expand Situation and Goal, those values remain part of my draft; existing details reopen expanded. | Automated scene/detail interaction not yet covered; draft coding covered by `GuestConversationTests.testDraftRoundTripPreservesPendingReplyAndOriginalWords` |
+| P2.6 | Given Refine and the software keyboard are open, when I write or scroll at default or largest text, then Save stays fully above the keyboard; saving dismisses the keyboard and preserves my wording. | UI `GuestPracticeUITests.testPracticeSaveStaysAboveKeyboard`, `testPracticeSaveStaysAboveKeyboardAtLargestText` |
 
 **P3. Copy and edit.** As a person, I want to copy or edit a message, so that I can send it myself or improve it.
 Screen: Practice message. States: filled, error (stale).
@@ -222,7 +253,7 @@ Screen: Practice message. States: filled, error (stale).
 | P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains`; UI (saved edit, reopen and no duplicate; concurrent edits remain unit-tested) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
 | P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeTests.testFailedMessageDeleteKeepsIt` |
-| P3.4 | Given a saved message, when I look at it, then my words are a sent bubble, Copy is the one button, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P3.4 | Given a saved message, when I look at it, then my words are a blue prepared-wording bubble labelled Saved · not sent, Copy is primary, Continue conversation is secondary, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
 | P3.5 | Given copied wording, when I type, clear it or undo a suggestion, then the Copied confirmation clears; copying again confirms the new wording without saving. | Unit `GuestPracticeViewModelTests.testEditingCopiedWordingClearsConfirmationUntilCopiedAgain`, `testClearingCopiedWordingClearsConfirmationAndDisablesCopy`, `testUndoingACopiedSuggestionClearsConfirmation`; UI (typing and visible confirmation) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
 | P3.6 | Given unsaved edits to a saved message, when I tap Back, then Keep editing preserves those edits and Discard leaves the saved message unchanged. | UI `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
 
@@ -235,7 +266,73 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 | P4.2 | Given a suggestion, when I choose it from the swipeable tone cards, then it fills the wording and can be undone. | Unit `GuestSuggestionTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | P4.3 | Given a suggestion fails, when the error shows, then my wording is kept. | Unit `GuestSuggestionTests.testFailedPracticeSuggestionKeepsWording` |
 
+**P5. Continue a conversation.** As a person, I want to add their reply or more context without losing earlier wording.
+Screens: Prepare → Refine → Their reply → Refine → Conversation. States: empty, editable, saved, unreadable, stale revision.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| P5.1 | Given prepared wording, when I paste a reply and/or context and continue, previous wording and attributed additions stay in the timeline; the next draft starts empty and nothing is sent. | Unit `GuestConversationTests.testReplyPreservesAttributedHistoryAndSurvivesReopenAndExport`; UI `GuestPracticeUITests.testConversationAndVoiceReviewPersistWithoutDuplicating` |
+| P5.2 | Given a saved conversation, when I continue and save, the same ID and journal link remain, the revision advances, and history survives reopening, export and search. | Unit `GuestConversationTests.testConversationReopensAndStaleUpdateCannotReplaceHistory`, `testReplyPreservesAttributedHistoryAndSurvivesReopenAndExport`; UI P5.1 |
+| P5.3 | Given a V4 practice record, when the V5 store opens, its original fields and revision survive with no invented turns; unreadable conversation data shows an error. | Unit `GuestConversationTests.testV4MigrationPreservesOldMessageWithoutInventingHistory`, `testUnreadableConversationIsAnErrorInsteadOfEmptyHistory` |
+| P5.4 | Given only added context, when guided suggestions are requested, no received reply is invented; actual replies are not repeated as my voice. | Unit `GuestConversationTests.testContextOnlyDoesNotInventAnIncomingReply`, `testGuidedReplyDoesNotEchoTheirWordsOrMetadataAsMine` |
+| P5.5 | Given a new unfinished conversation, when encoded/restored, original words, pending reply/context and turns remain; old drafts still decode. Saved-conversation edits require explicit Save. | Unit `GuestConversationTests.testDraftRoundTripPreservesPendingReplyAndOriginalWords`, `testBlankReplyDoesNotEraseCurrentWordingAndOldDraftDecodes` |
+
+**P6. Review voice input.** As a person, I want to speak, correct the transcript and choose when to insert it.
+Screens: Prepare / Refine / Their reply → Voice input. States: idle, requesting permission, listening, finishing, review, denied, unavailable, interrupted.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| P6.1 | Given existing wording, when I record, stop and use the reviewed transcript, it appends without replacing existing words. | UI (scripted engine) `GuestPracticeUITests.testConversationAndVoiceReviewPersistWithoutDuplicating`; owner confirmed physical Record → Stop → Use text on 27 October; appending to existing text remains simulator-tested |
+| P6.2 | Given cancelled recording, when a late recognition callback arrives, it cannot modify the transcript or selected field. | Unit `GuestVoiceReviewTests.testTranscriptIsReviewedAndCancelledLateEventsAreIgnored` |
+| P6.3 | Given denied permission, when access fails, typing and transcript review remain available. | Unit `GuestVoiceReviewTests.testDeniedPermissionKeepsTypingAvailable`; real permission/VoiceOver checks pending |
+
+## Proposed Practice extensions — M09 / F23
+
+The owner accepted planning and prototype review. These criteria must be reviewed before native implementation; existing P1–P6 remain the baseline. Evidence: [browser review](../../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/README.md), [Refine review](../agent-collaboration-log/2026-10-28-refine-prototype-focus.md) and [AI design](../superpowers/specs/2026-10-27-practice-ai-feedback-design.md). Fixed examples do not establish model quality.
+
+**P7.** As a person, I want helpful feedback and editable wording that preserves my intent, so that I can choose words that still sound like me.
+Screens: Prepare → Refine → conversation. States: empty, ready, loading/cancelled, result, edited/stale, unavailable and failure. **Proposed; partial browser prototype.**
+
+| # | Given / When / Then | Test / evidence needed |
+| --- | --- | --- |
+| P7.1 | Given my wording and chosen tone, when feedback succeeds, then at most two grounded observations and one editable rewrite appear separately from the original, with a truthful source label; no new facts, commitments or guessed motives are added. | No native test; fixed browser examples only. Provider evaluation with invented scenarios required |
+| P7.2 | Given a rewrite, when I edit and Use it, then only working wording changes; no save/send occurs. Undo restores the prior wording only while that undo is valid; a newer manual edit or request invalidates it. | No native test; browser review 06 checked new-request Undo invalidation after success, cancellation and error; earlier Use/edit checks remain partial evidence |
+| P7.3 | Given changed words, tone, context or included style, when the input changes, then an older result cannot be applied as current. Empty wording cannot be used/saved/copied as a valid message. | No native test; plan revision/cancellation tests and blank-input UI checks |
+| P7.4 | Given failure, offline status or cancellation, when review ends, then original/draft words remain editable and manually saveable; any guided fallback is explicit and labelled. | No native test for new feedback; browser failure fixtures only |
+| P7.5 | Given their actual reply or added context and no draft, when I ask for a reply, then current-turn intent is required and the proposed reply preserves that intent; previous prepared words are never labelled as sent. | No native test; browser reply-intent fixture only; integrate with P5 history tests |
+| P7.6 | Given voice input, when I choose Use text after transcript review, then reviewed text is used under the same rules as typing; no recording is included in AI review. | Existing P6 tests cover transcript handling only; new payload exclusion test pending |
+| P7.7 | Given keyboard, largest text, VoiceOver or reduced motion, when I review/edit/apply feedback, then labels, errors, focus and actions remain reachable; decoration never blocks the editor. | No native test; review 07 browser editor/clarification/style larger-text layouts inspected and affected actions exercised. Artwork hides at larger text. This is not native accessibility, swipe or keyboard verification |
+| P7.8 | Given I am reviewing a first message, when feedback asks for context, then I can answer while staying in that review; no received reply is introduced and my original draft remains intact. A reply review likewise retains its own intent and attribution. | No native test; browser review 06 passed original/reply clarification, validation, exact context preview and Back on 29 October; see [review](../design/refine-story-review-2026-10-29.md#resolution--browser-review-06) |
+
+**P8.** As a person, I want to control an optional online review, so that I know which words leave my phone.
+Screen: selected-text confirmation → Refine. States: local default, review payload, explicit send, loading/cancel, failure, stale response. **Proposed; no live provider.**
+
+| # | Given / When / Then | Test / evidence needed |
+| --- | --- | --- |
+| P8.1 | Given a new request, when confirmation opens, then the exact selected wording/context is shown and style sharing starts unchecked; nothing is uploaded until I explicitly send. | No native test; browser confirmation exercised without network |
+| P8.2 | Given a selected payload, when sent, then it includes only the reviewed text and explicitly included preferences; no audio, unrelated journal entries or hidden conversation history is added. | No native test; request-contract and transport tests required |
+| P8.3 | Given online review is available, when privacy/source text appears, then it accurately describes that request's processing; a blanket “Not uploaded” claim cannot describe an online request. Local writing remains available without consent. | No native test; reconcile S1 and content rules before activation |
+| P8.4 | Given cancellation, backgrounding, a newer request or an edited draft, when a late response arrives, then it cannot overwrite current work; retries require deliberate action and rechecking the payload. | No native test; async race and cancellation tests required |
+
+Activation gate: provider eligibility, retention, server-side credentials, abuse controls, budget, truthful privacy copy and release configuration require the [AI design](../superpowers/specs/2026-10-27-practice-ai-feedback-design.md) review. Passing browser criteria alone cannot open this gate.
+
+## Proposed message-first entry — M04/M09 — F10/F23
+
+**P9.** As someone preparing for a difficult conversation, I want to start with my words and ask for guidance only when needed, so that I can reach useful wording without repeating myself. Direction and short design approved 30 October; native criteria below remain **proposed**, with partial browser review 08 evidence recorded after the table. See the [short design](../superpowers/specs/2026-10-30-message-first-practice-design.md).
+
+| # | Given / When / Then | Evidence needed |
+| --- | --- | --- |
+| P9.1 | Given direct Practice entry, when I begin, then I can type or choose voice without a journal entry, account, profile or required situation/tone form. | New prototype walkthrough; native UI test pending |
+| P9.2 | Given existing wording, when I open optional guidance and return, then my wording survives and I need not repeat it. | Back/cancel walkthrough and draft-preservation test pending |
+| P9.3 | Given no wording, when I choose Help me get started, then I can provide an outcome and optional context; they remain labelled as intent/context, never as a message I wrote or sent. Blank input cannot start generation. | Empty-input/intent-only confirmation and result tests pending |
+| P9.4 | Given wording or explicit intent, when I request review, then only selected information is confirmed for an online request; completing guidance alone sends nothing. | Prototype walkthrough plus eventual P8 transport tests pending |
+| P9.5 | Given a suggestion, when I apply, copy or save it, then each action has its separate effect; returning to the editor does not require entering the same message again. | Integrate with P3/P7.2; new route tests pending |
+
+30 October review 08 provides partial browser evidence for P9.1–P9.5: typed entry without setup, guidance Back/Continue preservation, blank validation, intent-labelled confirmation/result, no generation on guidance Continue, selected context and separate Use/Copy/Save actions. See [checks and screenshots](../../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/README.md). No native P9 tests, real voice integration into this route, durable storage or provider tests were added. P5 conversation attribution, P6 voice review, P7 feedback/stale results and P8 consent continue to apply. The showcase entry choice does not change the app's default launch tab.
+
 ## 5. Settings
+
+S1 describes the current guest baseline. If P8 is implemented, revise the privacy summary and its tests before enabling online requests; do not reuse a blanket local-only claim for cloud processing.
 
 **S1. Privacy.** As a person, I want to know where my words are kept, so that I can trust the app.
 Screen: Settings → "Kept on this iPhone" sheet. States: filled, sheet open.
@@ -300,10 +397,28 @@ Screen: Settings → Delete my account. States: in progress, done, error.
 | S8.2 | Given the cloud data can't be deleted, when the error shows, then the account isn't deleted and success is never shown. | Unit `GuestSignInTests.testDeleteFailuresNeverReportSuccess` |
 | S8.3 | Given an account action is running, when I start another, then only one runs at a time. | Unit `GuestSignInTests.testOneAccountActionAtATime` |
 
+## Proposed communication style — M10 / F24
+
+**S9.** As a person, I want to choose and clear how I prefer to phrase messages, so that suggestions can fit me without guessing my background.
+Screen: Settings → My communication style; per-request confirmation in Practice. States: off, edited, saved, cleared, failed save/load, not shared/shared for one request. **Proposed native behaviour.** The [browser prototype](../agent-collaboration-log/2026-10-29-communication-style-prototype.md) stores preferences only in memory; it does not test durable preferences, export/deletion or a real model.
+
+| # | Given / When / Then | Test / evidence needed |
+| --- | --- | --- |
+| S9.1 | Given first use, when I enter Today, Journal or Practice, then preferences are off and optional; no account or profile setup blocks writing. | No native test; browser default plus saved-off/enabled/clear status checks on 29 October |
+| S9.2 | Given my chosen English variety, wording style and length, when Save succeeds, then the values reopen after relaunch. Clear removes the preferences without changing journal entries or conversations; failed saving retains edits and reports failure. | No native test; durable storage and failure behaviour proposed |
+| S9.3 | Given saved preferences, when I prepare an online request, then I choose whether to include them each time; the preview shows exact values. Conversation tone takes priority, and changing included preferences invalidates a pending result. | No native test; browser checkbox/payload and formal/brief fixtures are partial evidence, not language evaluation |
+| S9.4 | Given preferences or writing, when suggestions are prepared, then no demographic profile is inferred and no journal, voice recording or accepted suggestion silently trains/saves a profile. Original words, moods and activity tags stay unchanged. | No native test; browser original-entry preservation checked; broader data-boundary tests pending |
+| S9.5 | Given saved preferences, when I export or delete all local data, then export includes the explicit preferences and deletion resets them; failure is not reported as success. | Proposed integration with S2/S3; no native test or persistence implementation |
+| S9.6 | Given unavailable/corrupt preference storage, when I open the app, then manual writing still works and no default profile is silently substituted as mine. With large text and VoiceOver, choices, Save/Clear and errors stay usable. | Proposed error/accessibility behaviour; no native test |
+
+### Cross-screen refinement boundary
+
+Today retains capture, draft recovery and optional post-save reflection (T1–T10); Journal retains search, calendar and editing (J1–J6). Their browser companion views are partial specimens, not replacement specifications. Style is a Settings preference and a deliberate Practice input; it must not add setup steps to Today or reinterpret saved Journal entries. Any new action on those screens needs its own brief change and criterion first.
+
 ## Kept but not reachable
 
 **S6. Earlier app on this iPhone (not reachable now).** As a returning person, I want entries from the earlier CircleU app on this iPhone brought in, so that I don't start from nothing.
-Settings no longer opens this screen (Log in replaced it), but the code and tests are kept. Not counted in Coverage. S6.3 checks the empty scan, not the message.
+Settings no longer opens this screen (Log in replaced it), but the code and tests are kept. Not counted in Coverage. R6.3 checks the empty scan, not the message.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
@@ -314,16 +429,7 @@ Settings no longer opens this screen (Log in replaced it), but the code and test
 
 ## Coverage
 
-Counted on 27 October 2026, over 29 stories and 101 criteria (S6 is not counted):
-
-| Covered by | Criteria |
-| --- | --- |
-| A unit test (21 also have a UI test) | 71 |
-| Only a UI test | 28 |
-| No test | 2 |
-| Marked partial (either kind) | 20 |
-
-Every criterion but two has a test (T9.4 and J6.1 are layout, checked on screenshots); 20 only partly check theirs (see each "(partial)" note).
+P5/P6 were added on 27 October for native conversation and voice review. On 29 October, P7/P8/S9 were added as proposed criteria only; no new native test coverage or pass is claimed. The per-criterion table above is the coverage source. A test named there is not a claim of a fresh pass: see the dated QA evidence for the actual run and its limitations. Physical speech, VoiceOver and scene/detail selection remain explicit review items.
 
 ### Running the tests
 
@@ -333,5 +439,7 @@ Every criterion but two has a test (T9.4 and J6.1 are layout, checked on screens
 
 ### Proposed next
 
-1. **Partial checks:** the most useful upgrades are J4.2 (the discard dialog), S2.3 (a real share completing) and T6.3 (choosing guided prompts when no model is available).
-2. **Today options A and C:** the scene art now fills T10's card; their remaining criteria and tests come when those options are chosen. Option B is T1.5, T6, T8 and T9.
+1. Review P7/P8/S9 against the compact Refine prototype; resolve native scope before implementation. See F23/F24 for the next review tasks.
+2. Preserve Today capture and Journal calendar/editing while refining their presentation. Check each proposed control against T/J criteria before adding it.
+3. Close existing partial coverage: physical Practice permission/VoiceOver, actual export/share completion (S2.3), guided-fallback choice (T6.3) and scene/detail interaction (P2.5). J4.2 already has a discard-dialog UI test; its older unit-only limitation must not be treated as an unimplemented dialog.
+4. Before merging guest behaviour changes, run the unit and guest UI suites, and attach dated device evidence for capabilities that mocks cannot verify.

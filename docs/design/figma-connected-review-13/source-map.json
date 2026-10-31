@@ -1,0 +1,577 @@
+[
+  {
+    "oldId": "60:16948",
+    "id": "74:3",
+    "name": "R13 / today / What’s on your mind?"
+  },
+  {
+    "oldId": "60:16980",
+    "id": "74:35",
+    "name": "R13 / writing / What’s on your mind?"
+  },
+  {
+    "oldId": "60:17009",
+    "id": "74:64",
+    "name": "R13 / listening / What’s on your mind?"
+  },
+  {
+    "oldId": "60:17035",
+    "id": "74:90",
+    "name": "R13 / saving / What’s on your mind?"
+  },
+  {
+    "oldId": "60:17064",
+    "id": "74:119",
+    "name": "R13 / saveError / What’s on your mind?"
+  },
+  {
+    "oldId": "60:17095",
+    "id": "74:150",
+    "name": "R13 / micDenied / What’s on your mind?"
+  },
+  {
+    "oldId": "60:17129",
+    "id": "74:184",
+    "name": "R13 / leaveDraft / Leave this draft?"
+  },
+  {
+    "oldId": "60:17155",
+    "id": "74:210",
+    "name": "R13 / journal / Journal"
+  },
+  {
+    "oldId": "60:17209",
+    "id": "74:264",
+    "name": "R13 / journalSaved / Journal"
+  },
+  {
+    "oldId": "60:17270",
+    "id": "74:325",
+    "name": "R13 / journalDraft / Journal"
+  },
+  {
+    "oldId": "60:17324",
+    "id": "74:379",
+    "name": "R13 / journalEdited / Journal"
+  },
+  {
+    "oldId": "60:17378",
+    "id": "74:433",
+    "name": "R13 / journalEmpty / Journal"
+  },
+  {
+    "oldId": "60:17400",
+    "id": "74:455",
+    "name": "R13 / journalLoading / Journal"
+  },
+  {
+    "oldId": "60:17420",
+    "id": "74:475",
+    "name": "R13 / journalError / Journal"
+  },
+  {
+    "oldId": "60:17442",
+    "id": "74:497",
+    "name": "R13 / searchResults / Journal"
+  },
+  {
+    "oldId": "60:17474",
+    "id": "74:529",
+    "name": "R13 / searchEmpty / Journal"
+  },
+  {
+    "oldId": "60:17500",
+    "id": "74:555",
+    "name": "R13 / calendarSep / Journal"
+  },
+  {
+    "oldId": "60:17606",
+    "id": "74:661",
+    "name": "R13 / calendarNov / Journal"
+  },
+  {
+    "oldId": "60:17720",
+    "id": "74:775",
+    "name": "R13 / entry / 31 Oct"
+  },
+  {
+    "oldId": "60:17745",
+    "id": "74:800",
+    "name": "R13 / entryEdited / 31 Oct"
+  },
+  {
+    "oldId": "60:17770",
+    "id": "74:825",
+    "name": "R13 / walkEntry / 31 Oct"
+  },
+  {
+    "oldId": "60:17793",
+    "id": "74:848",
+    "name": "R13 / workEntry / 29 Oct"
+  },
+  {
+    "oldId": "60:17816",
+    "id": "74:871",
+    "name": "R13 / familyEntry / 27 Oct"
+  },
+  {
+    "oldId": "60:17839",
+    "id": "74:894",
+    "name": "R13 / edit / Edit entry"
+  },
+  {
+    "oldId": "60:17861",
+    "id": "74:916",
+    "name": "R13 / discardEdit / Discard changes?"
+  },
+  {
+    "oldId": "60:17885",
+    "id": "74:940",
+    "name": "R13 / editError / Edit entry"
+  },
+  {
+    "oldId": "60:17909",
+    "id": "74:964",
+    "name": "R13 / reflect / Reflection"
+  },
+  {
+    "oldId": "60:17936",
+    "id": "74:991",
+    "name": "R13 / reflectionSaved / 31 Oct"
+  },
+  {
+    "oldId": "60:17960",
+    "id": "74:1015",
+    "name": "R13 / calendar1 / Journal"
+  },
+  {
+    "oldId": "60:18078",
+    "id": "74:1133",
+    "name": "R13 / calendar2 / Journal"
+  },
+  {
+    "oldId": "60:18196",
+    "id": "74:1251",
+    "name": "R13 / calendar3 / Journal"
+  },
+  {
+    "oldId": "60:18314",
+    "id": "74:1369",
+    "name": "R13 / calendar4 / Journal"
+  },
+  {
+    "oldId": "60:18432",
+    "id": "74:1487",
+    "name": "R13 / calendar5 / Journal"
+  },
+  {
+    "oldId": "60:18550",
+    "id": "74:1605",
+    "name": "R13 / calendar6 / Journal"
+  },
+  {
+    "oldId": "60:18668",
+    "id": "74:1723",
+    "name": "R13 / calendar7 / Journal"
+  },
+  {
+    "oldId": "60:18786",
+    "id": "74:1841",
+    "name": "R13 / calendar8 / Journal"
+  },
+  {
+    "oldId": "60:18904",
+    "id": "74:1959",
+    "name": "R13 / calendar9 / Journal"
+  },
+  {
+    "oldId": "60:19022",
+    "id": "74:2077",
+    "name": "R13 / calendar10 / Journal"
+  },
+  {
+    "oldId": "60:19140",
+    "id": "74:2195",
+    "name": "R13 / calendar11 / Journal"
+  },
+  {
+    "oldId": "60:19258",
+    "id": "74:2313",
+    "name": "R13 / calendar12 / Journal"
+  },
+  {
+    "oldId": "60:19376",
+    "id": "74:2431",
+    "name": "R13 / calendar13 / Journal"
+  },
+  {
+    "oldId": "60:19494",
+    "id": "74:2549",
+    "name": "R13 / calendar14 / Journal"
+  },
+  {
+    "oldId": "60:19612",
+    "id": "74:2667",
+    "name": "R13 / calendar15 / Journal"
+  },
+  {
+    "oldId": "60:19730",
+    "id": "74:2785",
+    "name": "R13 / calendar16 / Journal"
+  },
+  {
+    "oldId": "60:19848",
+    "id": "74:2903",
+    "name": "R13 / calendar17 / Journal"
+  },
+  {
+    "oldId": "60:19966",
+    "id": "74:3021",
+    "name": "R13 / calendar18 / Journal"
+  },
+  {
+    "oldId": "60:20084",
+    "id": "74:3139",
+    "name": "R13 / calendar19 / Journal"
+  },
+  {
+    "oldId": "60:20202",
+    "id": "74:3257",
+    "name": "R13 / calendar20 / Journal"
+  },
+  {
+    "oldId": "60:20320",
+    "id": "74:3375",
+    "name": "R13 / calendar21 / Journal"
+  },
+  {
+    "oldId": "60:20438",
+    "id": "74:3493",
+    "name": "R13 / calendar22 / Journal"
+  },
+  {
+    "oldId": "60:20556",
+    "id": "74:3611",
+    "name": "R13 / calendar23 / Journal"
+  },
+  {
+    "oldId": "60:20674",
+    "id": "74:3729",
+    "name": "R13 / calendar24 / Journal"
+  },
+  {
+    "oldId": "60:20792",
+    "id": "74:3847",
+    "name": "R13 / calendar25 / Journal"
+  },
+  {
+    "oldId": "60:20910",
+    "id": "74:3965",
+    "name": "R13 / calendar26 / Journal"
+  },
+  {
+    "oldId": "60:21028",
+    "id": "74:4083",
+    "name": "R13 / calendar27 / Journal"
+  },
+  {
+    "oldId": "60:21154",
+    "id": "74:4209",
+    "name": "R13 / calendar28 / Journal"
+  },
+  {
+    "oldId": "60:21272",
+    "id": "74:4327",
+    "name": "R13 / calendar29 / Journal"
+  },
+  {
+    "oldId": "60:21398",
+    "id": "74:4453",
+    "name": "R13 / calendar30 / Journal"
+  },
+  {
+    "oldId": "60:21516",
+    "id": "74:4571",
+    "name": "R13 / calendar31 / Journal"
+  },
+  {
+    "oldId": "51:45",
+    "id": "74:4705",
+    "name": "R13 / start / Practice"
+  },
+  {
+    "oldId": "51:61",
+    "id": "74:4721",
+    "name": "R13 / blank / What would you like to say?"
+  },
+  {
+    "oldId": "51:80",
+    "id": "74:4740",
+    "name": "R13 / filled / What would you like to say?"
+  },
+  {
+    "oldId": "51:97",
+    "id": "74:4757",
+    "name": "R13 / guide / What do you want to happen?"
+  },
+  {
+    "oldId": "51:112",
+    "id": "74:4772",
+    "name": "R13 / intent / What would you like to say?"
+  },
+  {
+    "oldId": "51:131",
+    "id": "74:4791",
+    "name": "R13 / consent / Review online"
+  },
+  {
+    "oldId": "51:147",
+    "id": "74:4807",
+    "name": "R13 / loading / Reviewing your wording"
+  },
+  {
+    "oldId": "51:164",
+    "id": "74:4824",
+    "name": "R13 / refineA / Find your words"
+  },
+  {
+    "oldId": "51:189",
+    "id": "74:4849",
+    "name": "R13 / refineB / Find your words"
+  },
+  {
+    "oldId": "51:212",
+    "id": "74:4872",
+    "name": "R13 / applied / Your wording"
+  },
+  {
+    "oldId": "51:234",
+    "id": "74:4894",
+    "name": "R13 / edited / Your wording"
+  },
+  {
+    "oldId": "51:251",
+    "id": "74:4911",
+    "name": "R13 / copiedUnsaved / Your wording"
+  },
+  {
+    "oldId": "51:269",
+    "id": "74:4929",
+    "name": "R13 / saved / Conversation"
+  },
+  {
+    "oldId": "51:288",
+    "id": "74:4948",
+    "name": "R13 / copiedSaved / Conversation"
+  },
+  {
+    "oldId": "51:304",
+    "id": "74:4964",
+    "name": "R13 / replyBlank / Add their reply"
+  },
+  {
+    "oldId": "51:319",
+    "id": "74:4979",
+    "name": "R13 / replyFilled / Add their reply"
+  },
+  {
+    "oldId": "51:337",
+    "id": "74:4997",
+    "name": "R13 / conversation / Conversation"
+  },
+  {
+    "oldId": "51:358",
+    "id": "74:5018",
+    "name": "R13 / nextBlank / What would you like to say?"
+  },
+  {
+    "oldId": "51:374",
+    "id": "74:5034",
+    "name": "R13 / nextFilled / What would you like to say?"
+  },
+  {
+    "oldId": "51:391",
+    "id": "74:5051",
+    "name": "R13 / consentNext / Review online"
+  },
+  {
+    "oldId": "51:413",
+    "id": "74:5073",
+    "name": "R13 / loadingNext / Reviewing your wording"
+  },
+  {
+    "oldId": "51:429",
+    "id": "74:5089",
+    "name": "R13 / resultNext / Find your words"
+  },
+  {
+    "oldId": "51:449",
+    "id": "74:5109",
+    "name": "R13 / appliedNext / Your wording"
+  },
+  {
+    "oldId": "51:466",
+    "id": "74:5126",
+    "name": "R13 / savedNext / Conversation"
+  },
+  {
+    "oldId": "51:494",
+    "id": "74:5154",
+    "name": "R13 / copiedNext / Conversation"
+  },
+  {
+    "oldId": "51:519",
+    "id": "74:5179",
+    "name": "R13 / voiceReady / Record your words"
+  },
+  {
+    "oldId": "51:533",
+    "id": "74:5193",
+    "name": "R13 / recording / Listening"
+  },
+  {
+    "oldId": "51:565",
+    "id": "74:5225",
+    "name": "R13 / transcript / Review your words"
+  },
+  {
+    "oldId": "51:582",
+    "id": "74:5242",
+    "name": "R13 / transcriptEdit / Review your words"
+  },
+  {
+    "oldId": "51:597",
+    "id": "74:5257",
+    "name": "R13 / voiceEditedFilled / What would you like to say?"
+  },
+  {
+    "oldId": "51:614",
+    "id": "74:5274",
+    "name": "R13 / voiceDenied / Microphone unavailable"
+  },
+  {
+    "oldId": "51:628",
+    "id": "74:5288",
+    "name": "R13 / voiceError / Couldn’t transcribe"
+  },
+  {
+    "oldId": "51:643",
+    "id": "74:5303",
+    "name": "R13 / feedbackError / Couldn’t get feedback"
+  },
+  {
+    "oldId": "51:661",
+    "id": "74:5321",
+    "name": "R13 / saveError / Couldn’t save"
+  },
+  {
+    "oldId": "51:679",
+    "id": "74:5339",
+    "name": "R13 / copyError / Couldn’t copy"
+  },
+  {
+    "oldId": "51:697",
+    "id": "74:5357",
+    "name": "R13 / blankError / What would you like to say?"
+  },
+  {
+    "oldId": "51:713",
+    "id": "74:5373",
+    "name": "R13 / discard / Leave this draft?"
+  },
+  {
+    "oldId": "51:732",
+    "id": "74:5392",
+    "name": "R13 / draftSaved / Practice"
+  },
+  {
+    "oldId": "51:748",
+    "id": "74:5408",
+    "name": "R13 / discardEdit / Discard your edit?"
+  },
+  {
+    "oldId": "51:765",
+    "id": "74:5425",
+    "name": "R13 / discardNext / Leave this draft?"
+  },
+  {
+    "oldId": "51:782",
+    "id": "74:5442",
+    "name": "R13 / discardReply / Discard this reply?"
+  },
+  {
+    "oldId": "51:802",
+    "id": "74:5462",
+    "name": "R13 / discardVoice / Discard this recording?"
+  },
+  {
+    "oldId": "51:819",
+    "id": "74:5479",
+    "name": "R13 / contextOnly / Add more context"
+  },
+  {
+    "oldId": "51:834",
+    "id": "74:5494",
+    "name": "R13 / conversationContext / Conversation"
+  },
+  {
+    "oldId": "51:852",
+    "id": "74:5512",
+    "name": "R13 / savedOriginal / Conversation"
+  },
+  {
+    "oldId": "51:868",
+    "id": "74:5528",
+    "name": "R13 / savedEdited / Conversation"
+  },
+  {
+    "oldId": "51:884",
+    "id": "74:5544",
+    "name": "R13 / savedNextOriginal / Conversation"
+  },
+  {
+    "oldId": "51:909",
+    "id": "74:5569",
+    "name": "R13 / consentIntent / Review online"
+  },
+  {
+    "oldId": "51:925",
+    "id": "74:5585",
+    "name": "R13 / resultIntent / Find your words"
+  },
+  {
+    "oldId": "51:945",
+    "id": "74:5605",
+    "name": "R13 / appliedIntent / Your wording"
+  },
+  {
+    "oldId": "51:962",
+    "id": "74:5622",
+    "name": "R13 / consentVoice / Review online"
+  },
+  {
+    "oldId": "51:978",
+    "id": "74:5638",
+    "name": "R13 / resultVoice / Find your words"
+  },
+  {
+    "oldId": "51:995",
+    "id": "74:5655",
+    "name": "R13 / appliedVoice / Your wording"
+  },
+  {
+    "oldId": "51:1012",
+    "id": "74:5672",
+    "name": "R13 / discardVoiceEdited / Discard your words?"
+  },
+  {
+    "oldId": "51:1026",
+    "id": "74:5686",
+    "name": "R13 / savedVoice / Conversation"
+  },
+  {
+    "oldId": "53:147",
+    "id": "74:5702",
+    "name": "R13 / completedHistory / Practice"
+  }
+]

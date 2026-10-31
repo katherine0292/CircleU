@@ -1,0 +1,292 @@
+{
+  "pageId": "51:28",
+  "screenCount": 56,
+  "linkCount": 155,
+  "invalidDestinations": [],
+  "topLevelOverflow": [],
+  "copyViolations": [],
+  "navYValues": [
+    50
+  ],
+  "footerBottomValues": [
+    816
+  ],
+  "fontFamilies": [
+    "Plus Jakarta Sans"
+  ],
+  "textLayerCount": 374,
+  "componentInstanceCount": 148,
+  "startingPoints": [
+    {
+      "nodeId": "51:45",
+      "name": "01 · Practice full route"
+    },
+    {
+      "nodeId": "51:164",
+      "name": "02 · Refine A — suggested wording"
+    },
+    {
+      "nodeId": "51:189",
+      "name": "03 · Refine B — comparison"
+    },
+    {
+      "nodeId": "51:519",
+      "name": "04 · Voice input"
+    },
+    {
+      "nodeId": "51:643",
+      "name": "05 · Feedback failure"
+    },
+    {
+      "nodeId": "51:614",
+      "name": "06 · Microphone denied"
+    },
+    {
+      "nodeId": "51:628",
+      "name": "07 · Transcription failure"
+    },
+    {
+      "nodeId": "51:661",
+      "name": "08 · Save failure"
+    },
+    {
+      "nodeId": "51:679",
+      "name": "09 · Copy failure"
+    },
+    {
+      "nodeId": "51:697",
+      "name": "10 · Empty validation"
+    }
+  ],
+  "screenIds": [
+    {
+      "id": "51:45",
+      "name": "R10 / start / Practice"
+    },
+    {
+      "id": "51:61",
+      "name": "R10 / blank / What would you like to say?"
+    },
+    {
+      "id": "51:80",
+      "name": "R10 / filled / What would you like to say?"
+    },
+    {
+      "id": "51:97",
+      "name": "R10 / guide / What do you want to happen?"
+    },
+    {
+      "id": "51:112",
+      "name": "R10 / intent / What would you like to say?"
+    },
+    {
+      "id": "51:131",
+      "name": "R10 / consent / Review online"
+    },
+    {
+      "id": "51:147",
+      "name": "R10 / loading / Reviewing your wording"
+    },
+    {
+      "id": "51:164",
+      "name": "R10 / refineA / Find your words"
+    },
+    {
+      "id": "51:189",
+      "name": "R10 / refineB / Find your words"
+    },
+    {
+      "id": "51:212",
+      "name": "R10 / applied / Your wording"
+    },
+    {
+      "id": "51:234",
+      "name": "R10 / edited / Your wording"
+    },
+    {
+      "id": "51:251",
+      "name": "R10 / copiedUnsaved / Your wording"
+    },
+    {
+      "id": "51:269",
+      "name": "R10 / saved / Conversation"
+    },
+    {
+      "id": "51:288",
+      "name": "R10 / copiedSaved / Conversation"
+    },
+    {
+      "id": "51:304",
+      "name": "R10 / replyBlank / Add their reply"
+    },
+    {
+      "id": "51:319",
+      "name": "R10 / replyFilled / Add their reply"
+    },
+    {
+      "id": "51:337",
+      "name": "R10 / conversation / Conversation"
+    },
+    {
+      "id": "51:358",
+      "name": "R10 / nextBlank / What would you like to say?"
+    },
+    {
+      "id": "51:374",
+      "name": "R10 / nextFilled / What would you like to say?"
+    },
+    {
+      "id": "51:391",
+      "name": "R10 / consentNext / Review online"
+    },
+    {
+      "id": "51:413",
+      "name": "R10 / loadingNext / Reviewing your wording"
+    },
+    {
+      "id": "51:429",
+      "name": "R10 / resultNext / Find your words"
+    },
+    {
+      "id": "51:449",
+      "name": "R10 / appliedNext / Your wording"
+    },
+    {
+      "id": "51:466",
+      "name": "R10 / savedNext / Conversation"
+    },
+    {
+      "id": "51:494",
+      "name": "R10 / copiedNext / Conversation"
+    },
+    {
+      "id": "51:519",
+      "name": "R10 / voiceReady / Record your words"
+    },
+    {
+      "id": "51:533",
+      "name": "R10 / recording / Listening"
+    },
+    {
+      "id": "51:565",
+      "name": "R10 / transcript / Review your words"
+    },
+    {
+      "id": "51:582",
+      "name": "R10 / transcriptEdit / Review your words"
+    },
+    {
+      "id": "51:597",
+      "name": "R10 / voiceEditedFilled / What would you like to say?"
+    },
+    {
+      "id": "51:614",
+      "name": "R10 / voiceDenied / Microphone unavailable"
+    },
+    {
+      "id": "51:628",
+      "name": "R10 / voiceError / Couldn’t transcribe"
+    },
+    {
+      "id": "51:643",
+      "name": "R10 / feedbackError / Couldn’t get feedback"
+    },
+    {
+      "id": "51:661",
+      "name": "R10 / saveError / Couldn’t save"
+    },
+    {
+      "id": "51:679",
+      "name": "R10 / copyError / Couldn’t copy"
+    },
+    {
+      "id": "51:697",
+      "name": "R10 / blankError / What would you like to say?"
+    },
+    {
+      "id": "51:713",
+      "name": "R10 / discard / Leave this draft?"
+    },
+    {
+      "id": "51:732",
+      "name": "R10 / draftSaved / Practice"
+    },
+    {
+      "id": "51:748",
+      "name": "R10 / discardEdit / Discard your edit?"
+    },
+    {
+      "id": "51:765",
+      "name": "R10 / discardNext / Leave this draft?"
+    },
+    {
+      "id": "51:782",
+      "name": "R10 / discardReply / Discard this reply?"
+    },
+    {
+      "id": "51:802",
+      "name": "R10 / discardVoice / Discard this recording?"
+    },
+    {
+      "id": "51:819",
+      "name": "R10 / contextOnly / Add more context"
+    },
+    {
+      "id": "51:834",
+      "name": "R10 / conversationContext / Conversation"
+    },
+    {
+      "id": "51:852",
+      "name": "R10 / savedOriginal / Conversation"
+    },
+    {
+      "id": "51:868",
+      "name": "R10 / savedEdited / Conversation"
+    },
+    {
+      "id": "51:884",
+      "name": "R10 / savedNextOriginal / Conversation"
+    },
+    {
+      "id": "51:909",
+      "name": "R10 / consentIntent / Review online"
+    },
+    {
+      "id": "51:925",
+      "name": "R10 / resultIntent / Find your words"
+    },
+    {
+      "id": "51:945",
+      "name": "R10 / appliedIntent / Your wording"
+    },
+    {
+      "id": "51:962",
+      "name": "R10 / consentVoice / Review online"
+    },
+    {
+      "id": "51:978",
+      "name": "R10 / resultVoice / Find your words"
+    },
+    {
+      "id": "51:995",
+      "name": "R10 / appliedVoice / Your wording"
+    },
+    {
+      "id": "51:1012",
+      "name": "R10 / discardVoiceEdited / Discard your words?"
+    },
+    {
+      "id": "51:1026",
+      "name": "R10 / savedVoice / Conversation"
+    },
+    {
+      "id": "53:147",
+      "name": "R10 / completedHistory / Practice"
+    }
+  ],
+  "unchangedPageNames": [
+    "Screens and options",
+    "States",
+    "Practice • review 09"
+  ]
+}

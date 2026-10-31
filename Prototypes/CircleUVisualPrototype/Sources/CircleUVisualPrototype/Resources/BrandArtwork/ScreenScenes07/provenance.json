@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-30",
+  "method": "Built-in image_gen; six separate reference-based generations",
+  "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguPractisingV1.png",
+  "status": "Owner accepted artwork for the asset library on 30 October 2026; native placements remain pending",
+  "assets": [
+    {
+      "filename": "SceneWelcomePathV1.png",
+      "title": "Welcome path",
+      "intended_screen": "Welcome / onboarding",
+      "prompt": "Use case: illustration-story. Asset type: individual full-bleed opaque wide 2:1 screen hero for CircleU. Reference image is the exact Pingu character identity and rendering style, not the composition: navy penguin, white face and tummy, oval dark eyes, single curved crest, small orange beak and orange feet, light blue scarf. Clean softly dimensional matte illustration, contemporary, gently warm, not sketchy, not glossy plastic, no heavy outlines or grain. Palette ice-white, powder blue, navy, cobalt accent, restrained peach sunlight. Keep anatomy as two flippers and two feet, no human fingers. Calm expressions appropriate to adults working through conversations. No words, lettering, numbers, logos, UI, borders, watermarks or collages. One coherent scene. Spacious uncluttered composition with the whole character visible; preserve generous margins. Distinct scene and action, no cave, lantern, floating ice or sunset lake. 2:1 aspect ratio.\nScene: Pingu walks along a gently curving pale-blue path in a peaceful stylised garden, carrying a closed cobalt notebook tucked under one flipper and making a small welcoming wave with the other. Place Pingu in the central third, feet visible, three-quarter front view, gentle breeze lifts scarf end. Rounded powder-blue shrubs and two sculptural small trees frame the edges, subtle peach morning sun beyond, quiet broad sky in upper third. An inviting scene of beginning at your own pace, no other characters, signs or architecture.",
+      "generated_source_filename": "exec-6e8bbd08-6624-43e5-b794-4852a10ba1cc.png",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1757673,
+      "sha256": "6338d96c7dfbd82bfed6cc3872b65b6b719d7a3e3096f76fe42cc243b498a7f3"
+    },
+    {
+      "filename": "SceneReflectionGardenV1.png",
+      "title": "Reflection garden",
+      "intended_screen": "Write or edit a reflection",
+      "prompt": "Use case: illustration-story. Asset type: individual full-bleed opaque wide 2:1 screen hero for CircleU. Reference image is the exact Pingu character identity and rendering style, not the composition: navy penguin, white face and tummy, oval dark eyes, single curved crest, small orange beak and orange feet, light blue scarf. Clean softly dimensional matte illustration, contemporary, gently warm, not sketchy, not glossy plastic, no heavy outlines or grain. Palette ice-white, powder blue, navy, cobalt accent, restrained peach sunlight. Keep anatomy as two flippers and two feet, no human fingers. Calm expressions appropriate to adults working through conversations. No words, lettering, numbers, logos, UI, borders, watermarks or collages. One coherent scene. Spacious uncluttered composition with the whole character visible; preserve generous margins. Distinct scene and action, no cave, lantern, floating ice or sunset lake. 2:1 aspect ratio.\nScene: Pingu seated on the RIGHT end of a curved light-blue garden bench, writing with a short cobalt pencil in a small blank journal resting on its lap, head thoughtfully tilted down. A large minimal rounded planter with soft blue leaves on the far left, quiet sky-blue wall in centre-left. Diffused midday light, pale peach highlight along the seat. Intimate side view with visible face, feet and flippers, no desk, stacks of pages, windows or speech symbols. Plenty of empty space left.",
+      "generated_source_filename": "exec-3dd25008-03ed-4b88-8864-73f0f37983ca.png",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1566049,
+      "sha256": "dfe61b05370d463387509f50e90ed88566d39330340080e99a575632424f3fa2"
+    },
+    {
+      "filename": "SceneRefineWorkbenchV1.png",
+      "title": "Refine workbench",
+      "intended_screen": "Refine wording",
+      "prompt": "Use case: illustration-story. Asset type: individual full-bleed opaque wide 2:1 screen hero for CircleU. Reference image is the exact Pingu character identity and rendering style, not the composition: navy penguin, white face and tummy, oval dark eyes, single curved crest, small orange beak and orange feet, light blue scarf. Clean softly dimensional matte illustration, contemporary, gently warm, not sketchy, not glossy plastic, no heavy outlines or grain. Palette ice-white, powder blue, navy, cobalt accent, restrained peach sunlight. Keep anatomy as two flippers and two feet, no human fingers. Calm expressions appropriate to adults working through conversations. No words, lettering, numbers, logos, UI, borders, watermarks or collages. One coherent scene. Spacious uncluttered composition with the whole character visible; preserve generous margins. Distinct scene and action, no cave, lantern, floating ice or sunset lake. 2:1 aspect ratio.\nScene: Pingu stands on the LEFT behind a low simple curved drafting table, thoughtfully comparing two small blank cream cards, one held in each flipper, head slightly tilted, feet visible below. Three blank pale-blue cards lie in a tidy line on the tabletop, one cobalt pencil beside them. This conveys choosing wording rather than a magical result. Background soft powder-blue architectural alcove, quiet right third. A tiny warm peach desk lamp far left provides soft light. No journal, books, sparkles, wand, tick marks or written text. Small enough table to keep full Pingu readable.",
+      "generated_source_filename": "exec-aec52d36-b40b-4a45-b5c4-cdaf747d11c5.png",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1611294,
+      "sha256": "3c638faa46fc73be0c5a1edd333cdf5f5dec2969da45c836ab068a75bd9e95a9"
+    },
+    {
+      "filename": "SceneReplyReadingV1.png",
+      "title": "Read and reply",
+      "intended_screen": "Add their reply / more context",
+      "prompt": "Use case: illustration-story. Asset type: individual full-bleed opaque wide 2:1 screen hero for CircleU. Reference image is the exact Pingu character identity and rendering style, not the composition: navy penguin, white face and tummy, oval dark eyes, single curved crest, small orange beak and orange feet, light blue scarf. Clean softly dimensional matte illustration, contemporary, gently warm, not sketchy, not glossy plastic, no heavy outlines or grain. Palette ice-white, powder blue, navy, cobalt accent, restrained peach sunlight. Keep anatomy as two flippers and two feet, no human fingers. Calm expressions appropriate to adults working through conversations. No words, lettering, numbers, logos, UI, borders, watermarks or collages. One coherent scene. Spacious uncluttered composition with the whole character visible; preserve generous margins. Distinct scene and action, no cave, lantern, floating ice or sunset lake. 2:1 aspect ratio.\nScene: Pingu sits in a rounded cobalt reading chair on the RIGHT, holding a small pale-blue smartphone in one flipper and resting the other thoughtfully at the scarf. Phone screen faces Pingu and is not visible to viewer. Expression attentive and composed, not grinning. A small low round table holds a closed cream notebook. Soft-blue curtain and broad pale wall with empty space on LEFT. Gentle late-afternoon peach rim light, no screens displayed to viewer, chat bubbles, text, envelope, notification badges or other characters. Full body including feet, warm quiet living-room composition.",
+      "generated_source_filename": "exec-e7ab8cb3-8fb5-4a6f-8102-e9c2be070744.png",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1940113,
+      "sha256": "a209e2f6f71c0e00a5c613727a1dc1a3c86656f8e895eb2c0b06ea535a18d3af"
+    },
+    {
+      "filename": "SceneVoiceCornerV1.png",
+      "title": "Voice corner",
+      "intended_screen": "Voice input introduction / ready state",
+      "prompt": "Use case: illustration-story. Asset type: individual full-bleed opaque wide 2:1 screen hero for CircleU. Reference image is the exact Pingu character identity and rendering style, not the composition: navy penguin, white face and tummy, oval dark eyes, single curved crest, small orange beak and orange feet, light blue scarf. Clean softly dimensional matte illustration, contemporary, gently warm, not sketchy, not glossy plastic, no heavy outlines or grain. Palette ice-white, powder blue, navy, cobalt accent, restrained peach sunlight. Keep anatomy as two flippers and two feet, no human fingers. Calm expressions appropriate to adults working through conversations. No words, lettering, numbers, logos, UI, borders, watermarks or collages. One coherent scene. Spacious uncluttered composition with the whole character visible; preserve generous margins. Distinct scene and action, no cave, lantern, floating ice or sunset lake. 2:1 aspect ratio.\nScene: Pingu stands LEFT of centre in a calm powder-blue acoustic nook, facing a small rounded cobalt desktop microphone on a very low circular stand to its right. One flipper open in a natural speaking gesture, the other relaxed, feet visible. Microphone has no lit indicators or waveform. Behind, two large soft rounded acoustic panels and a tiny blue-leaf plant far left; RIGHT third stays open pale-blue wall. Subtle warm daylight, confident gentle expression, no headphones, recording light, audio symbols, text, stage, performance spotlight or applause. A private conversational space, not a concert.",
+      "generated_source_filename": "exec-0cc8d6ca-07b3-41b8-8beb-4596215fe457.png",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1843565,
+      "sha256": "f63a895ea478eef11b8c8a4c11c90c055b1ecab835db21f3cf66d3a3273fe5e1"
+    },
+    {
+      "filename": "SceneKeepsakeShelfV1.png",
+      "title": "Personal shelf",
+      "intended_screen": "Settings / earlier-journal recovery introduction",
+      "prompt": "Use case: illustration-story. Asset type: individual full-bleed opaque wide 2:1 screen hero for CircleU. Reference image is the exact Pingu character identity and rendering style, not the composition: navy penguin, white face and tummy, oval dark eyes, single curved crest, small orange beak and orange feet, light blue scarf. Clean softly dimensional matte illustration, contemporary, gently warm, not sketchy, not glossy plastic, no heavy outlines or grain. Palette ice-white, powder blue, navy, cobalt accent, restrained peach sunlight. Keep anatomy as two flippers and two feet, no human fingers. Calm expressions appropriate to adults working through conversations. No words, lettering, numbers, logos, UI, borders, watermarks or collages. One coherent scene. Spacious uncluttered composition with the whole character visible; preserve generous margins. Distinct scene and action, no cave, lantern, floating ice or sunset lake. 2:1 aspect ratio.\nScene: Pingu stands in the RIGHT half beside a low open rounded pale-blue shelf, gently placing a closed cobalt journal into a cubby with one flipper while holding the shelf edge with the other. The shelf has just two other plain closed books and a small peach ceramic cup. Pingu looks at the book with a calm caring expression, feet visible. LEFT 40 percent is quiet ice-white wall and diffuse blue shadow. Bright tidy interior, no lock, shield, key, cloud, arrows, checkmarks, box seals or claims of encryption/backup. No drawers full of paper, no text. Convey looking after one's own belongings, not a completed restore operation.",
+      "generated_source_filename": "exec-1a934965-45b3-4897-a8cd-6ef3cd6640db.png",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1546564,
+      "sha256": "18e9e9340df5c599954e93e4cce32a2d316446ef9c4494a4eac88d1d4a80f419"
+    }
+  ]
+}

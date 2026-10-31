@@ -16,7 +16,7 @@ CircleU follows the master standard's **app/product Shape B**. Swift source and 
 | Viridis chart palette | Applies only if suitable for an analytical chart; not a new UI palette. Reuse existing app tokens and reviewed design references |
 | Agent collaboration log | Dated entries in `agent-collaboration-log/`, with explicit evidence and append-only corrections |
 
-Current approved scope and remaining proposals live in the [MVP definition](product/mvp-definition.md). The owner approved planning before coding, Today/Journal/Practice and deferring circles/rewards. The latest 24 October decision restores guest-first local use, with optional Log in for earlier-account recovery; see [onboarding](design/account-onboarding.md). Sync/cloud AI are not newly approved. Follow later explicit owner changes and record them.
+Start UI work with the [product brief](product/overview.md), then the [MVP definition](product/mvp-definition.md), [user stories](product/user-stories.md) and [flow checklist](product/flow-status-checklist.md). Update the brief first when intent/scope changes; link requirement, flow and criterion IDs in the change record. Current approved scope and remaining proposals live in those documents. The owner approved planning before coding, Today/Journal/Practice and deferring circles/rewards. The latest 24 October decision restores guest-first local use, with optional Log in for earlier-account recovery; see [onboarding](design/account-onboarding.md). Sync/cloud AI are not newly approved. Follow later explicit owner changes and record them.
 
 ## 2. Architecture and Swift style
 
@@ -33,7 +33,7 @@ These are change guidelines, not a claim that every existing file already compli
 
 ## 3. Data, privacy and compatibility
 
-- Follow the [privacy/storage plan](product/privacy-storage-plan.md) and [legacy transition plan](superpowers/plans/2026-10-23-local-first-transition.md). New local-first behavior remains unimplemented; do not describe the current app as having no cloud paths.
+- Follow the [privacy/storage plan](product/privacy-storage-plan.md) and [legacy transition plan](superpowers/plans/2026-10-23-local-first-transition.md). The guest/review implementation now exists, but standard Release retains original cloud paths; do not describe the entire app as local-only. Use dated evidence and the current flow checklist for implementation status.
 - Preserve guest/account scope, stable IDs, accepted edits and source links across migrations. Test interruption, retry and deletion without resurrection. Do not delete Firebase projects, accounts or records as incidental cleanup.
 - No credentials, journal text, transcripts, private messages, real-user exports or production payloads in Git, test fixtures, screenshots or agent logs. Use invented scenarios; keep local signing/Firebase configuration ignored.
 - Existing settings are iOS 17 and iPhone+iPad. The proposed iOS 26+ MVP scope needs validation and legacy recovery; do not change deployment targets, bundle identity or device family merely to make a build pass.

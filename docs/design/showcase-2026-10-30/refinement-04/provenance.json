@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-30",
+  "tool": "built-in imagegen for background; Artifact Session for layout",
+  "poster_page": "page_1a13d69444348191b37bf5447364091f",
+  "poster_state": 2,
+  "deck_page": "page_c3b242e82734819183c8ac8610af9a99",
+  "deck_state": 13,
+  "slides": 6,
+  "all_slides_visually_inspected": true,
+  "out_of_bounds": [],
+  "files": [
+    {
+      "path": "docs/design/showcase-2026-10-30/refinement-04/CircleU-Showcase-Poster-v4.png",
+      "sha256": "cd44bee4e7a2aad0574435213f96846cb9b9d6fe8b183136c57df16c5f7eb6d4"
+    },
+    {
+      "path": "docs/design/showcase-2026-10-30/refinement-04/assets/arctic-background.png",
+      "sha256": "4baf8d1fbd45abf1e9b762e840346dc48da793b082cbdaac858a18e9f52e0bf6"
+    },
+    {
+      "path": "docs/design/showcase-2026-10-30/refinement-04/assets/uts-apple-foundation-program-original.png",
+      "sha256": "6d035502c722018b3db2cc07ddc9fe55cbb6f3225471eac4bd7ef0f6c144f505"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "generator": "Codex built-in image_gen",
+  "date": "2026-10-31",
+  "transparent_background": true,
+  "figmaArtworkCreditsUsed": 0,
+  "references": [
+    "JournalTags01/PinguStudyTagV1.png",
+    "JournalTags01/PinguOverloadedV1.png"
+  ],
+  "assets": [
+    {
+      "name": "Calm",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-93c62fb6-bdd8-4cee-b4d3-b748020274a4.png",
+      "file": "PinguCalmTransparentV1.png",
+      "prompt": "Create ONE CircleU Pingu emotion icon: Calm. Use the two attached existing Codex-generated assets as STRICT mascot and illustration style references. Same navy blue head, white heart-shaped face patch, orange beak, single swept crest and pale blue scarf; same clean modern softly shaded illustration, not sketchy, no new character. Bust portrait head and scarf only with rounded clean lower silhouette, centered front-facing, full crest and scarf visible, about 80% of square canvas, generous transparent margins. Expression: eyes gently closed, relaxed brows, peaceful small beak smile. Big readable facial features suitable at 36\u201356 px. Actual transparent alpha background with no square, no circle, no backdrop, no background shadow, no text or labels. No book, no scene, no sticker border. Preserve white face opacity. PNG cutout.",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "transparentPixels": 804293,
+      "opaquePixels": 1412,
+      "sha256": "5ba9c7b682884d34d5b8e0c8a46f72fd513ff79b751f1695dbdfbbe130087b7b"
+    },
+    {
+      "name": "Worried",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-efe3c90d-2ea7-4a6e-9be5-3168e4680607.png",
+      "file": "PinguWorriedTransparentV1.png",
+      "prompt": "Create ONE CircleU Pingu emotion icon: Worried. Use the two attached existing Codex-generated assets as STRICT mascot and illustration style references. Same navy blue head, white heart-shaped face patch, orange beak, single swept crest and pale blue scarf; same clean modern softly shaded illustration, not sketchy, no new character. Bust portrait head and scarf only with rounded clean lower silhouette, centered front-facing, full crest and scarf visible, about 80% of square canvas, generous transparent margins. Expression: slightly raised inner brows, open concerned eyes, gently uncertain expression. Big readable facial features suitable at 36\u201356 px. Actual transparent alpha background with no square, no circle, no backdrop, no background shadow, no text or labels. No book, no scene, no sticker border. Preserve white face opacity. PNG cutout.",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "transparentPixels": 818123,
+      "opaquePixels": 1609,
+      "sha256": "450c1e1440cb073ba31bc6d8d679ea8c4112fd05b6df3f28ebb0597452b6fee5"
+    },
+    {
+      "name": "Overloaded",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-e63df56d-a5e2-41e5-bd9c-2f5ef43701ba.png",
+      "file": "PinguOverloadedTransparentV1.png",
+      "prompt": "Create ONE CircleU Pingu emotion icon: Overloaded. Use the two attached existing Codex-generated assets as STRICT mascot and illustration style references. Same navy blue head, white heart-shaped face patch, orange beak, single swept crest and pale blue scarf; same clean modern softly shaded illustration, not sketchy, no new character. Bust portrait head and scarf only with rounded clean lower silhouette, centered front-facing, full crest and scarf visible, about 80% of square canvas, generous transparent margins. Expression: concerned expression, one flipper touching temple and one small clean cobalt tangled thought symbol above the head. Big readable facial features suitable at 36\u201356 px. Actual transparent alpha background with no square, no circle, no backdrop, no background shadow, no text or labels. No book, no scene, no sticker border. Preserve white face opacity. PNG cutout.",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "transparentPixels": 779673,
+      "opaquePixels": 2412,
+      "sha256": "5f7d2932c6869a9ad2dbb3a8f925d9830e804df1a74d86a5a9c93f6d893cdae5"
+    },
+    {
+      "name": "Happy",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-971dd52a-837c-48de-8a2e-5f65e3ce4673.png",
+      "file": "PinguHappyTransparentV1.png",
+      "prompt": "Create ONE CircleU Pingu emotion icon: Happy. Use the two attached existing Codex-generated assets as STRICT mascot and illustration style references. Same navy blue head, white heart-shaped face patch, orange beak, single swept crest and pale blue scarf; same clean modern softly shaded illustration, not sketchy, no new character. Bust portrait head and scarf only with rounded clean lower silhouette, centered front-facing, full crest and scarf visible, about 80% of square canvas, generous transparent margins. Expression: eyes curved into smiling crescents, joyful gentle open-beak smile, no confetti. Big readable facial features suitable at 36\u201356 px. Actual transparent alpha background with no square, no circle, no backdrop, no background shadow, no text or labels. No book, no scene, no sticker border. Preserve white face opacity. PNG cutout.",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "transparentPixels": 779844,
+      "opaquePixels": 1224,
+      "sha256": "d0fc060ef2221d5e8c1b0ee47fc262e6cf991c009257eef8a5263b5cdccb4a5f"
+    },
+    {
+      "name": "Sad",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-2adbb600-a346-4b75-abf7-6b298215387e.png",
+      "file": "PinguSadTransparentV1.png",
+      "prompt": "Create ONE CircleU Pingu emotion icon: Sad. Use the two attached existing Codex-generated assets as STRICT mascot and illustration style references. Same navy blue head, white heart-shaped face patch, orange beak, single swept crest and pale blue scarf; same clean modern softly shaded illustration, not sketchy, no new character. Bust portrait head and scarf only with rounded clean lower silhouette, centered front-facing, full crest and scarf visible, about 80% of square canvas, generous transparent margins. Expression: soft downturned gaze, one small blue tear, gentle sad expression. Big readable facial features suitable at 36\u201356 px. Actual transparent alpha background with no square, no circle, no backdrop, no background shadow, no text or labels. No book, no scene, no sticker border. Preserve white face opacity. PNG cutout.",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "transparentPixels": 709658,
+      "opaquePixels": 1320,
+      "sha256": "86be5f360bb313264740ae6c81de66fd9bb87ca4944454dc3cd2276056c6dfbb"
+    },
+    {
+      "name": "Frustrated",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-5fa1c9dd-e484-41b1-8d4f-f897bd477511.png",
+      "file": "PinguFrustratedTransparentV1.png",
+      "prompt": "Create ONE CircleU Pingu emotion icon: Frustrated. Use the two attached existing Codex-generated assets as STRICT mascot and illustration style references. Same navy blue head, white heart-shaped face patch, orange beak, single swept crest and pale blue scarf; same clean modern softly shaded illustration, not sketchy, no new character. Bust portrait head and scarf only with rounded clean lower silhouette, centered front-facing, full crest and scarf visible, about 80% of square canvas, generous transparent margins. Expression: slightly inward angled brows, determined tight beak, gently frustrated expression, not aggressive. Big readable facial features suitable at 36\u201356 px. Actual transparent alpha background with no square, no circle, no backdrop, no background shadow, no text or labels. No book, no scene, no sticker border. Preserve white face opacity. PNG cutout.",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "transparentPixels": 714685,
+      "opaquePixels": 1383,
+      "sha256": "58dd3fb8f4809ea2785670aef27a10629c68b40c4c4fd7c48cc7f89acd574805"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "pageId": "67:220",
+  "frames": 40,
+  "activityFeelingCombinations": 20,
+  "internalLinks": 199,
+  "invalidDestinations": [],
+  "wrappedChoiceLabels": [],
+  "fonts": [
+    "Plus Jakarta Sans"
+  ],
+  "journalTabY": [
+    764
+  ],
+  "startingPoints": [
+    {
+      "nodeId": "68:394",
+      "name": "01 · Journal with illustrated tags"
+    },
+    {
+      "nodeId": "68:23",
+      "name": "02 · Add tags to an entry"
+    },
+    {
+      "nodeId": "68:1423",
+      "name": "03 · Choose or remove tags"
+    }
+  ]
+}

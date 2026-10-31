@@ -1,0 +1,16 @@
+{
+  "base": "9967a10",
+  "branch": "codex/app-upgrade-plan",
+  "uncommitted": true,
+  "device": "iPhone 17",
+  "os": "iOS 27.0 Simulator",
+  "source_hashes": {
+    "Circleu/Features/GuestJournal/GuestJournalScreens.swift": "02c20381056ccd8be3d38ac19a7055714597a8ca5eb589f85d16850936a22db5",
+    "Circleu/Features/GuestJournal/GuestPracticeScreens.swift": "ed6be3092cca83fe0919d65b6c61edfa65c754d79099a967ef3818e540aa1fc2",
+    "CircleuUITests/GuestPracticeUITests.swift": "418bc1a6204125997acb4148055b72e412f53a921f7ed6adf4d963f37047da26"
+  },
+  "unit_passed": 256,
+  "ui_final_passed_across_runs": 21,
+  "ui_skipped_live_firebase": 1,
+  "log": "../../agent-collaboration-log/2026-10-27-083849-codex-core-screen-refinement.md"
+}

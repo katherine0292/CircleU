@@ -1,0 +1,317 @@
+{
+  "fileKey": "rfknpmLIXsOxA7fHUQQMtR",
+  "pageId": "74:2",
+  "collectionId": "VariableCollectionId:79:459",
+  "pickers": {
+    "0": "79:532",
+    "1": "79:590",
+    "2": "79:648",
+    "3": "79:706"
+  },
+  "variables": {
+    "entry0/words": {
+      "id": "VariableID:79:460",
+      "type": "STRING"
+    },
+    "entry0/empty": {
+      "id": "VariableID:79:461",
+      "type": "BOOLEAN"
+    },
+    "entry0/Study": {
+      "id": "VariableID:79:462",
+      "type": "BOOLEAN"
+    },
+    "entry0/Work": {
+      "id": "VariableID:79:463",
+      "type": "BOOLEAN"
+    },
+    "entry0/Friends": {
+      "id": "VariableID:79:464",
+      "type": "BOOLEAN"
+    },
+    "entry0/Family": {
+      "id": "VariableID:79:465",
+      "type": "BOOLEAN"
+    },
+    "entry0/Calm": {
+      "id": "VariableID:79:466",
+      "type": "BOOLEAN"
+    },
+    "entry0/Worried": {
+      "id": "VariableID:79:467",
+      "type": "BOOLEAN"
+    },
+    "entry0/Overloaded": {
+      "id": "VariableID:79:468",
+      "type": "BOOLEAN"
+    },
+    "entry1/words": {
+      "id": "VariableID:79:469",
+      "type": "STRING"
+    },
+    "entry1/empty": {
+      "id": "VariableID:79:470",
+      "type": "BOOLEAN"
+    },
+    "entry1/Study": {
+      "id": "VariableID:79:471",
+      "type": "BOOLEAN"
+    },
+    "entry1/Work": {
+      "id": "VariableID:79:472",
+      "type": "BOOLEAN"
+    },
+    "entry1/Friends": {
+      "id": "VariableID:79:473",
+      "type": "BOOLEAN"
+    },
+    "entry1/Family": {
+      "id": "VariableID:79:474",
+      "type": "BOOLEAN"
+    },
+    "entry1/Calm": {
+      "id": "VariableID:79:475",
+      "type": "BOOLEAN"
+    },
+    "entry1/Worried": {
+      "id": "VariableID:79:476",
+      "type": "BOOLEAN"
+    },
+    "entry1/Overloaded": {
+      "id": "VariableID:79:477",
+      "type": "BOOLEAN"
+    },
+    "entry2/words": {
+      "id": "VariableID:79:478",
+      "type": "STRING"
+    },
+    "entry2/empty": {
+      "id": "VariableID:79:479",
+      "type": "BOOLEAN"
+    },
+    "entry2/Study": {
+      "id": "VariableID:79:480",
+      "type": "BOOLEAN"
+    },
+    "entry2/Work": {
+      "id": "VariableID:79:481",
+      "type": "BOOLEAN"
+    },
+    "entry2/Friends": {
+      "id": "VariableID:79:482",
+      "type": "BOOLEAN"
+    },
+    "entry2/Family": {
+      "id": "VariableID:79:483",
+      "type": "BOOLEAN"
+    },
+    "entry2/Calm": {
+      "id": "VariableID:79:484",
+      "type": "BOOLEAN"
+    },
+    "entry2/Worried": {
+      "id": "VariableID:79:485",
+      "type": "BOOLEAN"
+    },
+    "entry2/Overloaded": {
+      "id": "VariableID:79:486",
+      "type": "BOOLEAN"
+    },
+    "entry3/words": {
+      "id": "VariableID:79:487",
+      "type": "STRING"
+    },
+    "entry3/empty": {
+      "id": "VariableID:79:488",
+      "type": "BOOLEAN"
+    },
+    "entry3/Study": {
+      "id": "VariableID:79:489",
+      "type": "BOOLEAN"
+    },
+    "entry3/Work": {
+      "id": "VariableID:79:490",
+      "type": "BOOLEAN"
+    },
+    "entry3/Friends": {
+      "id": "VariableID:79:491",
+      "type": "BOOLEAN"
+    },
+    "entry3/Family": {
+      "id": "VariableID:79:492",
+      "type": "BOOLEAN"
+    },
+    "entry3/Calm": {
+      "id": "VariableID:79:493",
+      "type": "BOOLEAN"
+    },
+    "entry3/Worried": {
+      "id": "VariableID:79:494",
+      "type": "BOOLEAN"
+    },
+    "entry3/Overloaded": {
+      "id": "VariableID:79:495",
+      "type": "BOOLEAN"
+    },
+    "draft/Study": {
+      "id": "VariableID:79:496",
+      "type": "BOOLEAN"
+    },
+    "draft/Work": {
+      "id": "VariableID:79:497",
+      "type": "BOOLEAN"
+    },
+    "draft/Friends": {
+      "id": "VariableID:79:498",
+      "type": "BOOLEAN"
+    },
+    "draft/Family": {
+      "id": "VariableID:79:499",
+      "type": "BOOLEAN"
+    },
+    "draft/Calm": {
+      "id": "VariableID:79:500",
+      "type": "BOOLEAN"
+    },
+    "draft/Worried": {
+      "id": "VariableID:79:501",
+      "type": "BOOLEAN"
+    },
+    "draft/Overloaded": {
+      "id": "VariableID:79:502",
+      "type": "BOOLEAN"
+    },
+    "newEntrySaved": {
+      "id": "VariableID:79:503",
+      "type": "BOOLEAN"
+    },
+    "todayDraft": {
+      "id": "VariableID:79:504",
+      "type": "BOOLEAN"
+    },
+    "reflectionSaved": {
+      "id": "VariableID:79:505",
+      "type": "BOOLEAN"
+    },
+    "day31Count": {
+      "id": "VariableID:79:506",
+      "type": "STRING"
+    },
+    "entryReturn": {
+      "id": "VariableID:79:507",
+      "type": "FLOAT"
+    },
+    "practiceResume": {
+      "id": "VariableID:79:508",
+      "type": "FLOAT"
+    },
+    "practiceHasHistory": {
+      "id": "VariableID:79:509",
+      "type": "BOOLEAN"
+    },
+    "practiceDraft": {
+      "id": "VariableID:79:510",
+      "type": "BOOLEAN"
+    },
+    "entry0/Happy": {
+      "id": "VariableID:95:704",
+      "type": "BOOLEAN"
+    },
+    "entry0/Sad": {
+      "id": "VariableID:95:705",
+      "type": "BOOLEAN"
+    },
+    "entry0/Frustrated": {
+      "id": "VariableID:95:706",
+      "type": "BOOLEAN"
+    },
+    "entry0/noFeeling": {
+      "id": "VariableID:95:707",
+      "type": "BOOLEAN"
+    },
+    "entry0/noContext": {
+      "id": "VariableID:95:708",
+      "type": "BOOLEAN"
+    },
+    "entry1/Happy": {
+      "id": "VariableID:95:709",
+      "type": "BOOLEAN"
+    },
+    "entry1/Sad": {
+      "id": "VariableID:95:710",
+      "type": "BOOLEAN"
+    },
+    "entry1/Frustrated": {
+      "id": "VariableID:95:711",
+      "type": "BOOLEAN"
+    },
+    "entry1/noFeeling": {
+      "id": "VariableID:95:712",
+      "type": "BOOLEAN"
+    },
+    "entry1/noContext": {
+      "id": "VariableID:95:713",
+      "type": "BOOLEAN"
+    },
+    "entry2/Happy": {
+      "id": "VariableID:95:714",
+      "type": "BOOLEAN"
+    },
+    "entry2/Sad": {
+      "id": "VariableID:95:715",
+      "type": "BOOLEAN"
+    },
+    "entry2/Frustrated": {
+      "id": "VariableID:95:716",
+      "type": "BOOLEAN"
+    },
+    "entry2/noFeeling": {
+      "id": "VariableID:95:717",
+      "type": "BOOLEAN"
+    },
+    "entry2/noContext": {
+      "id": "VariableID:95:718",
+      "type": "BOOLEAN"
+    },
+    "entry3/Happy": {
+      "id": "VariableID:95:719",
+      "type": "BOOLEAN"
+    },
+    "entry3/Sad": {
+      "id": "VariableID:95:720",
+      "type": "BOOLEAN"
+    },
+    "entry3/Frustrated": {
+      "id": "VariableID:95:721",
+      "type": "BOOLEAN"
+    },
+    "entry3/noFeeling": {
+      "id": "VariableID:95:722",
+      "type": "BOOLEAN"
+    },
+    "entry3/noContext": {
+      "id": "VariableID:95:723",
+      "type": "BOOLEAN"
+    },
+    "draft/Happy": {
+      "id": "VariableID:95:724",
+      "type": "BOOLEAN"
+    },
+    "draft/Sad": {
+      "id": "VariableID:95:725",
+      "type": "BOOLEAN"
+    },
+    "draft/Frustrated": {
+      "id": "VariableID:95:726",
+      "type": "BOOLEAN"
+    }
+  },
+  "portraitIDs": {
+    "Calm": "94:437",
+    "Worried": "94:440",
+    "Overloaded": "94:443",
+    "Happy": "94:446",
+    "Sad": "94:449",
+    "Frustrated": "94:452"
+  }
+}

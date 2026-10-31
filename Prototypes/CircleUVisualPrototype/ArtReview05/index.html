@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>CircleU · Artwork review 05</title>
+<style>
+@font-face{font-family:Jakarta;src:url('../Sources/CircleUVisualPrototype/Resources/BrandFonts/PlusJakartaSans.ttf') format('truetype');font-weight:200 800;font-display:swap}
+:root{--ink:#0d1421;--blue:#054fc9;--ice:#f5faff;--wash:#e3eeff;--muted:#4f6077;--line:#dce6f2;--white:#fff}
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--ice);color:var(--ink);font-family:Jakarta,system-ui,sans-serif;font-size:16px;line-height:1.6}a{color:var(--blue)}button,input{font:inherit}button,a,input{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:5px}button{cursor:pointer}button:disabled{cursor:default;opacity:.58}button{min-height:48px;padding:11px 18px;border-radius:14px;border:1px solid var(--blue);background:var(--blue);color:white;font-weight:650}button:hover:not(:disabled){background:#0844a5}.skip{position:absolute;top:-100px;left:20px;z-index:9;background:white;padding:12px}.skip:focus{top:12px}.wrap{width:min(1200px,calc(100% - 48px));margin:0 auto}.masthead{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 0;border-bottom:1px solid var(--line)}.wordmark{font-size:24px;font-weight:800;letter-spacing:-1px}.wordmark span{color:var(--blue)}.edition{font-size:13px;color:var(--muted);text-align:right}.hero{padding:64px 0 40px;max-width:820px}.eyebrow{color:var(--blue);font-size:12px;font-weight:750;letter-spacing:2px;text-transform:uppercase;margin:0 0 12px}h1{font-size:clamp(36px,5vw,66px);font-weight:750;letter-spacing:-2.5px;line-height:1.08;margin:0 0 22px}h2{font-size:clamp(26px,3vw,36px);line-height:1.2;letter-spacing:-1px;margin:0}h3{font-size:20px;line-height:1.3;margin:0 0 8px}.hero p:last-child{max-width:670px;font-size:18px;color:var(--muted);margin:0}.jump{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 50px}.jump a{display:flex;align-items:center;min-height:44px;text-decoration:none;font-size:14px;font-weight:650;background:white;border:1px solid var(--line);border-radius:30px;padding:8px 17px}.section{padding:0 0 64px;scroll-margin-top:24px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}.section-head p{max-width:450px;color:var(--muted);font-size:14px;margin:0}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.card{background:white;border:1px solid var(--line);border-radius:26px;overflow:hidden}.scene-stage{background:var(--wash);aspect-ratio:2;display:grid;place-items:center;position:relative}.scene-stage img{width:100%;height:100%;object-fit:contain;display:block}.caption{padding:24px}.caption p{margin:0;color:var(--muted);font-size:14px}.file{display:inline-block;margin-top:12px;font-size:11px;color:var(--muted);overflow-wrap:anywhere;max-width:100%}.scene-tag{display:inline-block;color:var(--blue);font-weight:650;font-size:12px;margin-bottom:12px}.controls{background:var(--wash);border:1px solid var(--line);border-radius:20px;padding:18px 22px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;gap:20px}.toggle{min-height:44px;display:flex;align-items:center;gap:12px;font-weight:650;cursor:pointer;flex-shrink:0}.toggle input{accent-color:var(--blue);width:22px;height:22px;margin:0}.mode{font-size:13px;color:var(--muted);margin:0;max-width:600px}.pose-surfaces{display:grid;grid-template-columns:1fr 1fr}.surface{min-height:260px;padding:28px 16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow:hidden}.surface.light{background:var(--ice)}.surface.dark{background:var(--ink);color:var(--ice)}.surface-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.8}.pose{display:block;width:100%;height:208px;object-fit:contain;transform-origin:50% 85%}.pose-info{padding:22px 24px 24px}.pose-info .file{display:block;margin-top:14px}.pose-info p{font-size:14px;color:var(--muted);margin:0 0 18px}.status{min-height:26px;font-size:13px;color:var(--muted);margin:14px 0 0}.icons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.icon-card{padding:24px}.icon-card h3{font-size:18px}.icon-card>p{font-size:13px;color:var(--muted);margin:0 0 22px}.sizes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:end}.size{display:flex;align-items:center;justify-content:end;flex-direction:column;gap:14px;min-height:136px}.size img{object-fit:contain;flex-shrink:0}.size span{font-size:11px;color:var(--muted)}.icon-dark{background:var(--ink);border-radius:16px;margin-top:22px;padding:18px;display:flex;justify-content:center;align-items:center;min-height:88px}.icon-dark img{width:48px;height:48px;object-fit:contain}.icon-dark span{font-size:11px;color:var(--ice);margin-left:14px}.notes{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:32px;background:white;border:1px solid var(--line);border-radius:24px}.notes p{font-size:14px;color:var(--muted);margin:0}.notes h3{font-size:16px}.footer{border-top:1px solid var(--line);padding:24px 0 38px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:20px}.asset-fallback{font-size:13px;text-align:center;max-width:260px;padding:22px;color:var(--muted);overflow-wrap:anywhere}.dark .asset-fallback,.icon-dark .asset-fallback{color:var(--ice)}
+@media(max-width:1000px){.icons{grid-template-columns:1fr}.icon-card{display:grid;grid-template-columns:1fr 1.2fr;column-gap:25px}.icon-card h3,.icon-card>p,.icon-card>.file{grid-column:1}.sizes{grid-column:2;grid-row:1/5}.icon-dark{grid-column:1/3;margin-top:18px}.two{gap:18px}.surface{min-height:220px}.pose{height:165px}}
+@media(max-width:680px){.wrap{width:calc(100% - 32px)}.masthead{padding:20px 0}.hero{padding:40px 0 28px}h1{letter-spacing:-1.5px}.two{grid-template-columns:1fr}.section-head{display:block}.section-head p{margin-top:12px}.controls{align-items:start;flex-direction:column;gap:8px}.notes{grid-template-columns:1fr;padding:24px}.section{padding-bottom:42px}.jump{margin-bottom:34px}.surface{min-height:245px}.pose{height:190px}.icon-card{display:block}.sizes{margin-top:20px}.footer{flex-direction:column;gap:5px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to artwork</a>
+<div class="wrap">
+<header class="masthead"><div class="wordmark">Circle<span>U</span></div><div class="edition">Artwork review 05<br>27 October 2026 · isolated preview</div></header>
+<main id="main">
+<div class="hero"><p class="eyebrow">Artwork and motion</p><h1>A little more<br>of Pingu’s world</h1><p>New scene, character and icon candidates for CircleU. Explore the artwork at different sizes, then compare a short motion study with the still illustration.</p></div>
+<nav class="jump" aria-label="Gallery sections"><a href="#scenes">01 · Scenes</a><a href="#motion">02 · Motion studies</a><a href="#icons">03 · Icon sizes</a></nav>
+<section class="section" id="scenes" aria-labelledby="scenes-heading"><div class="section-head"><h2 id="scenes-heading">A familiar, quieter world</h2><p>Scene candidates shown in full. These are artwork studies, not implemented app screens.</p></div><div class="two">
+<article class="card"><div class="scene-stage"><img src="../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/SceneWritingNookV1.png" alt="Writing nook artwork candidate" data-asset></div><div class="caption"><span class="scene-tag">01 / Writing nook</span><h3>A place to put things into words</h3><p>Review the character, atmosphere and quiet space around the composition.</p><span class="file">SceneWritingNookV1.png</span></div></article>
+<article class="card"><div class="scene-stage"><img src="../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/ScenePracticeCoveV1.png" alt="Practice cove artwork candidate" data-asset></div><div class="caption"><span class="scene-tag">02 / Practice cove</span><h3>A place to prepare a conversation</h3><p>A companion scene to consider alongside Today and Journal’s existing artwork.</p><span class="file">ScenePracticeCoveV1.png</span></div></article>
+</div></section>
+<section class="section" id="motion" aria-labelledby="motion-heading"><div class="section-head"><h2 id="motion-heading">A small moment of movement</h2><p>Manual, finite whole-illustration tilts. These studies do not animate individual flippers or eyelids.</p></div>
+<div class="controls"><label class="toggle"><input id="still-mode" type="checkbox">Still mode</label><p class="mode" id="mode-description">Motion plays only when you choose it. The system’s reduced-motion preference is always respected.</p></div>
+<div class="two">
+<article class="card"><div class="pose-surfaces"><div class="surface light"><img class="pose" data-motion="greeting" data-asset src="../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/PinguGreetingV1.png" alt="Pingu greeting candidate on an ice surface"><span class="surface-label">Ice surface</span></div><div class="surface dark"><img class="pose" data-motion="greeting" data-asset src="../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/PinguGreetingV1.png" alt="Pingu greeting candidate on an ink surface"><span class="surface-label">Ink surface</span></div></div><div class="pose-info"><h3>A gentle greeting</h3><p>A 560 ms whole-illustration tilt, returning to the original pose.</p><button type="button" data-play="greeting">Play greeting</button><div class="file">PinguGreetingV1.png</div></div></article>
+<article class="card"><div class="pose-surfaces"><div class="surface light"><img class="pose" data-motion="thoughtful" data-asset src="../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/PinguConsideringV1.png" alt="Pingu considering candidate on an ice surface"><span class="surface-label">Ice surface</span></div><div class="surface dark"><img class="pose" data-motion="thoughtful" data-asset src="../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/PinguConsideringV1.png" alt="Pingu considering candidate on an ink surface"><span class="surface-label">Ink surface</span></div></div><div class="pose-info"><h3>A thoughtful pause</h3><p>A 580 ms whole-illustration tilt. Writing and reading would remain still.</p><button type="button" data-play="thoughtful">Play thoughtful tilt</button><div class="file">PinguConsideringV1.png</div></div></article>
+</div><p class="status" id="motion-status" role="status" aria-live="polite">Both illustrations are still.</p>
+</section>
+<section class="section" id="icons" aria-labelledby="icons-heading"><div class="section-head"><h2 id="icons-heading">Small details, one character</h2><p>Actual 32, 48 and 96 CSS-pixel previews. Check shape clarity and transparent edges before choosing an app placement.</p></div><div class="icons" id="icon-grid"></div></section>
+<section class="section" aria-label="Review context"><div class="notes"><div><h3>What to look for</h3><p>Does Pingu still feel like the same character? Do the icons read at 32 pixels? Does the still version feel complete? Compare the transparent artwork on both backgrounds.</p></div><div><h3>What this preview establishes</h3><p>An isolated artwork and browser-motion comparison. It does not change the SwiftUI app, demonstrate native accessibility, or approve a production placement. No content leaves this page.</p></div></div></section>
+</main><footer class="footer"><span>CircleU · Expansion05 review candidates</span><span>Plus Jakarta Sans · Blue / ice / ink · No external resources</span></footer>
+</div>
+<script>
+'use strict';
+const artRoot = '../Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion05/';
+const iconItems = [
+  { name: 'Conversation', file: 'BrandConversationV1.png', note: 'A conversation motif to compare with the existing Practice icon.' },
+  { name: 'Draft', file: 'BrandDraftV1.png', note: 'A writing motif for an unfinished thought.' },
+  { name: 'Listening', file: 'BrandListeningV1.png', note: 'A listening motif, shown as artwork rather than a recording control.' }
+];
+const grid = document.querySelector('#icon-grid');
+for (const icon of iconItems) {
+  const card = document.createElement('article'); card.className = 'card icon-card';
+  const heading = document.createElement('h3'); heading.textContent = icon.name;
+  const note = document.createElement('p'); note.textContent = icon.note;
+  const sizes = document.createElement('div'); sizes.className = 'sizes';
+  for (const size of [32, 48, 96]) {
+    const sample = document.createElement('div'); sample.className = 'size';
+    const img = document.createElement('img'); img.src = artRoot + icon.file;
+    img.width = size; img.height = size; img.alt = icon.name + ' icon at ' + size + ' CSS pixels'; img.dataset.asset = '';
+    const label = document.createElement('span'); label.textContent = size + ' px';
+    sample.append(img, label); sizes.append(sample);
+  }
+  const file = document.createElement('span'); file.className = 'file'; file.textContent = icon.file;
+  const dark = document.createElement('div'); dark.className = 'icon-dark';
+  const darkImage = document.createElement('img'); darkImage.src = artRoot + icon.file; darkImage.alt = icon.name + ' icon on ink'; darkImage.dataset.asset = '';
+  const darkLabel = document.createElement('span'); darkLabel.textContent = '48 px · ink surface';
+  dark.append(darkImage, darkLabel); card.append(heading, note, sizes, file, dark); grid.append(card);
+}
+// Keep unfinished artwork visible as an honest loading failure, not a broken-image icon.
+for (const img of document.querySelectorAll('[data-asset]')) {
+  const showFallback = () => {
+    if (img.nextElementSibling?.classList.contains('asset-fallback')) return;
+    img.hidden = true;
+    const fallback = document.createElement('span'); fallback.className = 'asset-fallback';
+    fallback.textContent = 'Artwork unavailable: ' + img.src.split('/').pop();
+    img.after(fallback);
+  };
+  img.addEventListener('error', showFallback, { once: true });
+  if (img.complete && img.naturalWidth === 0) showFallback();
+}
+const stillMode = document.querySelector('#still-mode');
+const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const status = document.querySelector('#motion-status');
+const description = document.querySelector('#mode-description');
+const buttons = Array.from(document.querySelectorAll('[data-play]'));
+let activeAnimations = [];
+let playback = 0;
+const motionAllowed = () => !stillMode.checked && !systemMotion.matches && !document.hidden;
+function cancelMotion() {
+  playback += 1;
+  for (const animation of activeAnimations) animation.cancel();
+  activeAnimations = [];
+}
+function updateMode() {
+  cancelMotion();
+  const unavailable = !('animate' in Element.prototype);
+  for (const button of buttons) button.disabled = !motionAllowed() || unavailable;
+  description.textContent = systemMotion.matches
+    ? 'System reduced motion is on. Both illustrations stay still, even when Still mode is unchecked.'
+    : stillMode.checked ? 'Still mode is on. Both illustrations stay still.'
+    : unavailable ? 'This browser shows the still artwork. Motion playback is unavailable.'
+    : 'Motion plays only when you choose it. No autoplay or looping.';
+  status.textContent = 'Both illustrations are still.';
+}
+async function play(kind) {
+  if (!motionAllowed()) return;
+  cancelMotion();
+  const token = playback;
+  const targets = Array.from(document.querySelectorAll('[data-motion="' + kind + '"]')).filter(img => img.complete && img.naturalWidth > 0);
+  if (targets.length === 0) { status.textContent = 'The artwork must finish loading before this study can play.'; return; }
+  const greeting = kind === 'greeting';
+  const frames = greeting
+    ? [{ transform:'rotate(0deg)' },{ transform:'rotate(-4deg)',offset:.35 },{ transform:'rotate(2deg)',offset:.7 },{ transform:'rotate(0deg)' }]
+    : [{ transform:'rotate(0deg)' },{ transform:'rotate(4deg)',offset:.45 },{ transform:'rotate(4deg)',offset:.65 },{ transform:'rotate(0deg)' }];
+  activeAnimations = targets.map(target => target.animate(frames,{ duration:greeting ? 560 : 580,easing:'ease-in-out',iterations:1,fill:'none' }));
+  status.textContent = greeting ? 'Greeting motion study playing.' : 'Thoughtful tilt study playing.';
+  await Promise.allSettled(activeAnimations.map(animation => animation.finished));
+  if (token === playback) { activeAnimations = []; status.textContent = 'Motion study finished. Both illustrations are still.'; }
+}
+for (const button of buttons) button.addEventListener('click', () => play(button.dataset.play));
+stillMode.addEventListener('change', updateMode);
+systemMotion.addEventListener('change', updateMode);
+document.addEventListener('visibilitychange', updateMode);
+window.addEventListener('pagehide', cancelMotion);
+updateMode();
+</script>
+</body>
+</html>

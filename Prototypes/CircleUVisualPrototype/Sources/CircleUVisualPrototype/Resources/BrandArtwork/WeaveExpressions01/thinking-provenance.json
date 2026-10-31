@@ -1,0 +1,54 @@
+{
+  "created": "2026-10-31",
+  "model": "Nano Banana 2 Lite",
+  "approved_budget": 9,
+  "charged_credits": 3,
+  "last_reported_remaining_credits": 144,
+  "reference": "PinguListeningV1.jpg",
+  "runs": [
+    {
+      "key": "thinking",
+      "prompt": "Create ONE CircleU mascot illustration matching the attached approved Pingu listening image as a strict character and style reference. Retain its smooth simplified dimensional shading, matte surfaces, navy body, white face and belly, small oval dark eyes, orange beak and feet, curved single crest, pale ice-blue scarf with the same folds, proportions and lighting. Full body centred, seated on a uniform pale ice-blue background #F5FAFF with a restrained contact shadow; generous margins, no cropping. No lettering, logos, extra limbs, plastic gloss, sketch marks or sticker borders. Make the expression legible at small size without exaggeration. Pingu thinking: head tilted slightly, one flipper resting gently beside the beak, the other resting on the lap, eyes looking thoughtfully upward. Quiet curiosity, relaxed shoulders. No question marks, light bulbs or props.",
+      "settings": {
+        "resolution": "1K",
+        "aspect_ratio": "1:1"
+      },
+      "status": "completed",
+      "cost": 3,
+      "predictionId": "61296666-52dc-4015-a49c-b1c678934871"
+    },
+    {
+      "key": "overloaded",
+      "prompt": "Create ONE CircleU mascot illustration matching the attached approved Pingu listening image as a strict character and style reference. Retain its smooth simplified dimensional shading, matte surfaces, navy body, white face and belly, small oval dark eyes, orange beak and feet, curved single crest, pale ice-blue scarf with the same folds, proportions and lighting. Full body centred, seated on a uniform pale ice-blue background #F5FAFF with a restrained contact shadow; generous margins, no cropping. No lettering, logos, extra limbs, plastic gloss, sketch marks or sticker borders. Make the expression legible at small size without exaggeration. Pingu feeling overloaded: shoulders slightly raised, both flippers gently touching the sides of its head, slightly tired open eyes and a small neutral closed beak. Add three small loose curved blue lines above the head to suggest too much going on. A sympathetic everyday overwhelmed expression, not panic, injury or crying; no smile, no lightning bolts, no red warning symbols.",
+      "settings": {
+        "resolution": "1K",
+        "aspect_ratio": "1:1"
+      },
+      "status": "blocked before start: two free agent model runs exhausted",
+      "cost": 0,
+      "predictionId": null
+    },
+    {
+      "key": "relieved",
+      "prompt": "Create ONE CircleU mascot illustration matching the attached approved Pingu listening image as a strict character and style reference. Retain its smooth simplified dimensional shading, matte surfaces, navy body, white face and belly, small oval dark eyes, orange beak and feet, curved single crest, pale ice-blue scarf with the same folds, proportions and lighting. Full body centred, seated on a uniform pale ice-blue background #F5FAFF with a restrained contact shadow; generous margins, no cropping. No lettering, logos, extra limbs, plastic gloss, sketch marks or sticker borders. Make the expression legible at small size without exaggeration. Pingu feeling relieved: shoulders relaxed, both flippers resting loosely on its lap, eyes gently closed in soft curves, very subtle content closed-beak expression and a slight relaxed head tilt. Calm release after finding words, not celebration. No confetti, trophies, stars, hearts or props.",
+      "settings": {
+        "resolution": "1K",
+        "aspect_ratio": "1:1"
+      },
+      "status": "blocked before start: two free agent model runs exhausted",
+      "cost": 0,
+      "predictionId": null
+    }
+  ],
+  "output": "PinguThinkingV1.jpg",
+  "output_url": "https://media.weavy.ai/image/upload/v1793395620/uploads/6SkbioOhgqMtOrSLiaonnWK6uNg2/zwldk5ryyynbthdyctir.jpg",
+  "reference_sha256": "8c591d886969f94e4d9618bd50d995c333113c6ea5065444d5e3795e7d39943e",
+  "reference_bytes": 62366,
+  "output_sha256": "ed22ee50d9b51e228106ef7ece82467d5b4a68b49ef327178abc593f46e30508",
+  "output_bytes": 62177,
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "format": "JPEG"
+}

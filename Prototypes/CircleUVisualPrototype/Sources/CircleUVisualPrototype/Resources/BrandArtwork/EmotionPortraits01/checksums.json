@@ -1,0 +1,35 @@
+{
+  "PinguCalmPortraitV1.png": {
+    "sha256": "3a2ba0577a6bb27ff49b8590a11446ce6d7a811a978cb16f19016385f34092e4",
+    "width": 360,
+    "height": 320
+  },
+  "PinguFrustratedPortraitV1.png": {
+    "sha256": "09167338d00d8d5a95861ee241bde39dae7c53471dbb8488ff07c80e61bdff7e",
+    "width": 360,
+    "height": 320
+  },
+  "PinguHappyPortraitV1.png": {
+    "sha256": "508b8b5cd2ef70ea577a1122595473954fd3eb15c338708995b7c9b7f6f25fdd",
+    "width": 360,
+    "height": 320
+  },
+  "PinguOverloadedPortraitV1.png": {
+    "sha256": "eb2bc4a68863eb6d273740b697bf35a7a8befe7deba61579776a6eb7ef2bbecd",
+    "width": 360,
+    "height": 320
+  },
+  "PinguSadPortraitV1.png": {
+    "sha256": "eff3259269679526cac9f521ba010bec533c907b789daed42893e67b7902b2af",
+    "width": 360,
+    "height": 320
+  },
+  "PinguWorriedPortraitV1.png": {
+    "sha256": "d48e51db3d208daea032c15e9ea2055d38c254941aa29701ffc05adad9bdeb55",
+    "width": 360,
+    "height": 320
+  },
+  "PinguEmotionAtlasV1.jpg": {
+    "sha256": "a75f451fbcb7ee6e3cffb81365adaa6c1a225dc7ef30f341ebde7a7276cef1a0"
+  }
+}
