@@ -62,7 +62,7 @@ final class GuestPolishUITests: XCTestCase {
         app.buttons["Practice a message"].tap()
         let wording = app.textViews["Your wording"]; XCTAssertTrue(wording.waitForExistence(timeout: 5))
         wording.tap(); wording.typeText("Could we talk about the slides?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         app.buttons["Save"].tap()
         XCTAssertTrue(has(app, "Saved · not sent"))
         shot(app, "u8-message-saved")

@@ -22,7 +22,7 @@ final class GuestPracticeUITests: XCTestCase {
         for _ in 0..<6 where !wording.isHittable { app.swipeUp() }
         wording.tap()
         wording.typeText("Could we agree on a time to finish the slides?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         wording.tap()
         let keyboard = app.keyboards.firstMatch
         XCTAssertTrue(keyboard.waitForExistence(timeout: 5), "This check requires the software keyboard")
@@ -61,7 +61,7 @@ final class GuestPracticeUITests: XCTestCase {
         app.buttons["Practice a message"].tap()
         let wording = app.textViews["Your wording"]
         wording.tap(); wording.typeText("Could we talk?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         reveal(app.buttons["Record your words"], in: app)
         app.buttons["Record your words"].tap()
         app.buttons["Record"].tap()
@@ -126,7 +126,7 @@ final class GuestPracticeUITests: XCTestCase {
         let wording = app.textViews["Your wording"]
         XCTAssertTrue(wording.waitForExistence(timeout: 5))
         wording.tap(); wording.typeText("Could we talk on Friday?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         app.buttons["Copy"].tap()
         XCTAssertTrue(app.buttons["Copied"].waitForExistence(timeout: 3))
         wording.tap(); wording.typeText(" After class.")
@@ -181,7 +181,7 @@ final class GuestPracticeUITests: XCTestCase {
         app.buttons["Practice a message"].tap()
         XCTAssertTrue(has(app, "On its own"))
         let wording = app.textViews["Your wording"]; wording.tap(); wording.typeText("Can we split the slides \(tag)?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         shot(app, "p2-compose"); audit(app, "compose")
         app.buttons["Copy"].tap()
         XCTAssertTrue(app.buttons["Copied"].waitForExistence(timeout: 3))
@@ -214,7 +214,7 @@ final class GuestPracticeUITests: XCTestCase {
         app.buttons["Practice what to say"].tap()
         XCTAssertTrue(has(app, "From: Groupmate missed the deadline"))
         let w2 = app.textViews["Your wording"]; w2.tap(); w2.typeText("Hey, can we talk about Friday \(tag)?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         app.buttons["Save"].tap()
         XCTAssertTrue(has(app, "Saved · not sent"))
         shot(app, "p5-linked-saved")

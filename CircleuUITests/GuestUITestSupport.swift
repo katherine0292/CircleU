@@ -24,6 +24,16 @@ extension XCTestCase {
         return app
     }
 
+    /// Message-first Practice: review the words, then keep them, to reach the "Your wording" screen.
+    func reviewAndKeepWording(_ app: XCUIApplication) {
+        app.buttons["Review wording"].tap()
+        let keep = app.buttons["Keep my wording"]
+        XCTAssertTrue(keep.waitForExistence(timeout: 10), "the result screen offers to keep my words")
+        for _ in 0..<4 where !keep.isHittable { app.swipeUp() }
+        keep.tap()
+        XCTAssertTrue(app.buttons["Save"].waitForExistence(timeout: 10), "back on my wording")
+    }
+
     /// Skips tests that contact the real Firebase Dev project unless they were asked for:
     /// `TEST_RUNNER_CIRCLEU_LIVE_DEV=1 xcodebuild test …`.
     func requireLiveDev() throws {

@@ -53,7 +53,7 @@ final class GuestSuggestionUITests: XCTestCase {
         app.buttons["Practice a message"].tap()
         let wording = app.textViews["Your wording"]
         wording.tap(); wording.typeText("Can we talk about the group project?")
-        app.buttons["Continue"].tap()
+        reviewAndKeepWording(app)
         let suggest = app.buttons["Get a suggestion"]
         for _ in 0..<6 where !suggest.isHittable { app.swipeUp() }
         app.buttons["Get a suggestion"].tap()

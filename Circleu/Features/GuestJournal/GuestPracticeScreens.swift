@@ -263,6 +263,10 @@ struct GuestPracticeMessageView: View {
     @State private var showGoal = false
     @FocusState private var focus: Field?
     @State private var voiceTarget: VoiceTarget?
+    /// "Compare with mine" on the result screen.
+    @State private var comparing = false
+    /// Context and tone stay folded on the first screen; words come first.
+    @State private var showContext = false
     @Environment(\.dynamicTypeSize) private var typeSize
     private enum VoiceTarget: String, Identifiable {
         case wording, reply, context
@@ -278,6 +282,8 @@ struct GuestPracticeMessageView: View {
                 if composer.isEditing {
                     switch composer.stage {
                     case .prepare: prepareForm
+                    case .guide: guideForm
+                    case .result: resultView
                     case .refine: form
                     case .reply: replyForm
                     }
@@ -302,12 +308,45 @@ struct GuestPracticeMessageView: View {
                     }
                     switch composer.stage {
                     case .prepare:
-                        Button("Continue") { focus = nil; composer.prepareRefinement() }
-                            .buttonStyle(GuestBrandButtonStyle()).disabled(!composer.canCopy)
+                        // Words first: one filled action to review them; saving as they are stays available.
+                        if composer.canFindWordsFromIntent {
+                            Button("Find words from my intent") { focus = nil; Task { await composer.findWordsFromIntent() } }
+                                .buttonStyle(GuestBrandButtonStyle())
+                        } else {
+                            Button("Review wording") { focus = nil; Task { await composer.reviewWording() } }
+                                .buttonStyle(GuestBrandButtonStyle()).disabled(!composer.canReviewWording)
+                        }
+                        Button("Save without feedback") {
+                            focus = nil
+                            Task {
+                                let wasNew = composer.saved == nil
+                                if await composer.saveWithoutFeedback() { await finishSave(wasNew: wasNew) }
+                            }
+                        }
+                        .buttonStyle(GuestBrandButtonStyle(filled: false)).disabled(!composer.canCopy || composer.isSaving)
+                    case .guide:
+                        Button("Continue") { focus = nil; composer.continueGuidance() }
+                            .buttonStyle(GuestBrandButtonStyle()).disabled(!composer.canContinueGuidance)
+                    case .result:
+                        Button("Use this wording") { composer.useSuggestedWording() }
+                            .buttonStyle(GuestBrandButtonStyle()).disabled(composer.suggestedWording == nil)
+                        if composer.suggestedWording != nil {
+                            Button(comparing ? "Hide comparison" : "Compare with mine") { withAnimation { comparing.toggle() } }
+                                .buttonStyle(GuestBrandButtonStyle(filled: false))
+                        }
+                        Button("Keep my wording") { composer.keepMyWording() }
+                            .buttonStyle(GuestBrandButtonStyle(filled: false))
                     case .reply:
                         Button("Continue") { focus = nil; composer.continueReply() }
                             .buttonStyle(GuestBrandButtonStyle()).disabled(!composer.canContinueReply)
-                    case .refine: saveButton
+                    case .refine:
+                        saveButton
+                        if composer.wordingBeforeSuggestion != nil {
+                            // Under Save, where it can't be covered by the pinned footer.
+                            Button("Undo") { composer.undoSuggestion() }
+                                .buttonStyle(GuestBrandButtonStyle(filled: false))
+                                .accessibilityLabel("Undo suggestion")
+                        }
                     }
                 }
                 .padding(.horizontal, 24).padding(.vertical, 12)
@@ -332,6 +371,11 @@ struct GuestPracticeMessageView: View {
                     if composer.isEditing && composer.stage == .reply {
                         focus = nil
                         composer.stage = .refine
+                    } else if composer.isEditing && composer.stage == .guide {
+                        focus = nil
+                        composer.closeGuidance() // My words and intent are kept.
+                    } else if composer.isEditing && composer.stage == .result {
+                        composer.stage = .prepare // Nothing applied; my words are unchanged.
                     } else if composer.saved != nil && composer.isEditing && composer.hasChanges {
                         confirmDiscard = true
                     } else {
@@ -382,17 +426,139 @@ struct GuestPracticeMessageView: View {
 
     private var stageTitle: String {
         switch composer.stage {
-        case .prepare: "Prepare"
-        case .refine: "Refine"
+        case .prepare, .guide: "Prepare"
+        case .result: "Refine"
+        case .refine: "Your wording"
         case .reply: "Their reply"
         }
     }
 
+    /// Words first. Guidance, context and tone are there when wanted, never required.
     private var prepareForm: some View {
         VStack(alignment: .leading, spacing: 18) {
-            hero("What would you like to say", asset: "GuestPinguPractising")
+            hero("What would you like to say?", asset: "GuestPinguPractising")
             wordingBubble
             voiceButton(.wording)
+            intentCard
+            if let warning = practice.draftWarning {
+                Text(warning).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            }
+            DisclosureGroup("Context and tone", isExpanded: $showContext) { contextAndTone }
+                .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
+        }
+        .onAppear {
+            showSituation = showSituation || !composer.situation.isEmpty
+            showGoal = showGoal || !composer.goal.isEmpty
+            showContext = showContext || !composer.situation.isEmpty
+        }
+    }
+
+    /// "Help me get started" opens guidance; an intent from it is shown as intent, not as my words.
+    @ViewBuilder private var intentCard: some View {
+        let intent = composer.goal.trimmingCharacters(in: .whitespacesAndNewlines)
+        if intent.isEmpty {
+            Button("Help me get started", systemImage: "questionmark.circle") { focus = nil; composer.openGuidance() }
+                .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
+        } else {
+            Button { focus = nil; composer.openGuidance() } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Your intent").font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+                    Text(intent).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Your intent")
+            .accessibilityValue(intent)
+            .accessibilityHint("Change it")
+        }
+    }
+
+    /// Optional guidance: what should happen, and the situation if it helps. Nothing is requested here.
+    private var guideForm: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            hero("What do you want to happen?", asset: "GuestPinguThoughtful")
+            field("Your intent", icon: "scope", text: $composer.goal, prompt: "Agree on a fair split")
+                .focused($focus, equals: .goal)
+            field("Situation", icon: "person.2", text: $composer.situation, prompt: "What’s going on? Optional")
+                .focused($focus, equals: .situation)
+            Text("Kept with your draft. Nothing is sent.")
+                .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+        }
+        .onAppear { focus = .goal }
+    }
+
+    /// "Find your words": one suggestion first, the rest on request, my words always kept.
+    private var resultView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if !typeSize.isAccessibilitySize {
+                GuestScene(.refineWorkbench).clipShape(RoundedRectangle(cornerRadius: 24))
+            }
+            Text("Find your words").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                .accessibilityAddTraits(.isHeader)
+            if composer.isSuggesting {
+                HStack(spacing: 12) {
+                    ProgressView()
+                    Text("Reviewing your wording").foregroundStyle(GuestBrand.muted)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else if let error = composer.suggestionError {
+                Label(error, systemImage: "exclamationmark.circle")
+                    .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                Button("Try again") { Task { await composer.suggest() } }
+                    .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
+            } else if let option = composer.suggestedWording, let suggestions = composer.suggestions {
+                HStack(spacing: 10) {
+                    GuestBrandIcon(asset: "GuestPinguThoughtful", size: 44)
+                    Text("A \(option.tone.lowercased()) way to say it")
+                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Suggested wording").font(GuestBrand.font(.caption, .semibold)).foregroundStyle(.white.opacity(0.85))
+                    Text(option.text).font(GuestBrand.font(.title3, .semibold)).foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading).padding(18)
+                .background(GuestBrand.blue, in: RoundedRectangle(cornerRadius: 20))
+                .accessibilityElement(children: .combine)
+                Text(suggestions.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                if comparing { comparison }
+            }
+        }
+    }
+
+    /// Mine (or my intent) beside the other tones; each can be used on its own.
+    private var comparison: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            let mine = composer.wording.trimmingCharacters(in: .whitespacesAndNewlines)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(composer.resultIsFromIntent ? "From your intent" : "My wording")
+                    .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+                Text(composer.resultIsFromIntent ? composer.goal : mine).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+            .background(.white, in: RoundedRectangle(cornerRadius: 16))
+            .accessibilityElement(children: .combine)
+            ForEach(composer.otherWordings) { option in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(option.tone).font(GuestBrand.font(.caption, .bold)).foregroundStyle(GuestBrand.blue)
+                    Text(option.text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button("Use this") { composer.use(option); composer.stage = .refine }
+                        .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
+                        .accessibilityLabel("Use the \(option.tone.lowercased()) option")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+            }
+        }
+    }
+
+    private var contextAndTone: some View {
+        VStack(alignment: .leading, spacing: 18) {
             Text("Choose a scene").font(GuestBrand.font(.headline, .semibold))
             LazyVGrid(columns: [GridItem(.adaptive(minimum: typeSize.isAccessibilitySize ? 140 : 100))], spacing: 10) {
                 ForEach(["Work", "Family", "Friends", "Relationship", "Other"], id: \.self) { scene in
@@ -417,14 +583,9 @@ struct GuestPracticeMessageView: View {
                 VStack(alignment: .leading) { toneButtons }
             }
             details
-            if let warning = practice.draftWarning {
-                Text(warning).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-            }
         }
-        .onAppear {
-            showSituation = showSituation || !composer.situation.isEmpty
-            showGoal = showGoal || !composer.goal.isEmpty
-        }
+        .padding(.top, 8)
+        .foregroundStyle(GuestBrand.ink)
     }
 
     private var toneButtons: some View {
@@ -440,7 +601,11 @@ struct GuestPracticeMessageView: View {
 
     private var replyForm: some View {
         VStack(alignment: .leading, spacing: 16) {
-            hero("Keep the conversation going", asset: "GuestPinguListening")
+            if !typeSize.isAccessibilitySize {
+                GuestScene(.replyReading).clipShape(RoundedRectangle(cornerRadius: 24))
+            }
+            Text("Keep the conversation going").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
             Text("Paste their reply, add context, or both")
                 .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
             conversationHistory
@@ -561,16 +726,18 @@ struct GuestPracticeMessageView: View {
     }
 
     /// Kept outside the scroll content so suggestions and the keyboard cannot push it away.
+    /// After any save the history is refreshed; a new message's kept draft is cleared too.
+    private func finishSave(wasNew: Bool) async {
+        if wasNew, composer.ownsDraft, let id = composer.draftID { practice.clearDraft(id: id) }
+        await practice.load()
+    }
+
     private var saveButton: some View {
         Button {
             Task {
                 let wasNew = composer.saved == nil
-                let owned = composer.ownsDraft
                 focus = nil
-                if await composer.save() {
-                    if wasNew, owned, let id = composer.draftID { practice.clearDraft(id: id) }
-                    await practice.load()
-                }
+                if await composer.save() { await finishSave(wasNew: wasNew) }
             }
         } label: {
             Text(composer.isSaving ? "Saving…" : "Save")
@@ -657,12 +824,6 @@ struct GuestPracticeMessageView: View {
                     .buttonStyle(.plain)
                     .disabled(composer.isSuggesting)
                     Spacer()
-                    if composer.wordingBeforeSuggestion != nil {
-                        Button("Undo") { composer.undoSuggestion() }
-                            .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
-                            .frame(minHeight: 44)
-                            .accessibilityLabel("Undo suggestion")
-                    }
                 }
                 if let error = composer.suggestionError {
                     Text(error).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
