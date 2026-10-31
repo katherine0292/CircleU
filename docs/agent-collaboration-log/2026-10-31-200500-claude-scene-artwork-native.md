@@ -19,3 +19,7 @@ Owner chose "artwork refresh" from the 31 October review: adopt the remaining ap
 ## Verification
 
 `GuestSceneArtTests` (all nine bundled at 2:1, Today state mapping) written first and run with the Pingu art and copy-lint tests: 5 passed. Full unit and UI suite results are recorded in the PR. Simulator only; no physical-device check.
+
+## Review
+
+Codex (`gpt-6-astra`, read-only, Swift diff): no blockers. Suggestions, not applied here: UI coverage for the accessibility-size omission and VoiceOver semantics; a visual check of small-screen, keyboard and iPad layouts where width-proportional scenes replaced fixed-height art. Merged as PR 43 under the auto-merge rule (unit 278 pass; UI 26 pass across the rerun and the separately rerun Polish test).
