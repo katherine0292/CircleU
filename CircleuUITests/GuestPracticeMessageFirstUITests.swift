@@ -5,6 +5,16 @@ final class GuestPracticeMessageFirstUITests: XCTestCase {
     func has(_ app: XCUIApplication, _ text: String, _ timeout: TimeInterval = 5) -> Bool {
         app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: timeout)
     }
+    /// Compare sits under the suggestion; scroll it clear of the pinned footer before tapping.
+    func tapCompare(_ app: XCUIApplication) {
+        let compare = app.buttons["Compare with mine"]
+        XCTAssertTrue(compare.waitForExistence(timeout: 5))
+        let footer = app.buttons["Use this wording"]
+        for _ in 0..<4 where compare.frame.maxY > footer.frame.minY { app.swipeUp() }
+        XCTAssertLessThanOrEqual(compare.frame.maxY, footer.frame.minY, "Compare scrolls clear of the footer")
+        compare.tap()
+    }
+
     func shot(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
@@ -39,7 +49,7 @@ final class GuestPracticeMessageFirstUITests: XCTestCase {
         XCTAssertTrue(has(app, "Suggested wording", 10))
         XCTAssertTrue(has(app, "Guided prompts, not a personal analysis"))
         shot(app, "m3-result")
-        app.buttons["Compare with mine"].tap()
+        tapCompare(app)
         XCTAssertTrue(has(app, "My wording"))
         XCTAssertTrue(app.buttons["Use the gentle option"].exists || app.buttons["Use the firm option"].exists)
         shot(app, "m4-compare")
@@ -78,7 +88,7 @@ final class GuestPracticeMessageFirstUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Save without feedback"].isEnabled, "nothing to save yet")
         app.buttons["Find words from my intent"].tap()
         XCTAssertTrue(has(app, "Suggested wording", 10))
-        app.buttons["Compare with mine"].tap()
+        tapCompare(app)
         XCTAssertTrue(has(app, "From your intent"), "labelled as intent")
         XCTAssertFalse(app.staticTexts["My wording"].exists, "never shown as words I wrote")
         shot(app, "m6-from-intent")

@@ -161,12 +161,31 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
         guard let start = response.firstIndex(of: "["), let end = response.lastIndex(of: "]"), start < end,
               let data = String(response[start...end]).data(using: .utf8) else { return [] }
         struct Option: Decodable { let tone: String; let text: String }
-        return try JSONDecoder().decode([Option].self, from: data)
-            .filter { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-            .prefix(3)
-            .map { GuestWordingOption(tone: $0.tone, text: $0.text) }
+        return validatedOptions(try JSONDecoder().decode([Option].self, from: data).map { ($0.tone, $0.text) })
     }
     #endif
+
+    /// The tones the app asks for, in the order it shows them.
+    static let supportedTones = ["Gentle", "Clear", "Firm"]
+    static let maximumOptionWords = 60
+
+    /// Model output is only used when it keeps the contract: a known tone (any case), each tone at
+    /// most once, non-empty text within the word limit. Anything else is dropped; nothing is left
+    /// for the engine's guided fallback when none survive. Option identity stays the tone, which
+    /// this guarantees to be unique.
+    static func validatedOptions(_ raw: [(tone: String, text: String)]) -> [GuestWordingOption] {
+        var seen: Set<String> = []
+        var options: [GuestWordingOption] = []
+        for (rawTone, rawText) in raw {
+            let text = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let tone = supportedTones.first(where: { $0.caseInsensitiveCompare(rawTone.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame }),
+                  !seen.contains(tone), !text.isEmpty,
+                  text.split { $0.isWhitespace }.count <= maximumOptionWords else { continue }
+            seen.insert(tone)
+            options.append(GuestWordingOption(tone: tone, text: text))
+        }
+        return options
+    }
 }
 
 /// Makes the on-device engine report failure instead of falling back silently, so the source

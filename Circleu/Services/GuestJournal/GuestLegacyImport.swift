@@ -36,7 +36,7 @@ enum GuestLegacyImport {
 
     /// Where the earlier app's data is read from. Debug UI tests point this at an isolated suite,
     /// so a fixture never touches the real keys.
-    static var source: UserDefaults = .standard
+    nonisolated(unsafe) static var source: UserDefaults = .standard
 
     /// Owner decision pending (26 Oct). No marker in the earlier app's data proves whose it is: a
     /// reinstall can keep an account's sign-in in the Keychain and restore its backup into the

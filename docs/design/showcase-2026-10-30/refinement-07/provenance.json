@@ -1,0 +1,65 @@
+{
+  "recorded": "2026-11-01",
+  "renderer": "Google Chrome headless, --force-device-scale-factor=2, 1280x720 canvas",
+  "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES",
+  "poster": {
+    "file": "CircleU-Poster-v7.png",
+    "sha256": "7378b2e647cf0cb6285562804496bed05675ebff72895b9552aa25cc069639f3",
+    "width": 2560,
+    "height": 1440
+  },
+  "source": {
+    "file": "poster.html",
+    "sha256": "b6f2858dbbcb09484535d13767d8d699fbb908efb6a814fa3ad695bedefb415f"
+  },
+  "assets": [
+    {
+      "file": "assets/today.png",
+      "source": "GuestShowcaseCaptureUITests showcase-today",
+      "sha256": "77755b571758b045b2a562a34ba2253cc91a7ea9a5b37ea5b88adf91fc29fff3",
+      "width": 1206,
+      "height": 2622
+    },
+    {
+      "file": "assets/journal.png",
+      "source": "GuestShowcaseCaptureUITests showcase-journal",
+      "sha256": "c4323beebf29bcf35cb6307a878f492eaa12a6bbd7bdad71fb55ea11d7a49c42",
+      "width": 1206,
+      "height": 2622
+    },
+    {
+      "file": "assets/practice.png",
+      "source": "GuestShowcaseCaptureUITests showcase-practice",
+      "sha256": "1beff45d53f6d5e3bafb609440d925113be885370b9c09b51e63383918e804b6",
+      "width": 1206,
+      "height": 2622
+    },
+    {
+      "file": "assets/logo.png",
+      "source": "Prototypes/.../BrandArtwork/BrandLogo.png",
+      "sha256": "0a7b6dda43e0fda65465fa78ce0b9b1226b04053dcda8ebd646be55f1445e2d2",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "file": "assets/pingu-calm.png",
+      "source": "Prototypes/.../BrandArtwork/EmotionPortraits02/PinguCalmTransparentV1.png",
+      "sha256": "5ba9c7b682884d34d5b8e0c8a46f72fd513ff79b751f1695dbdfbbe130087b7b",
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "file": "assets/program-lockup.png",
+      "source": "docs/design/showcase-2026-10-30/refinement-04/assets/uts-apple-foundation-program-original.png",
+      "sha256": "6d035502c722018b3db2cc07ddc9fe55cbb6f3225471eac4bd7ef0f6c144f505",
+      "width": 880,
+      "height": 495
+    },
+    {
+      "file": "assets/PlusJakartaSans.ttf",
+      "source": "Prototypes/.../BrandFonts/PlusJakartaSans.ttf",
+      "sha256": "89b3fb38aa0d275d7a731d0d817a4f1622b316b4d7fbdedcf02ee9099ff68bc8"
+    }
+  ],
+  "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies."
+}

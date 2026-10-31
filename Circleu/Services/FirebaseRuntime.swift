@@ -31,7 +31,7 @@ enum FirebaseRuntime {
         FirebaseApp.app()
     }
 
-    static var canUseLiveFirebase: Bool {
+    nonisolated static var canUseLiveFirebase: Bool {
         configuredApp != nil
     }
 

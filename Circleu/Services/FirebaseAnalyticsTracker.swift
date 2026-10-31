@@ -5,7 +5,7 @@ import os
 import FirebaseAnalytics
 #endif
 
-private let analyticsLogger = Logger(subsystem: "edu.uts.tuannm3812.Circleu", category: "Analytics")
+nonisolated private let analyticsLogger = Logger(subsystem: "edu.uts.tuannm3812.Circleu", category: "Analytics")
 
 /// Privacy-safe analytics tracker that logs to the console/OSLog for debugging
 /// and sends events to Firebase Analytics if configured.

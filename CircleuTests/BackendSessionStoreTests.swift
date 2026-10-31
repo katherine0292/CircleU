@@ -458,8 +458,8 @@ final class BackendSessionStoreTests: XCTestCase {
     }
 
     func testUpdateDisplayNameUpdatesFirebaseUserAndSession() async throws {
-        let authStore = AuthStore(userDefaults: makeDefaults())
-        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        _ = AuthStore(userDefaults: makeDefaults())
+        _ = UserProfileStore(userDefaults: makeDefaults())
         let authenticator = FakeFirebaseAuthenticator(
             currentSession: FirebaseAuthSession(
                 uid: "firebase-user-1",
