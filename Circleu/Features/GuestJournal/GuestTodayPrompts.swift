@@ -20,7 +20,7 @@ enum GuestTodayPrompts {
     ]
 
     /// "Need a nudge?" follow-ups while writing, one at a time.
-    static let followUps: [GuestPrompt] = [
+    nonisolated static let followUps: [GuestPrompt] = [
         GuestPrompt(question: "What did you want them to understand?", starter: "I wanted them to understand "),
         GuestPrompt(question: "How did you feel right after?", starter: "Right after, I felt "),
         GuestPrompt(question: "What matters most to you here?", starter: "What matters most to me is "),

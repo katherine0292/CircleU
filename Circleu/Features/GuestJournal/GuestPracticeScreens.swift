@@ -330,10 +330,6 @@ struct GuestPracticeMessageView: View {
                     case .result:
                         Button("Use this wording") { composer.useSuggestedWording() }
                             .buttonStyle(GuestBrandButtonStyle()).disabled(composer.suggestedWording == nil)
-                        if composer.suggestedWording != nil {
-                            Button(comparing ? "Hide comparison" : "Compare with mine") { withAnimation { comparing.toggle() } }
-                                .buttonStyle(GuestBrandButtonStyle(filled: false))
-                        }
                         Button("Keep my wording") { composer.keepMyWording() }
                             .buttonStyle(GuestBrandButtonStyle(filled: false))
                     case .reply:
@@ -524,6 +520,9 @@ struct GuestPracticeMessageView: View {
                 .background(GuestBrand.blue, in: RoundedRectangle(cornerRadius: 20))
                 .accessibilityElement(children: .combine)
                 Text(suggestions.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                Button(comparing ? "Hide comparison" : "Compare with mine",
+                       systemImage: comparing ? "chevron.up" : "chevron.down") { withAnimation { comparing.toggle() } }
+                    .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
                 if comparing { comparison }
             }
         }
