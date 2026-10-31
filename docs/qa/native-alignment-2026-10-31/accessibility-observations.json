@@ -1,0 +1,88 @@
+{
+  "note": "Informational Xcode accessibility audits from the full UI run; existing handlers do not fail tests. Invented test fixtures only. Findings require triage, not a blanket accessibility pass. The new zero-width wordmark finding was corrected and visually verified in the final captures; other observations remain informational.",
+  "audits": [
+    {
+      "attachment": "find-audit",
+      "findings": [
+        "calendar | Dynamic Type font sizes are partially unsupported | 31 Oct | (46.0, 576.5, 46.0, 19.0)",
+        "calendar | Dynamic Type font sizes are partially unsupported | 31 Oct | (16.0, 640.6666666666667, 370.0, 36.66666666666663)",
+        "calendar | Text clipped | Search your journal | (16.0, 116.0, 370.0, 44.0)",
+        "calendar | Contrast failed | - | (0.0, 0.0, 0.0, 0.0)",
+        "calendar | Potentially inaccessible text | - | (0.0, 0.0, 0.0, 0.0)"
+      ]
+    },
+    {
+      "attachment": "guest-audit",
+      "findings": [
+        "today | Contrast failed | Save | type 9 | id  | (24.0, 725.0, 354.0, 54.0)",
+        "today | Dynamic Type font sizes are partially unsupported | CircleU | type 48 | id  | (60.0, 73.83333333333333, 0.0, 20.33333333333333)",
+        "write | Dynamic Type font sizes are partially unsupported | CircleU | type 48 | id  | (60.0, 73.83333333333333, 0.0, 20.33333333333333)",
+        "journal | Contrast failed | Reflect | type 48 | id  | (213.33333333333334, 180.0, 110.66666666666666, 44.0)",
+        "journal | Contrast failed | 31 Oct | type 48 | id  | (16.0, 246.0, 370.0, 36.666666666666686)",
+        "journal | Dynamic Type font sizes are partially unsupported | Reflect | type 48 | id  | (213.33333333333334, 180.0, 110.66666666666666, 44.0)",
+        "journal | Dynamic Type font sizes are partially unsupported | Saved | type 48 | id  | (80.0, 191.16666666666666, 51.66666666666666, 21.666666666666686)",
+        "journal | Text clipped | Search your journal | type 45 | id  | (16.0, 116.0, 370.0, 44.0)",
+        "journal | Text clipped | Reflect | type 48 | id  | (213.33333333333334, 180.0, 110.66666666666666, 44.0)",
+        "detail | Text clipped | Created Saturday, 31 October 2026 at 5:49\u202fPM | type 48 | id  | (24.0, 140.0, 49.66666666666666, 16.666666666666657)",
+        "edit | Contrast failed | Back | type 9 | id  | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "edit | Dynamic Type font sizes are partially unsupported | Back | type 9 | id  | (20.0, 66.0, 65.33333333333333, 36.0)"
+      ]
+    },
+    {
+      "attachment": "signin-audit",
+      "findings": [
+        "login | Contrast failed | Log in | (24.0, 478.0, 354.0, 54.0)",
+        "login | Dynamic Type font sizes are partially unsupported | Signed out after | (209.6666717529297, 322.1620788574219, 126.33332824707031, 16.666656494140625)",
+        "login | Dynamic Type font sizes are partially unsupported | Nothing uploaded | (37.0, 322.0, 139.0, 16.666656494140625)",
+        "preview | Text clipped | I told my friend I needed space, kindly. | (36.0, 241.67583333333334, 291.0, 20.333333333333314)"
+      ]
+    },
+    {
+      "attachment": "polish-audit",
+      "findings": [
+        "today | Contrast failed | Save | (24.0, 725.0, 354.0, 54.0)",
+        "today | Dynamic Type font sizes are partially unsupported | CircleU | (60.0, 73.83333333333333, 0.0, 20.33333333333333)",
+        "picker | Contrast failed | Done | (314.0, 82.0, 68.0, 36.0)",
+        "picker | Dynamic Type font sizes are partially unsupported | Done | (314.0, 82.0, 68.0, 36.0)",
+        "entry | Text clipped | Created Saturday, 31 October 2026 at 5:52\u202fPM | (24.0, 140.0, 49.66666666666666, 16.666666666666657)"
+      ]
+    },
+    {
+      "attachment": "practice-audit",
+      "findings": [
+        "practice-home | Text clipped | Search messages | (16.0, 168.0, 370.0, 14.333333333333343)",
+        "compose | Hit area is too small | Record your words | (24.0, 594.6666666666666, 76.66666666666667, 19.33333333333337)",
+        "compose | Contrast failed | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "compose | Dynamic Type font sizes are partially unsupported | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "saved | Contrast failed | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "saved | Dynamic Type font sizes are partially unsupported | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "entry-detail | Text clipped | Hey, can we talk about Friday 3206? | (180.33333333333334, 258.3333333333333, 181.66666666666666, 43.0)",
+        "entry-detail | Text clipped | Created Saturday, 31 October 2026 at 5:54\u202fPM | (24.0, 140.0, 50.0, 16.666666666666657)"
+      ]
+    },
+    {
+      "attachment": "suggestion-audit",
+      "findings": [
+        "review | Contrast failed | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "review | Contrast failed | A possible next step | (38.0, 983.7066666666666, 145.0, 19.0)",
+        "review | Contrast failed | Try a one-minute check-in next time and name one feeling clearly. | (38.0, 1008.7066666666666, 322.0, 42.999999999999886)",
+        "review | Dynamic Type font sizes are partially unsupported | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "entry | Text clipped | Created Saturday, 31 October 2026 at 5:57\u202fPM | (24.0, 140.0, 49.0, 16.666666666666657)",
+        "options | Hit area is too small | Record your words | (24.0, 594.6666666666666, 76.66666666666667, 19.33333333333337)",
+        "options | Contrast failed | Back | (20.0, 66.0, 65.33333333333333, 36.0)",
+        "options | Contrast failed | Clear | (50.0, 828.6666666666666, 31.33333333333333, 15.333333333333371)",
+        "options | Contrast failed | I\u2019d like to talk about something that\u2019s been on my mind. Can we talk about the group project? What I\u2019m hoping for is to work out what would help. Does that work for you? | (40.0, 858.0, 255.0, 128.66666666666663)",
+        "options | Dynamic Type font sizes are partially unsupported | Back | (20.0, 66.0, 65.33333333333333, 36.0)"
+      ]
+    },
+    {
+      "attachment": "voice-audit",
+      "findings": [
+        "practice | Text clipped | Search messages | (16.0, 168.0, 370.0, 14.333333333333343)",
+        "write | Contrast failed | Save | (24.0, 725.0, 354.0, 54.0)",
+        "write | Dynamic Type font sizes are partially unsupported | CircleU | (60.0, 73.83333333333333, 0.0, 20.33333333333333)",
+        "prompts: [] | message: Dictation needs microphone and speech recognition access. Turn them on in Settings, or keep typing. | settings: true"
+      ]
+    }
+  ]
+}

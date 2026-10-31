@@ -1,0 +1,21 @@
+{
+  "tool": "built-in image_gen",
+  "file": "CircleU-LinkedIn-LandscapeV1.png",
+  "width": 1672,
+  "height": 941,
+  "bytes": 1754505,
+  "sha256": "1679ede4a0d4e3a9bc85bc712c84956c2b3bad3dd8b830d87f9fec80c332c177",
+  "prompt": "prompt.txt",
+  "references": [
+    {
+      "path": "docs/design/brand-demo/poster-01/CircleU-PosterV2.png",
+      "role": "brand, artwork and screen reference"
+    },
+    {
+      "source": "Owner-attached Photo 1.jpg, current turn",
+      "role": "composition reference",
+      "persisted_in_repo": false
+    }
+  ],
+  "pixel_edits": false
+}

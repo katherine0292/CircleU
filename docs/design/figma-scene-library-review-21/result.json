@@ -1,0 +1,116 @@
+{
+  "createdNodeIds": [
+    "156:471",
+    "156:472",
+    "156:473",
+    "156:474",
+    "156:475",
+    "156:476",
+    "156:477",
+    "156:478",
+    "156:480",
+    "156:482",
+    "156:484",
+    "156:486",
+    "156:488",
+    "156:490",
+    "156:491",
+    "156:492",
+    "156:493",
+    "156:494",
+    "156:496",
+    "156:497",
+    "156:498",
+    "156:500",
+    "156:501",
+    "156:502",
+    "156:504"
+  ],
+  "mutatedNodeIds": [
+    "74:10",
+    "74:42",
+    "74:71",
+    "74:97",
+    "74:126",
+    "74:157",
+    "74:2"
+  ],
+  "removedNodeIds": [
+    "74:11",
+    "74:43",
+    "74:72",
+    "74:98",
+    "74:127",
+    "74:158",
+    "155:471"
+  ],
+  "componentSet": "156:477",
+  "variants": [
+    {
+      "id": "156:471",
+      "name": "Scene=Window pause",
+      "properties": {
+        "Scene": "Window pause"
+      }
+    },
+    {
+      "id": "156:473",
+      "name": "Scene=Reflection garden",
+      "properties": {
+        "Scene": "Reflection garden"
+      }
+    },
+    {
+      "id": "156:475",
+      "name": "Scene=Voice corner",
+      "properties": {
+        "Scene": "Voice corner"
+      }
+    }
+  ],
+  "review": "156:490",
+  "placements": [
+    {
+      "hero": "74:10",
+      "instance": "156:478",
+      "scene": "Window pause",
+      "width": 342,
+      "height": 171
+    },
+    {
+      "hero": "74:42",
+      "instance": "156:480",
+      "scene": "Window pause",
+      "width": 342,
+      "height": 171
+    },
+    {
+      "hero": "74:71",
+      "instance": "156:482",
+      "scene": "Voice corner",
+      "width": 342,
+      "height": 171
+    },
+    {
+      "hero": "74:97",
+      "instance": "156:484",
+      "scene": "Window pause",
+      "width": 342,
+      "height": 171
+    },
+    {
+      "hero": "74:126",
+      "instance": "156:486",
+      "scene": "Window pause",
+      "width": 342,
+      "height": 171
+    },
+    {
+      "hero": "74:157",
+      "instance": "156:488",
+      "scene": "Window pause",
+      "width": 342,
+      "height": 171
+    }
+  ]
+}

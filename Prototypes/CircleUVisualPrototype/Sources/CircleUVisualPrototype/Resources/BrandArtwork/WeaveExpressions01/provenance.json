@@ -1,0 +1,29 @@
+{
+  "created": "2026-10-31",
+  "status": "review candidate; not approved production artwork",
+  "provider": "Figma Weave",
+  "model": "Nano Banana 2 Lite",
+  "model_id": "e3182874-8f56-4b8f-ae09-83677c914cf8",
+  "prediction_id": "57202802-1eb5-4bf5-8b61-6eee0826f5ae",
+  "credits_spent": 3,
+  "reported_remaining_credits": 147,
+  "source": "Activities01/PinguPractisingV1.png",
+  "output": "PinguListeningV1.jpg",
+  "output_url": "https://media.weavy.ai/image/upload/v1793393983/uploads/6SkbioOhgqMtOrSLiaonnWK6uNg2/b85zbxbsz4w9stia1tgv.jpg",
+  "prompt": "Create ONE new CircleU mascot illustration using the attached image as the strict character and rendering-style reference. Subject: Pingu listening attentively. Preserve the same navy penguin, white face and belly, oval dark eyes with small highlights, small orange beak and orange feet, one curved crest, and pale ice-blue scarf. Preserve the original proportions, smooth soft dimensional shading and matte finish. Change the pose only: seated upright, a slight curious head tilt, one flipper resting against the chest and the other resting by the side, relaxed attentive eyes and a subtle closed-beak expression. Remove the card and blue speech bubble. No headphones, props, text, badges or extra symbols. Full body centred in a square with generous clear margin around crest, scarf and feet. Use a plain uniform very pale ice-blue background #F5FAFF for this style trial, with a restrained soft contact shadow. No sketch texture, thick outlines, plastic gloss, extra limbs, logos or lettering. This is a reusable branded companion illustration for adults, not a cartoon sticker sheet.",
+  "settings": {
+    "resolution": "1K",
+    "aspect_ratio": "1:1"
+  },
+  "review": "Recognition retained; flatter shading and different scarf folds from original. Opaque pale background; not a transparent cutout. No app integration.",
+  "source_sha256": "e755d6219cb7b26311a7d4b0036d88ba9c9ce938fae6df27eaed810118d0e3af",
+  "source_bytes": 916613,
+  "output_sha256": "8c591d886969f94e4d9618bd50d995c333113c6ea5065444d5e3795e7d39943e",
+  "output_bytes": 62366,
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "format": "JPEG",
+  "mode": "RGB"
+}

@@ -38,6 +38,11 @@ enum GuestBrand {
         return .custom(fontName, size: baseSize(for: style), relativeTo: style).weight(weight)
     }
 
+    static func font(size: CGFloat, relativeTo style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
+        guard let fontName else { return .system(style).weight(weight) }
+        return .custom(fontName, size: size, relativeTo: style).weight(weight)
+    }
+
     /// Navigation titles in the brand font, scaled with Dynamic Type. Only called from the
     /// guest journal, which is the whole interface whenever it runs.
     static func applyNavigationBarFonts() {

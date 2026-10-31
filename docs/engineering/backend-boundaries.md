@@ -1,5 +1,7 @@
 # Circleu Backend Boundaries
 
+> Historical legacy-app architecture reference. Its implementation-status statements below predate the newer guest app. See [current backend readiness](competition-backend-readiness-2026-10-27.md) for the SwiftData guest contracts, original Firebase paths and remaining qualification work.
+
 Circleu is local-first. Backend work should be added through explicit service boundaries, not directly from SwiftUI views or feature ViewModels.
 
 ## Current Local Ownership

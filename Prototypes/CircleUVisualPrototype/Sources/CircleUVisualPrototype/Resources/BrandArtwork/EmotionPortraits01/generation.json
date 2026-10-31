@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-31",
+  "provider": "Figma generate_image",
+  "model": "gemini-3.1-flash-lite-image",
+  "generations": 1,
+  "prompt": "Create a precise 3-column by 2-row emotion sprite atlas for CircleU's Pingu penguin companion. Canvas 3:2 landscape, six equally sized square cells, no grid lines, no text or labels. Every cell has exactly the SAME original modern illustrated penguin HEAD AND SHOULDERS, centered, completely contained with generous 15% margin. Navy-blue round head (#162747), white heart-shaped face, short curved top tuft, small orange beak, light blue scarf visible at neck. Clean smooth shapes, matte soft dimensional shading, no sketching, no outline strokes, no photographic texture, no glitter. Friendly and emotionally respectful, for university students. Large clear facial expressions readable as a 40-pixel icon. Consistent angle front-facing, consistent face proportions and scale. Top-left CALM: closed gently curved eyes, relaxed beak, peaceful. Top-middle WORRIED: raised inner brows, open concerned eyes, small tense beak. Top-right OVERLOADED: tired open eyes, raised flippers near temples, two tiny navy swirling marks above head, NOT angry or crying. Bottom-left HAPPY: cheerful crescent eyes and open orange smile. Bottom-middle SAD: downturned eyes and small frown, one tiny blue tear, gentle not dramatic. Bottom-right FRUSTRATED: slanted brows and tight beak, mild exasperation, no flames or aggressive symbols. All six on the same completely uniform pale ice background #F5FAFF. No circles, no tiles, no objects, no bodies below shoulders. Exact equal grid centers at x=1/6,3/6,5/6 of width and y=1/4,3/4 of height. All anatomy and accents stay inside their own cell.",
+  "fileKey": "rfknpmLIXsOxA7fHUQQMtR",
+  "masterNodeId": "93:437",
+  "masterFile": "PinguEmotionAtlasV1.jpg",
+  "masterSize": [
+    1264,
+    848
+  ],
+  "requestedSize": [
+    1536,
+    1024
+  ],
+  "portraitSize": [
+    360,
+    320
+  ],
+  "portraits": {
+    "Calm": "94:437",
+    "Worried": "94:440",
+    "Overloaded": "94:443",
+    "Happy": "94:446",
+    "Sad": "94:449",
+    "Frustrated": "94:452"
+  },
+  "notes": "Generated master retained unchanged. Figma CROP fills omit generated labels; exported portraits have opaque pale blue backgrounds. Labels in the UI are editable text. Prototype review assets only; no native integration.",
+  "crop": {
+    "width": 360,
+    "height": 320,
+    "xFormula": "40 + column * 420",
+    "yFormula": "35 + row * 412",
+    "rows": [
+      [
+        "Calm",
+        "Worried",
+        "Overloaded"
+      ],
+      [
+        "Happy",
+        "Sad",
+        "Frustrated"
+      ]
+    ]
+  }
+}

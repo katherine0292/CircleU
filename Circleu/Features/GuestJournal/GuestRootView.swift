@@ -68,6 +68,7 @@ struct GuestComposition {
         await viewModel.restoreDraft() // After load, so a leftover draft can be matched to saved entries.
         if writeAdoption != .done { viewModel.noteUnreadableDraft() } // The older file is left untouched.
         let practice = GuestPracticeViewModel(store: store, suggester: suggester(), drafts: practiceDrafts)
+        practice.makeDictationEngine = dictationEngine
         await practice.load()
         await practice.loadDraft()
         if practiceAdoption != .done { practice.noteUnreadableDraft() }

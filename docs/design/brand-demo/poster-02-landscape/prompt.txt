@@ -1,0 +1,23 @@
+Create a refined LANDSCAPE 16:9 digital project showcase poster for CircleU, intended as an image in a LinkedIn post. Output wide landscape, ideally 2400x1350 or the highest supported resolution. This is a designed graphic itself, not a photograph of a monitor or room.
+
+INPUTS: image 1 is the existing portrait CircleU poster: preserve its exact penguin mascot identity, logo identity, navy/ice/cobalt palette, polished soft dimensional illustration and the Today / Journal / Practice app screen content. Image 2 is the owner's photographed old showcase display, a COMPOSITION reference only: explanatory left column and three phone mockups at right. Do not recreate old Circle/community features, streaks, old feature copy, QR or App Store badge.
+
+LAYOUT: generous 5% outer margins, sophisticated editorial hierarchy, airy ice-white left 42% for readable content. Right 58% is three handsome, near-upright realistic dark navy iPhone mockups with plausible tall proportions, Today centered and slightly forward, Journal left, Practice right. Devices occupy most of the height yet all three stay wholly inside canvas and do not obscure the left copy. Soft blue ice-cove and warm sunrise artwork restrained to right and lower edge, fading smoothly into quiet left. Keep all content highly legible. Single scarf-wearing Pingu with blue journal in bottom right foreground, smaller than phones and never covering important screen text. No other large mascots.
+
+TEXT: exact main poster copy below, no additional marketing claims.
+Top left: penguin-head logo and "CircleU"
+Large two-line headline: "Find your\nwords"
+Introduction, comfortably readable in 2-3 lines: "An iPhone companion for reflecting on difficult conversations and practising what to say next."
+Three vertically stacked compact feature rows beneath it, each with a small modern rounded blue outline icon inside pale ice-blue circular backing:
+"Today"
+"Capture what happened while it’s on your mind"
+"Journal"
+"Revisit your words and reflect at your own pace"
+"Practice"
+"Prepare a message before the conversation"
+Small bottom-left footer: "SwiftUI · Interaction design · Accessibility"
+No terminal full stops on headings or feature lines. Typography matching Plus Jakarta Sans as closely as possible, deep navy headings, clean readable body, no sketchy type. Strong white space, avoid dense tiny text. The main copy should be readable on a laptop and at social-feed size.
+
+PHONE CONTENT: follow image 1 closely and keep the approved three-tab navigation Today / Journal / Practice. Today: "What’s on your mind?", scarf Pingu in ice-nook scene with microphone, three prompt chips "What happened?", "Who was in it?", "What do you wish you’d said?", a short writing field "I want to explain how I felt", blue "Save" button. Journal: "Journal", calendar toolbar icon only here, three dated rows "After our conversation", "A moment to reflect", "What I want to say". Practice: "Practice", blue "Practice a message" Pingu card, message bubble "Can we split the slides?" and date "27 Oct". Preserve plausible uncluttered UI, do not add unsupported controls or calendars to Practice. Use accurate lettering where visible. Phones are presentation mockups; remove any distracting debug text. No dramatic perspectives.
+
+AVOID: photos of desks, monitors, rooms or people; giant atmospheric background drowning the product; extra slogans; app-store/download/launch claims; QR code; UTS logo; awards; cloud/AI/security claims; gradients on text; community/circles/rewards features. Visually polished professional portfolio presentation with warmth and a clear product explanation.

@@ -13,11 +13,11 @@ Read these files explicitly; do not assume a tool automatically expands referenc
 
 Shared baseline: `~/Documents/GitHub/coding-standards/coding_standards.md`. The project standards record deliberate Swift/iOS overrides; if the shared file is unavailable, use the local rules and report that limitation.
 
-## Current direction — 24 October 2026
+## Current direction — updated 31 October 2026
 
 - Research/planning before feature coding; do not infer implementation approval from a prototype or plan.
 - Approved: Today / Journal / Practice; circles and rewards deferred. The owner reaffirmed guest-first local use on 24 October after reviewing the account tradeoff. Welcome: Get started and optional Log in for existing-account recovery. See [onboarding](docs/design/account-onboarding.md). No new sync, cloud AI or automatic recovery approval.
-- Existing code still contains Firebase, accounts, cloud AI and automatic backup paths. Local-only behavior is not implemented or verified.
+- The guest/review dependency graph and local SwiftData persistence are implemented. Standard Release still opens the legacy Firebase/account app. Simulator tests do not establish complete physical-device/network isolation or production recovery; preserve both paths. See the [current audit](docs/qa/project-audit-2026-10-31/README.md).
 - Previous TestFlight releases exist. Follow the [transition plan](docs/superpowers/plans/2026-10-23-local-first-transition.md); do not erase legacy data or remove recovery access.
 - Proposed new device scope is separate from existing iOS 17/iPhone+iPad settings. See [device validation](docs/product/supported-devices.md).
 

@@ -1,5 +1,7 @@
 # Prototype walkthrough worksheet
 
+Current-session pointer, 30 October: use the [Practice review 08 usability guide](practice-usability-session-2026-10-30.md) for the new message-first participant sessions. It contains neutral tasks and a blank results template; no new participant results have been collected. The owner walkthrough below is historical evidence, not a participant study.
+
 Prepared 24 October 2026 for the [review brief](prototype-review-brief.md). **No owner walkthrough or participant session has run.** This is an empty worksheet, not research findings or validated usefulness.
 
 Use [Demo 04](brand-demo/core-journeys.md) for appearance and the existing Figma scenario links for represented navigation. Use the [calendar specimens](brand-demo/journal-calendar.md) for visual comprehension only. Record the actual Git commit / Figma version at the time of each session. Static fields/actions cannot demonstrate typing, copying, date filtering, save/restore or cancellation.

@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "method": "Built-in image_gen; separate reference-based generation per asset",
+  "status": "Owner accepted artwork for the asset library on 30 October 2026; native placements remain pending",
+  "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Activities01/PinguPractisingV1.png",
+  "assets": [
+    {
+      "filename": "SceneWindowPauseV1.png",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-d05853ba-e6ac-43bb-b2fb-96f4d86b2c8c.png",
+      "prompt": "Use case: illustration-story. Asset: standalone wide 2:1 hero illustration for CircleU phone screen. Use the supplied image ONLY as exact character/style reference: one Pingu penguin with navy body, white face and tummy, single curved crest, small oval dark eyes, orange beak and feet, pale ice-blue scarf. Match its clean softly dimensional matte shading and mature friendly expression. No sketch lines, grain, photorealism or plastic shine. Brand palette navy, ice white, pale blue, cobalt accents, tiny warm peach/orange. Full bleed opaque illustration. No words, letters, logos, numbers, UI, buttons, frames or watermark. Keep anatomy consistent with flippers, no human hands. Render a single scene, not a collage. Design for small phone hero use with restrained details, generous margins around the entire character, and a quiet area for future native controls. Avoid the old composition of a penguin sitting by an ice arch, a lantern and sunset water.\nScene: a calm bright interior window seat, late morning. Pingu sits sideways on a broad pale-blue cushion in the LEFT third, body in three-quarter view, feet visible, one flipper lightly touching the scarf while looking thoughtfully out a tall round-corner window. No notebook or pencil. Outside is a very simple soft snowy hill and pale blue sky, not a dramatic landscape. A subtle peach shaft of daylight falls across the seat. RIGHT 45% is quiet pale ice-blue wall and spacious soft light, no props or pattern. Mood is reflective and composed, not sad or celebratory. Composition distinctly interior, close and architectural, not another icy cove. Output aspect ratio 2:1.",
+      "suggested_placement": "Today / reflection introduction",
+      "subject_anchor": "left",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1603783,
+      "sha256": "8b0c4ab76c32847c1ec2ed9ab9b34015bf27904b7465212c7d9b87b550d11aa8"
+    },
+    {
+      "filename": "SceneJournalDeskV1.png",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-3a5c9001-1b4e-4490-bf0f-a052f2a82088.png",
+      "prompt": "Use case: illustration-story. Asset: standalone wide 2:1 hero illustration for CircleU phone screen. Use the supplied image ONLY as exact character/style reference: one Pingu penguin with navy body, white face and tummy, single curved crest, small oval dark eyes, orange beak and feet, pale ice-blue scarf. Match its clean softly dimensional matte shading and mature friendly expression. No sketch lines, grain, photorealism or plastic shine. Brand palette navy, ice white, pale blue, cobalt accents, tiny warm peach/orange. Full bleed opaque illustration. No words, letters, logos, numbers, UI, buttons, frames or watermark. Keep anatomy consistent with flippers, no human hands. Render a single scene, not a collage. Design for small phone hero use with restrained details, generous margins around the entire character, and a quiet area for future native controls. Avoid the old composition of a penguin sitting by an ice arch, a lantern and sunset water.\nScene: a cosy bright modern journaling nook. Pingu sits at a low rounded pale-blue desk in the RIGHT half, seen in three-quarter view, gently organising three loose cream pages beside an open cobalt-blue journal. Pages have absolutely no writing or marks. Both flippers and orange feet anatomically clear. A tiny simple peach ceramic cup holds two blue pencils. Keep the scene focused on Pingu and the journal, not a crowded study. LEFT 40% is spacious softly lit ice-white wall with a subtle blue arch-shaped architectural recess. Morning light, restrained warm peach accents. No outdoor view, cave, lantern, sunset water, speech bubbles or hearts. Clean contemporary composition distinctly different from the reference pose. Output aspect ratio 2:1.",
+      "suggested_placement": "Journal introduction / empty state",
+      "subject_anchor": "right",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1674182,
+      "sha256": "aada373bc6ab0bd4f249531c56fa2b7485a418c43f0b7c91f006075f4a7cb423"
+    },
+    {
+      "filename": "ScenePracticeStudioV1.png",
+      "source": "/Users/tuannm3812/.codex/generated_images/01a16415-dd7b-7581-b633-93d30d5c6657/exec-23cd5ab5-9191-4a89-9e46-70cc009f1728.png",
+      "prompt": "Use case: illustration-story. Asset: standalone wide 2:1 hero illustration for CircleU phone screen. Use the supplied image ONLY as exact character/style reference: one Pingu penguin with navy body, white face and tummy, single curved crest, small oval dark eyes, orange beak and feet, pale ice-blue scarf. Match its clean softly dimensional matte shading and mature friendly expression. No sketch lines, grain, photorealism or plastic shine. Brand palette navy, ice white, pale blue, cobalt accents, tiny warm peach/orange. Full bleed opaque illustration. No words, letters, logos, numbers, UI, buttons, frames or watermark. Keep anatomy consistent with flippers, no human hands. Render a single scene, not a collage. Design for small phone hero use with restrained details, generous margins around the entire character, and a quiet area for future native controls. Avoid the old composition of a penguin sitting by an ice arch, a lantern and sunset water.\nScene: a small bright rehearsal corner in a contemporary room, friendly and calm. Pingu stands full-body slightly LEFT of centre, holding two blank small pale-blue cue cards in one flipper at belly height and extending the other flipper in a natural small conversational gesture, feet firmly visible on a muted pale-blue circular rug. A single low rounded cobalt stool beside Pingu supports one closed blue book. Background is ice-white and powder-blue curved wall with one extremely subtle peach arc of daylight, not decorative graphic symbols. RIGHT 40% is calm uncluttered pale-blue wall. Character looks thoughtful and quietly confident, not triumphant. No ice landscape, cave, lantern, speech bubble, audio symbols, human hands or oversized smile. Output aspect ratio 2:1.",
+      "suggested_placement": "Practice preparation",
+      "subject_anchor": "left",
+      "transparent_background": false,
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "bytes": 1599794,
+      "sha256": "2bb7d53d4ea8f26434baf151ff0407c83508a3d4f34a367492cb3bc6856fbb39"
+    }
+  ]
+}

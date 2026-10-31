@@ -12,6 +12,8 @@ nonisolated struct GuestJournalEntry: Identifiable, Equatable, Sendable {
     /// One optional next step; nil when skipped.
     var nextStep: String? = nil
     var nextStepDone = false
+    var context: GuestEntryContext? = nil
+    var feeling: GuestEntryFeeling? = nil
 }
 
 /// Where a suggestion came from, so a template is never presented as a personal AI analysis.
@@ -93,6 +95,7 @@ nonisolated struct GuestPracticeMessage: Identifiable, Equatable, Sendable {
     let revision: Int
     let createdAt: Date
     var updatedAt: Date
+    var conversation: GuestPracticeConversation? = nil
 }
 
 /// What happens to practice messages linked to a journal entry that's being deleted.

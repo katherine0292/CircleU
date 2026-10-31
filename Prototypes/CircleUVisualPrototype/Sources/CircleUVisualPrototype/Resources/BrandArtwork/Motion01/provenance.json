@@ -1,0 +1,34 @@
+{
+  "method": "FFmpeg camera-motion study from a still image; no generated character motion",
+  "duration_seconds": 8,
+  "fps": 30,
+  "width": 1280,
+  "height": 640,
+  "audio": false,
+  "assets": [
+    {
+      "file": "WelcomePath-camera-motion-v1.mp4",
+      "source": "ScreenScenes07/SceneWelcomePathV1.png",
+      "source_sha256": "6338d96c7dfbd82bfed6cc3872b65b6b719d7a3e3096f76fe42cc243b498a7f3",
+      "sha256": "1f525558ba86814738cc92b509985472507e9869b19cb5d05c8e5d36a3b0267c",
+      "bytes": 1349241,
+      "filter": "scale=2560:1280:flags=lanczos,zoompan=z='1+0.04*(1-cos(2*PI*on/239))/2':x='(iw-iw/zoom)*0.5':y='(ih-ih/zoom)*0.5':d=240:s=1280x640:fps=30,setsar=1,format=yuv420p"
+    },
+    {
+      "file": "ReflectionGarden-camera-motion-v1.mp4",
+      "source": "ScreenScenes07/SceneReflectionGardenV1.png",
+      "source_sha256": "dfe61b05370d463387509f50e90ed88566d39330340080e99a575632424f3fa2",
+      "sha256": "1709ea9479d13bff99b3c528b7215f64f70da1a1df447abed6b6cb762bd6a943",
+      "bytes": 1087548,
+      "filter": "scale=2560:1280:flags=lanczos,zoompan=z='1+0.04*(1-cos(2*PI*on/239))/2':x='(iw-iw/zoom)*0.78':y='(ih-ih/zoom)*0.5':d=240:s=1280x640:fps=30,setsar=1,format=yuv420p"
+    },
+    {
+      "file": "VoiceCorner-camera-motion-v1.mp4",
+      "source": "ScreenScenes07/SceneVoiceCornerV1.png",
+      "source_sha256": "f63a895ea478eef11b8c8a4c11c90c055b1ecab835db21f3cf66d3a3273fe5e1",
+      "sha256": "48b34abe0dc20c6680754900d5a8ffb9d7d49a72875726a70aaac8888ca785f4",
+      "bytes": 1218209,
+      "filter": "scale=2560:1280:flags=lanczos,zoompan=z='1+0.04*(1-cos(2*PI*on/239))/2':x='(iw-iw/zoom)*0.32':y='(ih-ih/zoom)*0.5':d=240:s=1280x640:fps=30,setsar=1,format=yuv420p"
+    }
+  ]
+}

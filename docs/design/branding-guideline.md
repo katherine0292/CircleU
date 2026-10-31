@@ -95,3 +95,10 @@ No concept board, generated lettering or raster swatch is an authoritative font/
 - Keep the current blue family or make a controlled palette adjustment after viewing the new character?
 
 The demo is implemented in the isolated visual-preview package. Final production assets, font adoption, clear-space measurements and palette changes remain unapproved and unapplied. Exact swatches use source values; generated illustration pixels are not authoritative color tokens.
+## Artwork source and transparency — owner decision, 31 October 2026
+
+Use the existing Codex-generated Pingu library as the visual source of truth and Codex built-in image generation for new matching illustrations. Reserve Figma AI credits for prototype/interaction assistance, not artwork generation. Keep older Weave/Figma artwork as historical candidates, not active replacements for the accepted mascot style.
+
+Standalone mascot icons must be PNG cutouts with actual alpha transparency; PNG encoding alone does not remove a baked background. Keep face/scarf interiors opaque, use aspect fit, and verify the icon against the intended surface at its real display size. Scene artwork intentionally retains its illustrated background. This rule does not remove intentional context-chip fills or native navigation symbols.
+
+The six emotion assets in [EmotionPortraits02](../../Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02) replace the square-backed portraits in Figma connected review 15. Native adoption remains separate.

@@ -71,7 +71,7 @@ struct GuestTodayView: View {
 
     var body: some View {
         NavigationStack {
-            // Straight to writing or talking: the text box and the big microphone, no extra tap.
+            // Writing and voice share the same composer; neither requires an extra route.
             GuestWriteView(journal: journal, dictationEngine: makeDictationEngine(),
                            heading: "What’s on your mind?", showsLogo: true, onSaved: onSaved)
                 .toolbar {
@@ -94,21 +94,18 @@ struct GuestWriteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @StateObject private var dictation: GuestDictationViewModel
     let heading: String
-    /// Today shows the CircleU logo in the toolbar.
     let showsLogo: Bool
     let onSaved: () -> Void
-    @StateObject private var nudge = GuestNudgeModel()
     @FocusState private var focused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
     @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
     @State private var choosingPingu = false
+    @State private var choosingQuestion = false
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
-         heading: String = "Start with your words.", showsLogo: Bool = false,
-         onSaved: @escaping () -> Void) {
+         heading: String = "Start with your words", showsLogo: Bool = false, onSaved: @escaping () -> Void) {
         self.journal = journal
         self.heading = heading
         self.showsLogo = showsLogo
@@ -117,178 +114,173 @@ struct GuestWriteView: View {
     }
 
     var body: some View {
-        // Scrolls rather than squeezing when the keyboard is up; Save stays visible above it.
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // While typing, the microphone moves up beside the heading so the nudge and the words
-                // fit above the keyboard.
-                if focused {
-                    HStack(spacing: 12) {
-                        headingText
-                        Spacer(minLength: 0)
-                        micButton(size: 52)
-                    }
-                } else {
-                    headingText
-                    micCard
-                }
-                prompts
-                TextEditor(text: $journal.draft)
-                    .focused($focused)
-                    .disabled(dictation.isActive) // Spoken words are going in; type again after Stop.
-                    .scrollContentBackground(.hidden)
-                    .padding(12)
-                    .frame(minHeight: 200)
-                    .background(.white, in: RoundedRectangle(cornerRadius: 18))
-                    .overlay(alignment: .topLeading) {
-                        // A pencil instead of placeholder text, only while the box is empty.
-                        if journal.draft.isEmpty {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 18, weight: .semibold)).foregroundStyle(GuestBrand.muted.opacity(0.6))
-                                .padding(.leading, 18).padding(.top, 20)
-                                .allowsHitTesting(false).accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 14) {
+                Text(heading)
+                    .font(GuestBrand.font(size: 24, relativeTo: .title2, weight: .semibold))
+                    .accessibilityAddTraits(.isHeader)
+                if !typeSize.isAccessibilitySize && !focused {
+                    Color.clear.aspectRatio(2, contentMode: .fit)
+                        .overlay {
+                            Image(dictation.isActive ? "GuestSceneVoiceCorner" : "GuestSceneWindowPause")
+                                .resizable().scaledToFill()
                         }
+                        .clipShape(RoundedRectangle(cornerRadius: 24)).accessibilityHidden(true)
+                }
+                VStack(alignment: .leading, spacing: 0) {
+                    if let question = journal.selectedQuestion {
+                        HStack(alignment: .top, spacing: 8) {
+                            Text(question.rawValue).font(GuestBrand.font(.subheadline, .semibold))
+                                .foregroundStyle(GuestBrand.blue).fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                            Button { journal.selectedQuestion = nil } label: {
+                                Image(systemName: "xmark").frame(width: 44, height: 44)
+                            }
+                            .accessibilityLabel("Remove question").disabled(journal.isSaving)
+                        }
+                        .padding(.leading, 16).padding(.trailing, 4).padding(.top, 8)
                     }
-                    .accessibilityLabel("Your words")
+                    TextEditor(text: $journal.draft)
+                        .focused($focused).disabled(dictation.isActive)
+                        .scrollContentBackground(.hidden).padding(12)
+                        .frame(minHeight: typeSize.isAccessibilitySize ? 160 : 190)
+                        .overlay(alignment: .topLeading) {
+                            if journal.draft.isEmpty {
+                                Text("Write your words…").foregroundStyle(GuestBrand.muted)
+                                    .padding(.leading, 17).padding(.top, 20)
+                                    .allowsHitTesting(false).accessibilityHidden(true)
+                            }
+                        }
+                        .accessibilityLabel("Your words")
+                    HStack(spacing: 8) {
+                        if dictation.isActive {
+                            Text(statusText ?? "Listening…")
+                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                            Button { dictation.cancel() } label: {
+                                Image(systemName: "xmark").frame(width: 44, height: 44)
+                            }.accessibilityLabel("Cancel dictation")
+                        } else {
+                            Button {
+                                focused = false
+                                choosingQuestion = true
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Text(journal.selectedQuestion == nil ? "What stayed with you?" : "Change question")
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Image(systemName: "chevron.down").font(.caption)
+                                }
+                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+                                .frame(minHeight: 44)
+                            }
+                            .accessibilityLabel(journal.selectedQuestion == nil ? "Suggest a question" : "Change question")
+                            .disabled(journal.isSaving)
+                            Spacer(minLength: 0)
+                        }
+                        micButton
+                    }
+                    .padding(.horizontal, 16).padding(.bottom, 12)
+                }
+                .background(.white, in: RoundedRectangle(cornerRadius: 22))
                 if let message = dictation.message {
                     VStack(alignment: .leading, spacing: 8) {
                         Label(message, systemImage: "info.circle")
                             .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                         if dictation.needsSettings, let url = URL(string: UIApplication.openSettingsURLString) {
-                            Button("Open Settings") { openURL(url) }
-                                .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
+                            Button("Open Settings") { openURL(url) }.frame(minHeight: 44)
                         }
                     }
                 }
                 if let error = journal.saveError {
-                    Label(error, systemImage: "exclamationmark.circle")
-                        .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                    Label(error, systemImage: "exclamationmark.circle").font(GuestBrand.font(.subheadline))
                 }
                 if let warning = journal.draftWarning {
                     Label(warning, systemImage: "info.circle")
                         .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
             }
-            .padding(24)
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: focused)
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: dictation.isActive)
+            .padding(.horizontal, 24).padding(.vertical, 14)
         }
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
-            let empty = journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            // One Save. A reflection is offered afterwards, on Journal, and only if wanted.
-            Button {
-                dictation.stopForSave() // Saving while listening keeps the words so far.
-                Task { if await journal.saveDraft() { onSaved() } }
-            } label: {
-                Text(journal.isSaving ? "Saving…" : "Save")
+            Button(journal.isSaving ? "Saving…" : "Save") {
+                dictation.stopForSave()
+                Task { if await journal.saveDraft() { focused = false; onSaved() } }
             }
             .buttonStyle(GuestBrandButtonStyle())
-            .disabled(empty || journal.isSaving)
-            .padding(.horizontal, 24).padding(.vertical, 12)
-            .background(GuestBrand.ice)
+            .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
+            .padding(.horizontal, 24).padding(.vertical, 12).background(GuestBrand.ice)
         }
         .background(GuestBrand.ice.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if showsLogo {
                 ToolbarItem(placement: .topBarLeading) {
-                    GuestBrandIcon(asset: "GuestIconLogo", size: 32)
+                    HStack(spacing: 8) {
+                        GuestBrandIcon(asset: "GuestIconLogo", size: 32)
+                        if !typeSize.isAccessibilitySize {
+                            Text("CircleU").font(GuestBrand.font(.callout, .semibold))
+                        }
+                    }
+                    .fixedSize(horizontal: true, vertical: false)
+                    .accessibilityElement(children: .ignore).accessibilityLabel("CircleU")
                 }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                GuestAvatarButton(size: 30, onChoose: {
+                    dictation.interrupt(); focused = false; choosingPingu = true
+                }).frame(width: 44, height: 44)
             }
         }
         .sheet(isPresented: $choosingPingu) { GuestAvatarPicker(selection: $avatarID) }
-        // No automatic keyboard: it would cover the microphone. Tap the text to type.
-        // Leaving the app or this screen stops listening; the words so far stay in the draft.
-        // Only `.background`: the permission alert makes the app `.inactive`, and calls arrive
-        // as audio-session interruptions.
+        .sheet(isPresented: $choosingQuestion) {
+            NavigationStack {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(GuestWritingQuestion.allCases) { question in
+                            Button {
+                                journal.selectedQuestion = question
+                                choosingQuestion = false
+                            } label: {
+                                HStack {
+                                    Text(question.rawValue).fixedSize(horizontal: false, vertical: true)
+                                    Spacer(minLength: 8)
+                                    Image(systemName: "chevron.right").font(.caption)
+                                }
+                                .padding(16).frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                            }
+                            .buttonStyle(.plain).accessibilityLabel(question.rawValue)
+                        }
+                    }.padding(24)
+                }
+                .background(GuestBrand.ice).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                .navigationTitle("Choose a question").navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button { choosingQuestion = false } label: {
+                            Image(systemName: "xmark").frame(width: 44, height: 44)
+                        }.accessibilityLabel("Close questions")
+                    }
+                }
+            }
+            .presentationDetents(typeSize.isAccessibilitySize ? [.large] : [.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
         .onChange(of: scenePhase) { _, phase in if phase == .background { dictation.interrupt() } }
-        .onChange(of: journal.draft) { _, words in nudge.wordsChanged(to: words) }
         .onDisappear { dictation.interrupt() }
     }
 
-    private var headingText: some View {
-        Text(heading)
-            .font(GuestBrand.font(focused ? .title2 : .title, .bold)).foregroundStyle(GuestBrand.ink)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    /// The ice-floe scene with the big microphone on its quiet right side. While listening, Pingu
-    /// listens in the ripples, with stop and cancel below. The art is decorative and left out at
-    /// the largest text sizes, where the microphone stays.
-    private var micCard: some View {
-        let showsArt = !typeSize.isAccessibilitySize
-        return Group {
-            if dictation.isActive {
-                VStack(spacing: 12) {
-                    if showsArt {
-                        GuestScene(asset: "GuestSceneListening")
-                            .transition(.opacity)
-                    }
-                    HStack(spacing: 20) {
-                        if dictation.state == .listening || dictation.state == .finishing {
-                            Button { dictation.cancel() } label: {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 16, weight: .bold)).foregroundStyle(GuestBrand.blue)
-                                    .frame(width: 44, height: 44)
-                                    .background(.white, in: Circle())
-                                    .overlay(Circle().stroke(GuestBrand.blue.opacity(0.3), lineWidth: 1))
-                            }
-                            .accessibilityLabel("Cancel dictation")
-                            .accessibilityHint("Removes only the spoken words.")
-                        }
-                        micButton(size: 56)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, showsArt ? 0 : 20).padding(.bottom, 20)
-            } else if showsArt {
-                // The scene keeps its right side clear for the microphone.
-                GuestScene(asset: "GuestSceneToday")
-                    .overlay(alignment: .trailing) {
-                        micButton(size: 84)
-                            .padding(.trailing, 32).padding(.bottom, 12) // Room for the ring; above the plain bottom.
-                    }
-            } else {
-                micButton(size: 92)
-                    .padding(10) // Room for the ring.
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.trailing, 20).padding(.vertical, 16)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .background(GuestBrand.wash, in: RoundedRectangle(cornerRadius: 28))
-        .clipShape(RoundedRectangle(cornerRadius: 28))
-        .overlay(alignment: .topLeading) { avatarBadge.padding(8) }
-    }
-
-    /// The person's Pingu as a small badge on the scene; tapping it opens the picker, which stops
-    /// the microphone first.
-    private var avatarBadge: some View {
-        // 44 points: a full tap target that stays clear of the scene's Pingu.
-        GuestAvatarButton(size: 34, onChoose: {
-            dictation.interrupt()
-            choosingPingu = true
-        })
-            .frame(width: 44, height: 44)
-            .background(.white, in: Circle())
-            .overlay(Circle().stroke(GuestBrand.blue.opacity(0.2), lineWidth: 1))
-            .shadow(color: GuestBrand.ink.opacity(0.12), radius: 4, y: 1)
-    }
-
-    /// Tap to talk, tap again to stop. Its spoken name says which; any wait is its value.
-    private func micButton(size: CGFloat) -> some View {
+    private var micButton: some View {
         Button {
             focused = false
             Task { await dictation.toggle() }
         } label: {
-            Image(systemName: dictation.isActive ? "stop.fill" : "mic.fill")
-                .font(.system(size: size * 0.36, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: size, height: size)
-                .background(GuestBrand.blue, in: Circle())
-                .overlay(Circle().stroke(GuestBrand.blue.opacity(0.22), lineWidth: dictation.isActive || size < 60 ? 0 : 10)
-                    .padding(-5))
+            Image(systemName: dictation.isActive ? "stop.fill" : "mic")
+                .font(.system(size: 20, weight: .semibold)).foregroundStyle(GuestBrand.blue)
+                .frame(width: 44, height: 44).background(GuestBrand.wash, in: Circle())
         }
         .disabled(dictation.state == .finishing || journal.isSaving)
         .accessibilityLabel(dictation.isActive ? "Stop dictation" : "Start dictation")
@@ -296,79 +288,6 @@ struct GuestWriteView: View {
         .accessibilityHint(dictation.isActive ? "Keeps the words so far." : "Your words appear in the text, on this iPhone only.")
     }
 
-    /// Question chips above the empty box; the "Need a nudge?" bubble from Pingu once there are words.
-    /// Fixed guided prompts: only the starter is added, and only when tapped.
-    @ViewBuilder private var prompts: some View {
-        let empty = journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        if empty, !dictation.isActive {
-            GuestChipFlow {
-                ForEach(GuestTodayPrompts.starters, id: \.self) { prompt in
-                    Button { start(with: prompt.starter) } label: {
-                        HStack(spacing: 8) {
-                            if let icon = prompt.icon { GuestBrandIcon(asset: icon, size: 24) }
-                            Text(prompt.question)
-                        }
-                    }
-                    .buttonStyle(GuestChipButtonStyle())
-                    .accessibilityLabel(prompt.question)
-                    .accessibilityHint("Starts your words with “\(prompt.starter.trimmingCharacters(in: .whitespaces))”.")
-                }
-            }
-        } else if nudge.isShown(for: journal.draft, isDictating: dictation.isActive) {
-            HStack(alignment: .bottom, spacing: 8) {
-                if !typeSize.isAccessibilitySize {
-                    Image("GuestPinguThoughtful").resizable().scaledToFit().frame(width: 56, height: 56)
-                        .accessibilityHidden(true)
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(nudge.prompt.question)
-                        .font(GuestBrand.font(.body)).foregroundStyle(.white)
-                        .padding(.top, 8)
-                    // Add, then two icon buttons; each is 44 points tall.
-                    HStack(spacing: 4) {
-                        Button { start(with: nil) } label: {
-                            Label("Add", systemImage: "plus")
-                                .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(GuestBrand.blue)
-                                .padding(.horizontal, 14).frame(minHeight: 36)
-                                .background(.white, in: Capsule())
-                                .frame(minHeight: 44).contentShape(Rectangle())
-                        }
-                        .accessibilityLabel("Add to my words")
-                        Button { nudge.next() } label: { nudgeIcon("arrow.clockwise") }
-                            .accessibilityLabel("Another question")
-                        Spacer(minLength: 0)
-                        Button { nudge.hide() } label: { nudgeIcon("xmark") }
-                            .accessibilityLabel("Hide")
-                    }
-                    .buttonStyle(.borderless)
-                }
-                .padding(.leading, 14).padding(.trailing, 4).padding(.bottom, 2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(GuestBrand.blue, in: UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 4,
-                                                                       bottomTrailingRadius: 18, topTrailingRadius: 18))
-            }
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel("Need a nudge?")
-        }
-    }
-
-    private func nudgeIcon(_ symbol: String) -> some View {
-        Image(systemName: symbol)
-            .font(.system(size: 16, weight: .bold)).foregroundStyle(.white)
-            .frame(width: 44, height: 44).contentShape(Rectangle())
-    }
-
-    /// Adds a chip's starter (or the nudge's) to the words and puts the cursor there to type.
-    private func start(with starter: String?) {
-        if let starter {
-            journal.draft = GuestTodayPrompts.inserting(starter, into: journal.draft)
-        } else {
-            journal.draft = nudge.add(to: journal.draft)
-        }
-        focused = true
-    }
-
-    /// Spoken with the microphone while there's a wait; nothing is shown on screen.
     private var statusText: String? {
         switch dictation.state {
         case .requestingAccess: "Checking access…"
@@ -387,6 +306,7 @@ struct GuestJournalListView: View {
     @State private var query = ""
     @State private var showsCalendar = false
     @State private var reflectingID: UUID?
+    @State private var taggingEntry: GuestJournalEntry?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedDay: Date?
 
@@ -437,20 +357,32 @@ struct GuestJournalListView: View {
                                               height: 110)
                                 .listRowBackground(Color.clear)
                         }
-                        ForEach(entries) { entry in
-                            NavigationLink(value: entry.id) {
-                                // The day is already the chip's when one is chosen.
-                                GuestJournalRow(entry: entry, hasPractice: !practice.linkedMessages(to: entry.id).isEmpty,
-                                                showsDate: selectedDay == nil)
+                        ForEach(GuestJournalDayGroup.make(entries)) { group in
+                            Section {
+                                ForEach(group.entries) { entry in
+                                    GuestJournalRow(entry: entry,
+                                        hasPractice: !practice.linkedMessages(to: entry.id).isEmpty,
+                                        onTags: { taggingEntry = entry })
+                                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                                        .listRowSeparator(.hidden).listRowBackground(Color.clear)
+                                }
+                            } header: {
+                                Text(group.id, format: Calendar.current.isDate(group.id, equalTo: Date(), toGranularity: .year)
+                                     ? .dateTime.day().month(.abbreviated) : .dateTime.day().month(.abbreviated).year())
+                                    .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
+                                    .textCase(nil).accessibilityAddTraits(.isHeader)
                             }
                         }
                     }
                     .scrollContentBackground(.hidden)
-                    .searchable(text: $query, prompt: "Search your journal")
+                    .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search your journal")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle("Journal")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $taggingEntry) { entry in GuestEntryTagPicker(entry: entry, journal: journal) }
             // Pushes the list down rather than covering the entry that was just saved.
             .safeAreaInset(edge: .top) {
                 if let entry = journal.reflectionOffer {
@@ -481,58 +413,83 @@ struct GuestJournalListView: View {
         }
         .id(practice.dataGeneration) // Delete all closes anything open in Journal.
         // Outside the reset identity: the route lives in this view's state, so clear it here too.
-        .onChange(of: practice.dataGeneration) { _, _ in reflectingID = nil }
+        .onChange(of: practice.dataGeneration) { _, _ in reflectingID = nil; taggingEntry = nil }
     }
 }
 
-/// One entry in the list: a date tile, the person's words, then status icons and the time.
+/// The read action and the two tag actions are siblings, so tags never open the entry by accident.
 private struct GuestJournalRow: View {
     let entry: GuestJournalEntry
     let hasPractice: Bool
-    let showsDate: Bool
+    let onTags: () -> Void
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            if showsDate {
-                VStack(spacing: 0) {
-                    // The day it was written, as the calendar files it; the year only if not this year.
-                    Text(entry.createdAt, format: .dateTime.day())
-                        .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.blue)
-                    Text(entry.createdAt, format: Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
-                         ? .dateTime.month(.abbreviated) : .dateTime.month(.abbreviated).year())
-                        .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
-                }
-                .frame(minWidth: 48).padding(.vertical, 6)
-                .background(GuestBrand.wash, in: RoundedRectangle(cornerRadius: 12))
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text(entry.originalWords).lineLimit(3).foregroundStyle(GuestBrand.ink)
-                HStack(spacing: 10) {
-                    HStack(spacing: 10) {
-                        if entry.reflection != nil { GuestBrandIcon(asset: "GuestIconReflection", size: 18) }
-                        if entry.nextStep != nil {
-                            if entry.nextStepDone {
-                                Image(systemName: "checkmark.circle").font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(GuestBrand.blue)
-                            } else {
-                                GuestBrandIcon(asset: "GuestIconNextStep", size: 18)
-                            }
-                        }
-                        if hasPractice { GuestBrandIcon(asset: "GuestIconPractice", size: 18) }
-                    }
-                    // The icons, said in words.
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(statuses)
-                    .accessibilityHidden(statuses.isEmpty)
-                    Spacer(minLength: 0)
+        VStack(alignment: .leading, spacing: 8) {
+            NavigationLink(value: entry.id) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(entry.createdAt, format: .dateTime.hour().minute())
                         .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                    Text(entry.originalWords).font(GuestBrand.font(.callout))
+                        .lineLimit(typeSize.isAccessibilitySize ? 6 : 4)
+                        .foregroundStyle(GuestBrand.ink).frame(maxWidth: .infinity, alignment: .leading)
+                    if !statuses.isEmpty {
+                        HStack(spacing: 10) {
+                            if entry.reflection != nil { GuestBrandIcon(asset: "GuestIconReflection", size: 18) }
+                            if entry.nextStep != nil {
+                                Image(systemName: entry.nextStepDone ? "checkmark.circle" : "circle")
+                                    .font(.system(size: 16)).foregroundStyle(GuestBrand.blue)
+                            }
+                            if hasPractice { GuestBrandIcon(asset: "GuestIconPractice", size: 18) }
+                        }
+                        .accessibilityElement(children: .ignore).accessibilityLabel(statuses)
+                    }
                 }
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 4) { contextButton; feelingButton }
+            } else {
+                HStack(spacing: 8) { contextButton; Spacer(minLength: 0); feelingButton }
             }
         }
+        .padding(16)
+        .background(.white, in: RoundedRectangle(cornerRadius: 20))
     }
 
-    /// The icons in words, for VoiceOver.
+    private var contextButton: some View {
+        Button(action: onTags) {
+            HStack(spacing: 5) {
+                if let context = entry.context {
+                    Image(context.asset).resizable().scaledToFit().frame(width: 26, height: 26).accessibilityHidden(true)
+                    Text(context.title)
+                } else { Text("+ Context") }
+            }
+            .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+            .padding(.horizontal, 10).padding(.vertical, 4)
+            .background(GuestBrand.wash, in: Capsule()).frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(entry.context.map { "Context: \($0.title)" } ?? "Add context")
+    }
+
+    private var feelingButton: some View {
+        Button(action: onTags) {
+            HStack(spacing: 5) {
+                if let feeling = entry.feeling {
+                    Image(feeling.asset).resizable().scaledToFit().frame(width: 36, height: 32).accessibilityHidden(true)
+                    Text(feeling.title)
+                } else { Text("+ Feeling") }
+            }
+            .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+            .frame(minHeight: 44).contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(entry.feeling.map { "Feeling: \($0.title)" } ?? "Add feeling")
+    }
+
     private var statuses: String {
         var parts: [String] = []
         if entry.reflection != nil { parts.append("Has a reflection") }
@@ -606,6 +563,7 @@ struct GuestEntryDetailView: View {
         content
             .background(GuestBrand.ice.ignoresSafeArea())
             .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $practiceRoute) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
             }
@@ -640,7 +598,7 @@ struct GuestEntryDetailView: View {
     /// The date is the title.
     private var title: String {
         guard let entry = journal.entries.first(where: { $0.id == entryID }) else { return "Entry" }
-        let format = Date.FormatStyle.dateTime.weekday(.abbreviated).day().month().hour().minute()
+        let format = Date.FormatStyle.dateTime.day().month(.abbreviated)
         return entry.createdAt.formatted(Calendar.current.isDate(entry.createdAt, equalTo: Date(), toGranularity: .year)
                                          ? format : format.year())
     }
@@ -668,6 +626,9 @@ struct GuestEntryDetailView: View {
     private func detail(for entry: GuestJournalEntry) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
+                Text(entry.createdAt, format: .dateTime.hour().minute())
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
                 Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))

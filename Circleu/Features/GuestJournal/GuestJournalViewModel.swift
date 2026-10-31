@@ -23,6 +23,7 @@ final class GuestJournalViewModel: ObservableObject {
             keepDraft()
         }
     }
+    @Published var selectedQuestion: GuestWritingQuestion?
     @Published private(set) var saveError: String?
     @Published private(set) var isSaving = false
     /// The entry just saved without a reflection, so Journal can offer one ("Reflect on it").
@@ -229,6 +230,7 @@ final class GuestJournalViewModel: ObservableObject {
     private func setDraftQuietly(_ text: String) {
         settingDraftQuietly = true
         draft = text
+        if text.isEmpty { selectedQuestion = nil }
         settingDraftQuietly = false
     }
 

@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-30",
+  "method": "built-in image_gen edit",
+  "output": "CircleU-LinkedIn-LandscapeV2.png",
+  "size": [
+    1672,
+    941
+  ],
+  "mode": "RGB",
+  "sha256": "80beeff883ab91cf78b50959a0181a7d529a6cd12e2299ace87345eb224f4d81",
+  "prompt": "refinement-v2-prompt.txt",
+  "inputs": [
+    {
+      "role": "edit target",
+      "path": "CircleU-LinkedIn-LandscapeV1.png"
+    },
+    {
+      "role": "Practice UI reference only",
+      "path": "../../../../Prototypes/CircleUVisualPrototype/PracticeFeedbackReview/prepare-review-08.png"
+    }
+  ],
+  "status": "owner review pending",
+  "limits": [
+    "Illustrated phone mockups, not native screenshots",
+    "Typography visually approximates Plus Jakarta Sans; raster lettering is not font embedding",
+    "No runtime UI changes or external publication"
+  ]
+}

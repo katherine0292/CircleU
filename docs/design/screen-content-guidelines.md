@@ -9,7 +9,7 @@
 | Heading | One per screen, **≤ 40 characters**, sentence case, no full stop. The navigation title may be the heading. |
 | Supporting line | **At most one**, **≤ 60 characters**, in the secondary style (`GuestSummary`: subheadline, muted, Dynamic Type). |
 | Primary action | **At most one** filled button per screen (screens that are lists or settings may have none). A destructive primary, such as Delete my account, is a red text button rather than a filled one. |
-| Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items, "Learn more", dismiss controls (Hide, Close) and prompt chips (which add a sentence starter to the person's words) don't count. |
+| Secondary actions | **At most two** plain or outlined buttons or links. Back, toolbar items, "Learn more", dismiss controls (Hide, Close) and question choices (which guide without editing the person's words) don't count. |
 | Detail | Only where honesty needs it, behind **Learn more** (`GuestLearnMore`, collapsed, footnote, Dynamic Type). At most four short sentences, each **≤ 120 characters**, marked `// copy: detail` when over 100. |
 | Errors and warnings | One sentence saying what happened, plus the next step if there is one, **≤ 100 characters**. Never reveal whether an account exists. Never show success before it happened. |
 | Any string on screen | **≤ 100 characters**, unless marked `// copy: detail` or `// copy: export` (export file text, not a screen). |
@@ -17,6 +17,8 @@
 | Section summary pattern | Heading with icon, then **one** `GuestSummary` line, then optional `GuestLearnMore` with the detail. Settings instead uses grouped icon rows, and its privacy detail is a sheet of one-line icon rows. |
 
 ## Icons over labels
+
+Journal review 14 / approved native alignment exception: feelings retain short visible labels because expressions alone are ambiguous. Conversation context uses Study, Work, Friends and Family; feelings use Calm, Worried, Overloaded, Happy, Sad and Frustrated. Both categories are optional and user-selected. The picker uses “Conversation context”, “Feeling · optional”, “Tap a selected tag to remove it” and one primary “Done”; empty category controls are “+ Context” and “+ Feeling”. This copy is approved for the native guest/review tag picker; it does not establish a production release.
 
 Words are for the person's own writing and for what honesty needs. Everything else should be a picture first.
 
@@ -48,12 +50,12 @@ The supporting line is the single line under the heading; "—" means none.
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
 | Welcome (3 pages, full-bleed Pingu scene) | Something on your mind? · Write or talk it through · Find your words | A private place for the moments that stay with you. · Kept on this iPhone. Not uploaded or synced. · Practise what you want to say, when you’re ready. | Next (round arrow, pages 1–2); Get started (page 3) | Skip (pages 1–2); Log in (page 3) | — |
-| Today (capture) | What’s on your mind? | — (the ice-floe scene, the microphone and a Pingu badge share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); Pingu badge (opens the picker); logo and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
+| Today (capture) | What’s on your mind? | — (the shallow ice-floe scene, the microphone and a Pingu badge share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s pale speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); Pingu badge (opens the picker); logo and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; rows: date tile, words, status icons, time; after saving: one-row “Saved” card) | Reflect (in the card, after saving) | × Not now (in the card); Calendar (icon); a chosen day is a chip with × | — |
-| Entry | The date (title) | — | — | Edit (pencil); Practice what to say; Delete entry in the ••• menu | — (the reflection keeps its source line in words) |
-| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message (blue card with Pingu) | Continue your draft (card with a one-line preview); saved messages are bubbles with a journal icon and date, no header | — |
-| Practice message | What would you like to say? | Tag (journal icon + From: … / On its own) | Save, or Copy when saved | Situation and Goal "+" chips (open a field); Copy icon in the bubble; Get a suggestion (tinted Pingu bubble); outlined Use this on each suggestion card. Saved: Edit (pencil) and ••• → Delete message in the toolbar | — ("Copied. Not saved or sent." shows after copying, "Copied. Not sent." once saved, replacing the always-on line; pending Mike's OK) |
+| Entry | Compact date (inline title); time with full accessible timestamp | — | — | Edit (pencil); Practice what to say; Delete entry in the ••• menu | — (the reflection keeps its source line in words) |
+| Practice | Practice | — (empty: Pingu + "Nothing practised yet.") | Practice a message (ice-toned Pingu card with a blue action strip) | Continue your draft (card with a one-line preview); saved messages are bubbles with a journal icon and date, no header | — |
+| Practice message | What would you like to say? | Tag (journal icon + From: … / On its own) | Save pinned above the keyboard, or Copy when saved | Situation and Goal "+" chips (open a field); Copy icon in the bubble; Get a suggestion (tinted Pingu bubble); outlined Use this on each suggestion card. Saved: Edit (pencil) and ••• → Delete message in the toolbar | — ("Copied. Not saved or sent." shows after copying, "Copied. Not sent." once saved, replacing the always-on line; pending Mike's OK) |
 | Settings | Settings (title) | — (your Pingu with a pencil badge and "Your Pingu" caption; "Kept on this iPhone" chip with "Not uploaded or synced." under it; icon rows grouped under "Your data" and "Earlier CircleU account"; version footer) | — | Rows: Export my data; Delete all data (red); Bring in your earlier journal; Delete my account (red) | — (the chip opens the privacy sheet) |
 | Settings → Kept on this iPhone (sheet) | Kept on this iPhone | Not uploaded or synced. | — | Done (dismiss) | — (four icon rows replace Learn more: dictation, backups, restore, exports) |
 | Settings → Export done | (banner) Export done. | — | — | — | — |
@@ -64,8 +66,53 @@ The supporting line is the single line under the heading; "—" means none.
 | Reset password | Reset password (envelope art) | — / If an account uses this email, a link is on its way. | Send reset link | — | — |
 | Delete my account | Delete my account | — (two cards: Will be deleted: account, cloud backup, posts, memberships; Stays: entries on this iPhone) | Delete my account | — | Circles kept; replies and likes |
 
+31 October, Figma Today review 18 only: the empty writing field says “Write what happened…”. The secondary voice control uses a microphone with “Speak”, changing to “Stop” during simulated listening. Keep prompts/status inside the composer; Save remains the single filled primary action. Native copy and test coverage are unchanged by this prototype correction.
+
+31 October, Figma Today review 19 supersedes the review-18 voice pill: use one quiet prompt/status and a compact microphone/Stop control in a single row. Empty prompt: “What stayed with you?”; filled helper: “What would help next?”. The native equivalent must retain explicit accessibility labels (“Record your words” / “Stop dictation”) despite omitting the visible Speak label. No native change or accessibility validation is implied.
+
+Review 20 empty writing hint: “Write your words…” (supersedes “Write what happened…” so the hint fits every selected question).
+
 ## Enforcement
+
+31 October, Figma Today review 20: picker heading “Choose a question”; options “What happened?”, “How did it make you feel?”, “What would you like to say next?”. The footer initially reads “What stayed with you?” with a chevron, then “Change question” after selection. Display the selected question above writing, not as the person's answer. Dismiss/remove actions preserve words. Curated prompts require no AI claim; native copy is unchanged.
 
 - **Test:** `CircleuTests/GuestCopyLintTests.swift` reads every Swift file under the guest journal's feature and service folders, recursively. It fails on banned wording (whole words) and on any multi-word string literal over 100 characters (120 when marked `// copy: detail`). It runs on the Simulator or CI host from the checkout, and skips where the sources aren't reachable, such as on a device.
 - **Not checked automatically:** heading (≤ 40) and supporting-line (≤ 60) limits, icons over labels, the number of actions, and the displayed length of interpolated or combined messages. These are checked in review against the table above. Messages shown together (for example a failure plus "Signing out didn't finish") must each fit on their own.
 - **Review:** before accepting copy, read the screen at normal and larger text sizes: one purpose, one primary action, nothing duplicated, no placeholder repeating a label.
+
+
+## Practice feedback review 06 — browser clarification/status copy
+
+29 October 2026. Scoped to the browser specimen; native copy is unchanged. Added context is user-authored content, outside the UI-copy length limits. Keep these labels when porting the authorised design, subject to native story review.
+
+| Screen / state | Heading | Supporting line | Primary / status |
+| --- | --- | --- | --- |
+| Clarification, first message or reply | Add context | What would you like the other person to do? | Review again; field: More context |
+| Clarification validation | — | — | Add a little context to review again |
+| Selected-text preview | Review online | Only the text shown below will be shared | Added context labels the exact entered text; Send for feedback remains explicit |
+| Style saved while off | Settings | — | Saved · not in use |
+| Style saved while on | Settings | — | Preferences enabled |
+| Style cleared | Settings | — | Preferences cleared; row returns to Not in use |
+
+Clarification shows the existing Your words or Your intent distinctly; it must not invent Their reply. Back from confirmation returns to the context editor. Preference enablement never replaces per-request sharing consent.
+
+## Message-first Practice review 08 — browser copy
+
+30 October, owner-approved flow. Browser-only copy; native port still requires story review.
+
+| State | Heading / label | Action / status |
+| --- | --- | --- |
+| Prepare | What would you like to say?; Your wording | Review wording; secondary Help me get started, Save, Copy |
+| Optional fields | Context and tone; Optional | Expand to edit context and tone |
+| Guidance | What do you want to happen?; Your intended outcome | Continue; validation: Add what you want to happen |
+| Intent without wording | Your intent | Suggest wording; Edit intent; Clear intent |
+| Applied suggestion | Your wording remains editable | Wording updated |
+| Copied unsaved wording | — | Copied. Not saved or sent. |
+| Copied saved wording | — | Copied. Not sent. |
+| Clipboard failure | — | Couldn’t copy. Select your words and try again |
+
+Guidance Continue does not generate or share anything. Intent-only confirmation and comparison say Your intent, never Your original words. Review wording remains the only filled action in Prepare. No Record button is simulated in this browser slice; existing native recording/transcript review needs separate integration.
+
+## Native alignment — 31 October
+
+Today uses review 20 guidance: “Write your words…” in the empty editor; “What stayed with you?” in its footer (VoiceOver: “Suggest a question”), then “Change question”. The question sheet offers only the three reviewed questions; selecting/removing one never edits original words. The microphone retains “Start dictation” / “Stop dictation” accessibility names. Window/voice artwork is decorative; there is one Save action. Journal context and feeling retain visible short labels and 44pt hit targets even though their artwork/chips are compact. Native system search/navigation are retained and large text may reflow vertically.

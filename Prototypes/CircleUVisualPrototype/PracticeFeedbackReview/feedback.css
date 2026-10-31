@@ -1,0 +1,96 @@
+main{max-width:1220px}.review-layout{display:grid;grid-template-columns:240px 390px 240px;justify-content:center;gap:44px;align-items:start}.review-guide,.review-notes{padding-top:42px}.review-guide h2{font-size:25px;line-height:1.2}.review-guide p,.review-guide li,.review-notes p{font-size:14px;color:var(--muted)}.review-guide ol{padding-left:20px;line-height:1.8;margin-bottom:28px}.review-guide label{display:block;font-size:12px;font-weight:700;margin:18px 0 7px}.review-guide select{font:inherit;font-size:13px;width:100%;min-height:44px;border:1px solid var(--line);border-radius:12px;padding:10px;background:white;color:var(--ink)}.review-guide .small{font-size:12px;margin-top:18px}.review-guide a{color:var(--blue);font-size:12px}.note{margin-bottom:28px}.note>span{color:var(--blue);font-size:11px;font-weight:800;letter-spacing:1px}.note h3{font-size:16px;margin:5px 0 8px}.phone .hero{margin:14px 0 18px}.phone .hero img{width:76px;height:88px}.phone .hero h2{font-size:27px}.summary{font-size:14px;color:var(--muted);line-height:1.5;margin:8px 0 0}.phone .topbar{grid-template-columns:1fr 1fr 1fr;height:64px}.close{justify-self:end;border:0;background:none;color:var(--muted);font-size:27px;width:44px}.editor-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}.editor-actions .secondary{font-size:14px;border-color:#b7cee9;margin-top:12px;padding:10px 14px}.phone #wording{min-height:170px}.phone .intent-label{margin-top:22px}.sheet-heading{margin:15px 0 20px}.round-icon{display:inline-flex;align-items:center;justify-content:center;background:var(--wash);border-radius:16px;width:48px;height:48px;color:var(--blue);font-size:24px;margin-bottom:10px}.provider,.source{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:8px;margin:16px 0}.dot{width:7px;height:7px;border-radius:50%;background:#7590ad}.payload{border:1px solid var(--line);border-radius:20px;padding:18px;background:white}.field-label{font-size:12px;font-weight:650;color:var(--muted)}.payload p{font-size:16px;margin-top:10px;white-space:pre-wrap;overflow-wrap:anywhere}.tone-row{border-top:1px solid var(--line);padding-top:12px;display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}.tone-row strong{color:var(--blue)}.phone label.check-row{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px}.check-row input{width:20px;height:20px;accent-color:var(--blue)}.selected-text{font-size:14px;background:var(--wash);border-radius:14px;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere}.detail{font-size:12px;color:var(--muted)}.state-hero{text-align:center;margin:55px 0 20px}.state-hero img{width:130px;height:155px}.state-hero h2{margin:24px 0 12px}.state-hero p{font-size:15px;color:var(--muted)}.result-hero{display:flex;align-items:center;gap:8px;margin-top:18px}.result-hero>div{flex:1}.result-hero img{width:65px;height:83px}.result-hero h2{font-size:28px}.feedback-points{list-style:none;padding:0;display:grid;gap:12px;margin:18px 0}.feedback-points li{font-size:14px;line-height:1.55;display:flex;gap:10px;align-items:flex-start}.feedback-points svg{color:var(--blue);flex-shrink:0;width:20px;height:20px;margin-top:2px}.rewrite-card{border:1px solid #b7cee9;background:white;border-radius:22px;padding:18px;box-shadow:0 6px 20px #054fc907}.rewrite-card>p{font-size:20px;line-height:1.55;letter-spacing:-.3px;margin:12px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}.rewrite-card textarea{margin-top:12px}.phone-footer #cancel{width:100%;margin-top:4px}.loading-dots{display:flex;justify-content:center;gap:8px;margin-top:30px}.loading-dots i{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:breathe 1.2s ease-in-out infinite}.loading-dots i:nth-child(2){animation-delay:.15s}.loading-dots i:nth-child(3){animation-delay:.3s}.thinking{animation:float 2s ease-in-out infinite}@keyframes breathe{50%{opacity:.25;transform:translateY(-3px)}}@keyframes float{50%{transform:translateY(-5px)}}.large .phone .summary,.large .phone .field-label,.large .phone .source,.large .phone .provider,.large .phone li,.large .phone label,.large .phone .detail,.large .phone button:not(.close):not(.back),.large .phone .tone-row{font-size:20px}.large .phone h2,.large .phone .hero h2{font-size:34px}.large .rewrite-card>p{font-size:26px}.large .result-hero img{display:none}.large .state-hero{margin-top:20px}@media(max-width:1050px){.review-layout{grid-template-columns:220px 390px;gap:30px}.review-notes{grid-column:1 / -1;display:flex;gap:24px;padding-top:0}.review-notes>.eyebrow{display:none}.note{flex:1}}@media(max-width:700px){.review-layout{display:flex;flex-direction:column;align-items:center;gap:20px}.review-guide{padding-top:0;width:100%;max-width:390px}.review-guide h2,.review-guide>p:not(.small),.review-guide ol{display:none}.review-guide label{margin-top:8px}.review-notes{display:none}.review-header h1{font-size:27px}.phone{height:844px;max-height:none}.review-guide .small{margin-bottom:0}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* Review 04: compact Refine; typography still scales through the review control. */
+.tone-picker{display:flex;gap:4px;background:#e5eef9;border-radius:14px;padding:4px;margin:14px 0}
+.tone-picker button{flex:1;border:0;background:transparent;border-radius:10px;color:var(--muted);font-size:13px;font-weight:650}
+.tone-picker button[aria-pressed=true]{background:white;color:var(--blue);box-shadow:0 2px 5px #173b6510}
+.result-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+.result-meta .source{margin:0}.tone-badge{font-size:12px;color:var(--blue);background:var(--wash);padding:4px 10px;border-radius:20px}
+.phone .result-hero h2,.phone .hero h2{font-size:24px}.result-hero{margin-top:10px}.result-hero img{width:52px;height:64px}
+.phone .compare-original{margin:14px 0;padding:0 14px 10px;background:#eaf2fb;border:0;border-radius:16px}
+.compare-original p{font-size:15px;line-height:1.5;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.phone .rewrite-card{padding:14px;box-shadow:none}.phone .rewrite-card label{font-size:12px;color:var(--muted);margin-bottom:8px}
+.phone .rewrite-card textarea{border:0;padding:0;background:transparent;font-size:17px;line-height:1.6;min-height:145px;resize:vertical;border-radius:4px;margin:0}
+.phone .feedback-points{gap:8px;margin:14px 0}.phone .feedback-points li{font-size:13px}
+.large .phone .rewrite-card textarea{font-size:23px}.large .phone .tone-badge,.large .phone .rewrite-card label,.large .phone .feedback-points li{font-size:18px}
+/* Review 05: optional communication style and companion destination specimens. */
+.style-fields{display:grid;gap:8px;margin-top:18px}.style-fields label{margin:8px 0 0}.style-fields select{font:inherit;width:100%;min-height:48px;padding:10px;border:1px solid var(--line);border-radius:12px;background:white;color:var(--ink)}
+.delete-style{border:0;background:none;color:#a22b2b;font:inherit;min-height:44px;margin-top:16px;padding:8px 0}
+.app-tabs{display:flex;border-top:1px solid var(--line);background:var(--ice);padding:4px 12px 12px;gap:8px;flex-shrink:0}.app-tabs button{flex:1;background:none;border:0;color:var(--muted);font-size:12px;border-radius:12px}.app-tabs button[aria-current=page]{background:var(--wash);color:var(--blue);font-weight:700}
+.home-card,.journal-entry{width:100%;display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:20px;background:white;padding:16px;text-align:left;color:var(--ink);margin-top:22px}.home-card .round-icon{flex-shrink:0;margin:0}.home-card strong{font-size:15px}.home-card small{display:block;color:var(--muted);font-size:12px;margin-top:5px}.journal-entry{display:block;font-size:16px}.entry-meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;margin-top:16px}.entry-meta img{width:38px;height:38px}.journal-date{font-size:12px;color:var(--muted);margin:24px 0 0}.large .home-card strong,.large .home-card small,.large .style-fields select,.large .journal-entry{font-size:20px}.phone #style-summary{font-size:12px;color:var(--muted)}
+
+/* Review 07: visual polish using existing brand tokens and artwork. */
+.phone .topbar{padding:8px 20px 0;height:60px;background:var(--ice)}
+.ui-icon{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.phone .back{display:inline-flex;align-items:center;gap:2px;min-height:44px}
+.phone .close{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px}
+.phone .close:hover{background:var(--wash)}
+.phone-body{padding:12px 20px 18px}
+.phone #editor-screen:not([hidden]),.phone #clarify-screen:not([hidden]),.phone #result-screen:not([hidden]){display:flex;flex-direction:column;min-height:100%;gap:0}
+.phone .screen> *{flex-shrink:0}
+.phone .practice-scene{position:relative;isolation:isolate;overflow:hidden;border-radius:24px;min-height:132px;margin:0 0 16px;padding:18px;align-items:center;border:1px solid #d5e5f5;background:var(--wash)}
+.phone .practice-scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.phone .practice-scene::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f5fafff5 0%,#f5faffdb 39%,#f5faff00 76%);z-index:-1}
+.phone .practice-scene>div{width:62%}
+.phone .practice-scene h2{font-size:24px;line-height:1.18;margin:0 0 8px}
+.phone .practice-scene .summary{font-size:13px;line-height:1.45;margin:0;color:#354c68}
+.phone .result-hero{margin:0 0 18px;gap:16px}
+.phone .result-hero h2{margin:0 0 6px;font-size:24px}
+.phone .result-hero img{width:64px;height:76px;background:var(--wash);padding:6px;border-radius:22px}
+.phone .result-hero .summary{margin:0}
+.phone .context-chips{margin:0 0 4px}
+.phone .context-chips span{font-size:11px;padding:4px 10px}
+.phone .tone-picker{margin:8px 0 14px;padding:4px;border:1px solid #d8e5f3;background:#e9f1fa}
+.phone .original{background:#eaf2fb;border:1px solid #dce8f5;border-radius:18px;padding:0 14px 10px;margin:0 0 16px}
+.phone .original:not([open]){padding-bottom:0}
+.phone .original summary{font-size:12px;color:#425b77;padding:12px 0;min-height:44px}
+.phone .original p{font-size:15px;line-height:1.55;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.phone .compose-card,.phone .rewrite-card{display:flex;flex-direction:column;flex:1;border:1px solid #b9cfe7;border-radius:20px;padding:16px;background:white;box-shadow:0 4px 16px #173b6505;min-height:170px}
+.phone .compose-card:focus-within,.phone .rewrite-card:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px #054fc914}
+.phone .compose-card label,.phone .rewrite-card label{font-size:12px;font-weight:650;color:#425b77;margin:0 0 10px}
+.phone .compose-card textarea,.phone .rewrite-card textarea{flex:1;width:100%;font-size:17px;line-height:1.6;padding:0;margin:0;border:0;border-radius:4px;min-height:110px;background:transparent;box-shadow:none;resize:vertical}
+.phone .compose-card #wording{min-height:112px}
+.phone .compose-card textarea:focus-visible,.phone .rewrite-card textarea:focus-visible{outline-offset:5px}
+.phone .editor-actions{gap:12px;margin-top:12px;flex-wrap:wrap}
+.phone .editor-actions .secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0;flex:1;min-height:46px;border-color:#c9dcf1;background:var(--wash);font-size:13px}
+.phone .action-label{display:inline-flex;align-items:center;gap:9px}
+.phone .followup-link{margin-top:8px;padding:10px 0;font-size:13px}
+.phone .feedback-points{padding:14px;border-radius:18px;background:#edf4fc;gap:10px;margin:0 0 14px}
+.phone .feedback-points li{font-size:14px;line-height:1.5}
+.phone .result-meta{margin:0 0 14px}
+.phone .phone-footer{padding:12px 20px 18px;border-top:1px solid #dce8f5}
+.phone .primary{border-radius:16px;min-height:52px;box-shadow:0 4px 12px #054fc918}
+.phone .app-tabs{padding:5px 14px 10px;gap:6px}
+.phone .app-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;font-size:10px;border-radius:14px}
+.phone .app-tabs button[aria-current=page]{box-shadow:inset 0 0 0 1px #cfdef2}
+.phone .style-fields{background:white;border:1px solid var(--line);padding:14px;border-radius:20px;gap:6px;margin:16px 0}
+.phone .style-fields label{font-size:12px;color:#425b77;margin-top:6px}
+.phone .style-fields select{background:var(--ice);border-radius:12px;font-size:15px;margin-bottom:6px}
+.phone select:focus-visible{outline:3px solid #47c7ff;outline-offset:3px}
+.phone .payload + .payload{margin-top:12px}
+.large .phone .practice-scene{min-height:0;background:var(--wash)}
+.large .phone .practice-scene>div{width:100%}
+.large .phone .practice-scene img,.large .phone .practice-scene::after,.large .phone .result-hero img{display:none}
+.large .phone .practice-scene h2,.large .phone .result-hero h2{font-size:34px}
+.large .phone .practice-scene .summary,.large .phone .original p,.large .phone .original summary,.large .phone .compose-card label,.large .phone .rewrite-card label,.large .phone .feedback-points li,.large .phone .style-fields label{font-size:20px}
+.large .phone .compose-card textarea,.large .phone .rewrite-card textarea{font-size:23px;min-height:170px}
+.large .phone .style-fields select{font-size:20px}
+.large .phone .app-tabs button{font-size:16px}
+.large .phone .editor-actions{align-items:stretch}
+
+/* Review 08: one writing surface, optional preparation. */
+.phone .practice-scene{min-height:132px}.phone .practice-scene>div{width:63%}
+.phone .help-start{align-self:flex-start;margin:8px 0}
+.phone .optional-options{margin:4px 0 14px;border:1px solid var(--line);border-radius:16px;padding:0 14px}
+.phone .optional-options summary{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.phone .optional-options label{font-size:12px}.phone .optional-options textarea{font-size:16px;min-height:84px}
+.phone .optional-options legend{font-size:12px;color:var(--muted)}
+.phone #goal-card{padding:12px 14px;margin-bottom:10px}.phone #goal-card p{margin:8px 0}
+.phone #goal-card button{font-size:12px;margin-right:10px}
+.phone #guidance-screen:not([hidden]){display:flex;flex-direction:column;min-height:100%}
+.phone #guidance-screen>label{margin-top:18px}.phone #guidance-context{min-height:100px}
+.phone .editor-actions{margin-top:0;justify-content:flex-start}
+.phone .editor-actions button{min-width:64px}
+.phone button:disabled{opacity:.45;cursor:default}
+.large .phone .optional-options textarea,.large .phone .optional-options label,.large .phone .optional-options legend{font-size:20px}
+.large .phone .practice-scene>div{width:100%}
+.large .phone #goal-card button{font-size:20px}

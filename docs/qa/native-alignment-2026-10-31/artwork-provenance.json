@@ -1,0 +1,77 @@
+{
+  "note": "Existing Codex master artwork reused unchanged. No AI generation or credits spent. Scene art remains decorative; portraits retain original PNG transparency.",
+  "assets": [
+    {
+      "asset": "GuestSceneWindowPause",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes06/SceneWindowPauseV1.png",
+      "sha256": "8b0c4ab76c32847c1ec2ed9ab9b34015bf27904b7465212c7d9b87b550d11aa8",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestSceneVoiceCorner",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/ScreenScenes07/SceneVoiceCornerV1.png",
+      "sha256": "f63a895ea478eef11b8c8a4c11c90c055b1ecab835db21f3cf66d3a3273fe5e1",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestPinguStudyTag",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguStudyTagV1.png",
+      "sha256": "4e90a70b6ae611ede195a20f3e24494453700dafdbfcc91f0e35b9d725b6114b",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestPinguWorkTag",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguWorkTagV1.png",
+      "sha256": "d3c6bf707682bd7ccba8533da722a7b195e46908eee000d8c7da663ff51d3f9b",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestPinguFriendsTag",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/JournalTags01/PinguFriendsTagV1.png",
+      "sha256": "a0843135e22eaf432e721b3b1d700c8e17ebf1ce728ff8f520236f1ade7b8c54",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestPinguFamilyTag",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/PracticeFlow01/PinguFamilyTagV1.png",
+      "sha256": "caacb24a566113f9801399a2a6e3fa2d20d65fd89b973d91e79ca7ec8026eea1",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestFeelingCalm",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02/PinguCalmTransparentV1.png",
+      "sha256": "5ba9c7b682884d34d5b8e0c8a46f72fd513ff79b751f1695dbdfbbe130087b7b",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestFeelingWorried",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02/PinguWorriedTransparentV1.png",
+      "sha256": "450c1e1440cb073ba31bc6d8d679ea8c4112fd05b6df3f28ebb0597452b6fee5",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestFeelingOverloaded",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02/PinguOverloadedTransparentV1.png",
+      "sha256": "5f7d2932c6869a9ad2dbb3a8f925d9830e804df1a74d86a5a9c93f6d893cdae5",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestFeelingHappy",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02/PinguHappyTransparentV1.png",
+      "sha256": "d0fc060ef2221d5e8c1b0ee47fc262e6cf991c009257eef8a5263b5cdccb4a5f",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestFeelingSad",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02/PinguSadTransparentV1.png",
+      "sha256": "86be5f360bb313264740ae6c81de66fd9bb87ca4944454dc3cd2276056c6dfbb",
+      "unchangedCopy": true
+    },
+    {
+      "asset": "GuestFeelingFrustrated",
+      "master": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/EmotionPortraits02/PinguFrustratedTransparentV1.png",
+      "sha256": "58dd3fb8f4809ea2785670aef27a10629c68b40c4c4fd7c48cc7f89acd574805",
+      "unchangedCopy": true
+    }
+  ]
+}

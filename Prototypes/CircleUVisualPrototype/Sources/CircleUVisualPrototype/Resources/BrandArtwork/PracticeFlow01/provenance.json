@@ -1,0 +1,40 @@
+[
+  {
+    "name": "PinguFamilyTagV1",
+    "label": "Family",
+    "prompt": "Use case: stylized-concept. Asset type: compact illustrated badge for CircleU journal cards. Reference image is a CHARACTER AND STYLE REFERENCE ONLY, not an edit target. Create one new standalone transparent PNG, square canvas, no words, no lettering, no border or background disk. Preserve this exact penguin identity: deep navy rounded head and body, white face, single crest, orange small beak, pale blue scarf. Modern matte softly dimensional illustration, clean edges, restrained shading, no sketch texture. Compact head-and-upper-body composition filling 80% of canvas with clear safe padding, not full body, large simple silhouette readable at 40\u201348 points. One simple distinctive prop only, no scattered tiny accessories. Palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, small orange beak. No glossy plastic, no medical symbols, no celebratory rewards. Family context badge: two matching penguin heads nestled beneath one simple sky blue house-roof silhouette; one adult-sized penguin and one smaller penguin; pale blue scarves. Calm warm expressions. Compact bust composition, no full-body feet, no tiny decorative marks. House roof is the only prop. Do not imply a specific gender.",
+    "generator": "built-in image_gen",
+    "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+    "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/PracticeFlow01/PinguFamilyTagV1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bytes": 1074177,
+    "sha256": "caacb24a566113f9801399a2a6e3fa2d20d65fd89b973d91e79ca7ec8026eea1"
+  },
+  {
+    "name": "PinguRelationshipTagV1",
+    "label": "Relationship",
+    "prompt": "Use case: stylized-concept. Asset type: compact illustrated badge for CircleU journal cards. Reference image is a CHARACTER AND STYLE REFERENCE ONLY, not an edit target. Create one new standalone transparent PNG, square canvas, no words, no lettering, no border or background disk. Preserve this exact penguin identity: deep navy rounded head and body, white face, single crest, orange small beak, pale blue scarf. Modern matte softly dimensional illustration, clean edges, restrained shading, no sketch texture. Compact head-and-upper-body composition filling 80% of canvas with clear safe padding, not full body, large simple silhouette readable at 40\u201348 points. One simple distinctive prop only, no scattered tiny accessories. Palette navy #0D1421, blue #054FC9, ice #F5FAFF, sky #47C7FF, small orange beak. No glossy plastic, no medical symbols, no celebratory rewards. Relationship context badge: one penguin head and upper body gently holding one large soft blue heart at chest height. Warm attentive expression, pale blue scarf clearly visible. Compact bust composition, no full-body feet, no extra hearts or sparkles. The heart is the only prop.",
+    "generator": "built-in image_gen",
+    "reference": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/Expansion01/PinguThoughtfulV1.png",
+    "file": "Prototypes/CircleUVisualPrototype/Sources/CircleUVisualPrototype/Resources/BrandArtwork/PracticeFlow01/PinguRelationshipTagV1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bytes": 1027353,
+    "sha256": "ffd1355202c59be50915c17ebe996e32234a7b67c8f474dadb69289fef04f47c"
+  }
+]

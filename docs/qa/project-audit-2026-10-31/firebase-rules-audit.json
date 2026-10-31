@@ -1,0 +1,30 @@
+{
+  "score": 2,
+  "summary": "Repository-only static assessment: owner-scoped private user paths and a default deny exist, but authenticated cross-user modification of Circle membership, reactions and replies is allowed. Deployed rules and live data were not inspected; emulator tests were not run.",
+  "findings": [
+    {
+      "check": "Field-level versus identity-level security",
+      "severity": "major",
+      "issue": "firestore.rules:60-70 permits any signed-in non-creator to change all fields other than five preserved metadata fields. This includes other users' membership, likes, favorites and cover images.",
+      "recommendation": "Constrain both changed fields and caller-owned transitions; prefer per-user membership/reaction documents where suitable. Test two-user overwrite and deletion attempts before deployment."
+    },
+    {
+      "check": "Update bypass and reply authorship",
+      "severity": "major",
+      "issue": "firestore.rules:89-97 permits non-authors to replace complete replies and likedBy collections when authorUserID, text, who and createdAt remain unchanged; membership and reply authorship are not enforced.",
+      "recommendation": "Protect existing replies and each reply author's identity; enforce caller-only reactions and required membership. Plan a compatible data migration if moving replies into owned documents."
+    },
+    {
+      "check": "Business logic and document lookup",
+      "severity": "major",
+      "issue": "firestore.rules:76 uses {circleID} in a get path instead of interpolating the matched variable with $(circleID). The intended membership lookup is not correctly expressed. Compiler/runtime behavior was not emulator-verified.",
+      "recommendation": "Correct the lookup and compile/test member and non-member post creation in the emulator."
+    },
+    {
+      "check": "Type safety, schema and resource bounds",
+      "severity": "moderate",
+      "issue": "Create/update rules do not validate field sets, field types or application-specific text/array/image limits. Circle creators and post authors also have unrestricted update branches. Platform document limits are not an application schema or ownership validator.",
+      "recommendation": "Apply compatible required/allowed-field, immutable-identity, type and length validators on create and update. Test malformed data and growing shared arrays; assess shared-document contention and resource-abuse risk."
+    }
+  ]
+}

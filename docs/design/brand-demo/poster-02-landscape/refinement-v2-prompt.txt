@@ -1,0 +1,28 @@
+Edit the FIRST supplied image: the previously approved CircleU landscape poster. Produce a refined wide 16:9 landscape poster, as high resolution as supported. This is a restrained refinement of that exact existing artwork, NOT a new flat slide layout. The SECOND image is supporting UI reference only for the Practice phone; do not copy its surrounding review-board content.
+
+KEEP THESE INVARIANTS: the same softly dimensional navy-and-white penguin with blue scarf holding a blue journal, large and clearly visible in the bottom-right foreground; the unified luminous arctic ice-cove scene with the soft peach sunrise, crystalline ice ledges and rich blue water; the seamless fade into an ice-white text area at the left; three dimensional realistic dark navy iPhone mockups, Journal left and slightly tilted, Today large central hero, Practice right and slightly tilted; plausible tall phone proportions, subtle perspective, glass, depth and soft grounded shadows; same Pingu head logo at top-left; same rounded blue outline feature icons inside pale-blue circles. Preserve the warmth, rich illustration and attractive original overall composition. No hard vertical split, no white panel seam, no flat pasted screenshot frames, no cropping out the foreground mascot. All devices and text stay fully inside the image. The mascot must not obscure important phone content.
+
+REFINE: Make the headline a little smaller if needed so the nearest phone never covers any letter of “Find your words”. Improve spacing and alignment of logo, heading, subheading and three feature rows. Use polished friendly geometric typography visually matching Plus Jakarta Sans, with crisp clear text, compact line spacing, dark navy headings and readable blue-grey body. Keep the strong original visual hierarchy and icons. Do not enlarge empty gaps. Keep the original phone arrangement and artwork; no wholesale redesign.
+
+EXACT POSTER COPY, no other marketing claims:
+Top left beside the original penguin-head logo: “CircleU”
+Large two-line heading: “Find your
+words”
+Supporting copy: “A calmer space to reflect and prepare for difficult conversations”
+Three feature rows, with their existing rounded illustrated outline icons:
+“Today”
+“Capture a moment in your own words”
+“Journal”
+“Revisit your thoughts at your own pace”
+“Practice”
+“Prepare wording that feels like you”
+Small bottom-left footer: “SwiftUI · Interaction design”
+Small discrete but legible footer near bottom-right: “Design mockups”
+No terminal full stops on headings or feature descriptions.
+
+PHONE UI: Retain the style, calm blue/ice palette, concise content and Pingu illustrations of the original poster. All three phones have the same pinned bottom navigation with only “Today”, “Journal”, “Practice”, matching icon sizes and aligned bottom baselines.
+Left Journal: title “Journal”, small calendar control at upper right, three readable entry cards labelled “After the group meeting”, “Finding the right words”, “A moment to reflect”. Date tiles “27 Oct”, “26 Oct”, “25 Oct”. No streaks, scores or extra decoration.
+Central Today: heading “What’s on your mind?”, the existing beautiful Pingu ice-cove scene with microphone, two small prompts “What happened?” and “Who was there?”, readable draft “I felt unsure about asking for help”, primary button “Save”. Keep the main Pingu scene attractive and dominant inside the phone.
+Right Practice: use the second reference image's shallow Pingu scene and writing-card design as visual guidance, simplified for poster-scale legibility. Title “Practice”; heading “What would you like to say?”; writing-card text “Could we agree on who handles each part of the project?”; compact optional “Context and tone” row; one blue primary action “Review wording”. Do not show AI result, processing, personalisation claims, online labels or large blank text fields. The edited UI is a design mockup, not a native capture. No outer prototype tools or diagnostic text.
+
+AVOID: the rejected flat white-left/blue-right slide treatment; generic plain text feature rows without icons; removing the large Pingu; upright flat phone rectangles; huge gaps; text under phones; random glyphs or inaccurate words; additional slogans, app store/download badges, QR codes, UTS logos, awards, verified privacy claims, circles, rewards, video claims. Keep the polished illustrated portfolio-poster quality of image one.

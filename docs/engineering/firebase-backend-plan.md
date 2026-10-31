@@ -1,5 +1,7 @@
 # Firebase Backend Plan
 
+> Historical Firebase/legacy-app plan. It is not the current guest MVP implementation queue. See [current backend readiness](competition-backend-readiness-2026-10-27.md): guest data is stored locally; optional recovery currently allows Dev only; Release still opens the original app. Preserve existing Firebase data and recovery access. New cloud sync/AI are not approved by this document.
+
 Firebase is the primary backend direction for Circleu while the team does not have paid Apple Developer Program access for CloudKit.
 
 CloudKit remains useful as an Apple-first reference, but Firebase is the practical implementation target because it supports iOS apps through Firebase Console and does not require Apple Developer Program membership for the database/auth backend.

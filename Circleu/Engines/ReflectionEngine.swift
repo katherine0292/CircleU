@@ -432,29 +432,12 @@ struct AppleIntelligenceReflectionEngine: ReflectionAnalyzing {
             to: ReflectionPromptContent.prompt(transcript: cleanTranscript, durationSeconds: durationSeconds)
         ).content
         do {
-            return try decodeReflectionResult(from: response)
+            return try ReflectionResponseDecoder.decode(response)
         } catch {
             return try await fallback.analyze(transcript: cleanTranscript, durationSeconds: durationSeconds)
         }
     }
 
-    private func decodeReflectionResult(from rawResponse: String) throws -> AIReflectionResult {
-        let trimmed = rawResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-        let jsonText: String
 
-        if let start = trimmed.firstIndex(of: "{"),
-           let end = trimmed.lastIndex(of: "}") {
-            jsonText = String(trimmed[start...end])
-        } else {
-            jsonText = trimmed
-        }
-
-        guard let data = jsonText.data(using: .utf8),
-              let result = try? JSONDecoder().decode(AIReflectionResult.self, from: data) else {
-            throw ReflectionEngineError.invalidModelResponse
-        }
-
-        return result
-    }
 }
 #endif

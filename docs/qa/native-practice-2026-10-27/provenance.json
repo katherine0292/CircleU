@@ -1,0 +1,44 @@
+{
+  "note": "Unaltered XCUITest captures with invented fixture text. iPhone 17 / iOS 27 simulator; no physical-phone evidence.",
+  "captures": [
+    {
+      "file": "conversation.png",
+      "sha256": "b7136508025a554db22849de005bb410057c6f69cd5cc234f4d4ce1737b5f989",
+      "source": {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+        "deviceName": "iPhone 17",
+        "exportedFileName": "90E83FC9-405E-41E0-A144-E6ECD678B972.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "practice-conversation-saved_0_678F4CAE-C981-4935-B5B1-C508FA958EA0.png",
+        "timestamp": 1793059385.182
+      }
+    },
+    {
+      "file": "refine.png",
+      "sha256": "434864436e679a0b5c6a8e2db2738067fd5309c2259b62fa2d4f2e131b0a00db",
+      "source": {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+        "deviceName": "iPhone 17",
+        "exportedFileName": "D4A84C7B-EC4C-46B4-A66F-88F407B3939B.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "p2-compose_0_955B7008-8CC0-4B08-9A58-9EB5F45435C3.png",
+        "timestamp": 1793059431.401
+      }
+    },
+    {
+      "file": "refine-large-text.png",
+      "sha256": "806a9161be956a1aa9bc30f105c17062f62a89bf055f1d2eea4161657c4e089b",
+      "source": {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "20743DB1-66DF-46E1-A234-9792A6606A4D",
+        "deviceName": "iPhone 17",
+        "exportedFileName": "3D5C658B-330B-4F30-8011-A7C3153D0095.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "practice-pinned-save-ax5_0_AF74F2C2-B6E1-4669-875B-653708E60E94.png",
+        "timestamp": 1793059530.776
+      }
+    }
+  ]
+}

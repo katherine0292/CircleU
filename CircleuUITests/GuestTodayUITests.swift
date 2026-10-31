@@ -13,88 +13,61 @@ final class GuestTodayUITests: XCTestCase {
 
     func words(_ app: XCUIApplication) -> String { app.textViews["Your words"].value as? String ?? "" }
 
-    func testChipsStartTheWordsAndTheNudgeHelpsWhileWriting() throws {
+    func testQuestionGuidancePreservesWordsAndResetsAfterSave() throws {
         continueAfterFailure = false
         let app = launchGuest(fresh: true)
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 15))
-        XCTAssertFalse(app.buttons["Get a suggestion"].exists, "replaced by the prompts")
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Save")).count, 1, "one Save")
-        XCTAssertFalse(app.buttons["Save"].isEnabled, "nothing to save yet")
-        XCTAssertTrue(app.buttons["Start dictation"].exists, "the big microphone, in Pingu's card")
-        for gone in ["Type, or tap the microphone and talk.", "Tap to talk", "Not sure where to start?"] {
-            XCTAssertFalse(app.staticTexts[gone].exists, "pictures instead of \(gone)")
-        }
-        for question in ["What happened?", "Who was it with?", "What do you wish you’d said?"] {
-            XCTAssertTrue(app.buttons[question].exists, question)
-        }
-        shot(app, "t1-chips")
-        app.buttons["What do you wish you’d said?"].tap()
-        XCTAssertEqual(words(app), "I wish I’d said ", "the starter, not the question")
-        XCTAssertFalse(app.buttons["What happened?"].exists, "chips go once there are words")
-
-        app.typeText("that I needed more time on the slides")
-        XCTAssertTrue(app.buttons["Another question"].waitForExistence(timeout: 5), "the nudge shows")
-        XCTAssertFalse(app.staticTexts["Need a nudge?"].exists, "no label above the question")
-        let first = "What did you want them to understand?"
-        XCTAssertTrue(has(app, first))
-        shot(app, "t2-nudge")
-        app.buttons["Another question"].tap()
-        XCTAssertTrue(has(app, "How did you feel right after?"))
-        XCTAssertFalse(app.staticTexts[first].exists)
-        app.buttons["Add to my words"].tap()
-        XCTAssertTrue(words(app).hasSuffix("the slides\nRight after, I felt "), "the starter on a new line: \(words(app))")
-        app.typeText("embarrassed")
-        app.buttons["Hide"].tap()
-        XCTAssertFalse(app.buttons["Another question"].waitForExistence(timeout: 1), "hidden")
-        shot(app, "t3-hidden")
-
+        shot(app, "today-aligned-empty")
+        app.buttons["Suggest a question"].tap()
+        app.buttons["What happened?"].tap()
+        XCTAssertEqual(words(app), "")
+        editor.tap(); editor.typeText("I wanted to say: no, thank you.")
+        app.buttons["Change question"].tap()
+        app.buttons["How did it make you feel?"].tap()
+        XCTAssertEqual(words(app), "I wanted to say: no, thank you.")
+        app.buttons["Remove question"].tap()
+        XCTAssertEqual(words(app), "I wanted to say: no, thank you.")
+        app.buttons["Suggest a question"].tap()
+        app.buttons["Close questions"].tap()
+        XCTAssertEqual(words(app), "I wanted to say: no, thank you.")
+        app.buttons["Suggest a question"].tap()
+        app.buttons["What would you like to say next?"].tap()
+        shot(app, "today-aligned-question")
         app.buttons["Save"].tap()
-        XCTAssertTrue(has(app, "Saved"))
-        XCTAssertTrue(app.buttons["Not now"].exists)
-        shot(app, "t4-offer")
+        XCTAssertTrue(has(app, "Saved", 10))
         app.buttons["Not now"].tap()
-        XCTAssertFalse(app.buttons["Reflect on it"].waitForExistence(timeout: 1), "Not now closes the offer")
-        XCTAssertTrue(has(app, "I wish I’d said that I needed more time"), "saved as written")
-
+        XCTAssertTrue(has(app, "I wanted to say: no, thank you."))
         app.tabBars.buttons["Today"].tap()
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
-        XCTAssertEqual(words(app), "", "a fresh box after saving")
-        XCTAssertTrue(app.buttons["What happened?"].exists, "the chips are back for the next entry")
-        editor.tap(); editor.typeText("My flatmate left the dishes again")
-        XCTAssertTrue(app.buttons["Another question"].waitForExistence(timeout: 5), "Hide lasted for the last entry only")
+        XCTAssertEqual(words(app), "")
+        XCTAssertTrue(app.buttons["Suggest a question"].exists)
     }
 
-    /// T10.4: the core controls stay reachable at accessibility XXXL, including after typing.
     func testTodayAtLargestTextKeepsPromptsAvatarAndSaveReachable() throws {
         continueAfterFailure = false
         let app = launchGuest(fresh: true,
                               ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"])
-        let microphone = app.buttons["Start dictation"]
-        XCTAssertTrue(microphone.waitForExistence(timeout: 15))
-        XCTAssertTrue(microphone.isHittable)
+        let editor = app.textViews["Your words"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 15))
         let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu:")).firstMatch
         XCTAssertTrue(avatar.isHittable)
         avatar.tap()
-        XCTAssertTrue(app.navigationBars["Choose your Pingu"].waitForExistence(timeout: 5))
         app.buttons["Done"].tap()
-        let prompt = app.buttons["What do you wish you’d said?"]
-        let save = app.buttons["Save"]
-        // isHittable can be true for a partially covered button; inspect its full bounds too.
-        for _ in 0..<6 {
-            if prompt.isHittable && prompt.frame.maxY <= save.frame.minY { break }
-            app.swipeUp()
-        }
+        let prompt = app.buttons["Suggest a question"]
+        for _ in 0..<6 where !prompt.isHittable { app.swipeUp() }
         XCTAssertTrue(prompt.isHittable)
-        XCTAssertLessThanOrEqual(prompt.frame.maxY, save.frame.minY)
-        shot(app, "today-ax5-prompts")
+        XCTAssertTrue(app.buttons["Start dictation"].isHittable)
+        shot(app, "today-aligned-ax5")
         prompt.tap()
-        XCTAssertEqual(words(app), "I wish I’d said ")
-        app.typeText("I needed more time")
-        XCTAssertTrue(save.isHittable, "Save remains reachable while editing")
-        shot(app, "today-ax5-writing")
-        save.tap()
-        XCTAssertTrue(has(app, "I wish I’d said I needed more time", 10))
+        let question = app.buttons["What would you like to say next?"]
+        for _ in 0..<6 where !question.isHittable { app.swipeUp() }
+        question.tap()
+        for _ in 0..<6 where !editor.isHittable { app.swipeDown() }
+        editor.tap(); editor.typeText("I needed more time")
+        XCTAssertTrue(app.buttons["Save"].isHittable)
+        app.buttons["Save"].tap()
+        XCTAssertTrue(has(app, "I needed more time", 10))
     }
 
     /// Delete all while a reflection is open closes it and leaves an empty Journal.

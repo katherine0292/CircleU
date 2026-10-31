@@ -8,9 +8,11 @@ nonisolated struct GuestPracticeDraft: Codable, Equatable, Sendable {
     var goal = ""
     var wording = ""
     var sourceEntryID: UUID?
+    var conversation: GuestPracticeConversation? = nil
 
     var isEmpty: Bool {
-        [situation, goal, wording].allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        [situation, goal, wording, conversation?.originalWords ?? "", conversation?.pendingReply ?? "",
+         conversation?.pendingContext ?? "", conversation?.turns.map(\.text).joined() ?? ""].allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 }
 
@@ -30,6 +32,7 @@ final class GuestPracticeViewModel: ObservableObject {
     static let deleteFailedMessage = "Couldn’t delete. Try again."
 
     let store: any GuestPracticeStore
+    var makeDictationEngine: () -> any GuestDictationEngine = { SpeechDictationEngine() }
     /// Opt-in wording suggestions; nil hides "Get a suggestion".
     let suggester: (any GuestSuggesting)?
     /// The unsaved new message, if there is one ("Continue your draft").
@@ -244,6 +247,56 @@ final class GuestPracticeComposerViewModel: ObservableObject {
             if wording != oldValue { didCopy = false }
         }
     }
+    enum Stage { case prepare, refine, reply }
+    @Published var stage: Stage = .prepare
+    @Published var conversation: GuestPracticeConversation?
+    var scene: String {
+        get { conversation?.scene ?? "Work" }
+        set { var value = conversation ?? GuestPracticeConversation(); value.scene = newValue; conversation = value }
+    }
+    var tone: String {
+        get { conversation?.tone ?? "Balanced" }
+        set { var value = conversation ?? GuestPracticeConversation(); value.tone = newValue; conversation = value }
+    }
+    var replyText: String {
+        get { conversation?.pendingReply ?? "" }
+        set { var value = conversation ?? GuestPracticeConversation(); value.pendingReply = newValue; conversation = value }
+    }
+    var replyContext: String {
+        get { conversation?.pendingContext ?? "" }
+        set { var value = conversation ?? GuestPracticeConversation(); value.pendingContext = newValue; conversation = value }
+    }
+    var canContinueReply: Bool { !Self.trim(replyText).isEmpty || !Self.trim(replyContext).isEmpty }
+
+    func prepareRefinement() {
+        guard !Self.trim(wording).isEmpty else { return }
+        var value = conversation ?? GuestPracticeConversation()
+        if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
+        conversation = value
+        stage = .refine
+    }
+
+    func openReply() { edit(); stage = .reply }
+
+    /// Freeze the previous prepared wording, keeping attribution. The new wording starts empty.
+    func continueReply() {
+        guard canContinueReply else { return }
+        var value = conversation ?? GuestPracticeConversation()
+        if value.originalWords.isEmpty { value.originalWords = Self.trim(wording) }
+        if !Self.trim(wording).isEmpty { value.turns.append(.init(kind: .wording, text: Self.trim(wording))) }
+        if !Self.trim(replyText).isEmpty { value.turns.append(.init(kind: .theirReply, text: Self.trim(replyText))) }
+        if !Self.trim(replyContext).isEmpty { value.turns.append(.init(kind: .context, text: Self.trim(replyContext))) }
+        value.pendingReply = ""
+        value.pendingContext = ""
+        conversation = value
+        wording = ""
+        suggestions = nil
+        suggestedFrom = nil
+        wordingBeforeSuggestion = nil
+        suggestionRequest += 1
+        stage = .refine
+    }
+
     /// The last saved version, or nil for a new message.
     @Published private(set) var saved: GuestPracticeMessage?
     /// A saved message is shown read-only until Edit.
@@ -295,6 +348,8 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         situation = draft?.situation ?? ""
         goal = draft?.goal ?? ""
         wording = draft?.wording ?? ""
+        conversation = draft?.conversation
+        if draft?.conversation?.originalWords.isEmpty == false { stage = .refine }
         isEditing = true
         guard let practice, let draftID else { return }
         practiceModel = practice
@@ -302,12 +357,12 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         let generation = practice.dataGeneration
         let owner = ObjectIdentifier(self)
         practice.claimDraft(by: owner)
-        draftObserver = Publishers.CombineLatest3($situation, $goal, $wording)
+        draftObserver = Publishers.CombineLatest4($situation, $goal, $wording, $conversation)
             .dropFirst()
-            .sink { [weak self, weak practice] situation, goal, wording in
+            .sink { [weak self, weak practice] situation, goal, wording, conversation in
                 guard let self, self.saved == nil else { return }
                 practice?.keepDraft(GuestPracticeDraft(id: draftID, situation: situation, goal: goal,
-                                                       wording: wording, sourceEntryID: sourceEntryID),
+                                                       wording: wording, sourceEntryID: sourceEntryID, conversation: conversation),
                                     generation: generation, owner: owner)
             }
     }
@@ -322,15 +377,17 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         situation = message.situation
         goal = message.goal
         wording = message.wording
+        conversation = message.conversation
+        stage = .refine
         isEditing = false
     }
 
     private static func trim(_ text: String) -> String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
 
     var hasChanges: Bool {
-        guard let saved else { return [situation, goal, wording].contains { !Self.trim($0).isEmpty } }
+        guard let saved else { return [situation, goal, wording].contains { !Self.trim($0).isEmpty } || conversation != nil }
         return Self.trim(situation) != saved.situation || Self.trim(goal) != saved.goal
-            || Self.trim(wording) != saved.wording
+            || Self.trim(wording) != saved.wording || conversation != saved.conversation
     }
 
     var canSave: Bool { !Self.trim(wording).isEmpty && hasChanges && !isSaving }
@@ -338,6 +395,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     var canLeave: Bool { !isSaving }
 
     func edit() {
+        stage = .refine
         isEditing = true
         didCopy = false
     }
@@ -350,9 +408,15 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         suggestionError = nil
         suggestionRequest += 1
         let request = suggestionRequest
-        let inputs = (Self.trim(situation), Self.trim(goal), Self.trim(wording))
+        let inputs = suggestionInputs
         do {
-            let result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1, draft: inputs.2)
+            let result: GuestWordingSuggestions
+            if let conversation {
+                result = try await suggester.conversationOptions(situation: Self.trim(situation), goal: Self.trim(goal),
+                    draft: Self.trim(wording), conversation: conversation)
+            } else {
+                result = try await suggester.wordingOptions(situation: inputs.0, goal: inputs.1, draft: inputs.2)
+            }
             guard request == suggestionRequest else { return }
             suggestions = result
             suggestedFrom = inputs
@@ -365,7 +429,13 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     /// The situation, goal or wording changed after the options were made (using an option doesn't count).
     var suggestionsAreStale: Bool {
         guard suggestions != nil, let suggestedFrom else { return false }
-        return suggestedFrom != (Self.trim(situation), Self.trim(goal), Self.trim(wording))
+        return suggestedFrom != suggestionInputs
+    }
+
+    private var suggestionInputs: (String, String, String) {
+        let context = conversation.map { "\(Self.trim(situation))\n\($0.suggestionContext)" } ?? Self.trim(situation)
+        let intent = conversation.map { "\(Self.trim(goal))\nPreferred tone: \($0.tone)" } ?? Self.trim(goal)
+        return (context, intent, Self.trim(wording))
     }
 
     /// Puts an option in the wording box to edit; the previous wording can be restored.
@@ -401,10 +471,20 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         isSaving = true
         defer { isSaving = false }
         let submitted = (situation, goal, wording)
+        let submittedConversation = conversation
         let fields = (Self.trim(situation), Self.trim(goal), Self.trim(wording))
         var warning: String?
         do {
-            if let saved {
+            if let conversation = submittedConversation {
+                guard let extended = store as? any GuestConversationStore else { throw GuestJournalError.saveFailed("Conversation storage unavailable") }
+                if let saved {
+                    self.saved = try await extended.updateConversation(id: saved.id, situation: fields.0, goal: fields.1,
+                        wording: fields.2, expectedRevision: saved.revision, conversation: conversation)
+                } else {
+                    self.saved = try await extended.createConversation(situation: fields.0, goal: fields.1, wording: fields.2,
+                        sourceEntryID: sourceEntryID, draftID: ownsDraft ? draftID : nil, conversation: conversation)
+                }
+            } else if let saved {
                 self.saved = try await store.updatePractice(id: saved.id, situation: fields.0, goal: fields.1,
                                                             wording: fields.2, expectedRevision: saved.revision)
             } else {
@@ -418,7 +498,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
             let now = Date()
             self.saved = GuestPracticeMessage(id: id, situation: fields.0, goal: fields.1, wording: fields.2,
                                               sourceEntryID: sourceEntryID, revision: (saved?.revision ?? -1) + 1,
-                                              createdAt: saved?.createdAt ?? now, updatedAt: now)
+                                              createdAt: saved?.createdAt ?? now, updatedAt: now, conversation: submittedConversation)
         } catch GuestJournalError.staleRevision {
             saveError = Self.staleMessage
             return false
@@ -435,7 +515,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
         saveError = warning
         didCopy = false
         // Anything typed while saving is newer than what was saved: keep it, and keep editing.
-        if (situation, goal, wording) == submitted {
+        if (situation, goal, wording) == submitted && conversation == submittedConversation {
             situation = fields.0
             goal = fields.1
             wording = fields.2
