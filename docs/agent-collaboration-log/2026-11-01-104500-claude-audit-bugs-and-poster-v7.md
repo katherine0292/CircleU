@@ -24,3 +24,7 @@ Focused unit run (validation, suggestion, copy-lint, message-first tests): 15 pa
 ## Review and result
 
 Full suites on the branch: unit 292 passed, 1 device-only skip; UI 30 run, 29 passed, 1 live-Firebase skip; 0 failures. Codex (`gpt-6-astra`, read-only): no blockers. Applied: tones trimmed with `.whitespacesAndNewlines`, with a test for exactly 60 words and an invalid option followed by a valid one. Left for later: injected defaults instead of `nonisolated(unsafe)` on `GuestLegacyImport.source`; large-text/VoiceOver coverage of inline Compare. Merged as PR 45 under the auto-merge rule.
+
+## Poster revisions (1 November, owner review)
+
+Owner review moved the poster through: arctic artwork background; captions and footer notes removed; Pingu beside the lockup; three-step copy with "Private by design. Kept on your iPhone."; the sitting, considering Pingu from refinement-04 slide 2 on the ice (a clipped crop of the v6 artwork showed seams and was dropped); a LinkedIn 1.91:1 version from the same page; the lockup larger with multiply blending. For dated Journal entries, a Debug-only launch argument `-CircleUSeedShowcase` imports three invented entries on three days with tags through the legacy-import path; `GuestShowcaseCaptureUITests` uses it. PRs 46–51 were docs-only; the seed is app code and goes through the suites and a Codex pass.
