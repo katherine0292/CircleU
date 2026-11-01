@@ -9,7 +9,7 @@
   html, body { width: 1280px; height: 720px; overflow: hidden; }
   body {
     font-family: "Plus Jakarta Sans", -apple-system, sans-serif; color: #0d1421;
-    background: #f5faff url("assets/background-pingu.png") calc(50% + 70px) center / cover no-repeat;
+    background: #f5faff url("assets/background.png") center / cover no-repeat;
     position: relative;
   }
   /* soft "ice" bands */
@@ -19,8 +19,14 @@
   .band.b { top: 610px; transform: rotate(-2deg); left: 450px; background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(198,220,255,.6)); }
 
   /* Hides the text baked into the cover artwork; the scene and Pingu on the right stay untouched. */
-  .wash { position: absolute; left: 0; top: 0; width: 900px; height: 720px;
-          background: linear-gradient(90deg, #f7fbff 0, #f7fbff 560px, rgba(247,251,255,.92) 680px, rgba(247,251,255,0) 900px); }
+  /* The sitting journal Pingu from the v6 poster artwork: the picture is laid over the same scene,
+     clipped to Pingu and the ice under him so none of the painted phones show, and faded at the edges. */
+  .sitting { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; z-index: 4; pointer-events: none;
+             transform: scale(.78); transform-origin: 100% 100%;
+             background: url("assets/pingu-scene-v6.png") center / 1280px 720px no-repeat;
+             clip-path: polygon(1118px 428px, 1200px 410px, 1254px 456px, 1280px 520px, 1280px 650px, 1110px 720px, 1030px 720px, 1036px 686px, 1052px 644px, 1070px 596px, 1084px 540px, 1104px 470px);
+             -webkit-mask-image: radial-gradient(ellipse 55% 75% at 72% 62%, #000 62%, transparent 100%);
+             mask-image: radial-gradient(ellipse 55% 75% at 72% 62%, #000 62%, transparent 100%); }
   .left { position: absolute; left: 64px; top: 56px; width: 400px; }
   .wordmark { display: flex; align-items: center; gap: 12px; }
   .wordmark img { width: 64px; height: 64px; }
@@ -37,21 +43,21 @@
   .foot img.lockup { height: 60px; }
   .foot img.pingu { height: 104px; margin-bottom: -6px; filter: drop-shadow(0 10px 16px rgba(13,20,33,.2)); }
 
-  .phones { position: absolute; left: 470px; top: 70px; width: 450px; height: 650px; }
+  .phones { position: absolute; left: 468px; top: 44px; width: 600px; height: 676px; }
   .phone { position: absolute; border-radius: 38px; background: #0d1421; padding: 6px;
            box-shadow: 0 30px 60px rgba(13,20,33,.28), 0 6px 14px rgba(13,20,33,.18); }
   .phone img { display: block; border-radius: 32px; width: 100%; }
-  .phone.side { width: 158px; top: 150px; }
+  .phone.side { width: 200px; top: 120px; }
   .phone.left  { left: 0px;  transform: rotate(-5deg); }
-  .phone.right { left: 288px; transform: rotate(5deg); }
-  .phone.main  { width: 186px; left: 130px; top: 96px; z-index: 2; }
+  .phone.right { left: 400px; transform: rotate(5deg); }
+  .phone.main  { width: 236px; left: 182px; top: 62px; z-index: 2; }
   .phone .cap { position: absolute; left: 50%; transform: translateX(-50%); top: -36px; white-space: nowrap;
                 font-size: 15px; font-weight: 700; color: #054fc9; background: #fff; padding: 6px 14px; border-radius: 999px;
                 box-shadow: 0 4px 12px rgba(13,20,33,.1); }
 </style>
 </head>
 <body>
-  <div class="wash"></div>
+  <div class="sitting"></div>
 
   <div class="left">
     <div class="wordmark"><img src="assets/logo.png" alt=""><span>CircleU</span></div>

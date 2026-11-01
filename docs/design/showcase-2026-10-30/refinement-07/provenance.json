@@ -4,13 +4,13 @@
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "2988d02cd3865cb958486392b1f97735fac33074ac058f791cb0af6df089e4ea",
+    "sha256": "d35cbc2c869a769e03660a7f44e0791f7c5d781173484cf9cd81a9f03c9bfaaa",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "11edc12e3363e746780270baa69671da4ea46c9040d0366d85c975cd5c223d14"
+    "sha256": "4edeeeaf2a6072f52e7ced0de38997a8905749e8ea2499b254cab779a18b09b6"
   },
   "assets": [
     {
@@ -61,11 +61,18 @@
       "sha256": "89b3fb38aa0d275d7a731d0d817a4f1622b316b4d7fbdedcf02ee9099ff68bc8"
     },
     {
-      "file": "assets/background-pingu.png",
-      "source": "docs/design/showcase-2026-10-30/refinement-05/presentation-cover.png (existing cover artwork with Pingu in the scene; its baked-in text is covered by a white wash on the left)",
-      "sha256": "0659175e2ebf46319caeee1e4f1311a5b0ae7accc1ee6fd262b61f81beb63f2b",
-      "width": 1280,
-      "height": 720
+      "file": "assets/background.png",
+      "source": "docs/design/showcase-2026-10-30/refinement-04/assets/arctic-background.png (existing empty scene)",
+      "sha256": "4baf8d1fbd45abf1e9b762e840346dc48da793b082cbdaac858a18e9f52e0bf6",
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "file": "assets/pingu-scene-v6.png",
+      "source": "docs/design/showcase-2026-10-30/refinement-06/poster-artwork.png (existing poster artwork; only the sitting journal Pingu and the ice under him are shown, via a CSS clip and mask)",
+      "sha256": "abc1fb81446a1f159ac432507f6f1029caedbf58c2c1df93a7e6be4bbce978d5",
+      "width": 1672,
+      "height": 941
     }
   ],
   "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies."
