@@ -4,13 +4,13 @@
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "481f09eafef66a4d9316bd230061fc0776d904289e9d8b9c71ad3c26dfae3708",
+    "sha256": "a40d367493ab7997670b79a0ee992ec34697d00262051633daba715403237d9a",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "772e4e543d375b7edb80de9685dfbc89022aa6c6fe192191fa32fa7326bb2173"
+    "sha256": "3265927d78ccb57c13ea2d2c2a3de2a6f42936a2cae8e8b12938ec4f09daffdb"
   },
   "assets": [
     {
@@ -68,9 +68,9 @@
       "height": 941
     },
     {
-      "file": "assets/pingu-journal.png",
-      "source": "Prototypes/.../BrandArtwork/BrandAvatar.png (transparent original of the sitting journal Pingu)",
-      "sha256": "d188f404df23c728611214c47643f9596ea843ee6b65acc19025b5dc90f4a318",
+      "file": "assets/pingu-considering.png",
+      "source": "Prototypes/.../BrandArtwork/Expansion05/PinguConsideringV1.png (the sitting Pingu from refinement-04 slide 2)",
+      "sha256": "635e56947bc80a5d434e8eac10eb6914b4a42790960ea144c70c1c5196406012",
       "width": 1254,
       "height": 1254
     }
@@ -78,8 +78,8 @@
   "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies.",
   "linkedin": {
     "file": "CircleU-Poster-v7-LinkedIn.png",
-    "source": "poster-linkedin.html (the same page scaled to 87% on a 1200 x 627 canvas)",
-    "sha256": "a6d31c72fa7ea3b4b946c210fd3082623b0e293a3f9a1d5e2fb4887f96c27d65",
+    "source": "poster-linkedin.html (the poster page on a 1200 x 627 canvas, scaled to 87% and centred; one background layer)",
+    "sha256": "ce76fb5dd0c7e51c59bbd1ded68fe12dbf63aad9626fc7e095a74db7169fffdd",
     "width": 2400,
     "height": 1254
   }
