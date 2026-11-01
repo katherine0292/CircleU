@@ -4,13 +4,13 @@
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES -CircleUSeedShowcase YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "a1e987d6d60324524a7113bd53eee751587a95c54d21d67d124b0db2394c9b39",
+    "sha256": "5d0876f7fca0b7b97ab9a8bd053647261b823e8d0b1a262b20ad298487b90df8",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "2b1be402955680410981453d9cb0698e3e3b0fc9e1a4ddf6f5b6526a2726fc5e"
+    "sha256": "c2277cbb5bdf5883336f16b270d4c1dd72c0442b75d8a7fb443fb707a2b33f9f"
   },
   "assets": [
     {
@@ -79,7 +79,7 @@
   "linkedin": {
     "file": "CircleU-Poster-v7-LinkedIn.png",
     "source": "poster-linkedin.html (the poster page on a 1200 x 627 canvas, scaled to 87% and centred; one background layer)",
-    "sha256": "756ed19cbca3e29164a187494b33baa3b160d5c38ee0c322e5fcc4fcb3c9e7cf",
+    "sha256": "7a30443f85deee057eb10e6183f567a0050c9f29edb687848844afb22052972f",
     "width": 2400,
     "height": 1254
   }
