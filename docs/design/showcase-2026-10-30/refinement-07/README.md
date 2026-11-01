@@ -4,6 +4,7 @@
 
 - [Poster PNG](CircleU-Poster-v7.png): 2560 × 1440 landscape export.
 - [Source page](poster.html): HTML and CSS; rendered with headless Chrome at a 2× device scale factor. Everything on it is editable text or a referenced asset in [assets](assets/).
+- [LinkedIn version](CircleU-Poster-v7-LinkedIn.png): 2400 × 1254 (LinkedIn's 1.91:1 link/post image at 2×), from [poster-linkedin.html](poster-linkedin.html), the same page scaled to 87% on a 1200 × 627 canvas.
 - [Provenance](provenance.json): hashes of every asset and the capture test that produced the screens.
 
 ## What is on it
@@ -11,11 +12,11 @@
 | Element | Source |
 | --- | --- |
 | Journal, Today and Practice screens | `GuestShowcaseCaptureUITests.testCaptureShowcaseScreens` on the iPhone 18 Pro Simulator, iOS 27.0: a seeded Journal with three tagged entries, the empty Today screen, and the Practice result for an invented group-project message with guided suggestions |
-| Background, wordmark and Pingu | `refinement-04/assets/arctic-background.png`, the sitting Pingu from `refinement-06/poster-artwork.png`, `BrandArtwork/BrandLogo.png` and `EmotionPortraits02/PinguCalmTransparentV1.png`, all unchanged files |
+| Background, wordmark and Pingu | `refinement-04/assets/arctic-background.png`, `BrandArtwork/BrandAvatar.png`, `BrandArtwork/BrandLogo.png` and `EmotionPortraits02/PinguCalmTransparentV1.png`, all unchanged files |
 | Type | Bundled Plus Jakarta Sans; headline 44 px, intro 18.5 px, steps 24 px, trust line 16 px on the 1280 × 720 canvas |
 | Program lockup | The same UTS Apple Foundation Program image as refinement 04–06; not a claim of endorsement |
 
-Owner review, 1 November: background is the existing empty arctic scene (refinement 04) with the sitting journal Pingu from the v6 poster artwork laid over its bottom-right corner (clipped to Pingu and the ice under him, scaled to 78%, edges faded), the screen captions and the two footer notes are removed, Pingu sits beside the program lockup, the example quotes are replaced by three steps (Write it down. Tag how it felt. Find your words.) with the line "Private by design. Kept on your iPhone.", and the phones are back at full size between the copy and Pingu. The poster carries no "Design mockups" disclaimer because the screens are real.
+Owner review, 1 November: background is the existing empty arctic scene (refinement 04) with the sitting journal Pingu (the transparent `BrandAvatar.png` original of the v6 figure) placed on the ice shelf at the right with a ground shadow; a clipped crop of the v6 artwork was tried first and showed seams, the screen captions and the two footer notes are removed, Pingu sits beside the program lockup, the example quotes are replaced by three steps (Write it down. Tag how it felt. Find your words.) with the line "Private by design. Kept on your iPhone.", and the phones are back at full size between the copy and Pingu. The poster carries no "Design mockups" disclaimer because the screens are real.
 
 ## Rebuilding
 

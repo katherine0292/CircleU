@@ -4,13 +4,13 @@
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "d35cbc2c869a769e03660a7f44e0791f7c5d781173484cf9cd81a9f03c9bfaaa",
+    "sha256": "481f09eafef66a4d9316bd230061fc0776d904289e9d8b9c71ad3c26dfae3708",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "4edeeeaf2a6072f52e7ced0de38997a8905749e8ea2499b254cab779a18b09b6"
+    "sha256": "772e4e543d375b7edb80de9685dfbc89022aa6c6fe192191fa32fa7326bb2173"
   },
   "assets": [
     {
@@ -68,12 +68,19 @@
       "height": 941
     },
     {
-      "file": "assets/pingu-scene-v6.png",
-      "source": "docs/design/showcase-2026-10-30/refinement-06/poster-artwork.png (existing poster artwork; only the sitting journal Pingu and the ice under him are shown, via a CSS clip and mask)",
-      "sha256": "abc1fb81446a1f159ac432507f6f1029caedbf58c2c1df93a7e6be4bbce978d5",
-      "width": 1672,
-      "height": 941
+      "file": "assets/pingu-journal.png",
+      "source": "Prototypes/.../BrandArtwork/BrandAvatar.png (transparent original of the sitting journal Pingu)",
+      "sha256": "d188f404df23c728611214c47643f9596ea843ee6b65acc19025b5dc90f4a318",
+      "width": 1254,
+      "height": 1254
     }
   ],
-  "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies."
+  "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies.",
+  "linkedin": {
+    "file": "CircleU-Poster-v7-LinkedIn.png",
+    "source": "poster-linkedin.html (the same page scaled to 87% on a 1200 x 627 canvas)",
+    "sha256": "a6d31c72fa7ea3b4b946c210fd3082623b0e293a3f9a1d5e2fb4887f96c27d65",
+    "width": 2400,
+    "height": 1254
+  }
 }
