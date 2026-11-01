@@ -11,11 +11,11 @@
 | Element | Source |
 | --- | --- |
 | Journal, Today and Practice screens | `GuestShowcaseCaptureUITests.testCaptureShowcaseScreens` on the iPhone 18 Pro Simulator, iOS 27.0: a seeded Journal with three tagged entries, the empty Today screen, and the Practice result for an invented group-project message with guided suggestions |
-| Wordmark and Pingu | `BrandArtwork/BrandLogo.png` and `EmotionPortraits02/PinguCalmTransparentV1.png`, unchanged |
+| Background, wordmark and Pingu | `refinement-04/assets/arctic-background.png`, `BrandArtwork/BrandLogo.png` and `EmotionPortraits02/PinguCalmTransparentV1.png`, unchanged |
 | Type | Bundled Plus Jakarta Sans; headline 44 px, intro 18.5 px, quotes 19–20 px, labels 15 px on the 1280 × 720 canvas |
 | Program lockup | The same UTS Apple Foundation Program image as refinement 04–06; not a claim of endorsement |
 
-Footer text says "Illustrative example. Kept on your iPhone; nothing is uploaded." and "Screens from the app build, 1 November 2026", so the poster no longer carries a "Design mockups" disclaimer.
+Owner review, 1 November: background is the existing arctic poster artwork (refinement 04), the screen captions and the two footer notes are removed, and Pingu sits beside the program lockup. The poster carries no "Design mockups" disclaimer because the screens are real.
 
 ## Rebuilding
 
