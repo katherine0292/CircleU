@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CircleU Figma prototype</title>
+<style>
+@font-face{font-family:"Plus Jakarta Sans";src:url("assets/PlusJakartaSans.ttf");font-weight:200 800}
+*{box-sizing:border-box;margin:0;padding:0}html,body{width:1200px;height:627px;overflow:hidden}
+body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:#1e1e1e;color:#e6e6e6;position:relative}
+.bar{height:44px;background:#2c2c2c;display:flex;align-items:center;padding:0 16px;gap:14px;font-size:12px;border-bottom:1px solid #111}
+.bar .dots span{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px}
+.bar b{font-weight:600;color:#fff}.bar .tab{margin-left:auto;background:#0c8ce9;color:#fff;padding:5px 12px;border-radius:6px;font-weight:600}
+.canvas{position:absolute;top:44px;left:0;right:0;bottom:0;background:#1e1e1e;background-image:radial-gradient(#2a2a2a 1px,transparent 1px);background-size:22px 22px}
+.frames{position:absolute;left:48px;top:52px;display:flex;gap:26px;align-items:flex-start}
+.f{position:relative}.f img{width:172px;display:block;border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.f span{position:absolute;top:-22px;left:2px;font-size:11px;color:#9a9a9a}
+.f.sel img{outline:2px solid #0c8ce9;outline-offset:2px}
+.side{position:absolute;right:0;top:44px;bottom:0;width:150px;background:#2c2c2c;border-left:1px solid #111;padding:14px 12px;font-size:11px;color:#bbb;line-height:2}
+.side b{display:block;color:#fff;font-weight:600;margin-bottom:4px}
+.note{position:absolute;left:60px;bottom:22px;font-size:12px;color:#9a9a9a}
+</style></head><body>
+<div class="bar"><div class="dots"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><b>CircleU Design</b> · Page: CircleU • current prototype<span class="tab">▶ Present</span></div>
+<div class="canvas">
+  <div class="frames">
+    <div class="f sel"><span>R13 / today</span><img src="assets/figma-today.png"></div>
+    <div class="f"><span>R13 / journal</span><img src="assets/figma-journal.png"></div>
+    <div class="f"><span>R13 / tags0</span><img src="assets/figma-tags.png"></div>
+    <div class="f"><span>R13 / start</span><img src="assets/figma-practice.png"></div>
+    <div class="f"><span>R13 / refineA</span><img src="assets/figma-refine.png"></div>
+  </div>
+  <div class="note">130 frames · 1,669 prototype links · one Scene artwork component</div>
+</div>
+<div class="side"><b>Design</b>Frame 390 × 844<br>Auto layout<br>Fill Ice F5FAFF<br><b>Prototype</b>On tap → Navigate<br>Smart animate 300 ms</div>
+</body></html>
