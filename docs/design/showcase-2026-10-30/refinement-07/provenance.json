@@ -4,13 +4,13 @@
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES -CircleUSeedShowcase YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "5cf2217b78eb0097102c2e9767e62977eccb5b2c846962cbbeebc810d6dea2c2",
+    "sha256": "f0134b87e2f6757fcc11510114c98e542d92c2e663234f5336c231610dd795c1",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "0a3568167be627fbcf0e77991b324e2a240052a489e977adf0ab06e3ac06c90e"
+    "sha256": "3c5896e796bee6a7fcf31dd0b62e71ff7faa543b4e47a638fe3b79ad84554e2d"
   },
   "assets": [
     {
@@ -79,7 +79,7 @@
   "linkedin": {
     "file": "CircleU-Poster-v7-LinkedIn.png",
     "source": "poster-linkedin.html (the poster page on a 1200 x 627 canvas, scaled to 87% and centred; the scene is drawn inside the scaled page so the lockup blend works)",
-    "sha256": "bba91994a31dd6478a136aac7ae3f20b577abacc2a00e3c5634ea8c7bbf4a0c2",
+    "sha256": "33428f5f7801b29d88dcaf46b8af08515a780966dcf24de89b386343d4196475",
     "width": 2400,
     "height": 1254
   }
