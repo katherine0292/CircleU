@@ -12,34 +12,14 @@ final class GuestShowcaseCaptureUITests: XCTestCase {
         app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", text)).firstMatch.waitForExistence(timeout: timeout)
     }
 
-    private func save(_ app: XCUIApplication, _ words: String, context: String?, feeling: String?) {
-        app.tabBars.buttons["Today"].tap()
-        let editor = app.textViews["Your words"]
-        XCTAssertTrue(editor.waitForExistence(timeout: 10))
-        editor.tap(); editor.typeText(words)
-        app.buttons["Save"].tap()
-        XCTAssertTrue(app.buttons["Not now"].waitForExistence(timeout: 10))
-        app.buttons["Not now"].tap()
-        guard context != nil || feeling != nil else { return }
-        XCTAssertTrue(app.buttons["Add context"].waitForExistence(timeout: 10))
-        app.buttons["Add context"].tap()
-        if let context { app.buttons[context].tap() }
-        if let feeling { app.buttons[feeling].tap() }
-        app.buttons["Done"].tap()
-        if let context { XCTAssertTrue(app.buttons["Context: \(context)"].waitForExistence(timeout: 5)) }
-    }
-
     func testCaptureShowcaseScreens() throws {
         continueAfterFailure = false
-        let app = launchGuest(fresh: true, ["-CircleUGuidedSuggestions", "YES"])
-        save(app, "Talked with my sister about our holiday plans.", context: "Family", feeling: nil)
-        save(app, "I said no to the extra shift and felt okay about it.", context: "Work", feeling: "Calm")
-        save(app, "A quiet walk helped me slow down before the group meeting.", context: nil, feeling: "Calm")
+        // The app seeds three dated, tagged entries (today, two and four days ago) at launch.
+        let app = launchGuest(fresh: true, ["-CircleUGuidedSuggestions", "YES", "-CircleUSeedShowcase", "YES"])
         app.tabBars.buttons["Journal"].tap()
         XCTAssertTrue(has(app, "A quiet walk helped me slow down", 10))
-        // Let the Saved banner go before the capture.
-        let close = app.buttons["Not now"]
-        if close.waitForExistence(timeout: 2) { close.tap() }
+        XCTAssertTrue(has(app, "Talked with my sister"))
+        XCTAssertTrue(app.buttons["Context: Family"].exists && app.buttons["Feeling: Calm"].exists, "seeded tags")
         shot(app, "showcase-journal")
 
         app.tabBars.buttons["Today"].tap()

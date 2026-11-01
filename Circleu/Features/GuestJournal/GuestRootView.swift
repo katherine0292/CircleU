@@ -31,6 +31,36 @@ struct GuestComposition {
 
     static var live: GuestComposition { GuestComposition(location: GuestJournalLocation.standard) }
 
+    #if DEBUG
+    /// Invented entries on three different days, with context and feeling tags, so poster and slide
+    /// captures show a lived-in Journal. Uses the import path, which keeps the given dates.
+    static func seedShowcase(into store: SwiftDataGuestJournalStore) async {
+        let calendar = Calendar.current
+        func at(daysAgo: Int, _ hour: Int, _ minute: Int) -> Date {
+            let day = calendar.date(byAdding: .day, value: -daysAgo, to: Date()) ?? Date()
+            return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
+        }
+        // Fixed IDs: the import receipts then make a second run a no-op instead of a duplicate.
+        let seeds: [(id: String, words: String, date: Date, context: GuestEntryContext?, feeling: GuestEntryFeeling?)] = [
+            ("7B2C7D1E-0001-4C1E-9B6A-5E0C0A0F0001", "A quiet walk helped me slow down before the group meeting.", at(daysAgo: 0, 8, 15), nil, .calm),
+            ("7B2C7D1E-0002-4C1E-9B6A-5E0C0A0F0002", "I said no to the extra shift and felt okay about it.", at(daysAgo: 2, 18, 12), .work, .calm),
+            ("7B2C7D1E-0003-4C1E-9B6A-5E0C0A0F0003", "Talked with my sister about our holiday plans.", at(daysAgo: 4, 20, 5), .family, nil),
+        ]
+        let imported = seeds.compactMap { seed -> GuestImportedEntry? in
+            guard let id = UUID(uuidString: seed.id) else { return nil }
+            return GuestImportedEntry(legacyID: id, originalWords: seed.words, createdAt: seed.date, updatedAt: seed.date, reflection: nil)
+        }
+        guard (try? await store.importLegacy(entries: imported, messages: [])) != nil,
+              let entries = try? await store.loadAll() else { return }
+        for seed in seeds {
+            guard let entry = entries.first(where: { $0.originalWords == seed.words }),
+                  entry.context == nil, entry.feeling == nil else { continue } // Already tagged on an earlier run.
+            _ = try? await store.updateTags(id: entry.id, context: seed.context, feeling: seed.feeling,
+                                            expectedRevision: entry.revision)
+        }
+    }
+    #endif
+
     /// The live composition at another location (tests use a temporary folder).
     static func local(at location: GuestJournalLocation) -> GuestComposition {
         GuestComposition(location: { location })
@@ -57,6 +87,14 @@ struct GuestComposition {
         #endif
         let location = try location()
         let store = try await SwiftDataGuestJournalStore.open(location: location)
+        #if DEBUG
+        // UI tests only: three dated, tagged entries for showcase captures. Only on a store this launch
+        // reset, so it can never add to someone's real journal.
+        if UserDefaults.standard.bool(forKey: "CircleUSeedShowcase"),
+           ProcessInfo.processInfo.arguments.contains("-CircleUResetGuestData") {
+            await Self.seedShowcase(into: store)
+        }
+        #endif
         // Drafts live in the store; a draft kept in an older file is moved across once.
         let writeDrafts = StoreGuestDraftStore(store: store, slot: StoreGuestDraftStore.writeSlot)
         let practiceDrafts = StoreGuestDraftStore(store: store, slot: StoreGuestDraftStore.practiceSlot)

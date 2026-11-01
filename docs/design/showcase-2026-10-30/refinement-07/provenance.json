@@ -1,36 +1,36 @@
 {
   "recorded": "2026-11-01 (revised after owner review)",
   "renderer": "Google Chrome headless, --force-device-scale-factor=2, 1280x720 canvas",
-  "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES",
+  "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES -CircleUSeedShowcase YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "a40d367493ab7997670b79a0ee992ec34697d00262051633daba715403237d9a",
+    "sha256": "a1e987d6d60324524a7113bd53eee751587a95c54d21d67d124b0db2394c9b39",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "3265927d78ccb57c13ea2d2c2a3de2a6f42936a2cae8e8b12938ec4f09daffdb"
+    "sha256": "2b1be402955680410981453d9cb0698e3e3b0fc9e1a4ddf6f5b6526a2726fc5e"
   },
   "assets": [
     {
       "file": "assets/today.png",
-      "source": "GuestShowcaseCaptureUITests showcase-today",
-      "sha256": "77755b571758b045b2a562a34ba2253cc91a7ea9a5b37ea5b88adf91fc29fff3",
+      "source": "GuestShowcaseCaptureUITests (-CircleUSeedShowcase: three entries on three days) showcase-today",
+      "sha256": "92f1b1caa0decb9e011351b3aeaa5768e41e7e368c367dfc433a19a92426cb2c",
       "width": 1206,
       "height": 2622
     },
     {
       "file": "assets/journal.png",
-      "source": "GuestShowcaseCaptureUITests showcase-journal",
-      "sha256": "c4323beebf29bcf35cb6307a878f492eaa12a6bbd7bdad71fb55ea11d7a49c42",
+      "source": "GuestShowcaseCaptureUITests (-CircleUSeedShowcase: three entries on three days) showcase-journal",
+      "sha256": "b05f59a8a817391daf25b4ab04ef2bd4076795a78c20bd74890adf922ed3bcca",
       "width": 1206,
       "height": 2622
     },
     {
       "file": "assets/practice.png",
-      "source": "GuestShowcaseCaptureUITests showcase-practice",
-      "sha256": "1beff45d53f6d5e3bafb609440d925113be885370b9c09b51e63383918e804b6",
+      "source": "GuestShowcaseCaptureUITests (-CircleUSeedShowcase: three entries on three days) showcase-practice",
+      "sha256": "beb66ef48ddb72550281cb63eb2cb83f62a9a3d39c47407bf89508c8571995e0",
       "width": 1206,
       "height": 2622
     },
@@ -79,7 +79,7 @@
   "linkedin": {
     "file": "CircleU-Poster-v7-LinkedIn.png",
     "source": "poster-linkedin.html (the poster page on a 1200 x 627 canvas, scaled to 87% and centred; one background layer)",
-    "sha256": "ce76fb5dd0c7e51c59bbd1ded68fe12dbf63aad9626fc7e095a74db7169fffdd",
+    "sha256": "756ed19cbca3e29164a187494b33baa3b160d5c38ee0c322e5fcc4fcb3c9e7cf",
     "width": 2400,
     "height": 1254
   }
