@@ -4,13 +4,13 @@
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES -CircleUSeedShowcase YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "5d0876f7fca0b7b97ab9a8bd053647261b823e8d0b1a262b20ad298487b90df8",
+    "sha256": "5cf2217b78eb0097102c2e9767e62977eccb5b2c846962cbbeebc810d6dea2c2",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "c2277cbb5bdf5883336f16b270d4c1dd72c0442b75d8a7fb443fb707a2b33f9f"
+    "sha256": "0a3568167be627fbcf0e77991b324e2a240052a489e977adf0ab06e3ac06c90e"
   },
   "assets": [
     {
@@ -78,8 +78,8 @@
   "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies.",
   "linkedin": {
     "file": "CircleU-Poster-v7-LinkedIn.png",
-    "source": "poster-linkedin.html (the poster page on a 1200 x 627 canvas, scaled to 87% and centred; one background layer)",
-    "sha256": "7a30443f85deee057eb10e6183f567a0050c9f29edb687848844afb22052972f",
+    "source": "poster-linkedin.html (the poster page on a 1200 x 627 canvas, scaled to 87% and centred; the scene is drawn inside the scaled page so the lockup blend works)",
+    "sha256": "bba91994a31dd6478a136aac7ae3f20b577abacc2a00e3c5634ea8c7bbf4a0c2",
     "width": 2400,
     "height": 1254
   }
