@@ -9,10 +9,7 @@
   html, body { width: 1280px; height: 720px; overflow: hidden; }
   body {
     font-family: "Plus Jakarta Sans", -apple-system, sans-serif; color: #0d1421;
-    background:
-      radial-gradient(900px 520px at 78% 22%, #ffffff 0%, rgba(255,255,255,0) 60%),
-      radial-gradient(700px 420px at 92% 95%, #cfe3ff 0%, rgba(207,227,255,0) 65%),
-      linear-gradient(180deg, #f5faff 0%, #e6f1ff 55%, #d6e7ff 100%);
+    background: #f5faff url("assets/background.png") center / cover no-repeat;
     position: relative;
   }
   /* soft "ice" bands */
@@ -30,9 +27,9 @@
   .label { margin-top: 30px; font-size: 15px; font-weight: 700; color: #054fc9; }
   .quote { margin-top: 6px; font-size: 19px; line-height: 1.35; }
   .quote.rewrite { font-weight: 700; font-size: 20px; }
-  .foot { position: absolute; left: 66px; bottom: 34px; display: flex; align-items: center; gap: 18px; }
-  .foot img { height: 60px; }
-  .foot small { font-size: 12px; color: #465d7f; max-width: 240px; line-height: 1.3; }
+  .foot { position: absolute; left: 66px; bottom: 30px; display: flex; align-items: flex-end; gap: 22px; }
+  .foot img.lockup { height: 60px; }
+  .foot img.pingu { height: 118px; margin-bottom: -6px; filter: drop-shadow(0 10px 16px rgba(13,20,33,.2)); }
 
   .phones { position: absolute; left: 470px; top: 44px; width: 700px; height: 676px; }
   .phone { position: absolute; border-radius: 38px; background: #0d1421; padding: 6px;
@@ -45,13 +42,9 @@
   .phone .cap { position: absolute; left: 50%; transform: translateX(-50%); top: -36px; white-space: nowrap;
                 font-size: 15px; font-weight: 700; color: #054fc9; background: #fff; padding: 6px 14px; border-radius: 999px;
                 box-shadow: 0 4px 12px rgba(13,20,33,.1); }
-  .pingu { position: absolute; right: -20px; bottom: 28px; width: 150px; z-index: 3; filter: drop-shadow(0 14px 20px rgba(13,20,33,.22)); }
-  .note { position: absolute; left: 66px; bottom: 10px; font-size: 11px; color: #6b7f9c; }
 </style>
 </head>
 <body>
-  <div class="band a"></div>
-  <div class="band b"></div>
 
   <div class="left">
     <div class="wordmark"><img src="assets/logo.png" alt=""><span>CircleU</span></div>
@@ -64,16 +57,14 @@
   </div>
 
   <div class="phones">
-    <div class="phone side left"><span class="cap">Journal</span><img src="assets/journal.png" alt="Journal screen"></div>
-    <div class="phone main"><span class="cap">Today</span><img src="assets/today.png" alt="Today screen"></div>
-    <div class="phone side right"><span class="cap">Practice</span><img src="assets/practice.png" alt="Practice screen"></div>
-    <img class="pingu" src="assets/pingu-calm.png" alt="">
+    <div class="phone side left"><img src="assets/journal.png" alt="Journal screen"></div>
+    <div class="phone main"><img src="assets/today.png" alt="Today screen"></div>
+    <div class="phone side right"><img src="assets/practice.png" alt="Practice screen"></div>
   </div>
 
   <div class="foot">
-    <img src="assets/program-lockup.png" alt="UTS Apple Foundation Program">
-    <small>Illustrative example. Kept on your iPhone; nothing is uploaded.</small>
+    <img class="lockup" src="assets/program-lockup.png" alt="UTS Apple Foundation Program">
+    <img class="pingu" src="assets/pingu-calm.png" alt="">
   </div>
-  <div class="note">Screens from the app build, 1 November 2026</div>
 </body>
 </html>

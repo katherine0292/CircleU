@@ -1,16 +1,16 @@
 {
-  "recorded": "2026-11-01",
+  "recorded": "2026-11-01 (revised after owner review)",
   "renderer": "Google Chrome headless, --force-device-scale-factor=2, 1280x720 canvas",
   "capture": "iPhone 18 Pro Simulator, iOS 27.0, scheme CircleuUITests, GuestShowcaseCaptureUITests.testCaptureShowcaseScreens, -CircleUGuidedSuggestions YES",
   "poster": {
     "file": "CircleU-Poster-v7.png",
-    "sha256": "7378b2e647cf0cb6285562804496bed05675ebff72895b9552aa25cc069639f3",
+    "sha256": "4494ce77b9a2bfabd279ed862b4836e8b5489f5eb9d309d35069c4e2c71e12cf",
     "width": 2560,
     "height": 1440
   },
   "source": {
     "file": "poster.html",
-    "sha256": "b6f2858dbbcb09484535d13767d8d699fbb908efb6a814fa3ad695bedefb415f"
+    "sha256": "0b3e6928a37561a5183fc43346e60f7430f235d8c41a09cd286024091b7805ac"
   },
   "assets": [
     {
@@ -59,6 +59,13 @@
       "file": "assets/PlusJakartaSans.ttf",
       "source": "Prototypes/.../BrandFonts/PlusJakartaSans.ttf",
       "sha256": "89b3fb38aa0d275d7a731d0d817a4f1622b316b4d7fbdedcf02ee9099ff68bc8"
+    },
+    {
+      "file": "assets/background.png",
+      "source": "docs/design/showcase-2026-10-30/refinement-04/assets/arctic-background.png (existing poster background)",
+      "sha256": "4baf8d1fbd45abf1e9b762e840346dc48da793b082cbdaac858a18e9f52e0bf6",
+      "width": 1672,
+      "height": 941
     }
   ],
   "note": "No image generation. Screens are exact simulator captures of the merged guest app; brand art and lockup are unchanged copies."
