@@ -11,11 +11,11 @@
 | Element | Source |
 | --- | --- |
 | Journal, Today and Practice screens | `GuestShowcaseCaptureUITests.testCaptureShowcaseScreens` on the iPhone 18 Pro Simulator, iOS 27.0: a seeded Journal with three tagged entries, the empty Today screen, and the Practice result for an invented group-project message with guided suggestions |
-| Background, wordmark and Pingu | `refinement-05/presentation-cover.png`, `BrandArtwork/BrandLogo.png` and `EmotionPortraits02/PinguCalmTransparentV1.png`, unchanged |
+| Background, wordmark and Pingu | `refinement-04/assets/arctic-background.png`, the sitting Pingu from `refinement-06/poster-artwork.png`, `BrandArtwork/BrandLogo.png` and `EmotionPortraits02/PinguCalmTransparentV1.png`, all unchanged files |
 | Type | Bundled Plus Jakarta Sans; headline 44 px, intro 18.5 px, steps 24 px, trust line 16 px on the 1280 × 720 canvas |
 | Program lockup | The same UTS Apple Foundation Program image as refinement 04–06; not a claim of endorsement |
 
-Owner review, 1 November: background is the existing cover artwork with Pingu standing in the arctic scene (refinement 05, `presentation-cover.png`), with its baked-in text hidden under a white wash on the left, the screen captions and the two footer notes are removed, Pingu sits beside the program lockup, the example quotes are replaced by three steps (Write it down. Tag how it felt. Find your words.) with the line "Private by design. Kept on your iPhone.", and the phones sit between the copy and the scene's Pingu. The poster carries no "Design mockups" disclaimer because the screens are real.
+Owner review, 1 November: background is the existing empty arctic scene (refinement 04) with the sitting journal Pingu from the v6 poster artwork laid over its bottom-right corner (clipped to Pingu and the ice under him, scaled to 78%, edges faded), the screen captions and the two footer notes are removed, Pingu sits beside the program lockup, the example quotes are replaced by three steps (Write it down. Tag how it felt. Find your words.) with the line "Private by design. Kept on your iPhone.", and the phones are back at full size between the copy and Pingu. The poster carries no "Design mockups" disclaimer because the screens are real.
 
 ## Rebuilding
 
