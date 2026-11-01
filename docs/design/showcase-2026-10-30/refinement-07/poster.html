@@ -25,13 +25,16 @@
   h1 { margin-top: 44px; font-size: 44px; line-height: 1.08; font-weight: 800; letter-spacing: -0.8px; }
   .intro { margin-top: 18px; font-size: 18.5px; line-height: 1.4; color: #465d7f; }
   .label { margin-top: 30px; font-size: 15px; font-weight: 700; color: #054fc9; }
-  .quote { margin-top: 6px; font-size: 19px; line-height: 1.35; }
-  .quote.rewrite { font-weight: 700; font-size: 20px; }
+  .steps { margin-top: 34px; list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; display: flex; align-items: center; gap: 14px; font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+  .steps li::before { content: counter(step); width: 36px; height: 36px; border-radius: 50%; background: #054fc9; color: #fff;
+                      font-size: 17px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .trust { margin-top: 26px; font-size: 16px; font-weight: 600; color: #054fc9; }
   .foot { position: absolute; left: 66px; bottom: 30px; display: flex; align-items: flex-end; gap: 22px; }
   .foot img.lockup { height: 60px; }
-  .foot img.pingu { height: 118px; margin-bottom: -6px; filter: drop-shadow(0 10px 16px rgba(13,20,33,.2)); }
+  .foot img.pingu { height: 104px; margin-bottom: -6px; filter: drop-shadow(0 10px 16px rgba(13,20,33,.2)); }
 
-  .phones { position: absolute; left: 470px; top: 44px; width: 700px; height: 676px; }
+  .phones { position: absolute; left: 500px; top: 44px; width: 700px; height: 676px; }
   .phone { position: absolute; border-radius: 38px; background: #0d1421; padding: 6px;
            box-shadow: 0 30px 60px rgba(13,20,33,.28), 0 6px 14px rgba(13,20,33,.18); }
   .phone img { display: block; border-radius: 32px; width: 100%; }
@@ -39,6 +42,7 @@
   .phone.left  { left: 0px;  transform: rotate(-5deg); }
   .phone.right { left: 446px; transform: rotate(5deg); }
   .phone.main  { width: 244px; left: 206px; top: 62px; z-index: 2; }
+  .hero { position: absolute; right: -78px; bottom: -40px; width: 290px; z-index: 5; filter: drop-shadow(0 18px 28px rgba(13,20,33,.28)); }
   .phone .cap { position: absolute; left: 50%; transform: translateX(-50%); top: -36px; white-space: nowrap;
                 font-size: 15px; font-weight: 700; color: #054fc9; background: #fff; padding: 6px 14px; border-radius: 999px;
                 box-shadow: 0 4px 12px rgba(13,20,33,.1); }
@@ -50,16 +54,19 @@
     <div class="wordmark"><img src="assets/logo.png" alt=""><span>CircleU</span></div>
     <h1>Some<br>conversations<br>stay with you</h1>
     <p class="intro">A private place to reflect on what happened and find your own words for what comes next.</p>
-    <div class="label">First thought</div>
-    <div class="quote">“You never help with our project.”</div>
-    <div class="label">A possible rewrite</div>
-    <div class="quote rewrite">“Could we agree on which parts each of us will handle?”</div>
+    <ol class="steps">
+      <li>Write it down.</li>
+      <li>Tag how it felt.</li>
+      <li>Find your words.</li>
+    </ol>
+    <p class="trust">Private by design. Kept on your iPhone.</p>
   </div>
 
   <div class="phones">
     <div class="phone side left"><img src="assets/journal.png" alt="Journal screen"></div>
     <div class="phone main"><img src="assets/today.png" alt="Today screen"></div>
     <div class="phone side right"><img src="assets/practice.png" alt="Practice screen"></div>
+    <img class="hero" src="assets/pingu-journal.png" alt="">
   </div>
 
   <div class="foot">
