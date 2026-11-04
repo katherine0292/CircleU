@@ -17,7 +17,7 @@ Owner accepted the recommendation to fix the rules in the repo without deploying
 
 ## Review
 
-Codex's first pass found three blockers: removals only matched at the array's end (fixed with `removeAll`, position-free); circles created without like/favorite arrays were unreadable by the rule (fixed with `get(field, [])` defaults); reply likes, edits and deletes by non-authors were denied (relaxed to "at most one reply added or removed per write, an appended reply must be the caller's"). The per-reply ownership gap that remains is recorded in the audit follow-up as a data-model change. Tests grew to eleven cases.
+Codex's first pass found three blockers: removals only matched at the array's end (fixed with `removeAll`, position-free); circles created without like/favorite arrays were unreadable by the rule (fixed with `get(field, [])` defaults); reply likes, edits and deletes by non-authors were denied (relaxed to "at most one reply added or removed per write, an appended reply must be the caller's"). The per-reply ownership gap that remains is recorded in the audit follow-up as a data-model change. A second pass found one more: the array fields were not type-checked, so a string would pass the size bounds; `is list` guards added, with a test. Eleven cases.
 
 ## Verification
 
