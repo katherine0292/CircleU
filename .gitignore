@@ -40,3 +40,7 @@ docs/showcase/
 firestore-debug.log
 ui-debug.log
 .firebase/
+
+# Firestore rules test dependencies
+firestore-tests/node_modules/
+firestore-tests/package-lock.json
