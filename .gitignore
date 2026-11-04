@@ -35,3 +35,8 @@ Config/Firebase/GoogleService-Info-Prod.plist
 
 # Showcase preparation files
 docs/showcase/
+
+# Firebase emulator
+firestore-debug.log
+ui-debug.log
+.firebase/
