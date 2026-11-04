@@ -46,10 +46,11 @@ service cloud.firestore {
       }
     }
 
-    // Public circles — every signed-in user can read the global list. Writes are restricted:
+    // Public circles: every signed-in user can read the global list. Writes are restricted:
     // - create: caller must stamp themselves as the creator
-    // - update: only the creator can edit metadata (name/intention/emoji/coverImagesBase64),
-    //           BUT any signed-in user can mutate their own membership/like/favorite status.
+    // - update: the creator may edit metadata; any other signed-in user may change only
+    //           their own entry in memberUserIDs, likedByUserIDs and favoritedByUserIDs,
+    //           and nothing else
     // - delete: only the creator
     match /circles/{circleID} {
       allow read: if isSignedIn();
@@ -57,42 +58,85 @@ service cloud.firestore {
       allow create: if isSignedIn()
         && request.resource.data.creatorUserID == request.auth.uid;
 
+      // Arrays the app may leave absent on create.
+      function before(field) { return resource.data.get(field, []); }
+      function after(field) { return request.resource.data.get(field, []); }
+
+      // True when `field` differs from the stored value only by the caller's own uid being
+      // added or removed, in any position, or is unchanged.
+      function onlyOwnEntryChanged(field) {
+        return after(field) is list
+          && after(field).removeAll([request.auth.uid]) == before(field).removeAll([request.auth.uid])
+          && (after(field).removeAll([request.auth.uid]).size() == after(field).size()
+              || after(field).removeAll([request.auth.uid]).size() == after(field).size() - 1);
+      }
+
+      function onlyMembershipFieldsChanged() {
+        return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['memberUserIDs', 'likedByUserIDs', 'favoritedByUserIDs']);
+      }
+
       allow update: if isSignedIn() && (
-        // Creator-only fields are unchanged when this is a membership/like/favorite toggle.
-        (resource.data.creatorUserID == request.auth.uid)
+        resource.data.creatorUserID == request.auth.uid
+        && request.resource.data.creatorUserID == resource.data.creatorUserID
         || (
-          request.resource.data.creatorUserID == resource.data.creatorUserID
-          && request.resource.data.name == resource.data.name
-          && request.resource.data.intention == resource.data.intention
-          && request.resource.data.emoji == resource.data.emoji
-          && request.resource.data.creatorName == resource.data.creatorName
+          onlyMembershipFieldsChanged()
+          && onlyOwnEntryChanged('memberUserIDs')
+          && onlyOwnEntryChanged('likedByUserIDs')
+          && onlyOwnEntryChanged('favoritedByUserIDs')
         )
       );
 
       allow delete: if isSignedIn() && resource.data.creatorUserID == request.auth.uid;
 
-      // Helper function: checks if requesting user is in the circle's member list
       function isCircleMember() {
-        return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/circles/{circleID}).data.memberUserIDs;
+        return isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/circles/$(circleID)).data.get('memberUserIDs', []);
       }
 
-      // Posts subcollection — same public read, member-gated writes.
+      // Posts: public read, member-gated create. The author may edit or delete the post.
+      // Anyone else signed in may change only `likedBy` (their own entry) and `replies`.
+      //
+      // Replies are stored as an array on the post and written back whole, so the rules
+      // language (no loops) cannot check each reply's author on a non-author write. What it
+      // can hold: the reply count changes by at most one per write, and the author/text/
+      // createdAt/who of the post itself never change. Per-reply ownership needs replies in
+      // a subcollection; see the 31 October audit follow-up.
       match /posts/{postID} {
         allow read: if isSignedIn();
 
-        // Gated: only members can create posts in this circle
         allow create: if isCircleMember()
           && request.resource.data.authorUserID == request.auth.uid;
 
-        // Anyone signed-in can mutate `likedBy` (for like toggle) and `replies`
-        // (for adding new replies). The author can edit text or delete.
+        function pBefore(field) { return resource.data.get(field, []); }
+        function pAfter(field) { return request.resource.data.get(field, []); }
+
+        function onlyOwnLikeChanged() {
+          return pAfter('likedBy').removeAll([request.auth.uid]) == pBefore('likedBy').removeAll([request.auth.uid])
+            && (pAfter('likedBy').removeAll([request.auth.uid]).size() == pAfter('likedBy').size()
+                || pAfter('likedBy').removeAll([request.auth.uid]).size() == pAfter('likedBy').size() - 1);
+        }
+
+        function repliesChangeByAtMostOne() {
+          return pAfter('replies') is list
+            && pAfter('likedBy') is list
+            && pAfter('replies').size() >= pBefore('replies').size() - 1
+            && pAfter('replies').size() <= pBefore('replies').size() + 1;
+        }
+
+        function appendedReplyIsOwn() {
+          return pAfter('replies').size() != pBefore('replies').size() + 1
+            || pAfter('replies')[pAfter('replies').size() - 1].get('authorUserID', '') == request.auth.uid;
+        }
+
         allow update: if isSignedIn() && (
           resource.data.authorUserID == request.auth.uid
+          && request.resource.data.authorUserID == resource.data.authorUserID
           || (
-            request.resource.data.authorUserID == resource.data.authorUserID
-            && request.resource.data.text == resource.data.text
-            && request.resource.data.who == resource.data.who
-            && request.resource.data.createdAt == resource.data.createdAt
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy', 'replies'])
+            && onlyOwnLikeChanged()
+            && repliesChangeByAtMostOne()
+            && appendedReplyIsOwn()
           )
         );
 

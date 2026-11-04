@@ -28,44 +28,17 @@ protocol ReflectionAnalyzing {
 }
 
 enum ReflectionEngineFactory {
+    /// Apple Intelligence on this iPhone when available, otherwise the local engine. The earlier
+    /// cloud path (Gemini 1.5 Flash) was removed on 4 November 2026: Google retired that model in
+    /// 2025, and the guest app never used it. Nothing leaves the phone.
     static func makeDefault() -> any ReflectionAnalyzing {
         let localFallback = LocalReflectionEngine()
-
-        let hasConsent: @Sendable () -> Bool = {
-            let uid = UserDefaults.standard.string(forKey: "circleu.currentFirebaseUID") ?? ""
-            let key = uid.isEmpty ? "circleu.settings.hasConsentedToCloudAI.v1" : "circleu.settings.hasConsentedToCloudAI.v1.user.\(uid)"
-            return UserDefaults.standard.bool(forKey: key)
-        }
-
-        let isEnabled: @Sendable () -> Bool = {
-            let uid = UserDefaults.standard.string(forKey: "circleu.currentFirebaseUID") ?? ""
-            let key = uid.isEmpty ? "circleu.settings.isCloudAIEnabled.v1" : "circleu.settings.isCloudAIEnabled.v1.user.\(uid)"
-            return UserDefaults.standard.object(forKey: key) as? Bool ?? false
-        }
-
-        var apiKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"]
-            ?? Bundle.main.infoDictionary?["GeminiAPIKey"] as? String
-
-        if apiKey == nil,
-           let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-           let dict = NSDictionary(contentsOfFile: path) as? [String: Any] {
-            apiKey = dict["GEMINI_API_KEY"] as? String
-        }
-
-        let cloudEngine = CloudReflectionEngine(
-            fallback: localFallback,
-            apiKey: apiKey,
-            hasConsent: hasConsent,
-            isEnabled: isEnabled
-        )
-
         #if canImport(FoundationModels)
         if #available(iOS 26.0, *) {
-            return AppleIntelligenceReflectionEngine(fallback: cloudEngine)
+            return AppleIntelligenceReflectionEngine(fallback: localFallback)
         }
         #endif
-
-        return cloudEngine
+        return localFallback
     }
 }
 
