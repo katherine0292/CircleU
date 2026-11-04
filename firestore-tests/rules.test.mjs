@@ -37,6 +37,23 @@ test('a member can join and leave, like and favorite, for themselves', async () 
   await assertSucceeds(updateDoc(doc(db, 'circles/c1'), { memberUserIDs: [ALICE, BOB] }));
 });
 
+test('a member in the middle of the list can leave', async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await updateDoc(doc(ctx.firestore(), 'circles/c1'), { memberUserIDs: [ALICE, BOB, CARA] });
+  });
+  await assertSucceeds(updateDoc(doc(asUser(BOB), 'circles/c1'), { memberUserIDs: [ALICE, CARA] }));
+});
+
+test('a circle created without like or favorite arrays can still be joined and liked', async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    const { likedByUserIDs, favoritedByUserIDs, ...bare } = circle;
+    await setDoc(doc(ctx.firestore(), 'circles/c2'), { ...bare, id: 'c2', memberUserIDs: [ALICE] });
+  });
+  const db = asUser(CARA);
+  await assertSucceeds(updateDoc(doc(db, 'circles/c2'), { memberUserIDs: arrayUnion(CARA) }));
+  await assertSucceeds(updateDoc(doc(db, 'circles/c2'), { likedByUserIDs: [CARA] }));
+});
+
 test('a non-creator cannot remove another member or change their like', async () => {
   const db = asUser(CARA);
   await assertFails(updateDoc(doc(db, 'circles/c1'), { memberUserIDs: [ALICE] }));
@@ -65,14 +82,28 @@ test('a reader can like a post and append one reply of their own', async () => {
     { id: 'r2', who: 'Cara', authorUserID: CARA, text: 'Me too.', createdAt: new Date() }] }));
 });
 
-test('a reader cannot remove others\' likes, drop or forge replies, or edit the text', async () => {
+test('a reader cannot remove others\' likes, forge an appended reply, or edit the text', async () => {
   const db = asUser(CARA);
   await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { likedBy: [] }));
-  await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [] }));
   await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [...post.replies,
     { id: 'r2', who: 'Bob', authorUserID: BOB, text: 'Forged.', createdAt: new Date() }] }));
   await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { text: 'Edited by someone else' }));
   await assertFails(deleteDoc(doc(db, 'circles/c1/posts/p1')));
+});
+
+test('a reader can like a reply, and edit or delete their own reply', async () => {
+  const db = asUser(BOB);
+  const liked = [{ ...post.replies[0], likedBy: [BOB] }];
+  await assertSucceeds(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: liked }));
+  await assertSucceeds(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [{ ...post.replies[0], text: 'I can, tomorrow.' }] }));
+  await assertSucceeds(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [] }));
+});
+
+test('a reader cannot replace the whole thread in one write', async () => {
+  const db = asUser(CARA);
+  await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [...post.replies,
+    { id: 'r2', who: 'Cara', authorUserID: CARA, text: 'One', createdAt: new Date() },
+    { id: 'r3', who: 'Cara', authorUserID: CARA, text: 'Two', createdAt: new Date() }] }));
 });
 
 test('only members can create posts, and only as themselves', async () => {
