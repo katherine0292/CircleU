@@ -99,8 +99,11 @@ test('a reader can like a reply, and edit or delete their own reply', async () =
   await assertSucceeds(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [] }));
 });
 
-test('a reader cannot replace the whole thread in one write', async () => {
+test('a reader cannot add two replies at once, or write a non-list', async () => {
   const db = asUser(CARA);
+  await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: 'x' }));
+  await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { likedBy: 'x' }));
+  await assertFails(updateDoc(doc(db, 'circles/c1'), { memberUserIDs: 'x' }));
   await assertFails(updateDoc(doc(db, 'circles/c1/posts/p1'), { replies: [...post.replies,
     { id: 'r2', who: 'Cara', authorUserID: CARA, text: 'One', createdAt: new Date() },
     { id: 'r3', who: 'Cara', authorUserID: CARA, text: 'Two', createdAt: new Date() }] }));

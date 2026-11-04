@@ -65,7 +65,8 @@ service cloud.firestore {
       // True when `field` differs from the stored value only by the caller's own uid being
       // added or removed, in any position, or is unchanged.
       function onlyOwnEntryChanged(field) {
-        return after(field).removeAll([request.auth.uid]) == before(field).removeAll([request.auth.uid])
+        return after(field) is list
+          && after(field).removeAll([request.auth.uid]) == before(field).removeAll([request.auth.uid])
           && (after(field).removeAll([request.auth.uid]).size() == after(field).size()
               || after(field).removeAll([request.auth.uid]).size() == after(field).size() - 1);
       }
@@ -117,7 +118,9 @@ service cloud.firestore {
         }
 
         function repliesChangeByAtMostOne() {
-          return pAfter('replies').size() >= pBefore('replies').size() - 1
+          return pAfter('replies') is list
+            && pAfter('likedBy') is list
+            && pAfter('replies').size() >= pBefore('replies').size() - 1
             && pAfter('replies').size() <= pBefore('replies').size() + 1;
         }
 
