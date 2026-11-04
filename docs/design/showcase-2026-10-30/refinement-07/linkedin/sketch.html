@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0}html,body{width:900px;height:900px;overflow:hidden;background:#fff}canvas{display:block}</style></head><body>
+<canvas id="c" width="900" height="900"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+// paper
+x.fillStyle='#f7f4ec';x.fillRect(0,0,900,900);
+let seed=7;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+for(let i=0;i<9000;i++){x.fillStyle=`rgba(90,80,60,${0.03+rnd()*0.05})`;x.fillRect(rnd()*900,rnd()*900,1.2,1.2)}
+// faint ruled lines
+x.strokeStyle='rgba(120,140,190,.18)';x.lineWidth=1;for(let y=60;y<900;y+=36){x.beginPath();x.moveTo(40,y);x.lineTo(860,y);x.stroke()}
+x.lineCap='round';x.lineJoin='round';
+function wob(fn,passes,alpha,w){for(let p=0;p<passes;p++){x.strokeStyle=`rgba(40,40,55,${alpha})`;x.lineWidth=w+rnd()*0.8;x.beginPath();fn(p);x.stroke()}}
+function circle(cx,cy,r,passes,alpha,w){wob(p=>{const o=rnd()*6.28;for(let t=0;t<=6.4;t+=0.08){const j=(rnd()-0.5)*2.2;const px=cx+(r+j)*Math.cos(t+o),py=cy+(r+j)*Math.sin(t+o);t===0?x.moveTo(px,py):x.lineTo(px,py)}},passes,alpha,w)}
+function path(pts,passes,alpha,w){wob(p=>{pts.forEach(([px,py],i)=>{const jx=px+(rnd()-0.5)*2.5,jy=py+(rnd()-0.5)*2.5;i?x.lineTo(jx,jy):x.moveTo(jx,jy)})},passes,alpha,w)}
+// construction circles (light)
+circle(450,470,250,2,.18,1); circle(450,470,180,1,.12,1);
+x.setLineDash([6,8]);x.strokeStyle='rgba(60,70,110,.25)';x.lineWidth=1;x.beginPath();x.moveTo(450,180);x.lineTo(450,760);x.moveTo(170,470);x.lineTo(730,470);x.stroke();x.setLineDash([]);
+// head: a soft dome, flatter at the bottom
+path([[215,540],[225,470],[255,395],[310,330],[380,290],[450,278],[520,290],[590,330],[645,395],[675,470],[685,540],[670,600],[630,640],[560,662],[450,668],[340,662],[270,640],[230,600],[215,540]],3,.55,2.4);
+// face mask: two lobes meeting in a point at the top
+path([[260,600],[262,520],[290,455],[340,420],[395,418],[430,450],[450,478],[470,450],[505,418],[560,420],[610,455],[638,520],[640,600],[610,640],[540,658],[450,662],[360,658],[290,640],[260,600]],3,.5,2);
+// crest
+path([[450,280],[470,255],[500,232],[535,222]],2,.5,2.2); path([[535,222],[522,245],[497,262],[468,282]],2,.45,2);
+// eyes
+circle(392,528,13,3,.6,2.2); circle(508,528,13,3,.6,2.2);
+x.fillStyle='rgba(40,40,55,.55)';x.beginPath();x.ellipse(392,528,9,13,0,0,6.3);x.fill();x.beginPath();x.ellipse(508,528,9,13,0,0,6.3);x.fill();
+// beak
+path([[418,568],[450,560],[482,568],[456,596],[444,596],[418,568]],3,.55,2); x.fillStyle='rgba(230,140,60,.35)';x.beginPath();x.moveTo(420,569);x.lineTo(480,569);x.lineTo(450,594);x.closePath();x.fill();
+// hatching on the dark head area (left side)
+for(let i=0;i<34;i++){const t=i/34;path([[235+t*40,350+t*210],[290+t*60,310+t*190]],1,.22,1)}
+for(let i=0;i<30;i++){const t=i/30;path([[600+t*40,330+t*200],[640+t*20,380+t*200]],1,.2,1)}
+// notes
+x.fillStyle='rgba(60,60,80,.75)';x.font='italic 22px "Plus Jakarta Sans", Georgia, serif';
+x.fillText('round head = the circle',540,180);x.fillText('face reads at 24px?',110,760);x.fillText('scarf blue → ink',560,790);x.fillText('v3',790,100);
+x.strokeStyle='rgba(60,60,80,.5)';x.lineWidth=1.2;x.beginPath();x.moveTo(610,195);x.quadraticCurveTo(600,250,640,300);x.stroke();
+x.beginPath();x.moveTo(240,740);x.quadraticCurveTo(300,700,330,640);x.stroke();
+</script></body></html>
