@@ -102,3 +102,10 @@ Immediate recommendation: a small reliability-and-documentation cleanup, followe
 ## Follow-up implementation
 
 Owner-approved remediation is tracked in the [native alignment report](../native-alignment-2026-10-31/README.md). Checkpoints preserve the earlier native/design work; the shared reflection decoder is repaired and optional V6 Journal tags/native layouts have been implemented. Refer to that report for fresh verification rather than treating the original audit's findings or test counts as current. The Firebase ownership, live recovery, retired provider and Release qualification findings remain open.
+
+## 4 November follow-up
+
+Owner decisions on 4 November 2026: **A02/A03** fixed in the repository and not deployed; **A11** removed rather than re-pointed.
+
+- `firestore.rules`: a non-creator may change only their own entry in `memberUserIDs`, `likedByUserIDs` and `favoritedByUserIDs`, and no other field; a non-author may change only their own entry in a post's `likedBy`, and `replies` by at most one entry per write, with an appended reply required to carry their own `authorUserID`. Because replies are an array written back whole, the rules language cannot check each existing reply's author on a non-author write; a reader could still alter another reader's existing reply. Closing that needs replies moved to a `posts/{id}/replies` subcollection, a data-model change left for a later decision. The creator and author keep their edit rights but can no longer reassign `creatorUserID` or `authorUserID`. The member lookup now interpolates `$(circleID)`. Emulator tests are in `firestore-tests/`; the Firebase CLI is not installed on the development Mac, so they are written, not yet run, and the deployed rules are unchanged.
+- `CloudReflectionEngine` and its tests are deleted; `ReflectionEngineFactory` chains Apple Intelligence to the local engine. The two `UserProfileStore` preferences (`isCloudAIEnabled`, `hasConsentedToCloudAI`) remain as stored values with no UI and no reader; removing them is a small later cleanup.
