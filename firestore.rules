@@ -46,10 +46,11 @@ service cloud.firestore {
       }
     }
 
-    // Public circles — every signed-in user can read the global list. Writes are restricted:
+    // Public circles: every signed-in user can read the global list. Writes are restricted:
     // - create: caller must stamp themselves as the creator
-    // - update: only the creator can edit metadata (name/intention/emoji/coverImagesBase64),
-    //           BUT any signed-in user can mutate their own membership/like/favorite status.
+    // - update: the creator may edit metadata; any other signed-in user may change only
+    //           their own entry in memberUserIDs, likedByUserIDs and favoritedByUserIDs,
+    //           and nothing else
     // - delete: only the creator
     match /circles/{circleID} {
       allow read: if isSignedIn();
@@ -57,42 +58,80 @@ service cloud.firestore {
       allow create: if isSignedIn()
         && request.resource.data.creatorUserID == request.auth.uid;
 
+      // True when `field` differs from the stored value only by the caller's own uid
+      // being added or removed (or is unchanged).
+      function onlyOwnEntryChanged(field) {
+        return request.resource.data[field] == resource.data[field]
+          || (
+            request.resource.data[field] == resource.data[field].concat([request.auth.uid])
+            && !(request.auth.uid in resource.data[field])
+          )
+          || (
+            resource.data[field] == request.resource.data[field].concat([request.auth.uid])
+            && !(request.auth.uid in request.resource.data[field])
+          );
+      }
+
+      function onlyMembershipFieldsChanged() {
+        return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['memberUserIDs', 'likedByUserIDs', 'favoritedByUserIDs']);
+      }
+
       allow update: if isSignedIn() && (
-        // Creator-only fields are unchanged when this is a membership/like/favorite toggle.
-        (resource.data.creatorUserID == request.auth.uid)
+        resource.data.creatorUserID == request.auth.uid
+        && request.resource.data.creatorUserID == resource.data.creatorUserID
         || (
-          request.resource.data.creatorUserID == resource.data.creatorUserID
-          && request.resource.data.name == resource.data.name
-          && request.resource.data.intention == resource.data.intention
-          && request.resource.data.emoji == resource.data.emoji
-          && request.resource.data.creatorName == resource.data.creatorName
+          onlyMembershipFieldsChanged()
+          && onlyOwnEntryChanged('memberUserIDs')
+          && onlyOwnEntryChanged('likedByUserIDs')
+          && onlyOwnEntryChanged('favoritedByUserIDs')
         )
       );
 
       allow delete: if isSignedIn() && resource.data.creatorUserID == request.auth.uid;
 
-      // Helper function: checks if requesting user is in the circle's member list
       function isCircleMember() {
-        return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/circles/{circleID}).data.memberUserIDs;
+        return isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/circles/$(circleID)).data.memberUserIDs;
       }
 
-      // Posts subcollection — same public read, member-gated writes.
+      // Posts: public read, member-gated create. The author may edit or delete. Anyone else
+      // signed in may change only their own like, or append exactly one reply they authored.
       match /posts/{postID} {
         allow read: if isSignedIn();
 
-        // Gated: only members can create posts in this circle
         allow create: if isCircleMember()
           && request.resource.data.authorUserID == request.auth.uid;
 
-        // Anyone signed-in can mutate `likedBy` (for like toggle) and `replies`
-        // (for adding new replies). The author can edit text or delete.
+        function unchangedExcept(keys) {
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+        }
+
+        function onlyOwnLikeChanged() {
+          return request.resource.data.likedBy == resource.data.likedBy
+            || (
+              request.resource.data.likedBy == resource.data.likedBy.concat([request.auth.uid])
+              && !(request.auth.uid in resource.data.likedBy)
+            )
+            || (
+              resource.data.likedBy == request.resource.data.likedBy.concat([request.auth.uid])
+              && !(request.auth.uid in request.resource.data.likedBy)
+            );
+        }
+
+        function appendsOneOwnReply() {
+          return request.resource.data.replies.size() == resource.data.replies.size() + 1
+            && request.resource.data.replies[0:resource.data.replies.size()] == resource.data.replies
+            && request.resource.data.replies[resource.data.replies.size()].authorUserID == request.auth.uid;
+        }
+
         allow update: if isSignedIn() && (
           resource.data.authorUserID == request.auth.uid
+          && request.resource.data.authorUserID == resource.data.authorUserID
           || (
-            request.resource.data.authorUserID == resource.data.authorUserID
-            && request.resource.data.text == resource.data.text
-            && request.resource.data.who == resource.data.who
-            && request.resource.data.createdAt == resource.data.createdAt
+            unchangedExcept(['likedBy', 'replies'])
+            && onlyOwnLikeChanged()
+            && (request.resource.data.replies == resource.data.replies || appendsOneOwnReply())
           )
         );
 
