@@ -22,3 +22,8 @@ Codex's first pass found three blockers: removals only matched at the array's en
 ## Verification
 
 Test build succeeds. `ReflectionResponseDecoderTests`, `GuestSuggestionTests` and `AppStartupTests` pass (10). Full suites and the Codex pass are recorded in the PR. The rules were not compiled or run against the emulator here; the Firebase CLI needs installing first (`npm install -g firebase-tools`).
+
+
+## 5 November: emulator run
+
+Owner approved installing firebase-tools (15.34.2) and OpenJDK (27.0.1) on the Mac. `firebase emulators:exec --only firestore` with the eleven cases: **11 pass, 0 fail**. The emulator log's "evaluation error" lines on denied writes were checked against the rules coverage report: they come from the emulator's first pass before the document is loaded (`resource` undefined); the second pass evaluates to `false` with no expression recording an error. Deployed rules remain unchanged.
