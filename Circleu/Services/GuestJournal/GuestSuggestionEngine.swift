@@ -61,9 +61,18 @@ protocol GuestSuggesting {
     func wordingOptions(situation: String, goal: String, draft: String) async throws -> GuestWordingSuggestions
     func conversationOptions(situation: String, goal: String, draft: String,
                              conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions
+    /// Replies to what the other person just said, read the way the person chose. Guided results
+    /// come back with no options: the caller supplies its own plain templates.
+    func replyOptions(situation: String, hope: String, theirReply: String, reading: String?,
+                      conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions
 }
 
 extension GuestSuggesting {
+    func replyOptions(situation: String, hope: String, theirReply: String, reading: String?,
+                      conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions {
+        GuestWordingSuggestions(options: [], source: .guided)
+    }
+
     func conversationOptions(situation: String, goal: String, draft: String,
                              conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions {
         try await wordingOptions(situation: situation, goal: goal, draft: draft)
