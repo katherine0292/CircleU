@@ -89,9 +89,12 @@ struct GuestTodayView: View {
                         NavigationLink {
                             GuestSettingsView(journal: journal, practice: practice)
                         } label: {
-                            Image(systemName: "gearshape")
+                            Image(systemName: "gearshape").guestTourTarget(.settings)
                         }
                         .accessibilityLabel("Settings")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        GuestTourButton()
                     }
                 }
         }
@@ -190,14 +193,16 @@ struct GuestWriteView: View {
                                 .frame(minHeight: 44)
                             }
                             .accessibilityLabel(journal.selectedQuestion == nil ? "Suggest a question" : "Change question")
+                            .guestTourTarget(.writePrompt)
                             .disabled(journal.isSaving)
                             Spacer(minLength: 0)
                         }
-                        micButton
+                        micButton.guestTourTarget(.writeMic)
                     }
                     .padding(.horizontal, 16).padding(.bottom, 12)
                 }
                 .guestCard(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .guestTourTarget(.writeCard)
                 if let message = dictation.message {
                     VStack(alignment: .leading, spacing: 8) {
                         Label(message, systemImage: "info.circle")
@@ -229,6 +234,7 @@ struct GuestWriteView: View {
                 }
             }
             .buttonStyle(GuestCocoaButtonStyle())
+            .guestTourTarget(.writeSave)
             .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
         }
@@ -254,6 +260,7 @@ struct GuestWriteView: View {
                     dictation.interrupt(); focused = false; choosingPingu = true
                 })
                 .frame(width: 44, height: 44)
+                .guestTourTarget(.avatar)
                 .guestHop(on: showsScene) // Catches the scene as it shrinks away, and lets it go again.
             }
         }
