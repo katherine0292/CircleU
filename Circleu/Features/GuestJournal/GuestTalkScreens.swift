@@ -1037,3 +1037,90 @@ struct GuestSmallCocoaStyle: ButtonStyle {
             .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.55), value: configuration.isPressed)
     }
 }
+
+// MARK: - Setup sheet
+
+struct GuestTalkSetupSheet: View {
+    @Binding var setup: GuestTalkSetup
+    let avatarID: String
+    let fromJournal: Bool
+    let isFirst: Bool
+    let done: () -> Void
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 12) {
+                        Image(avatarID).resizable().scaledToFit().padding(4).frame(width: 52, height: 52)
+                            .background(.white, in: Circle()).accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Your conversation").font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
+                            Text(isFirst ? "Set the scene" : "Change the scene").font(GuestWarm.heading(.title3))
+                                .accessibilityAddTraits(.isHeader)
+                        }
+                    }
+                    if fromJournal && isFirst {
+                        Label("Filled in from your journal. Change anything.", systemImage: "checkmark.circle")
+                            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestWarm.sage)
+                    }
+                    Text("Where is this?").font(GuestBrand.font(.subheadline, .semibold))
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: typeSize.isAccessibilitySize ? 200 : 92))], spacing: 10) {
+                        ForEach(GuestTalkSetup.scenes, id: \.self) { scene in
+                            Button { setup.scene = scene } label: {
+                                VStack(spacing: 4) {
+                                    Image(GuestTalkSetup.asset(for: scene)).resizable().scaledToFit().frame(height: 56)
+                                        .accessibilityHidden(true)
+                                    Text(scene).font(GuestBrand.font(.caption, .semibold))
+                                }
+                                .padding(8).frame(maxWidth: .infinity, minHeight: 92)
+                                .guestCard(in: RoundedRectangle(cornerRadius: 18), fill: setup.scene == scene ? GuestBrand.wash : nil)
+                                .overlay(RoundedRectangle(cornerRadius: 18).stroke(setup.scene == scene ? GuestBrand.blue : .clear, lineWidth: 2))
+                                .guestSquish(on: setup.scene == scene)
+                            }
+                            .buttonStyle(.plain).accessibilityLabel(scene)
+                            .accessibilityAddTraits(setup.scene == scene ? .isSelected : [])
+                        }
+                    }
+                    Text("How do you want to sound?").font(GuestBrand.font(.subheadline, .semibold))
+                    HStack(spacing: 8) {
+                        ForEach(GuestTalkSetup.tones, id: \.self) { tone in
+                            Button(tone) { setup.tone = tone }
+                                .font(GuestBrand.font(.subheadline, .semibold))
+                                .foregroundStyle(setup.tone == tone ? .white : GuestBrand.ink)
+                                .padding(.horizontal, 16).frame(minHeight: 44)
+                                .guestPill(in: Capsule(), selected: setup.tone == tone)
+                                .guestSquish(on: setup.tone == tone)
+                                .accessibilityAddTraits(setup.tone == tone ? .isSelected : [])
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    field("What’s going on? · optional", text: $setup.situation, prompt: "First day at a new job")
+                    field("What do you hope for? · optional", text: $setup.hope, prompt: "Come across friendly")
+                }
+                .padding(20)
+            }
+            .background { GuestFlowingBackground() }
+            .safeAreaInset(edge: .bottom) {
+                Button(isFirst ? "Start" : "Done", action: done)
+                    .buttonStyle(GuestBrandButtonStyle())
+                    .padding(.horizontal, 20).padding(.vertical, 12)
+                    .background { GuestBottomFade() }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink).tint(GuestBrand.blue)
+    }
+
+    private func field(_ title: String, text: Binding<String>, prompt: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title).font(GuestBrand.font(.subheadline, .semibold))
+            TextField(prompt, text: text, axis: .vertical).lineLimit(1...3)
+                .padding(12).guestCard(in: RoundedRectangle(cornerRadius: 14))
+                .accessibilityLabel(title)
+        }
+    }
+}
