@@ -732,49 +732,99 @@ struct GuestEntryDetailView: View {
         }
     }
 
+    /// One moment and everything that grew from it, as a timeline: what happened, the reflection,
+    /// the conversation, how it went. The next step on the line waits at the bottom.
     private func detail(for entry: GuestJournalEntry) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(entry.createdAt, format: .dateTime.hour().minute())
-                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                    .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
-                Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16).guestCard(in: RoundedRectangle(cornerRadius: 18))
-                    .accessibilityLabel(Text("My words: \(entry.originalWords)"))
-                GuestEntryReflectionSection(entry: entry, journal: journal)
-                let linked = practice.linkedMessages(to: entry.id)
-                if case .failed(let message) = practice.loadState {
-                    // Unknown is not "none": say so rather than hiding linked messages.
-                    HStack {
-                        Text(message).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                        Button("Try again") { Task { await practice.load() } }
-                            .font(GuestBrand.font(.footnote, .semibold))
-                    }
-                    .padding(.top, 8)
-                } else if !linked.isEmpty {
-                    ForEach(linked) { message in
-                        Button { practiceRoute = .message(message.id) } label: {
-                            GuestPracticeRow(message: message, entries: journal.entries)
+        let linked = practice.linkedMessages(to: entry.id)
+        let hasReflection = entry.reflection != nil || entry.nextStep != nil
+        let said = linked.contains { $0.conversation?.turns.contains { $0.kind == .wording } ?? !$0.wording.isEmpty }
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                GuestTimelineStep(title: "What happened · your words", done: true, isLast: false) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(entry.createdAt, format: .dateTime.hour().minute())
+                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                            .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
+                        Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityLabel(Text("My words: \(entry.originalWords)"))
+                        HStack(spacing: 8) {
+                            tagButton(entry.context.map { ($0.title, $0.asset) }, empty: "+ Context", entry: entry)
+                            tagButton(entry.feeling.map { ($0.title, $0.asset) }, empty: "+ Feeling", entry: entry)
                         }
-                        .buttonStyle(.plain)
+                    }
+                    .padding(16).guestCard(in: RoundedRectangle(cornerRadius: 18))
+                }
+                GuestTimelineStep(title: "Reflection", done: hasReflection, isLast: false) {
+                    if hasReflection {
+                        GuestEntryReflectionSection(entry: entry, journal: journal)
+                    } else {
+                        GuestTimelinePlaceholder(text: "Not yet. It can help to see what’s underneath.")
                     }
                 }
-                Button { practiceRoute = .new(sourceEntryID: entry.id) } label: {
-                    Label {
-                        Text("Practice what to say")
-                    } icon: {
-                        Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
+                GuestTimelineStep(title: "Conversation", done: !linked.isEmpty, isLast: !said) {
+                    if case .failed(let message) = practice.loadState {
+                        // Unknown is not "none": say so rather than hiding linked messages.
+                        HStack {
+                            Text(message).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                            Button("Try again") { Task { await practice.load() } }
+                                .font(GuestBrand.font(.footnote, .semibold))
+                        }
+                    } else if linked.isEmpty {
+                        GuestTimelinePlaceholder(text: "Need to talk to someone about this? Prepare what to say.")
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(linked) { message in
+                                Button { practiceRoute = .message(message.id) } label: {
+                                    GuestPracticeRow(message: message, entries: journal.entries)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
                 }
-                .buttonStyle(GuestBrandButtonStyle(filled: false))
-                .padding(.top, 8)
+                if said {
+                    // Once something was said, this moment asks how it went.
+                    GuestTimelineStep(title: "How did it go?", done: linked.contains { $0.conversation?.turns.contains { $0.kind == .outcome } ?? false }, isLast: true) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(linked) { message in GuestOutcomeCard(message: message, practice: practice) }
+                        }
+                    }
+                }
                 if let deleteError {
                     Label(deleteError, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                        .padding(.top, 12)
                 }
             }
             .padding(24)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardShown = true }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardShown = false }
+        .safeAreaInset(edge: .bottom) {
+            // One main action: the next step on the line. Hidden while typing.
+            if !keyboardShown {
+            VStack(spacing: 6) {
+                if linked.isEmpty && !hasReflection && suggester != nil {
+                    Button("Reflect") { reflecting = true }.buttonStyle(GuestBrandButtonStyle())
+                    Button("Talk it through instead") { practiceRoute = .new(sourceEntryID: entry.id) }
+                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue).frame(minHeight: 44)
+                } else if linked.isEmpty {
+                    Button { practiceRoute = .new(sourceEntryID: entry.id) } label: {
+                        Label { Text("Talk it through") } icon: {
+                            Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
+                        }
+                    }
+                    .buttonStyle(GuestBrandButtonStyle())
+                } else if let latest = linked.first {
+                    Button("Continue the conversation") { practiceRoute = .message(latest.id) }
+                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                }
+            }
+            .padding(.horizontal, 24).padding(.vertical, 12)
+            .background { GuestBottomFade() }
+            }
         }
         .toolbar {
             Button { editor = GuestEntryEditorViewModel(entry: entry, store: journal.store) } label: {
