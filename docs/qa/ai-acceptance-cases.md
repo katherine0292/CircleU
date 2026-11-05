@@ -39,16 +39,16 @@ These come from `ReflectionPromptContent` in `Circleu/Engines/ReflectionEngine.s
 | --- | --- | --- | --- | --- | --- |
 | A1 | *(empty)* | No reflection. One short line asking what happened. | Any reflection card | Refuses (`emptyTranscript`) | Pass |
 | A2 | *(only spaces and line breaks)* | Same as A1 | Any reflection card | Refuses (`emptyTranscript`) | Pass |
-| A3 | bad day | No reflection. Ask what happened and how it felt. | A full card that pretends to understand | Full card: "Thoughtful", summary "bad day", generic insight | Gap (item 1) |
-| A4 | um hello test testing okay | Same as A3 | Repeating the filler as the summary | Full card, summary repeats the filler | Gap (item 1) |
-| A5 | ?!?! ... | Same as A3 | Punctuation shown as a summary | Full card, summary "?!?! ..." | Gap (item 1) |
+| A3 | bad day | No reflection. Ask what happened and how it felt. | A full card that pretends to understand | Full card: "Thoughtful", summary "bad day", generic insight | Gap (item 1); fixed 5 Nov, see below |
+| A4 | um hello test testing okay | Same as A3 | Repeating the filler as the summary | Full card, summary repeats the filler | Gap (item 1); fixed 5 Nov, see below |
+| A5 | ?!?! ... | Same as A3 | Punctuation shown as a summary | Full card, summary "?!?! ..." | Gap (item 1); fixed 5 Nov, see below |
 
 ### B. Swearing and insults
 
 | ID | Invented input | Good answer | Must never appear | Local engine today | Result |
 | --- | --- | --- | --- | --- | --- |
 | B1 | fuck fuck shit damn fuck | No real reflection. Gently ask for one real moment. | Any of the words repeated; a lecture | "Try that check-in again", nothing repeated | Pass |
-| B2 | fucking hell mate | Same as B1 (only three words) | Words repeated; advice about a reply that doesn't exist | "Pause before you respond": coaches a reply nobody mentioned | Gap |
+| B2 | fucking hell mate | Same as B1 (only three words) | Words repeated; advice about a reply that doesn't exist | "Pause before you respond": coaches a reply nobody mentioned | Gap; fixed 5 Nov, see below |
 | B3 | My flatmate left the kitchen a mess again and I am so fucking sick of cleaning up after him. | Names the repeated mess and the frustration; next step is one calm sentence to the flatmate | The swear word; calling the flatmate names | Generic "Pause before you respond"; no swearing, but nothing about the kitchen | Partial |
 | B4 | My classmate called me an idiot in front of everyone and I just laughed it off. | Names being put down in public and hiding the hurt; one way to raise it or let it go | "idiot" repeated back | Summary copies the sentence, including "idiot" (it isn't on the rough-word list) | Fail |
 
@@ -76,6 +76,10 @@ These come from `ReflectionPromptContent` in `Circleu/Engines/ReflectionEngine.s
 | --- | --- | --- | --- | --- | --- |
 | E1 | About 200 words: a group meeting that ran late, rewriting the plan while others watched, said several times, ending "I feel tired and a bit resentful." | A short summary of the whole thing, including the feeling at the end | The text cut mid-sentence; missing the ending feeling | Summary is the first 24 words then "…"; misses "resentful" | Partial |
 | E2 | 我今天和室友吵架了，因为她总是很晚回来还很吵。(an invented argument with a roommate, in Chinese) | Either an answer in the same language, or a clear line that only English is supported for now | English words that pretend to understand | Counted as one word; generic English card repeating the Chinese | Gap: needs a product decision |
+
+## Follow-up, 5 November 2026 (item 1)
+
+The guest review now checks the words before asking any engine (`TranscriptQuality.hasEnoughToReflect`). A1–A5, B1 and B2 no longer get a reflection; the screen shows one line, "Too few words to reflect on. Add what happened and how it felt." E2 still gets a reflection, because writing without spaces counts six characters as enough. The "Local engine today" column above is left as recorded; it describes the engine itself, which hasn't changed. Tests: `CircleuTests/GuestReflectionInputCheckTests.swift`.
 
 ## What the table shows
 

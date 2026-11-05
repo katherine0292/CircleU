@@ -297,7 +297,7 @@ final class GuestSuggestionViewModelTests: XCTestCase {
 
     func testSuggestedStepIsNotSavedUnlessAdded() async throws {
         let (journal, _) = try await session()
-        let entry = try await saved("Words", in: journal)
+        let entry = try await saved("My words about today", in: journal)
         let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester())
         await review.load()
         XCTAssertFalse(review.hasEdits, "an untouched suggestion can be left without asking")
@@ -333,7 +333,7 @@ final class GuestSuggestionViewModelTests: XCTestCase {
 
     func testReflectionOnAnEntryChangedMeanwhileIsNotAdded() async throws {
         let (journal, _) = try await session()
-        let entry = try await saved("First words", in: journal)
+        let entry = try await saved("My first words today", in: journal)
         let review = GuestReflectionReviewViewModel(entry: entry, journal: journal, suggester: FakeSuggester())
         await review.load()
         // The entry is edited elsewhere before the reflection is saved.
@@ -348,7 +348,7 @@ final class GuestSuggestionViewModelTests: XCTestCase {
 
     func testNextStepIsVoluntaryAndReversibleFromTheEntry() async throws {
         let (journal, _) = try await session()
-        let saved = try await saved("Words", in: journal)
+        let saved = try await saved("My words about today", in: journal)
         let review = GuestReflectionReviewViewModel(entry: saved, journal: journal, suggester: FakeSuggester())
         await review.load()
         review.addSuggestedStep()
@@ -365,7 +365,7 @@ final class GuestSuggestionViewModelTests: XCTestCase {
         entry = try XCTUnwrap(journal.entries.first)
         XCTAssertNil(entry.reflection, "reflection removed")
         XCTAssertFalse(entry.nextStepDone, "and undone")
-        XCTAssertEqual(entry.originalWords, "Words")
+        XCTAssertEqual(entry.originalWords, "My words about today")
     }
 
     func testPracticeSuggestionsBecomeStaleWhenTheirInputsChange() async throws {

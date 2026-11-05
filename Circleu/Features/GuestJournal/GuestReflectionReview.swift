@@ -5,7 +5,8 @@ import SwiftUI
 /// remove or ignore. Their words are already saved as written and never change here.
 @MainActor
 final class GuestReflectionReviewViewModel: ObservableObject {
-    enum State: Equatable { case loading, ready, failed }
+    /// `needsMoreWords`: too little to reflect on, so no engine was asked.
+    enum State: Equatable { case loading, ready, failed, needsMoreWords }
 
     @Published private(set) var state: State = .loading
     @Published var summary = ""
@@ -21,6 +22,7 @@ final class GuestReflectionReviewViewModel: ObservableObject {
     private var generated = ("", "", "")
 
     static let failedMessage = "A suggestion couldn’t be made right now. Your entry is saved as it is."
+    static let needsMoreWordsMessage = "Too few words to reflect on. Add what happened and how it felt."
 
     let entry: GuestJournalEntry
     let journal: GuestJournalViewModel
@@ -35,6 +37,10 @@ final class GuestReflectionReviewViewModel: ObservableObject {
     private static func trim(_ text: String) -> String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
 
     func load() async {
+        guard TranscriptQuality.hasEnoughToReflect(entry.originalWords) else {
+            state = .needsMoreWords
+            return
+        }
         state = .loading
         do {
             let suggestion = try await suggester.reflection(for: entry.originalWords)
@@ -157,6 +163,8 @@ struct GuestReflectionReviewView: View {
                 ProgressView()
                 Text("Making a suggestion…").foregroundStyle(GuestBrand.muted)
             }
+        case .needsMoreWords:
+            Text(GuestReflectionReviewViewModel.needsMoreWordsMessage).foregroundStyle(GuestBrand.muted)
         case .failed:
             VStack(alignment: .leading, spacing: 8) {
                 Text(GuestReflectionReviewViewModel.failedMessage).foregroundStyle(GuestBrand.muted)
