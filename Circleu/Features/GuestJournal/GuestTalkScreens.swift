@@ -114,3 +114,64 @@ struct GuestReplyReading: Equatable, Identifiable {
         }
     }
 }
+
+// MARK: - Thread items
+
+struct GuestTalkGeneration: Equatable {
+    /// Tone → text, as returned once; styles are applied on top.
+    var base: [String: String]
+    func text(tone: String, style: GuestTalkStyle) -> String { style.apply(base[tone] ?? base.values.first ?? "") }
+}
+
+struct GuestTalkVersion { var text: String; var tail: [GuestTalkItem] }
+
+struct GuestTalkMessage {
+    let id = UUID()
+    var isMine: Bool
+    var versions: [GuestTalkVersion]
+    var v = 0
+    var stopped = false
+    var text: String { versions[v].text }
+}
+
+struct GuestTalkSuggestion {
+    let id = UUID()
+    var isReply: Bool
+    var readingTitle: String?
+    /// Their message this replies to, so ↻ can ask again.
+    var replyTo: String?
+    var gens: [GuestTalkGeneration]
+    var g = 0
+    var tone: String
+    var style: GuestTalkStyle = .asIs
+    var copied = false
+    var source: GuestSuggestionSource
+    var fallbackReason: GuestFallbackReason?
+    var why: String?
+    var shown: String { gens[g].text(tone: tone, style: style) }
+}
+
+struct GuestTalkReadingChoice {
+    let id = UUID()
+    var readings: [GuestReplyReading]
+    /// nil until chosen; -1 is "Neither fits".
+    var pick: Int?
+}
+
+enum GuestTalkItem: Identifiable {
+    case message(GuestTalkMessage)
+    case said(id: UUID, text: String)
+    case context(id: UUID, text: String)
+    case suggestion(GuestTalkSuggestion)
+    case reading(GuestTalkReadingChoice)
+    case thinking(UUID)
+
+    var id: UUID {
+        switch self {
+        case .message(let m): m.id
+        case .said(let id, _), .context(let id, _), .thinking(let id): id
+        case .suggestion(let s): s.id
+        case .reading(let r): r.id
+        }
+    }
+}
