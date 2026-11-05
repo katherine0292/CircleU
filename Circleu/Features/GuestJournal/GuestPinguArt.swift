@@ -1,11 +1,11 @@
 import SwiftUI
 import UIKit
 
-/// One of the 21 Pingu avatars from the brand collection.
+/// One of the 21 otter avatars (Tuanwei) from the brand collection.
 struct GuestAvatar: Identifiable, Equatable {
     /// The asset name, also what's stored as the choice.
     let id: String
-    /// What VoiceOver says, e.g. "Pingu with a warm drink".
+    /// What VoiceOver says, e.g. "Tuanwei the otter holding a warm mug".
     let name: String
 }
 
@@ -13,27 +13,27 @@ struct GuestAvatar: Identifiable, Equatable {
 /// the person's choice, kept on this iPhone only. Mascot poses, never moods or rewards.
 enum GuestAvatars {
     static let all: [GuestAvatar] = [
-        GuestAvatar(id: "GuestPinguJournal", name: "Pingu holding a journal"),
-        GuestAvatar(id: "GuestPinguWelcome", name: "Pingu waving hello"),
-        GuestAvatar(id: "GuestPinguThoughtful", name: "Pingu thinking"),
-        GuestAvatar(id: "GuestPinguListening", name: "Pingu listening"),
-        GuestAvatar(id: "GuestPinguWriting", name: "Pingu writing"),
-        GuestAvatar(id: "GuestPinguReading", name: "Pingu reading"),
-        GuestAvatar(id: "GuestPinguPractising", name: "Pingu practising what to say"),
-        GuestAvatar(id: "GuestPinguStretching", name: "Pingu stretching"),
-        GuestAvatar(id: "GuestPinguQuietBreath", name: "Pingu taking a quiet breath"),
-        GuestAvatar(id: "GuestPinguHeart", name: "Pingu holding a heart"),
-        GuestAvatar(id: "GuestPinguIceCream", name: "Pingu with an ice cream"),
-        GuestAvatar(id: "GuestPinguBackpack", name: "Pingu with a backpack"),
-        GuestAvatar(id: "GuestPinguThumbsUp", name: "Pingu giving a thumbs up"),
-        GuestAvatar(id: "GuestPinguExplorer", name: "Pingu exploring"),
-        GuestAvatar(id: "GuestPinguRunning", name: "Pingu on the move"),
-        GuestAvatar(id: "GuestPinguMusic", name: "Pingu listening to music"),
-        GuestAvatar(id: "GuestPinguLaptop", name: "Pingu at a laptop"),
-        GuestAvatar(id: "GuestPinguGardening", name: "Pingu gardening"),
-        GuestAvatar(id: "GuestPinguWarmDrink", name: "Pingu with a warm drink"),
-        GuestAvatar(id: "GuestPinguSleeping", name: "Pingu sleeping"),
-        GuestAvatar(id: "GuestPinguPillowHug", name: "Pingu hugging a pillow"),
+        GuestAvatar(id: "GuestPinguJournal", name: "Tuanwei the otter holding a closed diary"),
+        GuestAvatar(id: "GuestPinguWelcome", name: "Tuanwei the otter waving hello"),
+        GuestAvatar(id: "GuestPinguThoughtful", name: "Tuanwei the otter examining a smooth pebble"),
+        GuestAvatar(id: "GuestPinguListening", name: "Tuanwei the otter cupping a paw to one ear"),
+        GuestAvatar(id: "GuestPinguWriting", name: "Tuanwei the otter writing in a diary"),
+        GuestAvatar(id: "GuestPinguReading", name: "Tuanwei the otter reading a book"),
+        GuestAvatar(id: "GuestPinguPractising", name: "Tuanwei the otter practising speaking aloud"),
+        GuestAvatar(id: "GuestPinguStretching", name: "Tuanwei the otter stretching both arms"),
+        GuestAvatar(id: "GuestPinguQuietBreath", name: "Tuanwei the otter taking a slow breath"),
+        GuestAvatar(id: "GuestPinguHeart", name: "Tuanwei the otter holding a heart-shaped cushion"),
+        GuestAvatar(id: "GuestPinguIceCream", name: "Tuanwei the otter holding an ice cream cone"),
+        GuestAvatar(id: "GuestPinguBackpack", name: "Tuanwei the otter wearing a backpack"),
+        GuestAvatar(id: "GuestPinguThumbsUp", name: "Tuanwei the otter holding a rolled map"),
+        GuestAvatar(id: "GuestPinguExplorer", name: "Tuanwei the otter exploring with a magnifying glass"),
+        GuestAvatar(id: "GuestPinguRunning", name: "Tuanwei the otter running"),
+        GuestAvatar(id: "GuestPinguMusic", name: "Tuanwei the otter listening to music on headphones"),
+        GuestAvatar(id: "GuestPinguLaptop", name: "Tuanwei the otter using a laptop"),
+        GuestAvatar(id: "GuestPinguGardening", name: "Tuanwei the otter watering a potted flower"),
+        GuestAvatar(id: "GuestPinguWarmDrink", name: "Tuanwei the otter holding a warm mug"),
+        GuestAvatar(id: "GuestPinguSleeping", name: "Tuanwei the otter sleeping curled up"),
+        GuestAvatar(id: "GuestPinguPillowHug", name: "Tuanwei the otter hugging a pillow"),
     ]
 
     static let defaultID = "GuestPinguJournal"
@@ -221,8 +221,8 @@ struct GuestAvatarButton: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Your Pingu: \(avatar.name)")
-        .accessibilityHint("Choose a different Pingu.")
+        .accessibilityLabel("Your otter: \(avatar.name)")
+        .accessibilityHint("Choose a different otter.")
         .sheet(isPresented: $picking) { GuestAvatarPicker(selection: $avatarID) }
     }
 }
@@ -255,7 +255,7 @@ struct GuestAvatarPicker: View {
                 .padding(20)
             }
             .background(GuestBrand.ice.ignoresSafeArea())
-            .navigationTitle("Choose your Pingu")
+            .navigationTitle("Choose your otter")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }

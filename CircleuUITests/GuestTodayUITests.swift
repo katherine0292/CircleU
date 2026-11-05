@@ -50,7 +50,7 @@ final class GuestTodayUITests: XCTestCase {
                               ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"])
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 15))
-        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu:")).firstMatch
+        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your otter:")).firstMatch
         XCTAssertTrue(avatar.isHittable)
         avatar.tap()
         app.buttons["Done"].tap()

@@ -164,18 +164,18 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertTrue(editor.waitForExistence(timeout: 15))
         app.buttons["Start dictation"].tap()
         XCTAssertTrue(app.buttons["Stop dictation"].waitForExistence(timeout: 5), "listening")
-        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu")).firstMatch
+        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your otter")).firstMatch
         XCTAssertTrue(avatar.waitForExistence(timeout: 5), "the badge on the scene")
         avatar.tap()
-        XCTAssertTrue(app.navigationBars["Choose your Pingu"].waitForExistence(timeout: 5))
-        app.buttons["Pingu reading"].tap()
+        XCTAssertTrue(app.navigationBars["Choose your otter"].waitForExistence(timeout: 5))
+        app.buttons["Tuanwei the otter reading a book"].tap()
         app.buttons["Done"].tap()
         XCTAssertTrue(app.buttons["Start dictation"].waitForExistence(timeout: 5), "dictation stopped")
         XCTAssertFalse(app.buttons["Stop dictation"].exists)
         XCTAssertTrue((editor.value as? String ?? "").contains("Spoken before choosing"), "the words so far are kept")
 
         app = launchGuest(fresh: false)
-        XCTAssertTrue(app.buttons["Your Pingu: Pingu reading"].waitForExistence(timeout: 10), "kept across launches, on Today")
+        XCTAssertTrue(app.buttons["Your otter: Tuanwei the otter reading a book"].waitForExistence(timeout: 10), "kept across launches, on Today")
         shot(app, "pingu-kept")
     }
 }
