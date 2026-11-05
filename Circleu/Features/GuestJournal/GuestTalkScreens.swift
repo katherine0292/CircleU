@@ -1124,3 +1124,106 @@ struct GuestTalkSetupSheet: View {
         }
     }
 }
+
+// MARK: - How did it go?
+
+/// After something was said, the entry asks how it went; the answer stays with this moment.
+struct GuestOutcomeCard: View {
+    let message: GuestPracticeMessage
+    @ObservedObject var practice: GuestPracticeViewModel
+    @State private var text = ""
+    @State private var feeling: GuestEntryFeeling?
+    @State private var error: String?
+    @State private var isSaving = false
+    @State private var saved = 0
+
+    private var outcomes: [GuestPracticeConversation.Turn] { message.conversation?.turns.filter { $0.kind == .outcome } ?? [] }
+    private var hasSaid: Bool { message.conversation?.turns.contains { $0.kind == .wording } ?? !message.wording.isEmpty }
+
+    var body: some View {
+        if !outcomes.isEmpty {
+            ForEach(outcomes) { outcome in
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("HOW IT WENT · \(outcome.createdAt.formatted(.dateTime.day().month(.abbreviated)))")
+                        .font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.muted)
+                    if !outcome.text.isEmpty { Text(outcome.text) }
+                    if let raw = outcome.feeling, let f = GuestEntryFeeling(rawValue: raw) {
+                        Label { Text(f.title) } icon: { Image(f.asset).resizable().scaledToFit().frame(width: 24, height: 24) }
+                            .font(GuestBrand.font(.caption, .semibold))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                .guestCard(in: RoundedRectangle(cornerRadius: 18))
+                .guestRiseIn()
+            }
+            .sensoryFeedback(.success, trigger: saved)
+        } else if hasSaid {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("You said it. Pick how it felt, add a line if you like.")
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(GuestEntryFeeling.allCases, id: \.self) { f in
+                            Button { feeling = feeling == f ? nil : f } label: {
+                                VStack(spacing: 2) {
+                                    Image(f.asset).resizable().scaledToFit().frame(width: 34, height: 34).accessibilityHidden(true)
+                                    Text(f.title).font(GuestBrand.font(.caption2, .semibold))
+                                }
+                                .padding(6).frame(minWidth: 60)
+                                .guestCard(in: RoundedRectangle(cornerRadius: 14), fill: feeling == f ? GuestBrand.wash : nil)
+                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(feeling == f ? GuestBrand.blue : .clear, lineWidth: 2))
+                                .guestSquish(on: feeling == f)
+                            }
+                            .buttonStyle(.plain).accessibilityLabel(f.title)
+                            .accessibilityAddTraits(feeling == f ? .isSelected : [])
+                        }
+                    }
+                }
+                // Save sits beside the words, so the keyboard never covers it.
+                HStack(alignment: .bottom, spacing: 8) {
+                    TextField("What happened? Optional", text: $text, axis: .vertical).lineLimit(1...5)
+                        .submitLabel(.done)
+                        .onSubmit { Task { await save() } }
+                        .padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
+                        .accessibilityLabel("How it went")
+                    Button(isSaving ? "Saving…" : "Save") { Task { await save() } }
+                        .buttonStyle(GuestSmallCocoaStyle())
+                        .disabled(!canSave)
+                }
+                if let error { Text(error).font(GuestBrand.font(.footnote)) }
+            }
+            .padding(14)
+            .guestCard(in: RoundedRectangle(cornerRadius: 20))
+        }
+    }
+
+    /// Words, a feeling, or both: either is enough to remember how it went.
+    private var canSave: Bool { (!text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || feeling != nil) && !isSaving }
+
+    private func save() async {
+        guard canSave else { return }
+        guard let store = practice.store as? any GuestConversationStore else {
+            error = "Couldn’t save. Try again."
+            return
+        }
+        isSaving = true
+        defer { isSaving = false }
+        var c = message.conversation ?? GuestPracticeConversation()
+        if message.conversation == nil, !message.wording.isEmpty { c.turns.append(.init(kind: .wording, text: message.wording)) }
+        c.turns.append(.init(kind: .outcome, text: text.trimmingCharacters(in: .whitespacesAndNewlines), feeling: feeling?.rawValue))
+        do {
+            _ = try await store.updateConversation(id: message.id, situation: message.situation, goal: message.goal,
+                                                   wording: message.wording, expectedRevision: message.revision, conversation: c)
+            error = nil
+            saved += 1
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        } catch GuestJournalError.savedButUnprotected {
+            error = GuestJournalViewModel.savedButUnprotectedMessage
+        } catch GuestJournalError.staleRevision {
+            self.error = "This conversation changed. Try again."
+        } catch {
+            self.error = "Couldn’t save. Try again."
+        }
+        await practice.load()
+    }
+}
