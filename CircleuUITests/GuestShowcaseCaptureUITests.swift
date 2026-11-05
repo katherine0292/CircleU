@@ -26,14 +26,7 @@ final class GuestShowcaseCaptureUITests: XCTestCase {
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 5))
         shot(app, "showcase-today")
 
-        app.tabBars.buttons["Talk"].tap()
-        XCTAssertTrue(app.buttons["Practice a message"].waitForExistence(timeout: 10))
-        app.buttons["Practice a message"].tap()
-        let wording = app.textViews["Your wording"]
-        XCTAssertTrue(wording.waitForExistence(timeout: 5))
-        wording.tap(); wording.typeText("Can you take a fair share of the slides before Friday?")
-        app.buttons["Review wording"].tap()
-        XCTAssertTrue(has(app, "Suggested wording", 10))
+        startTalk(app, saying: "Can you take a fair share of the slides before Friday?")
         shot(app, "showcase-practice")
     }
 }
