@@ -520,6 +520,10 @@ struct GuestPracticeMessageView: View {
                 .background(GuestBrand.blue, in: RoundedRectangle(cornerRadius: 20))
                 .accessibilityElement(children: .combine)
                 Text(suggestions.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                if let reason = suggestions.fallbackReason {
+                    Label(reason.line, systemImage: "info.circle")
+                        .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                }
                 Button(comparing ? "Hide comparison" : "Compare with mine",
                        systemImage: comparing ? "chevron.up" : "chevron.down") { withAnimation { comparing.toggle() } }
                     .font(GuestBrand.font(.subheadline, .semibold)).frame(minHeight: 44)
@@ -829,6 +833,10 @@ struct GuestPracticeMessageView: View {
                 }
                 if let suggestions = composer.suggestions {
                     Text(suggestions.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                    if let reason = suggestions.fallbackReason {
+                        Label(reason.line, systemImage: "info.circle")
+                            .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                    }
                     if composer.suggestionsAreStale {
                         Label("Based on earlier words. Get a suggestion again to update.",
                               systemImage: "clock.arrow.circlepath")

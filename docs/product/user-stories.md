@@ -106,6 +106,7 @@ Screen: Journal ("Saved to your journal" card) → Reflection review. States: fi
 | T6.5 | Given the entry changed somewhere else, when I save the reflection, then it isn't added and I'm told why. | Unit `GuestSuggestionViewModelTests.testReflectionOnAnEntryChangedMeanwhileIsNotAdded` |
 | T6.6 | Given a reflection is open, when I delete all data, then it closes and Journal is empty. | UI `GuestTodayUITests.testDeleteAllClosesAnOpenReflection` |
 | T6.7 | Given my entry has fewer than three real words (empty, punctuation, filler such as "um hello test", or only swearing), when I tap Reflect on it, then no suggestion is asked for and one line asks what happened and how it felt; my words stay as written. Writing without spaces (for example Chinese) counts six characters as enough. Added 5 November 2026. | Unit `GuestReflectionInputCheckTests` (all four tests) |
+| T6.8 | Given Apple Intelligence isn't used (this iPhone can't run it, it's off in Settings, it's still getting ready, iOS is older than 26, or it didn't answer), when a guided suggestion shows, then one plain line under the source label says why. Not shown in the guided-only UI-test mode. Added 5 November 2026. | Unit `GuestFallbackReasonTests` (physical-device states not checked) |
 
 **T7. Next step.** As a person, I want to choose whether to keep a suggested next step, so that nothing is added without my say.
 Screen: Reflection review, Entry. States: filled, done or not done.
@@ -246,6 +247,7 @@ Screen: Practice → Continue your draft. States: filled (restored), in progress
 | P4.1 | Given an unsaved message, when the app relaunches, then Continue your draft restores it, and once saved it isn't offered again. | Unit `GuestFindAndControlTests.testPracticeDraftSurvivesRelaunchAndIsClearedBySaving`, `testSavedPracticeDraftIsNeverOfferedAgain` |
 | P4.2 | Given a suggestion, when I choose it from the swipeable tone cards, then it fills the wording and can be undone. | Unit `GuestSuggestionViewModelTests.testPracticeSuggestionsFillWordingOnlyWhenChosenAndCanBeUndone`; UI `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
 | P4.3 | Given a suggestion fails, when the error shows, then my wording is kept. | Unit `GuestSuggestionViewModelTests.testFailedPracticeSuggestionKeepsWording` |
+| P4.4 | Given Apple Intelligence isn't used, when wording suggestions show, then the same one-line reason as T6.8 appears under the source label. Added 5 November 2026. | Unit `GuestFallbackReasonTests.testWordingIsStillGuidedAndKeepsTheReason` |
 
 **P5. Continue a conversation.** As a person, I want to add their reply or more context without losing earlier wording.
 Screens: Prepare → Refine → Their reply → Refine → Conversation. States: empty, editable, saved, unreadable, stale revision.
