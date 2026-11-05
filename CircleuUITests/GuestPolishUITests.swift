@@ -58,15 +58,10 @@ final class GuestPolishUITests: XCTestCase {
         let dismiss = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "Done"])).firstMatch
         if dismiss.exists { dismiss.tap() }
 
-        app.tabBars.buttons["Talk"].tap()
-        app.buttons["Practice a message"].tap()
-        let wording = app.textViews["Your wording"]; XCTAssertTrue(wording.waitForExistence(timeout: 5))
-        wording.tap(); wording.typeText("Could we talk about the slides?")
-        reviewAndKeepWording(app)
-        app.buttons["Save"].tap()
-        XCTAssertTrue(has(app, "Saved · not sent"))
+        startTalk(app, saying: "Could we talk about the slides?")
+        sayIt(app)
         shot(app, "u8-message-saved")
-        app.buttons["Back"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
 
         app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 5), "Today is back at its start, not a blank screen")
