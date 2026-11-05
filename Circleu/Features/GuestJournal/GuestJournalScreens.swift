@@ -24,7 +24,7 @@ struct GuestHomeView: View {
                 .tabItem { GuestTabLabel(title: "Practice", icon: "GuestIconPractice") }
                 .tag(Tab.practice)
         }
-        .tint(GuestBrand.blue)
+        .tint(GuestWarm.cocoa)
         .preferredColorScheme(.light) // Dark mode is deferred; the palette is light-only for now.
         .font(GuestBrand.font(.body))
         .foregroundStyle(GuestBrand.ink)
@@ -42,7 +42,7 @@ struct GuestHomeView: View {
                     Button("OK") { journal.dismissNotices() }
                 }
                 .padding(12)
-                .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                .guestCard(in: RoundedRectangle(cornerRadius: 14))
                 .padding(.horizontal, 16)
             }
         }
@@ -85,6 +85,7 @@ struct GuestTodayView: View {
                     }
                 }
         }
+        .tint(GuestWarm.cocoa)
     }
 }
 
@@ -101,8 +102,16 @@ struct GuestWriteView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var typeSize
     @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var choosingPingu = false
     @State private var choosingQuestion = false
+
+    /// How tall the scene behind the top of Today is, from the top of the screen.
+    private static let sceneHeight: CGFloat = 310
+    /// The space above the heading that lets the scene show between the top bar and the words.
+    private static let sceneGap: CGFloat = 118
+    /// The scene is decorative: it gives way to the keyboard and to accessibility text sizes.
+    private var showsScene: Bool { !typeSize.isAccessibilitySize && !focused }
 
     init(journal: GuestJournalViewModel, dictationEngine: @autoclosure @escaping () -> any GuestDictationEngine,
          heading: String = "Start with your words", showsLogo: Bool = false, onSaved: @escaping () -> Void) {
@@ -116,22 +125,17 @@ struct GuestWriteView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                // Room for the scene behind the top of the page (`backdrop`).
+                if showsScene { Color.clear.frame(height: Self.sceneGap) }
                 Text(heading)
-                    .font(GuestBrand.font(size: 24, relativeTo: .title2, weight: .semibold))
+                    .font(GuestWarm.heading(.title2))
+                    .shadow(color: GuestWarm.cream.opacity(showsScene ? 0.9 : 0), radius: 10)
                     .accessibilityAddTraits(.isHeader)
-                if !typeSize.isAccessibilitySize && !focused {
-                    Color.clear.aspectRatio(2, contentMode: .fit)
-                        .overlay {
-                            Image(GuestSceneArt.today(listening: dictation.isActive).asset)
-                                .resizable().scaledToFill()
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: 24)).accessibilityHidden(true)
-                }
                 VStack(alignment: .leading, spacing: 0) {
                     if let question = journal.selectedQuestion {
                         HStack(alignment: .top, spacing: 8) {
                             Text(question.rawValue).font(GuestBrand.font(.subheadline, .semibold))
-                                .foregroundStyle(GuestBrand.blue).fixedSize(horizontal: false, vertical: true)
+                                .foregroundStyle(GuestWarm.sage).fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: 0)
                             Button { journal.selectedQuestion = nil } label: {
                                 Image(systemName: "xmark").frame(width: 44, height: 44)
@@ -146,7 +150,7 @@ struct GuestWriteView: View {
                         .frame(minHeight: typeSize.isAccessibilitySize ? 160 : 190)
                         .overlay(alignment: .topLeading) {
                             if journal.draft.isEmpty {
-                                Text("Write your words…").foregroundStyle(GuestBrand.muted)
+                                Text("Write your words…").foregroundStyle(GuestWarm.muted)
                                     .padding(.leading, 17).padding(.top, 20)
                                     .allowsHitTesting(false).accessibilityHidden(true)
                             }
@@ -155,7 +159,7 @@ struct GuestWriteView: View {
                     HStack(spacing: 8) {
                         if dictation.isActive {
                             Text(statusText ?? "Listening…")
-                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestWarm.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: 0)
                             Button { dictation.cancel() } label: {
@@ -172,7 +176,7 @@ struct GuestWriteView: View {
                                         .fixedSize(horizontal: false, vertical: true)
                                     Image(systemName: "chevron.down").font(.caption)
                                 }
-                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
+                                .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestWarm.muted)
                                 .frame(minHeight: 44)
                             }
                             .accessibilityLabel(journal.selectedQuestion == nil ? "Suggest a question" : "Change question")
@@ -183,11 +187,11 @@ struct GuestWriteView: View {
                     }
                     .padding(.horizontal, 16).padding(.bottom, 12)
                 }
-                .background(.white, in: RoundedRectangle(cornerRadius: 22))
+                .guestCard(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
                 if let message = dictation.message {
                     VStack(alignment: .leading, spacing: 8) {
                         Label(message, systemImage: "info.circle")
-                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestWarm.muted)
                         if dictation.needsSettings, let url = URL(string: UIApplication.openSettingsURLString) {
                             Button("Open Settings") { openURL(url) }.frame(minHeight: 44)
                         }
@@ -198,7 +202,7 @@ struct GuestWriteView: View {
                 }
                 if let warning = journal.draftWarning {
                     Label(warning, systemImage: "info.circle")
-                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestWarm.muted)
                 }
             }
             .padding(.horizontal, 24).padding(.vertical, 14)
@@ -207,13 +211,20 @@ struct GuestWriteView: View {
         .safeAreaInset(edge: .bottom) {
             Button(journal.isSaving ? "Saving…" : "Save") {
                 dictation.stopForSave()
-                Task { if await journal.saveDraft() { focused = false; onSaved() } }
+                Task {
+                    if await journal.saveDraft() {
+                        focused = false
+                        onSaved()
+                    }
+                }
             }
-            .buttonStyle(GuestBrandButtonStyle())
+            .buttonStyle(GuestCocoaButtonStyle())
             .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
-            .padding(.horizontal, 24).padding(.vertical, 12).background(GuestBrand.ice)
+            .padding(.horizontal, 24).padding(.vertical, 12)
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .foregroundStyle(GuestWarm.ink)
+        .background { backdrop }
+        .animation(reduceMotion ? nil : .spring(response: 0.55, dampingFraction: 0.82), value: showsScene)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if showsLogo {
@@ -231,7 +242,9 @@ struct GuestWriteView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 GuestAvatarButton(size: 30, onChoose: {
                     dictation.interrupt(); focused = false; choosingPingu = true
-                }).frame(width: 44, height: 44)
+                })
+                .frame(width: 44, height: 44)
+                .guestHop(on: showsScene) // Catches the scene as it shrinks away, and lets it go again.
             }
         }
         .sheet(isPresented: $choosingPingu) { GuestAvatarPicker(selection: $avatarID) }
@@ -250,13 +263,13 @@ struct GuestWriteView: View {
                                     Image(systemName: "chevron.right").font(.caption)
                                 }
                                 .padding(16).frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-                                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                                .guestCard(in: RoundedRectangle(cornerRadius: 16))
                             }
                             .buttonStyle(.plain).accessibilityLabel(question.rawValue)
                         }
                     }.padding(24)
                 }
-                .background(GuestBrand.ice).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                .background { GuestFlowingBackground() }.font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                 .navigationTitle("Choose a question").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -273,14 +286,38 @@ struct GuestWriteView: View {
         .onDisappear { dictation.interrupt() }
     }
 
+    /// The flowing warm background with the Today scene across the top, fading into it.
+    private var backdrop: some View {
+        ZStack(alignment: .top) {
+            GuestFlowingBackground()
+            if showsScene {
+                Image(GuestSceneArt.today(listening: dictation.isActive).asset)
+                    .resizable().scaledToFill()
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: Self.sceneHeight)
+                    .clipped()
+                    .mask(LinearGradient(stops: [.init(color: .black, location: 0.55),
+                                                 .init(color: .clear, location: 1)],
+                                         startPoint: .top, endPoint: .bottom))
+                    // While writing, the scene shrinks up into the avatar at the top right.
+                    .transition(reduceMotion ? .opacity
+                                : .scale(scale: 0.06, anchor: UnitPoint(x: 0.9, y: 0.1)).combined(with: .opacity))
+                    .accessibilityHidden(true)
+            }
+        }
+        .ignoresSafeArea()
+    }
+
     private var micButton: some View {
         Button {
             focused = false
             Task { await dictation.toggle() }
         } label: {
             Image(systemName: dictation.isActive ? "stop.fill" : "mic")
-                .font(.system(size: 20, weight: .semibold)).foregroundStyle(GuestBrand.blue)
-                .frame(width: 44, height: 44).background(GuestBrand.wash, in: Circle())
+                .font(.system(size: 20, weight: .semibold)).foregroundStyle(GuestWarm.sage)
+                .frame(width: 44, height: 44)
+                .guestGlass(in: Circle(), interactive: true)
+                .background { GuestBreathingRing(active: dictation.isActive).padding(-6) }
         }
         .disabled(dictation.state == .finishing || journal.isSaving)
         .accessibilityLabel(dictation.isActive ? "Stop dictation" : "Start dictation")
@@ -363,6 +400,7 @@ struct GuestJournalListView: View {
                                     GuestJournalRow(entry: entry,
                                         hasPractice: !practice.linkedMessages(to: entry.id).isEmpty,
                                         onTags: { taggingEntry = entry })
+                                        .guestRiseIn()
                                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                                         .listRowSeparator(.hidden).listRowBackground(Color.clear)
                                 }
@@ -379,7 +417,7 @@ struct GuestJournalListView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground() }
             .navigationTitle("Journal")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $taggingEntry) { entry in GuestEntryTagPicker(entry: entry, journal: journal) }
@@ -455,7 +493,7 @@ private struct GuestJournalRow: View {
             }
         }
         .padding(16)
-        .background(.white, in: RoundedRectangle(cornerRadius: 20))
+        .guestCard(in: RoundedRectangle(cornerRadius: 20))
     }
 
     private var contextButton: some View {
@@ -468,7 +506,9 @@ private struct GuestJournalRow: View {
             }
             .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
             .padding(.horizontal, 10).padding(.vertical, 4)
-            .background(GuestBrand.wash, in: Capsule()).frame(minHeight: 44)
+            .background(GuestBrand.wash, in: Capsule())
+            .guestSquish(on: entry.context)
+            .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
@@ -484,6 +524,7 @@ private struct GuestJournalRow: View {
                 } else { Text("+ Feeling") }
             }
             .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+            .guestSquish(on: entry.feeling)
             .frame(minHeight: 44).contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
@@ -512,15 +553,15 @@ private struct GuestReflectionOfferCard: View {
             VStack(alignment: .leading, spacing: 10) { heading; HStack { actions } }
         }
         .padding(.vertical, 10).padding(.leading, 12).padding(.trailing, 6)
-        .background(.white, in: RoundedRectangle(cornerRadius: 18))
-        .shadow(color: GuestBrand.ink.opacity(0.08), radius: 10, y: 2)
+        .guestCard(in: RoundedRectangle(cornerRadius: 18))
+        .guestRiseIn()
     }
 
     private var heading: some View {
         HStack(spacing: 12) {
             if !typeSize.isAccessibilitySize {
                 Image("GuestPinguJournal").resizable().scaledToFit().frame(width: 40, height: 40)
-                    .accessibilityHidden(true)
+                    .guestHop().accessibilityHidden(true)
             }
             Text("Saved").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
@@ -561,7 +602,7 @@ struct GuestEntryDetailView: View {
 
     var body: some View {
         content
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground(mood: journal.entries.first { $0.id == entryID }?.feeling) }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $practiceRoute) { route in
@@ -631,7 +672,7 @@ struct GuestEntryDetailView: View {
                     .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
                 Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                    .padding(16).guestCard(in: RoundedRectangle(cornerRadius: 18))
                     .accessibilityLabel(Text("My words: \(entry.originalWords)"))
                 GuestEntryReflectionSection(entry: entry, journal: journal)
                 let linked = practice.linkedMessages(to: entry.id)
@@ -693,7 +734,7 @@ struct GuestEntryEditView: View {
             TextEditor(text: $editor.text)
                 .scrollContentBackground(.hidden)
                 .padding(12)
-                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .guestCard(in: RoundedRectangle(cornerRadius: 18))
                 .accessibilityLabel("Your words")
             if let error = editor.saveError {
                 Label(error, systemImage: "exclamationmark.circle")
@@ -709,7 +750,7 @@ struct GuestEntryEditView: View {
             .disabled(!editor.canSave)
         }
         .padding(24)
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Edit")
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -793,7 +834,7 @@ struct GuestEntryReflectionSection: View {
                 .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 16).padding(.trailing, 4).padding(.vertical, 8)
-                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .guestCard(in: RoundedRectangle(cornerRadius: 18))
             }
             if let step = entry.nextStep {
                 HStack(spacing: 4) {
@@ -812,7 +853,7 @@ struct GuestEntryReflectionSection: View {
                     }
                 }
                 .padding(.vertical, 4).padding(.leading, 4).padding(.trailing, 4)
-                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .guestCard(in: RoundedRectangle(cornerRadius: 18))
             }
             if let error {
                 Label(error, systemImage: "exclamationmark.circle")
