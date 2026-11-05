@@ -105,6 +105,7 @@ Screen: Journal ("Saved to your journal" card) → Reflection review. States: fi
 | T6.4 | Given the suggestion fails or I clear every part, when I look, then nothing is added and the entry stays as it is. | Unit `GuestSuggestionViewModelTests.testFailedSuggestionLeavesTheSavedEntryAsItIs`, `testClearingEverythingAddsNothing` |
 | T6.5 | Given the entry changed somewhere else, when I save the reflection, then it isn't added and I'm told why. | Unit `GuestSuggestionViewModelTests.testReflectionOnAnEntryChangedMeanwhileIsNotAdded` |
 | T6.6 | Given a reflection is open, when I delete all data, then it closes and Journal is empty. | UI `GuestTodayUITests.testDeleteAllClosesAnOpenReflection` |
+| T6.7 | Given my entry has fewer than three real words (empty, punctuation, filler such as "um hello test", or only swearing), when I tap Reflect on it, then no suggestion is asked for and one line asks what happened and how it felt; my words stay as written. Writing without spaces (for example Chinese) counts six characters as enough. Added 5 November 2026. | Unit `GuestReflectionInputCheckTests` (all four tests) |
 
 **T7. Next step.** As a person, I want to choose whether to keep a suggested next step, so that nothing is added without my say.
 Screen: Reflection review, Entry. States: filled, done or not done.
