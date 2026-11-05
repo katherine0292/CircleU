@@ -119,3 +119,163 @@ private struct GuestTourReporter: View {
         .allowsHitTesting(false)
     }
 }
+
+// MARK: - Overlay
+
+/// The dimmed screen with a lit window over the current target, and the step card.
+struct GuestTourOverlay: View {
+    @ObservedObject var tour: GuestTour
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var glow = false
+
+    var body: some View {
+        GeometryReader { geo in
+            let origin = geo.frame(in: .global).origin
+            let hole = currentHole(origin: origin)
+            ZStack {
+                GuestSpotlightShape(hole: hole ?? CGRect(x: geo.size.width / 2, y: geo.size.height / 2, width: 0, height: 0),
+                                    radius: 22)
+                    .fill(Color.black.opacity(0.58), style: FillStyle(eoFill: true))
+                    .contentShape(Rectangle())
+                    .onTapGesture {} // The guide leads; the app waits underneath.
+                if let hole {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(Color.white.opacity(0.95), lineWidth: 2.5)
+                        .shadow(color: .white.opacity(glow ? 0.9 : 0.4), radius: glow ? 16 : 8)
+                        .shadow(color: GuestWarm.apricotWash.opacity(0.9), radius: glow ? 22 : 10)
+                        .frame(width: hole.width, height: hole.height)
+                        .position(x: hole.midX, y: hole.midY)
+                        .scaleEffect(glow && !reduceMotion ? 1.02 : 1, anchor: .center)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+                if let hole {
+                    // A paw points at the lit area from the card's side.
+                    let below = hole.midY < geo.size.height * 0.5
+                    GuestPointer(symbol: below ? "hand.point.up.fill" : "hand.point.down.fill", dy: below ? -6 : 6)
+                        .position(x: hole.midX, y: below ? hole.maxY + 22 : hole.minY - 22)
+                        .allowsHitTesting(false)
+                }
+                card
+                    .frame(maxWidth: 360)
+                    .padding(.horizontal, 20)
+                    .position(x: geo.size.width / 2, y: cardY(hole: hole, height: geo.size.height))
+                    .id(tour.index)
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+            }
+            .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.85), value: hole)
+            .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.85), value: tour.index)
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) { glow = true }
+        }
+        .accessibilityAddTraits(.isModal)
+    }
+
+    private func currentHole(origin: CGPoint) -> CGRect? {
+        guard let target = tour.step?.target else { return nil }
+        let rect = target == .tabBar ? Self.tabBarFrame() : tour.frames[target]
+        guard let rect, rect.width > 1 else { return nil }
+        return rect.offsetBy(dx: -origin.x, dy: -origin.y).insetBy(dx: -8, dy: -8)
+    }
+
+    /// The card sits below a target in the top half, above one in the bottom half, centred otherwise.
+    private func cardY(hole: CGRect?, height: CGFloat) -> CGFloat {
+        let half: CGFloat = 105
+        guard let hole else { return height / 2 }
+        let y = hole.midY < height * 0.5 ? hole.maxY + 44 + half : hole.minY - 44 - half
+        return min(max(y, 70 + half), height - 40 - half)
+    }
+
+    private var card: some View {
+        let i = tour.index ?? 0
+        let step = GuestTour.steps[i]
+        let last = i == GuestTour.steps.count - 1
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                // A different pose for each step; it breathes and hops on each new step.
+                GuestLivingImage(asset: step.pose, breathes: true).frame(width: 60, height: 60)
+                    .id(step.pose)
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
+                    .guestHop(on: i)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Step \(i + 1) of \(GuestTour.steps.count)")
+                        .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
+                    Text(step.title).font(GuestWarm.heading(.title3)).foregroundStyle(GuestBrand.ink)
+                        .accessibilityAddTraits(.isHeader)
+                }
+                Spacer(minLength: 0)
+                Button { tour.end() } label: {
+                    Text("Skip").font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .accessibilityLabel("Skip the guide")
+            }
+            Text(step.body).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                .fixedSize(horizontal: false, vertical: true)
+            // Progress: one dot per step, the current one wider.
+            HStack(spacing: 4) {
+                ForEach(0..<GuestTour.steps.count, id: \.self) { k in
+                    Capsule().fill(k == i ? GuestWarm.cocoa : GuestWarm.cocoa.opacity(0.18))
+                        .frame(width: k == i ? 16 : 5, height: 5)
+                }
+            }
+            .accessibilityHidden(true)
+            HStack(spacing: 10) {
+                if i > 0 {
+                    Button("Back") { tour.back() }
+                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestWarm.cocoa)
+                        .padding(.horizontal, 16).frame(minHeight: 44)
+                        .guestPill(in: Capsule())
+                }
+                Spacer(minLength: 0)
+                Button(last ? "Done" : "Next") { tour.next() }
+                    .buttonStyle(GuestSmallCocoaStyle())
+            }
+        }
+        .padding(16)
+        .background(GuestWarm.cream, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: .black.opacity(0.25), radius: 20, y: 10)
+    }
+
+    /// The system tab bar isn't a SwiftUI view, so its frame is read from the window.
+    static func tabBarFrame() -> CGRect? {
+        let window = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first
+        func find(_ view: UIView) -> UITabBar? {
+            if let bar = view as? UITabBar, !bar.isHidden { return bar }
+            for sub in view.subviews { if let bar = find(sub) { return bar } }
+            return nil
+        }
+        guard let window, let bar = find(window) else { return nil }
+        return bar.convert(bar.bounds, to: window)
+    }
+}
+
+/// A full-screen dim with a rounded window cut out; the window animates between targets.
+struct GuestSpotlightShape: Shape {
+    var hole: CGRect
+    var radius: CGFloat
+
+    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>> {
+        get { AnimatablePair(AnimatablePair(hole.origin.x, hole.origin.y), AnimatablePair(hole.width, hole.height)) }
+        set { hole = CGRect(x: newValue.first.first, y: newValue.first.second, width: newValue.second.first, height: newValue.second.second) }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path(rect)
+        if hole.width > 0 { path.addRoundedRect(in: hole, cornerSize: CGSize(width: radius, height: radius), style: .continuous) }
+        return path
+    }
+}
+
+/// The "?" on Write that starts the guide.
+struct GuestTourButton: View {
+    @Environment(\.guestTour) private var tour
+    var body: some View {
+        Button { tour?.start() } label: { Image(systemName: "questionmark.circle") }
+            .accessibilityLabel("Guide")
+            .accessibilityHint("A step-by-step tour of Write, Journal and Talk.")
+    }
+}
