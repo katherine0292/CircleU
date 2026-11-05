@@ -11,6 +11,8 @@ nonisolated struct GuestReflectionSuggestion: Equatable, Sendable {
     var insight: String
     var nextStep: String
     var source: GuestSuggestionSource
+    /// Why Apple Intelligence wasn't used, when the source is guided; nil otherwise.
+    var fallbackReason: GuestFallbackReason? = nil
 }
 
 /// One wording option for Practice.
@@ -24,6 +26,31 @@ nonisolated struct GuestWordingOption: Equatable, Sendable, Identifiable {
 nonisolated struct GuestWordingSuggestions: Equatable, Sendable {
     var options: [GuestWordingOption]
     var source: GuestSuggestionSource
+    /// Why Apple Intelligence wasn't used, when the source is guided; nil otherwise.
+    var fallbackReason: GuestFallbackReason? = nil
+}
+
+/// Why guided prompts were used instead of Apple Intelligence, said in one plain line so the
+/// person knows whether they can change it (for example by turning Apple Intelligence on).
+nonisolated enum GuestFallbackReason: Equatable, Sendable, CaseIterable {
+    case deviceNotEligible
+    case appleIntelligenceOff
+    case modelNotReady
+    case needsNewerSystem
+    case unavailable
+    case modelDidNotAnswer
+
+    /// At most 60 characters (a supporting line in the screen content guidelines).
+    var line: String {
+        switch self {
+        case .deviceNotEligible: "This iPhone can’t run Apple Intelligence."
+        case .appleIntelligenceOff: "Apple Intelligence is off in Settings."
+        case .modelNotReady: "Apple Intelligence is still getting ready."
+        case .needsNewerSystem: "Apple Intelligence needs iOS 26 or later."
+        case .unavailable: "Apple Intelligence isn’t available right now."
+        case .modelDidNotAnswer: "Apple Intelligence couldn’t answer this time."
+        }
+    }
 }
 
 nonisolated enum GuestSuggestionError: Error, Equatable { case noWords }
@@ -60,37 +87,66 @@ extension GuestSuggestionSource {
 struct LocalFirstSuggestionEngine: GuestSuggesting {
     /// Debug UI tests set this to skip the model and get predictable results.
     var guidedOnly = false
+    /// nil when the on-device model can be used; otherwise why not. Tests replace it.
+    var modelUnavailableReason: @Sendable () -> GuestFallbackReason? = { LocalFirstSuggestionEngine.systemModelUnavailableReason() }
+
+    /// Reads this iPhone's Apple Intelligence status.
+    nonisolated static func systemModelUnavailableReason() -> GuestFallbackReason? {
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *) {
+            switch SystemLanguageModel.default.availability {
+            case .available: return nil
+            case .unavailable(.deviceNotEligible): return .deviceNotEligible
+            case .unavailable(.appleIntelligenceNotEnabled): return .appleIntelligenceOff
+            case .unavailable(.modelNotReady): return .modelNotReady
+            case .unavailable: return .unavailable
+            }
+        }
+        #endif
+        return .needsNewerSystem
+    }
+
+    /// The reason to show next to a guided result: none in the UI-test mode, otherwise why the
+    /// model wasn't used, or that it was asked and didn't answer.
+    private func shownReason(_ unavailable: GuestFallbackReason?) -> GuestFallbackReason? {
+        guidedOnly ? nil : (unavailable ?? .modelDidNotAnswer)
+    }
 
     func reflection(for words: String) async throws -> GuestReflectionSuggestion {
         let clean = words.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { throw GuestSuggestionError.noWords }
+        let unavailable = guidedOnly ? nil : modelUnavailableReason()
         #if canImport(FoundationModels)
-        if !guidedOnly, #available(iOS 26.0, *), case .available = SystemLanguageModel.default.availability,
+        if !guidedOnly, unavailable == nil, #available(iOS 26.0, *),
            let result = try? await AppleIntelligenceReflectionEngine(fallback: NoFallbackEngine())
                .analyze(transcript: clean, durationSeconds: 0) {
             return Self.suggestion(from: result, source: .onDevice)
         }
         #endif
-        return Self.suggestion(from: try await LocalReflectionEngine().analyze(transcript: clean, durationSeconds: 0),
-                               source: .guided)
+        var guided = Self.suggestion(from: try await LocalReflectionEngine().analyze(transcript: clean, durationSeconds: 0),
+                                     source: .guided)
+        guided.fallbackReason = shownReason(unavailable)
+        return guided
     }
 
     func wordingOptions(situation: String, goal: String, draft: String) async throws -> GuestWordingSuggestions {
+        let unavailable = guidedOnly ? nil : modelUnavailableReason()
         #if canImport(FoundationModels)
-        if !guidedOnly, #available(iOS 26.0, *), case .available = SystemLanguageModel.default.availability,
+        if !guidedOnly, unavailable == nil, #available(iOS 26.0, *),
            let options = try? await Self.modelWordingOptions(situation: situation, goal: goal, draft: draft),
            !options.isEmpty {
             return GuestWordingSuggestions(options: options, source: .onDevice)
         }
         #endif
         return GuestWordingSuggestions(options: Self.guidedWordingOptions(situation: situation, goal: goal, draft: draft),
-                                       source: .guided)
+                                       source: .guided, fallbackReason: shownReason(unavailable))
     }
 
     func conversationOptions(situation: String, goal: String, draft: String,
                              conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions {
+        let unavailable = guidedOnly ? nil : modelUnavailableReason()
         #if canImport(FoundationModels)
-        if !guidedOnly, #available(iOS 26.0, *), case .available = SystemLanguageModel.default.availability,
+        if !guidedOnly, unavailable == nil, #available(iOS 26.0, *),
            let options = try? await Self.modelWordingOptions(
             situation: situation + "\n" + conversation.suggestionContext,
             goal: goal, draft: draft), !options.isEmpty {
@@ -114,7 +170,8 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
         }
         let preferred = conversation.tone == "Soft" ? "Gentle" : conversation.tone == "Firm" ? "Firm" : "Clear"
         return GuestWordingSuggestions(options: options.filter { $0.tone == preferred }
-            + options.filter { $0.tone != preferred }, source: .guided)
+            + options.filter { $0.tone != preferred }, source: .guided,
+            fallbackReason: shownReason(unavailable))
     }
 
     private static func suggestion(from result: AIReflectionResult, source: GuestSuggestionSource)
