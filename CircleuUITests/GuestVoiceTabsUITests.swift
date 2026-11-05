@@ -24,7 +24,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
         shot(app, "v1-today")
         app.tabBars.buttons["Journal"].tap(); sleep(1); shot(app, "v2-journal")
         app.tabBars.buttons["Talk"].tap()
-        XCTAssertTrue(app.buttons["Practice a message"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Start a conversation"].waitForExistence(timeout: 5))
         audit(app, "practice"); shot(app, "v3-practice")
         app.tabBars.buttons["Write"].tap()
         let mic = app.buttons["Start dictation"]
