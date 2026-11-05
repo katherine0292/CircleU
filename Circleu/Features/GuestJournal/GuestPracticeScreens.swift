@@ -181,6 +181,14 @@ struct GuestPracticeRouteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @State private var composer: GuestPracticeComposerViewModel?
 
+    /// The Talk thread replaces the staged composer; a saved message opens once history has loaded.
+    private var usesTalk: Bool {
+        switch route {
+        case .new: return true
+        case .message(let id): return practice.message(id: id) != nil
+        }
+    }
+
     /// A kept draft from somewhere else (on its own vs. another entry) is never replaced silently.
     private var otherDraft: GuestPracticeDraft? {
         guard composer == nil, case .new(let sourceEntryID) = route, let draft = practice.keptDraft,
@@ -190,7 +198,9 @@ struct GuestPracticeRouteView: View {
 
     var body: some View {
         Group {
-            if let composer {
+            if usesTalk {
+                GuestTalkScreen(route: route, practice: practice, journal: journal)
+            } else if let composer {
                 GuestPracticeMessageView(composer: composer, practice: practice, journal: journal)
             } else if let draft = otherDraft {
                 VStack(alignment: .leading, spacing: 16) {
@@ -229,8 +239,8 @@ struct GuestPracticeRouteView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background { GuestFlowingBackground() }
-        .onAppear(perform: makeComposer)
-        .onChange(of: practice.loadState) { makeComposer() }
+        .onAppear { if !usesTalk { makeComposer() } }
+        .onChange(of: practice.loadState) { if !usesTalk { makeComposer() } }
     }
 
     private func makeComposer() {
