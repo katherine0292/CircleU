@@ -154,6 +154,7 @@ struct GuestSceneMessage: View {
         VStack(spacing: 16) {
             if !typeSize.isAccessibilitySize {
                 GuestScene(scene).clipShape(RoundedRectangle(cornerRadius: 28))
+                    .shadow(color: GuestWarm.ink.opacity(0.12), radius: 18, y: 8)
             }
             Text(text).multilineTextAlignment(.center).foregroundStyle(GuestBrand.muted)
         }
@@ -172,14 +173,14 @@ struct GuestSuccessBanner: View {
     var body: some View {
         HStack(spacing: 12) {
             if !typeSize.isAccessibilitySize {
-                Image(asset).resizable().scaledToFit().frame(width: 44, height: 44).accessibilityHidden(true)
+                Image(asset).resizable().scaledToFit().frame(width: 44, height: 44).guestHop().accessibilityHidden(true)
             }
             Text(text).font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
             Spacer(minLength: 0)
         }
         .padding(12)
-        .background(.white, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: GuestBrand.ink.opacity(0.08), radius: 8, y: 2)
+        .guestCard(in: RoundedRectangle(cornerRadius: 16))
+        .guestRiseIn()
         .accessibilityElement(children: .combine)
         .onAppear { UIAccessibility.post(notification: .announcement, argument: text) }
     }
@@ -206,7 +207,7 @@ struct GuestAvatarButton: View {
                 Image(avatar.id).resizable().scaledToFit()
                     .frame(width: size, height: size)
                     .padding(size * 0.12)
-                    .background(.white, in: Circle())
+                    .guestPill(in: Circle())
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "pencil")
                             .font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
@@ -243,7 +244,7 @@ struct GuestAvatarPicker: View {
                             Image(avatar.id).resizable().scaledToFit()
                                 .padding(8)
                                 .frame(maxWidth: .infinity).frame(height: 104)
-                                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                                .guestCard(in: RoundedRectangle(cornerRadius: 18))
                                 .overlay(RoundedRectangle(cornerRadius: 18)
                                     .stroke(isSelected ? GuestBrand.blue : .clear, lineWidth: 3))
                         }
@@ -254,7 +255,7 @@ struct GuestAvatarPicker: View {
                 }
                 .padding(20)
             }
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground() }
             .navigationTitle("Choose your otter")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
