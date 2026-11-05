@@ -59,7 +59,7 @@ final class GuestImportUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-circleu.guest.welcomeSeen.v1", "YES", "-CircleUFakeAccount", "YES", "-CircleUGuestMode"]
         app.launch()
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 10))
         app.buttons["Settings"].tap()
         let delete = app.buttons["Delete my account"]

@@ -15,13 +15,13 @@ struct GuestHomeView: View {
         TabView(selection: $tab) {
             GuestTodayView(journal: journal, practice: practice, makeDictationEngine: makeDictationEngine,
                            onSaved: { tab = .journal })
-                .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
+                .tabItem { GuestTabLabel(title: "Write", icon: "GuestIconToday") }
                 .tag(Tab.today)
             GuestJournalListView(journal: journal, practice: practice, suggester: suggester)
                 .tabItem { GuestTabLabel(title: "Journal", icon: "GuestIconJournal") }
                 .tag(Tab.journal)
             GuestPracticeHomeView(practice: practice, journal: journal)
-                .tabItem { GuestTabLabel(title: "Practice", icon: "GuestIconPractice") }
+                .tabItem { GuestTabLabel(title: "Talk", icon: "GuestIconPractice") }
                 .tag(Tab.practice)
         }
         .tint(GuestWarm.cocoa)

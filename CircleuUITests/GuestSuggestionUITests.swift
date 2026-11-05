@@ -19,7 +19,7 @@ final class GuestSuggestionUITests: XCTestCase {
         let tag = Int.random(in: 1000...9999)
         let app = XCUIApplication()
         app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("I felt stressed when my groupmate missed the deadline \(tag)")
@@ -49,7 +49,7 @@ final class GuestSuggestionUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Mark not done"].waitForExistence(timeout: 5), "reversible")
         shot(app, "s3-done")
 
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         app.buttons["Practice a message"].tap()
         let wording = app.textViews["Your wording"]
         wording.tap(); wording.typeText("Can we talk about the group project?")
