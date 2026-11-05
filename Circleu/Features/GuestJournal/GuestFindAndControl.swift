@@ -382,7 +382,7 @@ struct GuestSettingsView: View {
     private var pingu: some View {
         VStack(spacing: 6) {
             GuestAvatarButton(size: 110, framed: true)
-            Text("Your Pingu").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
+            Text("Your otter").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityHidden(true) // The button already says it.
         }
     }

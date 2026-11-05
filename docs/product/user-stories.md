@@ -344,8 +344,8 @@ Screen: Settings → Your data → confirm. States: in progress, done, error.
 | S3.2 | Given delete fails partway, when the error shows, then nothing is removed. | Unit `GuestFindAndControlTests.testFailedDeleteAllRemovesNothingIncludingDrafts` |
 | S3.3 | Given a screen opened before delete all, when it tries to save, then it can't. | Unit `GuestFindAndControlTests.testAScreenClosedByDeleteAllCantSave` |
 
-**S4. Your Pingu.** As a person, I want to choose my Pingu, so that the app feels like mine.
-Screen: Today (the Pingu badge on the scene) or Settings → Your Pingu. States: filled.
+**S4. Your otter.** As a person, I want to choose my otter avatar, so that the app feels like mine.
+Screen: Today (the Pingu badge on the scene) or Settings → Your otter. States: filled.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
