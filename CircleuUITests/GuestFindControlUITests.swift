@@ -55,19 +55,21 @@ final class GuestFindControlUITests: XCTestCase {
         app.buttons["Show all"].tap()
         app.buttons["Hide calendar"].tap()
 
-        // Practice draft survives relaunch
+        // A Talk draft survives relaunch
         app.tabBars.buttons["Talk"].tap()
-        app.buttons["Practice a message"].tap()
-        let wording = app.textViews["Your wording"]; XCTAssertTrue(wording.waitForExistence(timeout: 5))
+        app.buttons["Start a conversation"].tap()
+        app.buttons["Start"].tap()
+        let wording = talkField(app); XCTAssertTrue(wording.waitForExistence(timeout: 5))
         wording.tap(); wording.typeText("Draft wording \(tag)")
-        app.buttons["Back"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["Continue your draft"].waitForExistence(timeout: 5))
         app = launch()
         app.tabBars.buttons["Talk"].tap()
         XCTAssertTrue(app.buttons["Continue your draft"].waitForExistence(timeout: 10), "kept across relaunch")
         app.buttons["Continue your draft"].tap()
-        XCTAssertTrue((app.textViews["Your wording"].value as? String ?? "").contains("Draft wording \(tag)"))
-        app.buttons["Back"].tap()
+        if app.buttons["Start"].waitForExistence(timeout: 3) { app.buttons["Start"].tap() }
+        XCTAssertTrue((talkField(app).value as? String ?? "").contains("Draft wording \(tag)"))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
 
         // Settings: export and delete all
         app.tabBars.buttons["Write"].tap()
