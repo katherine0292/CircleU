@@ -19,7 +19,7 @@ final class GuestSuggestionUITests: XCTestCase {
         let tag = Int.random(in: 1000...9999)
         let app = XCUIApplication()
         app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
         let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("I felt stressed when my groupmate missed the deadline \(tag)")
@@ -49,20 +49,13 @@ final class GuestSuggestionUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Mark not done"].waitForExistence(timeout: 5), "reversible")
         shot(app, "s3-done")
 
-        app.tabBars.buttons["Practice"].tap()
-        app.buttons["Practice a message"].tap()
-        let wording = app.textViews["Your wording"]
-        wording.tap(); wording.typeText("Can we talk about the group project?")
-        reviewAndKeepWording(app)
-        let suggest = app.buttons["Get a suggestion"]
-        for _ in 0..<6 where !suggest.isHittable { app.swipeUp() }
-        app.buttons["Get a suggestion"].tap()
-        XCTAssertTrue(app.buttons["Use the clear option"].waitForExistence(timeout: 10))
+        startTalk(app, saying: "Can we talk about the group project?")
+        XCTAssertTrue(has(app, "Guided prompts, not a personal analysis"), "the source is always said")
+        XCTAssertTrue(has(app, "the group project"), "built from my words")
+        app.buttons["Soft"].tap()
+        app.buttons["Warmer"].tap()
+        XCTAssertTrue(has(app, "Thanks for hearing me out"), "a style changes what's shown")
         shot(app, "s4-options"); audit(app, "options")
-        app.buttons["Use the clear option"].tap()
-        XCTAssertTrue((wording.value as? String ?? "").contains("the group project"), "option in the wording box")
-        app.buttons["Undo suggestion"].tap()
-        XCTAssertEqual((wording.value as? String ?? ""), "Can we talk about the group project?", "undone")
         attach(findings.joined(separator: "\n"), "suggestion-audit.txt")
     }
 }

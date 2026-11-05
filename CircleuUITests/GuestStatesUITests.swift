@@ -12,7 +12,7 @@ final class GuestStatesUITests: XCTestCase {
     }
 
     func openSettings(_ app: XCUIApplication) {
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 10))
         app.buttons["Settings"].tap()
     }
@@ -118,11 +118,11 @@ final class GuestStatesUITests: XCTestCase {
         app.tabBars.buttons["Journal"].tap()
         XCTAssertTrue(has(app, "Nothing saved yet.", 10))
         shot(app, "journal-empty")
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         XCTAssertTrue(has(app, "Nothing practised yet."))
         shot(app, "practice-empty")
 
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         let editor = app.textViews["Your words"]
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap(); editor.typeText("Only entry today")

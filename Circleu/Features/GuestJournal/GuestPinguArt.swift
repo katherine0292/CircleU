@@ -110,7 +110,7 @@ struct GuestScene: View {
     }
 
     var body: some View {
-        Image(asset).resizable().aspectRatio(ratio, contentMode: .fit)
+        GuestLivingImage(asset: asset).aspectRatio(ratio, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .accessibilityHidden(true)
     }

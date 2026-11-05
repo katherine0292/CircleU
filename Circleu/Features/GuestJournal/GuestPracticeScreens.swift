@@ -25,13 +25,14 @@ struct GuestPracticeHomeView: View {
                     } else {
                         startCard
                         if let draft = practice.keptDraft { draftCard(draft) }
+                        fromJournal
                         history
                     }
                 }
                 .padding(24)
             }
             .background { GuestFlowingBackground() }
-            .navigationTitle("Practice")
+            .navigationTitle("Talk")
             .searchable(text: $query, prompt: "Search messages")
             .onChange(of: practice.dataGeneration) { path = [] } // Delete all closes open messages.
             .navigationDestination(for: GuestPracticeRoute.self) { route in
@@ -54,7 +55,7 @@ struct GuestPracticeHomeView: View {
                     GuestScene(.practiceStudio)
                 }
                 HStack(spacing: 8) {
-                    Text("Practice a message")
+                    Text("Start a conversation")
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 8)
                     Image(systemName: "arrow.right").accessibilityHidden(true)
@@ -72,12 +73,42 @@ struct GuestPracticeHomeView: View {
             .contentShape(RoundedRectangle(cornerRadius: 24))
         }
         .buttonStyle(GuestSpringPressStyle())
-        .accessibilityLabel("Practice a message")
+        .accessibilityLabel("Start a conversation")
+        .guestTourTarget(.talkStart)
+    }
+
+    /// Moments with a context that haven't been talked through yet: one tap starts, filled in.
+    @ViewBuilder private var fromJournal: some View {
+        let moments = journal.entries.filter { $0.context != nil && practice.linkedMessages(to: $0.id).isEmpty }.prefix(3)
+        if !moments.isEmpty, query.isEmpty {
+            Text("From your journal").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                .accessibilityAddTraits(.isHeader)
+            ForEach(Array(moments)) { entry in
+                Button { path.append(.new(sourceEntryID: entry.id)) } label: {
+                    HStack(spacing: 12) {
+                        if let context = entry.context {
+                            Image(context.asset).resizable().scaledToFit().frame(width: 40, height: 40).accessibilityHidden(true)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(entry.originalWords).lineLimit(2).foregroundStyle(GuestBrand.ink)
+                            Text("Prepare what to say").font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.blue)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(GuestBrand.muted)
+                    }
+                    .padding(12).guestCard(in: RoundedRectangle(cornerRadius: 18))
+                }
+                .buttonStyle(GuestSpringPressStyle())
+                .guestRiseIn()
+                .accessibilityLabel("Prepare what to say: \(entry.originalWords)")
+            }
+        }
     }
 
     private var emptyState: some View {
         VStack(spacing: 18) {
             startCard
+            fromJournal
             Text("Nothing practised yet.").foregroundStyle(GuestBrand.muted)
                 .multilineTextAlignment(.center)
         }
@@ -127,6 +158,11 @@ struct GuestPracticeHomeView: View {
             let messages = all.filter { GuestSearch.matches($0, query) }
             if messages.isEmpty && !query.isEmpty {
                 GuestPinguMessage(asset: "GuestPinguThoughtful", text: "No messages match “\(query)”.", height: 110)
+            }
+            if !messages.isEmpty {
+                Text("Earlier conversations").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
+                    .padding(.top, 4).accessibilityAddTraits(.isHeader)
+                    .guestTourTarget(.talkHistory)
             }
             ForEach(messages) { message in
                 Button { path.append(.message(message.id)) } label: {
@@ -181,6 +217,14 @@ struct GuestPracticeRouteView: View {
     @ObservedObject var journal: GuestJournalViewModel
     @State private var composer: GuestPracticeComposerViewModel?
 
+    /// The Talk thread replaces the staged composer; a saved message opens once history has loaded.
+    private var usesTalk: Bool {
+        switch route {
+        case .new: return true
+        case .message(let id): return practice.message(id: id) != nil
+        }
+    }
+
     /// A kept draft from somewhere else (on its own vs. another entry) is never replaced silently.
     private var otherDraft: GuestPracticeDraft? {
         guard composer == nil, case .new(let sourceEntryID) = route, let draft = practice.keptDraft,
@@ -190,7 +234,9 @@ struct GuestPracticeRouteView: View {
 
     var body: some View {
         Group {
-            if let composer {
+            if usesTalk {
+                GuestTalkScreen(route: route, practice: practice, journal: journal)
+            } else if let composer {
                 GuestPracticeMessageView(composer: composer, practice: practice, journal: journal)
             } else if let draft = otherDraft {
                 VStack(alignment: .leading, spacing: 16) {
@@ -229,8 +275,8 @@ struct GuestPracticeRouteView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background { GuestFlowingBackground() }
-        .onAppear(perform: makeComposer)
-        .onChange(of: practice.loadState) { makeComposer() }
+        .onAppear { if !usesTalk { makeComposer() } }
+        .onChange(of: practice.loadState) { if !usesTalk { makeComposer() } }
     }
 
     private func makeComposer() {
