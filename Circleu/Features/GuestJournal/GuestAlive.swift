@@ -66,3 +66,42 @@ struct GuestLivingImage: View {
             }
     }
 }
+
+/// A pointing paw that nudges toward something (Welcome's Get started, the guide's targets).
+struct GuestPointer: View {
+    var symbol = "hand.point.down.fill"
+    var dx: CGFloat = 0
+    var dy: CGFloat = 6
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var on = false
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 26, weight: .semibold))
+            .foregroundStyle(GuestWarm.cream)
+            .shadow(color: GuestWarm.cocoa.opacity(0.5), radius: 4, y: 2)
+            .offset(x: on && !reduceMotion ? dx : 0, y: on && !reduceMotion ? dy : 0)
+            .onAppear { withAnimation(.easeInOut(duration: 0.55).repeatForever(autoreverses: true)) { on = true } }
+            .accessibilityHidden(true)
+    }
+}
+
+/// A small speech bubble that pops in after a moment, for the otter's hello.
+struct GuestHelloBubble: View {
+    let text: String
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+
+    var body: some View {
+        Text(text)
+            .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.ink)
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(GuestWarm.cream, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: GuestWarm.ink.opacity(0.12), radius: 8, y: 3)
+            .fixedSize(horizontal: false, vertical: true)
+            .scaleEffect(shown || reduceMotion ? 1 : 0.4, anchor: .bottomLeading)
+            .opacity(shown || reduceMotion ? 1 : 0)
+            .onAppear { withAnimation(.spring(response: 0.45, dampingFraction: 0.6).delay(0.6)) { shown = true } }
+            .accessibilityHidden(true)
+    }
+}
