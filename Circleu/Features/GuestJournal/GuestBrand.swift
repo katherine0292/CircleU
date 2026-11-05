@@ -6,14 +6,19 @@ import UIKit
 /// the new guest journal screens only; the existing app keeps its own design. Every text style
 /// scales with Dynamic Type.
 enum GuestBrand {
-    static let ink = Color(red: 13 / 255, green: 20 / 255, blue: 33 / 255)
-    static let blue = Color(red: 5 / 255, green: 79 / 255, blue: 201 / 255)
-    static let ice = Color(red: 245 / 255, green: 250 / 255, blue: 255 / 255)
-    /// A soft blue card behind Pingu art (Today's microphone card). Decorative only, never behind text.
-    static let wash = Color(red: 227 / 255, green: 238 / 255, blue: 255 / 255)
-    /// Secondary text; 6.1:1 on `ice`, 6.4:1 on white.
-    static let muted = Color(red: 79 / 255, green: 96 / 255, blue: 119 / 255)
-    /// Delete actions; 6.5:1 on `ice`, so it stays readable at footnote size.
+    // Warm palette from Tuanwei the otter (6 November 2026); the names are kept so every screen
+    // moves together. Contrast is measured on `ice` (now oat).
+    /// Text: cocoa ink, 13:1.
+    static let ink = GuestWarm.ink
+    /// The accent (was blue): cocoa, 7.8:1; white text on it 8.9:1.
+    static let blue = GuestWarm.cocoa
+    /// The page colour (was ice): oat.
+    static let ice = GuestWarm.oat
+    /// A soft sage wash behind art or a selected choice. Decorative only, never behind small text.
+    static let wash = GuestWarm.sageWash
+    /// Secondary text; 5.6:1 on oat.
+    static let muted = GuestWarm.muted
+    /// Delete actions; 5.9:1 on oat, so it stays readable at footnote size.
     static let danger = Color(red: 176 / 255, green: 32 / 255, blue: 32 / 255)
 
     /// Plus Jakarta Sans (SIL Open Font License, bundled with its licence), registered for this
@@ -48,16 +53,22 @@ enum GuestBrand {
     static func applyNavigationBarFonts() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
-        if let large = uiFont(size: 34, weight: 700) {
+        if let large = roundedFont(size: 34, weight: .bold) {
             appearance.largeTitleTextAttributes = [.font: UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: large),
                                                    .foregroundColor: UIColor(ink)]
         }
-        if let inline = uiFont(size: 17, weight: 600) {
+        if let inline = roundedFont(size: 17, weight: .semibold) {
             appearance.titleTextAttributes = [.font: UIFontMetrics(forTextStyle: .headline).scaledFont(for: inline),
                                               .foregroundColor: UIColor(ink)]
         }
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+
+    /// The rounded system font used for titles (matches `GuestWarm.heading`).
+    private static func roundedFont(size: CGFloat, weight: UIFont.Weight) -> UIFont? {
+        let base = UIFont.systemFont(ofSize: size, weight: weight)
+        return base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: size) } ?? base
     }
 
     /// A UIKit brand font at a weight on the variable font's `wght` axis (200–800). Without an
@@ -89,7 +100,6 @@ enum GuestBrand {
     }
 }
 
-/// Full-width brand button: filled (primary) or white (secondary), 54 pt tall.
 /// A small outlined question chip (Today's starters). At least 44 points tall.
 struct GuestChipButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -98,9 +108,9 @@ struct GuestChipButtonStyle: ButtonStyle {
             .foregroundStyle(GuestBrand.blue)
             .padding(.horizontal, 14)
             .frame(minHeight: 44)
-            .background(.white, in: Capsule())
-            .overlay(Capsule().stroke(GuestBrand.blue.opacity(0.3), lineWidth: 1))
-            .opacity(configuration.isPressed ? 0.75 : 1)
+            .guestPill(in: Capsule())
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
             .contentShape(Capsule())
     }
 }
@@ -149,19 +159,16 @@ struct GuestChipFlow: Layout {
     }
 }
 
+/// Full-width brand button: filled cocoa (primary) or glass (secondary), 54 pt tall.
 struct GuestBrandButtonStyle: ButtonStyle {
     var filled = true
-    @Environment(\.isEnabled) private var isEnabled
 
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(GuestBrand.font(.headline, .semibold))
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity, minHeight: 54)
-            .padding(.horizontal, 16)
-            .foregroundStyle(filled ? Color.white : GuestBrand.blue)
-            .background(filled ? GuestBrand.blue : Color.white, in: RoundedRectangle(cornerRadius: 18))
-            .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
-            .contentShape(RoundedRectangle(cornerRadius: 18))
+        if filled {
+            GuestCocoaButtonStyle().makeBody(configuration: configuration)
+        } else {
+            GuestGlassButtonStyle().makeBody(configuration: configuration)
+        }
     }
 }
