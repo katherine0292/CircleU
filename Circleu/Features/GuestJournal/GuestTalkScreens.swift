@@ -560,3 +560,480 @@ final class GuestTalkModel: ObservableObject {
         return out
     }
 }
+
+// MARK: - Screen
+
+struct GuestTalkScreen: View {
+    @StateObject private var model: GuestTalkModel
+    @ObservedObject var practice: GuestPracticeViewModel
+    @ObservedObject var journal: GuestJournalViewModel
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var focused: Bool
+    @State private var voice = false
+    @State private var confirmDelete = false
+    @State private var addingNote = false
+    @State private var note = ""
+    @AppStorage(GuestAvatars.storageKey) private var avatarID = GuestAvatars.defaultID
+
+    init(route: GuestPracticeRoute, practice: GuestPracticeViewModel, journal: GuestJournalViewModel) {
+        _model = StateObject(wrappedValue: GuestTalkModel(route: route, practice: practice, journal: journal))
+        self.practice = practice
+        self.journal = journal
+    }
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    setupPills
+                    if model.items.isEmpty { empty }
+                    ForEach(model.items) { item in
+                        row(item).id(item.id).guestRiseIn()
+                    }
+                    if let error = model.saveError {
+                        Label(error, systemImage: "exclamationmark.circle").font(GuestBrand.font(.footnote))
+                    }
+                }
+                .padding(.horizontal, 16).padding(.vertical, 12)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .onChange(of: model.items.count) { _, _ in
+                // Once the new card has its height, so it never sits under the composer.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { proxy.scrollTo(model.items.last?.id, anchor: .bottom) }
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom) { composer }
+        .background { GuestFlowingBackground() }
+        .navigationTitle(model.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button("Change the scene", systemImage: "slider.horizontal.3") { model.showsSetup = true }
+                    Button("Add a note", systemImage: "note.text.badge.plus") { note = ""; addingNote = true }
+                    if model.saved != nil {
+                        Button("Delete conversation", systemImage: "trash", role: .destructive) { confirmDelete = true }
+                    }
+                } label: { Image(systemName: "ellipsis.circle") }
+                .accessibilityLabel("More")
+            }
+        }
+        .sheet(isPresented: $model.showsSetup) {
+            GuestTalkSetupSheet(setup: $model.setup, avatarID: avatarID, fromJournal: model.sourceEntryID != nil,
+                                isFirst: model.items.isEmpty && model.saved == nil) {
+                model.showsSetup = false
+                model.setupChanged()
+                focused = true
+            }
+        }
+        .sheet(isPresented: $voice) {
+            GuestVoiceReviewSheet(engine: practice.makeDictationEngine()) { text in
+                model.input = [model.input.trimmingCharacters(in: .whitespacesAndNewlines), text].filter { !$0.isEmpty }.joined(separator: " ")
+            }
+        }
+        .alert("Delete this conversation?", isPresented: $confirmDelete) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    if let id = model.saved?.id, await practice.deleteMessage(id: id, journal: journal) == nil { dismiss() }
+                }
+            }
+        }
+        .alert("Add a note", isPresented: $addingNote) {
+            TextField("Something that helps, like what happened next", text: $note)
+            Button("Cancel", role: .cancel) {}
+            Button("Add") { model.addNote(note) }
+        } message: {
+            Text("Notes stay with this conversation. They’re never sent.")
+        }
+        .onChange(of: model.input) { _, _ in model.inputChanged() }
+        .onChange(of: practice.dataGeneration) { _, _ in dismiss() }
+    }
+
+    // MARK: Pieces
+
+    private var setupPills: some View {
+        GuestChipFlow(spacing: 6) {
+            Button { model.showsSetup = true } label: {
+                HStack(spacing: 4) {
+                    Image(GuestTalkSetup.asset(for: model.setup.scene)).resizable().scaledToFit().frame(width: 22, height: 22)
+                    Text(model.setup.scene)
+                }
+            }
+            Button(model.setup.tone) { model.showsSetup = true }
+            if !model.setup.hope.isEmpty { Button("Hope: \(model.setup.hope)") { model.showsSetup = true }.lineLimit(1) }
+        }
+        .buttonStyle(GuestChipButtonStyle())
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Scene and tone")
+    }
+
+    private var empty: some View {
+        VStack(spacing: 8) {
+            GuestLivingImage(asset: "GuestPinguWelcome", breathes: true).frame(height: 96)
+                .guestWave()
+            Text("What do you want to say?").font(GuestWarm.heading(.headline))
+            Text("Write it your way. You’ll get it back in your tone.").font(GuestBrand.font(.footnote))
+                .foregroundStyle(GuestBrand.muted)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity).padding(.vertical, 24)
+    }
+
+    @ViewBuilder private func row(_ item: GuestTalkItem) -> some View {
+        switch item {
+        case .message(let m): GuestTalkMessageRow(message: m, model: model, avatarID: avatarID)
+        case .said(_, let text):
+            GuestTalkSaidRow(text: text, avatarID: avatarID)
+                .transition(.asymmetric(insertion: .scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity),
+                                        removal: .opacity))
+        case .context(_, let text):
+            Label(text, systemImage: "note.text").font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .accessibilityLabel("Note: \(text)")
+        case .suggestion(let s):
+            GuestTalkSuggestionCard(suggestion: s, live: model.isLive(s.id), model: model)
+                .transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.7, anchor: .trailing).combined(with: .opacity)))
+        case .reading(let r): GuestTalkReadingCard(choice: r, live: model.isLive(r.id), model: model)
+        case .thinking: GuestTalkThinking()
+        }
+    }
+
+    private var composer: some View {
+        VStack(spacing: 8) {
+            if !model.hint.isEmpty {
+                Text(model.hint).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                    .multilineTextAlignment(.center).frame(maxWidth: .infinity)
+            }
+            GuestTalkModeSwitch(mode: $model.mode)
+            HStack(alignment: .bottom, spacing: 8) {
+                TextField(model.mode == .mine ? "What do you want to say?" : "Paste or type their reply…",
+                          text: $model.input, axis: .vertical)
+                    .lineLimit(1...4).focused($focused)
+                    .padding(.vertical, 10)
+                    .accessibilityLabel(model.mode == .mine ? "What you want to say" : "Their reply")
+                Button { focused = false; voice = true } label: {
+                    Image(systemName: "mic").font(.system(size: 17, weight: .semibold)).foregroundStyle(GuestWarm.sage)
+                        .frame(width: 36, height: 36)
+                }
+                .accessibilityLabel("Speak instead")
+                Button { focused = false; model.sendOrStop() } label: {
+                    Image(systemName: model.isThinking ? "stop.fill" : "arrow.up")
+                        .font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
+                        .frame(width: 36, height: 36)
+                        .background(model.canSend ? GuestWarm.cocoa : GuestWarm.muted.opacity(0.35), in: Circle())
+                }
+                .disabled(!model.canSend)
+                .accessibilityLabel(model.isThinking ? "Stop" : "Send")
+            }
+            .padding(.leading, 14).padding(.trailing, 6).padding(.vertical, 4)
+            .guestCard(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .padding(.horizontal, 16).padding(.top, 8).padding(.bottom, 8)
+        .background { GuestBottomFade() }
+    }
+}
+
+// MARK: - Rows
+
+private struct GuestTalkAvatar: View {
+    let avatarID: String
+    var body: some View {
+        Image(avatarID).resizable().scaledToFit().padding(2).frame(width: 28, height: 28)
+            .background(.white, in: Circle()).accessibilityHidden(true)
+    }
+}
+
+private struct GuestTalkMessageRow: View {
+    let message: GuestTalkMessage
+    @ObservedObject var model: GuestTalkModel
+    let avatarID: String
+    @State private var draft = ""
+
+    var body: some View {
+        VStack(alignment: message.isMine ? .trailing : .leading, spacing: 3) {
+            if model.editingID == message.id {
+                VStack(alignment: .leading, spacing: 6) {
+                    TextField("Edit", text: $draft, axis: .vertical).lineLimit(1...6)
+                        .accessibilityLabel("Edit message")
+                    HStack {
+                        Text("Everything after this starts again.").font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                        Spacer()
+                        Button("Cancel") { model.editingID = nil }.font(GuestBrand.font(.footnote, .semibold))
+                        Button("Send") { model.edit(message.id, to: draft) }
+                            .font(GuestBrand.font(.footnote, .bold)).foregroundStyle(.white)
+                            .padding(.horizontal, 12).frame(minHeight: 32).background(GuestWarm.cocoa, in: Capsule())
+                    }
+                }
+                .padding(10)
+                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(GuestWarm.cocoa, lineWidth: 2))
+                .onAppear { draft = message.text }
+            } else {
+                HStack(alignment: .bottom, spacing: 6) {
+                    if message.isMine { Spacer(minLength: 40) }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(message.isMine ? "YOU WANT TO SAY" : "THEY REPLIED")
+                            .font(GuestBrand.font(.caption2, .bold)).foregroundStyle(message.isMine ? GuestBrand.muted : GuestWarm.sage)
+                        Text(message.text).foregroundStyle(message.isMine ? GuestBrand.muted : GuestBrand.ink)
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(message.isMine ? GuestWarm.cream.opacity(0.92) : .white,
+                                in: UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: message.isMine ? 18 : 5,
+                                                           bottomTrailingRadius: message.isMine ? 5 : 18, topTrailingRadius: 18))
+                    .overlay {
+                        if message.isMine {
+                            UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 18, bottomTrailingRadius: 5, topTrailingRadius: 18)
+                                .strokeBorder(GuestWarm.cocoa.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
+                    if message.isMine { GuestTalkAvatar(avatarID: avatarID) } else { Spacer(minLength: 40) }
+                }
+                HStack(spacing: 2) {
+                    if message.versions.count > 1 {
+                        GuestTalkPager(index: message.v, count: message.versions.count, what: "version") { model.switchVersion(message.id, to: $0) }
+                    }
+                    if !model.isThinking {
+                        Button("Edit", systemImage: "pencil") { model.editingID = message.id }
+                            .labelStyle(.titleAndIcon).font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
+                            .frame(minHeight: 32)
+                    }
+                    if message.stopped {
+                        Button("Retry") { model.retry(message.id) }.font(GuestBrand.font(.caption, .semibold))
+                    }
+                }
+                .padding(.trailing, message.isMine ? 34 : 0)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: message.isMine ? .trailing : .leading)
+    }
+}
+
+private struct GuestTalkSaidRow: View {
+    let text: String
+    let avatarID: String
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 6) {
+            Spacer(minLength: 40)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("YOU SAID ✓").font(GuestBrand.font(.caption2, .bold)).foregroundStyle(.white.opacity(0.8))
+                Text(text).foregroundStyle(.white)
+            }
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(LinearGradient(colors: [GuestWarm.cocoaLight, GuestWarm.cocoa], startPoint: .top, endPoint: .bottom),
+                        in: UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 18, bottomTrailingRadius: 5, topTrailingRadius: 18))
+            .accessibilityElement(children: .combine)
+            GuestTalkAvatar(avatarID: avatarID)
+        }
+    }
+}
+
+private struct GuestTalkPager: View {
+    let index: Int
+    let count: Int
+    let what: String
+    let go: (Int) -> Void
+    var body: some View {
+        HStack(spacing: 0) {
+            Button { go(index - 1) } label: { Image(systemName: "chevron.left").frame(width: 28, height: 32) }
+                .disabled(index == 0).accessibilityLabel("Previous \(what)")
+            Text("\(index + 1)/\(count)").monospacedDigit()
+            Button { go(index + 1) } label: { Image(systemName: "chevron.right").frame(width: 28, height: 32) }
+                .disabled(index == count - 1).accessibilityLabel("Next \(what)")
+        }
+        .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
+    }
+}
+
+private struct GuestTalkThinking: View {
+    @State private var on = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<3) { i in
+                Circle().fill(GuestWarm.cocoa.opacity(0.5)).frame(width: 7, height: 7)
+                    .offset(y: on && !reduceMotion ? -4 : 0)
+                    .animation(.easeInOut(duration: 0.45).repeatForever().delay(Double(i) * 0.15), value: on)
+            }
+        }
+        .padding(12).guestCard(in: Capsule())
+        .onAppear { on = true }
+        .accessibilityLabel("Making suggestions")
+    }
+}
+
+private struct GuestTalkSuggestionCard: View {
+    let suggestion: GuestTalkSuggestion
+    let live: Bool
+    @ObservedObject var model: GuestTalkModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let reading = suggestion.readingTitle {
+                Text("You read it as: \(reading.lowercased())").font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            }
+            Text(suggestion.isReply ? "YOU COULD REPLY" : "SAY IT LIKE THIS")
+                .font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.muted)
+            if live {
+                HStack(spacing: 6) {
+                    ForEach(GuestTalkSetup.tones, id: \.self) { tone in
+                        Button(tone) { model.update(suggestion.id) { $0.tone = tone; $0.copied = false } }
+                            .font(GuestBrand.font(.caption, .semibold))
+                            .foregroundStyle(suggestion.tone == tone ? .white : GuestBrand.ink)
+                            .padding(.horizontal, 12).frame(minHeight: 32)
+                            .guestPill(in: Capsule(), selected: suggestion.tone == tone)
+                            .guestSquish(on: suggestion.tone == tone)
+                            .accessibilityAddTraits(suggestion.tone == tone ? .isSelected : [])
+                    }
+                }
+            }
+            Text(suggestion.shown).font(GuestBrand.font(.body, .semibold)).foregroundStyle(GuestBrand.ink)
+                .fixedSize(horizontal: false, vertical: true)
+                .contentTransition(.opacity)
+                .animation(.easeInOut(duration: 0.25), value: suggestion.shown)
+            if live {
+                GuestChipFlow(spacing: 6) {
+                    ForEach(GuestTalkStyle.allCases) { style in
+                        Button(style.rawValue) { model.update(suggestion.id) { $0.style = style; $0.copied = false } }
+                            .font(GuestBrand.font(.caption, .semibold))
+                            .foregroundStyle(suggestion.style == style ? .white : GuestBrand.ink)
+                            .padding(.horizontal, 10).frame(minHeight: 30)
+                            .background(suggestion.style == style ? GuestWarm.sage : GuestWarm.cream, in: Capsule())
+                            .overlay(Capsule().strokeBorder(suggestion.style == style ? .clear : GuestWarm.cocoa.opacity(0.18)))
+                            .accessibilityAddTraits(suggestion.style == style ? .isSelected : [])
+                    }
+                }
+                if let why = suggestion.why {
+                    Text(why).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                }
+                Text(suggestion.source.label).font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                if let reason = suggestion.fallbackReason {
+                    Label(reason.line, systemImage: "info.circle").font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
+                }
+                HStack(spacing: 8) {
+                    Button(suggestion.copied ? "Copied" : "Copy") { model.copy(suggestion.id) }
+                        .buttonStyle(GuestSmallCocoaStyle())
+                        .sensoryFeedback(.success, trigger: suggestion.copied)
+                    // Said out loud without copying counts too.
+                    Button("I said it ✓") { model.markSaid(suggestion.id) }
+                        .font(GuestBrand.font(.subheadline, .bold)).foregroundStyle(GuestWarm.cocoa)
+                        .padding(.horizontal, 14).frame(minHeight: 40)
+                        .guestPill(in: Capsule())
+                        .guestSquish(on: suggestion.copied)
+                    Spacer(minLength: 0)
+                    if suggestion.gens.count > 1 {
+                        GuestTalkPager(index: suggestion.g, count: suggestion.gens.count, what: "suggestion") { k in
+                            model.update(suggestion.id) { $0.g = k; $0.style = .asIs; $0.copied = false }
+                        }
+                    }
+                    Button { model.regenerate(suggestion.id) } label: {
+                        Image(systemName: "arrow.clockwise").font(.system(size: 15, weight: .bold)).foregroundStyle(GuestWarm.cocoa)
+                            .frame(width: 40, height: 40).guestPill(in: Circle())
+                    }
+                    .buttonStyle(GuestSpringPressStyle())
+                    .disabled(model.isThinking)
+                    .accessibilityLabel("Regenerate")
+                }
+            } else {
+                Button("Copy") { UIPasteboard.general.string = suggestion.shown }
+                    .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.muted)
+            }
+        }
+        .padding(14)
+        .guestCard(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .opacity(live ? 1 : 0.85)
+    }
+}
+
+private struct GuestTalkReadingCard: View {
+    let choice: GuestTalkReadingChoice
+    let live: Bool
+    @ObservedObject var model: GuestTalkModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("TWO WAYS TO READ THIS").font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.muted)
+            if choice.pick == nil {
+                Text("A guess from their words. You know them better, so pick the one that fits.")
+                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                ForEach(Array(choice.readings.enumerated()), id: \.element.id) { index, reading in
+                    Button { withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) { model.pick(choice.id, index) } } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(reading.title).font(GuestBrand.font(.subheadline, .bold)).foregroundStyle(GuestBrand.ink)
+                            Text(reading.body).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(12)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(GuestWarm.cocoa.opacity(0.15)))
+                    }
+                    .buttonStyle(GuestSpringPressStyle())
+                    .sensoryFeedback(.selection, trigger: choice.pick)
+                    .disabled(model.isThinking)
+                }
+                Button("Neither fits") { withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) { model.pick(choice.id, -1) } }
+                    .font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestWarm.cocoa).frame(minHeight: 36)
+                    .disabled(model.isThinking)
+            } else if let pick = choice.pick, pick >= 0 {
+                Label(choice.readings[pick].title, systemImage: "checkmark.circle.fill")
+                    .font(GuestBrand.font(.subheadline, .bold)).foregroundStyle(GuestBrand.ink)
+                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+            } else {
+                Text("Neither reading fit.").font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            }
+        }
+        .padding(14)
+        .guestCard(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+}
+
+/// "I want to say / They replied": one switch, a glass knob that slides between them.
+private struct GuestTalkModeSwitch: View {
+    @Binding var mode: GuestTalkModel.Mode
+    @Namespace private var knob
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        HStack(spacing: 0) {
+            option("I want to say", .mine)
+            option("They replied", .theirs)
+        }
+        .padding(3)
+        .guestGlass(in: Capsule())
+    }
+
+    private func option(_ title: String, _ value: GuestTalkModel.Mode) -> some View {
+        Button {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.75)) { mode = value }
+        } label: {
+            Text(title).font(GuestBrand.font(.subheadline, .bold))
+                .foregroundStyle(mode == value ? GuestWarm.cocoa : GuestBrand.muted)
+                .frame(maxWidth: .infinity, minHeight: 36)
+                .background {
+                    if mode == value {
+                        Capsule().fill(.white).shadow(color: GuestWarm.ink.opacity(0.12), radius: 4, y: 1)
+                            .matchedGeometryEffect(id: "knob", in: knob)
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(mode == value ? .isSelected : [])
+    }
+}
+
+/// A compact cocoa capsule for an action inside a card (Copy).
+struct GuestSmallCocoaStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(GuestBrand.font(.subheadline, .bold)).foregroundStyle(.white)
+            .padding(.horizontal, 18).frame(minHeight: 40)
+            .background(LinearGradient(colors: [GuestWarm.cocoaLight, GuestWarm.cocoa], startPoint: .top, endPoint: .bottom), in: Capsule())
+            .shadow(color: GuestWarm.cocoa.opacity(0.25), radius: 6, y: 3)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.95 : 1)
+            .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.55), value: configuration.isPressed)
+    }
+}
