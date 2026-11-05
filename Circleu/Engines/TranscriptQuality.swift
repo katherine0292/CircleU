@@ -69,6 +69,30 @@ struct TranscriptQuality: Equatable {
         return fillerRatio >= 0.35 || roughRatio >= 0.20
     }
 
+    /// Fewest words, not counting filler or swearing, that a typed journal entry needs before a
+    /// reflection is asked for. Lower than `evaluate`'s spoken-transcript bar: a short typed
+    /// sentence such as "I felt stressed before the group meeting" is enough to reflect on.
+    static let minimumReflectionWords = 3
+    /// The same bar for writing without spaces between words (for example Chinese or Japanese).
+    static let minimumUnspacedReflectionCharacters = 6
+
+    /// Whether a typed entry has enough to reflect on. Empty text, punctuation, filler ("um hello
+    /// test") and swearing on their own don't count, so they never reach a reflection engine.
+    static func hasEnoughToReflect(_ text: String) -> Bool {
+        let words = normalizedWords(text).filter { !fillerWords.contains($0) && !roughWords.contains($0) }
+        if words.count >= minimumReflectionWords { return true }
+        let unspacedLetters = words.filter { $0.count > 1 && $0.unicodeScalars.contains(where: isUnspacedScript) }
+            .reduce(0) { $0 + $1.count }
+        return unspacedLetters >= minimumUnspacedReflectionCharacters
+    }
+
+    private static func isUnspacedScript(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.value {
+        case 0x3040...0x30FF, 0x3400...0x4DBF, 0x4E00...0x9FFF, 0xF900...0xFAFF, 0x0E00...0x0E7F: true
+        default: false
+        }
+    }
+
     static func containsRoughLanguage(_ transcript: String) -> Bool {
         normalizedWords(transcript).contains { roughWords.contains($0) }
     }
