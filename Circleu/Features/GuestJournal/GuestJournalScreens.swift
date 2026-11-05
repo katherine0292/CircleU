@@ -361,6 +361,8 @@ struct GuestJournalListView: View {
     @State private var query = ""
     @State private var showsCalendar = false
     @State private var reflectingID: UUID?
+    /// "Save and prepare what to say" from a reflection opens Talk for that entry, filled in.
+    @State private var talkingEntryID: UUID?
     @State private var taggingEntry: GuestJournalEntry?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedDay: Date?
@@ -454,17 +456,26 @@ struct GuestJournalListView: View {
             }
             .navigationDestination(item: $reflectingID) { id in
                 if let entry = journal.entries.first(where: { $0.id == id }) {
-                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester) { reflectingID = nil }
+                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester,
+                                              onDone: { reflectingID = nil },
+                                              onPrepare: {
+                                                  reflectingID = nil
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { talkingEntryID = id }
+                                              })
                 }
+            }
+            .navigationDestination(item: $talkingEntryID) { id in
+                // The moment first, then Talk on top of it: Back lands on the moment's timeline.
+                GuestEntryDetailView(entryID: id, journal: journal, practice: practice, suggester: suggester, startsTalk: true)
             }
             .toolbar {
                 Button { withAnimation { showsCalendar.toggle() } } label: {
-                    Image(systemName: showsCalendar ? "list.bullet" : "calendar")
+                    Image(systemName: showsCalendar ? "list.bullet" : "calendar").guestTourTarget(.journalCalendar)
                 }
                 .accessibilityLabel(showsCalendar ? "Hide calendar" : "Show calendar")
             }
             .navigationDestination(for: UUID.self) { id in
-                GuestEntryDetailView(entryID: id, journal: journal, practice: practice)
+                GuestEntryDetailView(entryID: id, journal: journal, practice: practice, suggester: suggester)
             }
         }
         .id(practice.dataGeneration) // Delete all closes anything open in Journal.
@@ -625,6 +636,24 @@ struct GuestEntryDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $practiceRoute) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
+            }
+            .navigationDestination(isPresented: $reflecting) {
+                if let suggester, let entry = journal.entries.first(where: { $0.id == entryID }) {
+                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester,
+                                              onDone: { reflecting = false },
+                                              onPrepare: {
+                                                  reflecting = false
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                                                      practiceRoute = .new(sourceEntryID: entryID)
+                                                  }
+                                              })
+                }
+            }
+            .sheet(item: $tagging) { entry in GuestEntryTagPicker(entry: entry, journal: journal) }
+            .onAppear {
+                guard startsTalk, !startedTalk else { return }
+                startedTalk = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { practiceRoute = .new(sourceEntryID: entryID) }
             }
             .alert("Delete this entry?", isPresented: $confirmDelete) {
                 let linked = practice.linkedMessages(to: entryID)
