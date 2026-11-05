@@ -183,6 +183,20 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
             fallbackReason: shownReason(unavailable))
     }
 
+    func replyOptions(situation: String, hope: String, theirReply: String, reading: String?,
+                      conversation: GuestPracticeConversation) async throws -> GuestWordingSuggestions {
+        let unavailable = guidedOnly ? nil : modelUnavailableReason()
+        #if canImport(FoundationModels)
+        if !guidedOnly, unavailable == nil, #available(iOS 26.0, *),
+           let options = try? await Self.modelReplyOptions(situation: situation, hope: hope, theirReply: theirReply,
+                                                            reading: reading, context: conversation.suggestionContext),
+           !options.isEmpty {
+            return GuestWordingSuggestions(options: options, source: .onDevice)
+        }
+        #endif
+        return GuestWordingSuggestions(options: [], source: .guided, fallbackReason: shownReason(unavailable))
+    }
+
     private static func suggestion(from result: AIReflectionResult, source: GuestSuggestionSource)
         -> GuestReflectionSuggestion {
         GuestReflectionSuggestion(summary: result.summary, feeling: result.emotion, insight: result.insight,
@@ -224,6 +238,32 @@ struct LocalFirstSuggestionEngine: GuestSuggesting {
             """
         let response = try await session.respond(to: prompt).content
         // Malformed output (for example "] … [") must never trap.
+        guard let start = response.firstIndex(of: "["), let end = response.lastIndex(of: "]"), start < end,
+              let data = String(response[start...end]).data(using: .utf8) else { return [] }
+        struct Option: Decodable { let tone: String; let text: String }
+        return validatedOptions(try JSONDecoder().decode([Option].self, from: data).map { ($0.tone, $0.text) })
+    }
+
+    @available(iOS 26.0, *)
+    private static func modelReplyOptions(situation: String, hope: String, theirReply: String, reading: String?,
+                                          context: String) async throws -> [GuestWordingOption] {
+        let session = LanguageModelSession(instructions: """
+            You help someone reply in a real conversation. Be warm, plain and brief. Reply to what the other \
+            person actually said. Never invent facts, guess motives as certain, diagnose, or pressure. \
+            Return only valid JSON.
+            """)
+        let prompt = """
+            Write three short replies the person could send back, in these tones: Gentle, Clear, Firm.
+            Each must answer their latest message directly. Keep each under 45 words.
+            Return exactly: [{"tone": "Gentle", "text": ""}, {"tone": "Clear", "text": ""}, {"tone": "Firm", "text": ""}]
+            Situation: \(situation)
+            What the person hopes for: \(hope)
+            Conversation so far:
+            \(context)
+            Their latest message: \(theirReply)
+            How the person reads it (their own choice, may be wrong): \(reading ?? "not sure")
+            """
+        let response = try await session.respond(to: prompt).content
         guard let start = response.firstIndex(of: "["), let end = response.lastIndex(of: "]"), start < end,
               let data = String(response[start...end]).data(using: .utf8) else { return [] }
         struct Option: Decodable { let tone: String; let text: String }
