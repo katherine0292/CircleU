@@ -308,8 +308,9 @@ struct GuestWriteView: View {
         ZStack(alignment: .top) {
             GuestFlowingBackground()
             if showsScene {
-                Image(GuestSceneArt.today(listening: dictation.isActive).asset)
-                    .resizable().scaledToFill()
+                // The room drifts very slowly, so Write feels lived in.
+                GuestLivingImage(asset: GuestSceneArt.today(listening: dictation.isActive).asset, drifts: true)
+                    .aspectRatio(2, contentMode: .fill)
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: Self.sceneHeight)
                     .clipped()
