@@ -8,6 +8,7 @@ struct GuestHomeView: View {
     let makeDictationEngine: () -> any GuestDictationEngine
     let suggester: any GuestSuggesting
     @State private var tab: Tab = .today
+    @StateObject private var tour = GuestTour()
 
     enum Tab: Hashable { case today, journal, practice }
 
@@ -25,6 +26,15 @@ struct GuestHomeView: View {
                 .tag(Tab.practice)
         }
         .tint(GuestWarm.cocoa)
+        .environment(\.guestTour, tour)
+        // The guide moves to each step's tab, then lights up its target.
+        .onChange(of: tour.index) { _, _ in
+            guard let step = tour.step else { return }
+            let target: Tab = [.today, .journal, .practice][step.tab]
+            if tab != target { withAnimation(.easeInOut(duration: 0.25)) { tab = target } }
+        }
+        .overlay { if tour.isActive { GuestTourOverlay(tour: tour).transition(.opacity) } }
+        .animation(.easeInOut(duration: 0.3), value: tour.isActive)
         .preferredColorScheme(.light) // Dark mode is deferred; the palette is light-only for now.
         .font(GuestBrand.font(.body))
         .foregroundStyle(GuestBrand.ink)
