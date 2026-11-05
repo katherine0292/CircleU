@@ -17,6 +17,8 @@ final class GuestReflectionReviewViewModel: ObservableObject {
     /// The suggested step, offered with "Add this step".
     @Published private(set) var suggestedNextStep = ""
     @Published private(set) var source: GuestSuggestionSource?
+    /// Why Apple Intelligence wasn't used for this suggestion, if it wasn't.
+    @Published private(set) var fallbackReason: GuestFallbackReason?
     @Published private(set) var isSaving = false
     @Published private(set) var saveError: String?
     private var generated = ("", "", "")
@@ -50,6 +52,7 @@ final class GuestReflectionReviewViewModel: ObservableObject {
             generated = (suggestion.summary, suggestion.feeling, suggestion.insight)
             suggestedNextStep = suggestion.nextStep
             source = suggestion.source
+            fallbackReason = suggestion.fallbackReason
             state = .ready
         } catch {
             state = .failed
@@ -178,6 +181,10 @@ struct GuestReflectionReviewView: View {
                     .accessibilityAddTraits(.isHeader)
                 if let source = review.source {
                     Text(source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                }
+                if let reason = review.fallbackReason {
+                    Label(reason.line, systemImage: "info.circle")
+                        .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
                 field("What happened", text: $review.summary)
                 field("A feeling that might fit", text: $review.feeling)
