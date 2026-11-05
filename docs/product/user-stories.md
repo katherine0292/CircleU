@@ -340,9 +340,10 @@ Screen: Settings → Your data → confirm. States: in progress, done, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| S3.1 | Given entries, messages and drafts, when I confirm Delete all data, then all of them are gone and my Pingu resets. | Unit `GuestFindAndControlTests.testDeleteAllRemovesEverythingInTheGuestJournalOnly`; `GuestPinguArtTests.testDeleteAllResetsTheChosenPingu`; UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
+| S3.1 | Given entries, messages and drafts, when I confirm Delete all data, then all of them are gone and my otter avatar resets. | Unit `GuestFindAndControlTests.testDeleteAllRemovesEverythingInTheGuestJournalOnly`; `GuestPinguArtTests.testDeleteAllResetsTheChosenPingu`; UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
 | S3.2 | Given delete fails partway, when the error shows, then nothing is removed. | Unit `GuestFindAndControlTests.testFailedDeleteAllRemovesNothingIncludingDrafts` |
 | S3.3 | Given a screen opened before delete all, when it tries to save, then it can't. | Unit `GuestFindAndControlTests.testAScreenClosedByDeleteAllCantSave` |
+| S3.4 | Given Settings, when I only tap Delete all data, then nothing starts and "Hold to delete" shows; when I hold it, the row fills and the confirmation opens. VoiceOver opens the confirmation directly. | UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
 
 **S4. Your otter.** As a person, I want to choose my otter avatar, so that the app feels like mine.
 Screen: Today (the Pingu badge on the scene) or Settings → Your otter. States: filled.
