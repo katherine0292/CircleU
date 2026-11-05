@@ -484,3 +484,28 @@ struct GuestHoldToConfirm<Label: View>: View {
         .accessibilityAction { onConfirm() }
     }
 }
+
+/// A friendly wave when something appears (Talk's empty page): a small rock, twice, then still.
+private struct GuestWave: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var trigger = 0
+
+    func body(content: Content) -> some View {
+        content
+            .keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, angle in
+                view.rotationEffect(.degrees(reduceMotion ? 0 : angle), anchor: .bottom)
+            } keyframes: { _ in
+                KeyframeTrack {
+                    SpringKeyframe(-8, duration: 0.18)
+                    SpringKeyframe(7, duration: 0.22)
+                    SpringKeyframe(-5, duration: 0.2)
+                    SpringKeyframe(0, duration: 0.35, spring: .bouncy)
+                }
+            }
+            .onAppear { if !reduceMotion { trigger += 1 } }
+    }
+}
+
+extension View {
+    func guestWave() -> some View { modifier(GuestWave()) }
+}
