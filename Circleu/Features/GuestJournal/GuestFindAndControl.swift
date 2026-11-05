@@ -99,7 +99,7 @@ struct GuestCalendarView: View {
             }
         }
         .padding(12)
-        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+        .guestCard(in: RoundedRectangle(cornerRadius: 18))
     }
 
     private var weekdaySymbols: [String] {
@@ -323,7 +323,8 @@ struct GuestSettingsView: View {
                     }
                     .disabled(settings.isWorking)
                     divider
-                    Button(role: .destructive) { confirmDelete = true } label: {
+                    // Held to open the confirmation, so it can't be reached by a stray tap.
+                    GuestHoldToConfirm(onConfirm: { confirmDelete = true }) {
                         row("Delete all data", destructive: true, chevron: false) { dangerIcon("trash") }
                     }
                     .disabled(settings.isWorking)
@@ -354,7 +355,7 @@ struct GuestSettingsView: View {
             .buttonStyle(.plain)
             .padding(20)
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
         .alert("Delete all data?", isPresented: $confirmDelete) {
@@ -382,7 +383,7 @@ struct GuestSettingsView: View {
     private var pingu: some View {
         VStack(spacing: 6) {
             GuestAvatarButton(size: 110, framed: true)
-            Text("Your Pingu").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
+            Text("Your otter").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.ink)
                 .accessibilityHidden(true) // The button already says it.
         }
     }
@@ -414,7 +415,7 @@ struct GuestSettingsView: View {
             Text(title).font(GuestBrand.font(.footnote, .semibold)).foregroundStyle(GuestBrand.muted)
                 .padding(.leading, 16).accessibilityAddTraits(.isHeader)
             VStack(spacing: 0) { rows() }
-                .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .guestCard(in: RoundedRectangle(cornerRadius: 18))
         }
     }
 
@@ -460,7 +461,7 @@ struct GuestPrivacySheet: View {
                 VStack(spacing: 16) {
                     GuestPinguDecoration(asset: "GuestPinguQuietBreath", height: 140)
                     VStack(spacing: 4) {
-                        Text("Kept on this iPhone").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                        Text("Kept on this iPhone").font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                             .accessibilityAddTraits(.isHeader)
                         GuestSummary("Not uploaded or synced.")
                     }
@@ -476,11 +477,11 @@ struct GuestPrivacySheet: View {
                             .padding(.horizontal, 16).padding(.vertical, 12)
                         }
                     }
-                    .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                    .guestCard(in: RoundedRectangle(cornerRadius: 18))
                 }
                 .padding(20)
             }
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground() }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }

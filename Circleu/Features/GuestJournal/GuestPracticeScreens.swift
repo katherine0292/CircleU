@@ -30,7 +30,7 @@ struct GuestPracticeHomeView: View {
                 }
                 .padding(24)
             }
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground() }
             .navigationTitle("Practice")
             .searchable(text: $query, prompt: "Search messages")
             .onChange(of: practice.dataGeneration) { path = [] } // Delete all closes open messages.
@@ -59,17 +59,19 @@ struct GuestPracticeHomeView: View {
                     Spacer(minLength: 8)
                     Image(systemName: "arrow.right").accessibilityHidden(true)
                 }
-                .font(GuestBrand.font(.headline, .semibold)).foregroundStyle(.white)
+                .font(GuestWarm.heading(.headline)).foregroundStyle(.white)
                 .padding(.horizontal, 20).padding(.vertical, 16)
                 .frame(maxWidth: .infinity, minHeight: 54)
-                .background(GuestBrand.blue)
+                .background(LinearGradient(colors: [GuestWarm.cocoaLight, GuestWarm.cocoa],
+                                           startPoint: .top, endPoint: .bottom))
             }
             .frame(maxWidth: .infinity)
             .background(GuestBrand.wash)
             .clipShape(RoundedRectangle(cornerRadius: 24))
+            .shadow(color: GuestWarm.ink.opacity(0.12), radius: 18, y: 8)
             .contentShape(RoundedRectangle(cornerRadius: 24))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GuestSpringPressStyle())
         .accessibilityLabel("Practice a message")
     }
 
@@ -100,7 +102,7 @@ struct GuestPracticeHomeView: View {
                 Spacer(minLength: 0)
             }
             .padding(12)
-            .background(.white, in: RoundedRectangle(cornerRadius: 18))
+            .guestCard(in: RoundedRectangle(cornerRadius: 18))
             .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(GuestBrand.blue.opacity(0.4), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
             .contentShape(RoundedRectangle(cornerRadius: 18))
         }
@@ -130,6 +132,7 @@ struct GuestPracticeHomeView: View {
                 Button { path.append(.message(message.id)) } label: {
                     GuestPracticeRow(message: message, entries: journal.entries)
                 }
+                .guestRiseIn()
                 .buttonStyle(.plain)
             }
         }
@@ -145,7 +148,7 @@ struct GuestPracticeRow: View {
         VStack(alignment: .trailing, spacing: 4) {
             Text(message.wording).lineLimit(3).foregroundStyle(GuestBrand.ink)
                 .padding(.horizontal, 16).padding(.vertical, 12)
-                .background(.white, in: GuestBubbleShape())
+                .guestCard(in: GuestBubbleShape())
                 .overlay(GuestBubbleShape().stroke(GuestBrand.muted.opacity(0.18)))
             HStack(spacing: 6) {
                 if message.sourceEntryID != nil {
@@ -192,7 +195,7 @@ struct GuestPracticeRouteView: View {
             } else if let draft = otherDraft {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("You have an unsaved practice draft")
-                        .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.ink)
+                        .font(GuestWarm.heading(.title3)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
                     Text(GuestPracticeTag.label(sourceEntryID: draft.sourceEntryID, entries: journal.entries))
                         .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
@@ -225,7 +228,7 @@ struct GuestPracticeRouteView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .onAppear(perform: makeComposer)
         .onChange(of: practice.loadState) { makeComposer() }
     }
@@ -346,7 +349,7 @@ struct GuestPracticeMessageView: View {
                     }
                 }
                 .padding(.horizontal, 24).padding(.vertical, 12)
-                .background(GuestBrand.ice)
+                .background { GuestBottomFade() }
             }
         }
         .onChange(of: composer.saveError) { _, error in
@@ -356,7 +359,7 @@ struct GuestPracticeMessageView: View {
                 UIAccessibility.post(notification: .announcement, argument: error)
             }
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle(composer.isEditing ? stageTitle : "Conversation")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -463,7 +466,7 @@ struct GuestPracticeMessageView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).padding(14)
-                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                .guestCard(in: RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Your intent")
@@ -491,8 +494,9 @@ struct GuestPracticeMessageView: View {
         VStack(alignment: .leading, spacing: 16) {
             if !typeSize.isAccessibilitySize {
                 GuestScene(.refineWorkbench).clipShape(RoundedRectangle(cornerRadius: 24))
+                    .shadow(color: GuestWarm.ink.opacity(0.12), radius: 18, y: 8)
             }
-            Text("Find your words").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+            Text("Find your words").font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
             if composer.isSuggesting {
                 HStack(spacing: 12) {
@@ -543,7 +547,7 @@ struct GuestPracticeMessageView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading).padding(14)
-            .background(.white, in: RoundedRectangle(cornerRadius: 16))
+            .guestCard(in: RoundedRectangle(cornerRadius: 16))
             .accessibilityElement(children: .combine)
             ForEach(composer.otherWordings) { option in
                 VStack(alignment: .leading, spacing: 8) {
@@ -555,7 +559,7 @@ struct GuestPracticeMessageView: View {
                         .accessibilityLabel("Use the \(option.tone.lowercased()) option")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).padding(14)
-                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                .guestCard(in: RoundedRectangle(cornerRadius: 16))
             }
         }
     }
@@ -573,7 +577,7 @@ struct GuestPracticeMessageView: View {
                             if composer.scene == scene { Image(systemName: "checkmark.circle.fill").accessibilityHidden(true) }
                         }
                         .frame(maxWidth: .infinity).padding(10)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                        .guestCard(in: RoundedRectangle(cornerRadius: 18))
                         .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(
                             composer.scene == scene ? GuestBrand.blue : .clear, lineWidth: 2))
                     }
@@ -595,8 +599,11 @@ struct GuestPracticeMessageView: View {
         ForEach(["Soft", "Balanced", "Firm"], id: \.self) { tone in
             Button { composer.tone = tone } label: {
                 Text(tone).font(GuestBrand.font(.subheadline, .semibold)).fixedSize()
+                    .foregroundStyle(composer.tone == tone ? Color.white : GuestBrand.ink)
                     .padding(.horizontal, 16).frame(minHeight: 44)
-                    .background(composer.tone == tone ? GuestBrand.blue.opacity(0.15) : .white, in: Capsule())
+                    .guestPill(in: Capsule(), selected: composer.tone == tone)
+                    .guestSquish(on: composer.tone == tone)
+                    .animation(.easeInOut(duration: 0.2), value: composer.tone)
             }
             .buttonStyle(.plain).accessibilityAddTraits(composer.tone == tone ? .isSelected : [])
         }
@@ -606,8 +613,9 @@ struct GuestPracticeMessageView: View {
         VStack(alignment: .leading, spacing: 16) {
             if !typeSize.isAccessibilitySize {
                 GuestScene(.replyReading).clipShape(RoundedRectangle(cornerRadius: 24))
+                    .shadow(color: GuestWarm.ink.opacity(0.12), radius: 18, y: 8)
             }
-            Text("Keep the conversation going").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+            Text("Keep the conversation going").font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                 .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
             Text("Paste their reply, add context, or both")
                 .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.muted)
@@ -617,12 +625,12 @@ struct GuestPracticeMessageView: View {
             }
             Text("Their reply").font(GuestBrand.font(.headline, .semibold))
             TextEditor(text: $composer.replyText).scrollContentBackground(.hidden)
-                .frame(minHeight: 120).padding(12).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .frame(minHeight: 120).padding(12).guestCard(in: RoundedRectangle(cornerRadius: 18))
                 .accessibilityLabel("Their reply")
             voiceButton(.reply)
             Text("More context").font(GuestBrand.font(.headline, .semibold))
             TextEditor(text: $composer.replyContext).scrollContentBackground(.hidden)
-                .frame(minHeight: 100).padding(12).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                .frame(minHeight: 100).padding(12).guestCard(in: RoundedRectangle(cornerRadius: 18))
                 .accessibilityLabel("More context")
             voiceButton(.context)
         }
@@ -638,7 +646,7 @@ struct GuestPracticeMessageView: View {
                             Text(turn.text).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading).padding(14)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                        .guestCard(in: RoundedRectangle(cornerRadius: 16))
                         .accessibilityElement(children: .combine)
                     }
                 }
@@ -649,7 +657,7 @@ struct GuestPracticeMessageView: View {
 
     private func hero(_ title: String, asset: String) -> some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(title).font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+            Text(title).font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                 .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
             if !typeSize.isAccessibilitySize {
                 Spacer(minLength: 0)
@@ -687,7 +695,7 @@ struct GuestPracticeMessageView: View {
         }
         .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
         .padding(.horizontal, 10).padding(.vertical, 6)
-        .background(.white, in: Capsule())
+        .guestPill(in: Capsule())
     }
 
     private var form: some View {
@@ -701,7 +709,7 @@ struct GuestPracticeMessageView: View {
                 .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
             }
             Text("Your wording")
-                .font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                .font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
             if let warning = practice.draftWarning {
                 Label(warning, systemImage: "info.circle")
@@ -772,10 +780,9 @@ struct GuestPracticeMessageView: View {
             Label(title, systemImage: "plus")
                 .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue)
                 .padding(.horizontal, 14).frame(minHeight: 44)
-                .background(.white, in: Capsule())
-                .overlay(Capsule().strokeBorder(GuestBrand.blue.opacity(0.3)))
+                .guestPill(in: Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GuestSpringPressStyle())
         .accessibilityLabel("Add \(title.lowercased())")
     }
 
@@ -787,7 +794,7 @@ struct GuestPracticeMessageView: View {
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 12).padding(.top, 12).padding(.bottom, 52)
                 .frame(minHeight: 180)
-                .background(.white, in: GuestBubbleShape())
+                .guestCard(in: GuestBubbleShape())
                 .accessibilityLabel("Your wording")
             Button {
                 composer.copy { UIPasteboard.general.string = $0 }
@@ -876,7 +883,7 @@ struct GuestPracticeMessageView: View {
             min(320, max(180, width - 64))
         }
         .frame(maxHeight: .infinity, alignment: .topLeading)
-        .background(.white, in: RoundedRectangle(cornerRadius: 20))
+        .guestCard(in: RoundedRectangle(cornerRadius: 20))
     }
 
     private var savedMessage: some View {
@@ -919,7 +926,7 @@ struct GuestPracticeMessageView: View {
                 .accessibilityLabel(title)
         }
         .padding(12)
-        .background(.white, in: RoundedRectangle(cornerRadius: 14))
+        .guestCard(in: RoundedRectangle(cornerRadius: 14))
     }
 
     private func detail(_ title: String, icon: String, _ text: String) -> some View {
