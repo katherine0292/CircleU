@@ -635,9 +635,17 @@ struct GuestEntryDetailView: View {
     let entryID: UUID
     @ObservedObject var journal: GuestJournalViewModel
     @ObservedObject var practice: GuestPracticeViewModel
+    /// Reflect from this page; nil hides it.
+    var suggester: (any GuestSuggesting)? = nil
+    /// Opens Talk for this moment right away (after "Save and prepare what to say").
+    var startsTalk = false
+    @State private var startedTalk = false
     /// Owned here, outside the content that refreshes, so an open editor survives list reloads.
     @State private var editor: GuestEntryEditorViewModel?
     @State private var practiceRoute: GuestPracticeRoute?
+    @State private var reflecting = false
+    @State private var tagging: GuestJournalEntry?
+    @State private var keyboardShown = false
     @State private var confirmDelete = false
     @State private var deleteError: String?
     @Environment(\.dismiss) private var dismiss
