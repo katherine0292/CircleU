@@ -24,14 +24,45 @@ extension XCTestCase {
         return app
     }
 
-    /// Message-first Practice: review the words, then keep them, to reach the "Your wording" screen.
-    func reviewAndKeepWording(_ app: XCUIApplication) {
-        app.buttons["Review wording"].tap()
-        let keep = app.buttons["Keep my wording"]
-        XCTAssertTrue(keep.waitForExistence(timeout: 10), "the result screen offers to keep my words")
-        for _ in 0..<4 where !keep.isHittable { app.swipeUp() }
-        keep.tap()
-        XCTAssertTrue(app.buttons["Save"].waitForExistence(timeout: 10), "back on my wording")
+    /// Talk: from the Talk tab, start a conversation, accept the scene, and send my words.
+    /// Waits for the "Say it like this" card.
+    func startTalk(_ app: XCUIApplication, saying words: String, fromTalkTab: Bool = true) {
+        if fromTalkTab {
+            app.tabBars.buttons["Talk"].tap()
+            let start = app.buttons["Start a conversation"]
+            XCTAssertTrue(start.waitForExistence(timeout: 10))
+            for _ in 0..<6 where !start.isHittable { app.swipeUp() }
+            start.tap()
+        }
+        let begin = app.buttons["Start"]
+        XCTAssertTrue(begin.waitForExistence(timeout: 5), "the scene card opens first")
+        begin.tap()
+        sendInTalk(app, words)
+        XCTAssertTrue(app.staticTexts["SAY IT LIKE THIS"].waitForExistence(timeout: 15), "a suggestion arrives")
+    }
+
+    /// Types into the Talk composer (mine or theirs, whichever is selected) and sends.
+    func sendInTalk(_ app: XCUIApplication, _ words: String) {
+        let field = talkField(app)
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap(); field.typeText(words)
+        app.buttons["Send"].tap()
+    }
+
+    func talkField(_ app: XCUIApplication) -> XCUIElement {
+        let labels = ["What you want to say", "Their reply"]
+        return app.descendants(matching: .any).matching(NSPredicate(format: "label IN %@ AND (elementType == %d OR elementType == %d)",
+            labels, XCUIElement.ElementType.textField.rawValue, XCUIElement.ElementType.textView.rawValue)).firstMatch
+    }
+
+    /// Copies the live suggestion and marks it said.
+    func sayIt(_ app: XCUIApplication) {
+        let copy = app.buttons["Copy"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 10))
+        copy.tap()
+        XCTAssertTrue(app.buttons["Copied"].waitForExistence(timeout: 3))
+        app.buttons["I said it ✓"].tap()
+        XCTAssertTrue(app.staticTexts["YOU SAID ✓"].waitForExistence(timeout: 5))
     }
 
     /// Skips tests that contact the real Firebase Dev project unless they were asked for:

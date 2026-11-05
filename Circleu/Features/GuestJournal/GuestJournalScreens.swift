@@ -8,6 +8,7 @@ struct GuestHomeView: View {
     let makeDictationEngine: () -> any GuestDictationEngine
     let suggester: any GuestSuggesting
     @State private var tab: Tab = .today
+    @StateObject private var tour = GuestTour()
 
     enum Tab: Hashable { case today, journal, practice }
 
@@ -15,16 +16,25 @@ struct GuestHomeView: View {
         TabView(selection: $tab) {
             GuestTodayView(journal: journal, practice: practice, makeDictationEngine: makeDictationEngine,
                            onSaved: { tab = .journal })
-                .tabItem { GuestTabLabel(title: "Today", icon: "GuestIconToday") }
+                .tabItem { GuestTabLabel(title: "Write", icon: "GuestIconToday") }
                 .tag(Tab.today)
             GuestJournalListView(journal: journal, practice: practice, suggester: suggester)
                 .tabItem { GuestTabLabel(title: "Journal", icon: "GuestIconJournal") }
                 .tag(Tab.journal)
             GuestPracticeHomeView(practice: practice, journal: journal)
-                .tabItem { GuestTabLabel(title: "Practice", icon: "GuestIconPractice") }
+                .tabItem { GuestTabLabel(title: "Talk", icon: "GuestIconPractice") }
                 .tag(Tab.practice)
         }
         .tint(GuestWarm.cocoa)
+        .environment(\.guestTour, tour)
+        // The guide moves to each step's tab, then lights up its target.
+        .onChange(of: tour.index) { _, _ in
+            guard let step = tour.step else { return }
+            let target: Tab = [.today, .journal, .practice][step.tab]
+            if tab != target { withAnimation(.easeInOut(duration: 0.25)) { tab = target } }
+        }
+        .overlay { if tour.isActive { GuestTourOverlay(tour: tour).transition(.opacity) } }
+        .animation(.easeInOut(duration: 0.3), value: tour.isActive)
         .preferredColorScheme(.light) // Dark mode is deferred; the palette is light-only for now.
         .font(GuestBrand.font(.body))
         .foregroundStyle(GuestBrand.ink)
@@ -79,9 +89,12 @@ struct GuestTodayView: View {
                         NavigationLink {
                             GuestSettingsView(journal: journal, practice: practice)
                         } label: {
-                            Image(systemName: "gearshape")
+                            Image(systemName: "gearshape").guestTourTarget(.settings)
                         }
                         .accessibilityLabel("Settings")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        GuestTourButton()
                     }
                 }
         }
@@ -180,14 +193,16 @@ struct GuestWriteView: View {
                                 .frame(minHeight: 44)
                             }
                             .accessibilityLabel(journal.selectedQuestion == nil ? "Suggest a question" : "Change question")
+                            .guestTourTarget(.writePrompt)
                             .disabled(journal.isSaving)
                             Spacer(minLength: 0)
                         }
-                        micButton
+                        micButton.guestTourTarget(.writeMic)
                     }
                     .padding(.horizontal, 16).padding(.bottom, 12)
                 }
                 .guestCard(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .guestTourTarget(.writeCard)
                 if let message = dictation.message {
                     VStack(alignment: .leading, spacing: 8) {
                         Label(message, systemImage: "info.circle")
@@ -219,6 +234,7 @@ struct GuestWriteView: View {
                 }
             }
             .buttonStyle(GuestCocoaButtonStyle())
+            .guestTourTarget(.writeSave)
             .disabled(journal.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || journal.isSaving)
             .padding(.horizontal, 24).padding(.vertical, 12)
         }
@@ -244,6 +260,7 @@ struct GuestWriteView: View {
                     dictation.interrupt(); focused = false; choosingPingu = true
                 })
                 .frame(width: 44, height: 44)
+                .guestTourTarget(.avatar)
                 .guestHop(on: showsScene) // Catches the scene as it shrinks away, and lets it go again.
             }
         }
@@ -291,8 +308,9 @@ struct GuestWriteView: View {
         ZStack(alignment: .top) {
             GuestFlowingBackground()
             if showsScene {
-                Image(GuestSceneArt.today(listening: dictation.isActive).asset)
-                    .resizable().scaledToFill()
+                // The room drifts very slowly, so Write feels lived in.
+                GuestLivingImage(asset: GuestSceneArt.today(listening: dictation.isActive).asset, drifts: true)
+                    .aspectRatio(2, contentMode: .fill)
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: Self.sceneHeight)
                     .clipped()
@@ -343,6 +361,8 @@ struct GuestJournalListView: View {
     @State private var query = ""
     @State private var showsCalendar = false
     @State private var reflectingID: UUID?
+    /// "Save and prepare what to say" from a reflection opens Talk for that entry, filled in.
+    @State private var talkingEntryID: UUID?
     @State private var taggingEntry: GuestJournalEntry?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedDay: Date?
@@ -361,6 +381,7 @@ struct GuestJournalListView: View {
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
                     GuestSceneMessage(scene: .journalDesk, text: "Nothing saved yet.")
+                        .guestTourTarget(.journalList)
                         .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
@@ -399,7 +420,12 @@ struct GuestJournalListView: View {
                                 ForEach(group.entries) { entry in
                                     GuestJournalRow(entry: entry,
                                         hasPractice: !practice.linkedMessages(to: entry.id).isEmpty,
+                                        asksOutcome: practice.linkedMessages(to: entry.id).contains { m in
+                                            let turns = m.conversation?.turns ?? []
+                                            return turns.contains { $0.kind == .wording } && !turns.contains { $0.kind == .outcome }
+                                        },
                                         onTags: { taggingEntry = entry })
+                                        .modifier(GuestFirstRowTarget(isFirst: entry.id == entries.first?.id))
                                         .guestRiseIn()
                                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                                         .listRowSeparator(.hidden).listRowBackground(Color.clear)
@@ -436,17 +462,26 @@ struct GuestJournalListView: View {
             }
             .navigationDestination(item: $reflectingID) { id in
                 if let entry = journal.entries.first(where: { $0.id == id }) {
-                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester) { reflectingID = nil }
+                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester,
+                                              onDone: { reflectingID = nil },
+                                              onPrepare: {
+                                                  reflectingID = nil
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { talkingEntryID = id }
+                                              })
                 }
+            }
+            .navigationDestination(item: $talkingEntryID) { id in
+                // The moment first, then Talk on top of it: Back lands on the moment's timeline.
+                GuestEntryDetailView(entryID: id, journal: journal, practice: practice, suggester: suggester, startsTalk: true)
             }
             .toolbar {
                 Button { withAnimation { showsCalendar.toggle() } } label: {
-                    Image(systemName: showsCalendar ? "list.bullet" : "calendar")
+                    Image(systemName: showsCalendar ? "list.bullet" : "calendar").guestTourTarget(.journalCalendar)
                 }
                 .accessibilityLabel(showsCalendar ? "Hide calendar" : "Show calendar")
             }
             .navigationDestination(for: UUID.self) { id in
-                GuestEntryDetailView(entryID: id, journal: journal, practice: practice)
+                GuestEntryDetailView(entryID: id, journal: journal, practice: practice, suggester: suggester)
             }
         }
         .id(practice.dataGeneration) // Delete all closes anything open in Journal.
@@ -459,6 +494,8 @@ struct GuestJournalListView: View {
 private struct GuestJournalRow: View {
     let entry: GuestJournalEntry
     let hasPractice: Bool
+    /// Something was said in a linked conversation, and how it went isn't written yet.
+    var asksOutcome = false
     let onTags: () -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -479,6 +516,10 @@ private struct GuestJournalRow: View {
                                     .font(.system(size: 16)).foregroundStyle(GuestBrand.blue)
                             }
                             if hasPractice { GuestBrandIcon(asset: "GuestIconPractice", size: 18) }
+                            if asksOutcome {
+                                Text("How did it go?").font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.blue)
+                                    .padding(.horizontal, 8).padding(.vertical, 2).background(GuestBrand.wash, in: Capsule())
+                            }
                         }
                         .accessibilityElement(children: .ignore).accessibilityLabel(statuses)
                     }
@@ -535,7 +576,8 @@ private struct GuestJournalRow: View {
         var parts: [String] = []
         if entry.reflection != nil { parts.append("Has a reflection") }
         if entry.nextStep != nil { parts.append(entry.nextStepDone ? "Next step done" : "Next step not done") }
-        if hasPractice { parts.append("Has a practice message") }
+        if hasPractice { parts.append("Has a conversation") }
+        if asksOutcome { parts.append("How did it go? Not written yet") }
         return parts.joined(separator: ", ")
     }
 }
@@ -560,7 +602,7 @@ private struct GuestReflectionOfferCard: View {
     private var heading: some View {
         HStack(spacing: 12) {
             if !typeSize.isAccessibilitySize {
-                Image("GuestPinguJournal").resizable().scaledToFit().frame(width: 40, height: 40)
+                GuestLivingImage(asset: "GuestPinguJournal", breathes: true).frame(width: 40, height: 40)
                     .guestHop().accessibilityHidden(true)
             }
             Text("Saved").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
@@ -593,9 +635,17 @@ struct GuestEntryDetailView: View {
     let entryID: UUID
     @ObservedObject var journal: GuestJournalViewModel
     @ObservedObject var practice: GuestPracticeViewModel
+    /// Reflect from this page; nil hides it.
+    var suggester: (any GuestSuggesting)? = nil
+    /// Opens Talk for this moment right away (after "Save and prepare what to say").
+    var startsTalk = false
+    @State private var startedTalk = false
     /// Owned here, outside the content that refreshes, so an open editor survives list reloads.
     @State private var editor: GuestEntryEditorViewModel?
     @State private var practiceRoute: GuestPracticeRoute?
+    @State private var reflecting = false
+    @State private var tagging: GuestJournalEntry?
+    @State private var keyboardShown = false
     @State private var confirmDelete = false
     @State private var deleteError: String?
     @Environment(\.dismiss) private var dismiss
@@ -607,6 +657,24 @@ struct GuestEntryDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $practiceRoute) { route in
                 GuestPracticeRouteView(route: route, practice: practice, journal: journal)
+            }
+            .navigationDestination(isPresented: $reflecting) {
+                if let suggester, let entry = journal.entries.first(where: { $0.id == entryID }) {
+                    GuestReflectionReviewView(entry: entry, journal: journal, suggester: suggester,
+                                              onDone: { reflecting = false },
+                                              onPrepare: {
+                                                  reflecting = false
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                                                      practiceRoute = .new(sourceEntryID: entryID)
+                                                  }
+                                              })
+                }
+            }
+            .sheet(item: $tagging) { entry in GuestEntryTagPicker(entry: entry, journal: journal) }
+            .onAppear {
+                guard startsTalk, !startedTalk else { return }
+                startedTalk = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { practiceRoute = .new(sourceEntryID: entryID) }
             }
             .alert("Delete this entry?", isPresented: $confirmDelete) {
                 let linked = practice.linkedMessages(to: entryID)
@@ -664,49 +732,99 @@ struct GuestEntryDetailView: View {
         }
     }
 
+    /// One moment and everything that grew from it, as a timeline: what happened, the reflection,
+    /// the conversation, how it went. The next step on the line waits at the bottom.
     private func detail(for entry: GuestJournalEntry) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(entry.createdAt, format: .dateTime.hour().minute())
-                    .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                    .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
-                Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16).guestCard(in: RoundedRectangle(cornerRadius: 18))
-                    .accessibilityLabel(Text("My words: \(entry.originalWords)"))
-                GuestEntryReflectionSection(entry: entry, journal: journal)
-                let linked = practice.linkedMessages(to: entry.id)
-                if case .failed(let message) = practice.loadState {
-                    // Unknown is not "none": say so rather than hiding linked messages.
-                    HStack {
-                        Text(message).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
-                        Button("Try again") { Task { await practice.load() } }
-                            .font(GuestBrand.font(.footnote, .semibold))
-                    }
-                    .padding(.top, 8)
-                } else if !linked.isEmpty {
-                    ForEach(linked) { message in
-                        Button { practiceRoute = .message(message.id) } label: {
-                            GuestPracticeRow(message: message, entries: journal.entries)
+        let linked = practice.linkedMessages(to: entry.id)
+        let hasReflection = entry.reflection != nil || entry.nextStep != nil
+        let said = linked.contains { $0.conversation?.turns.contains { $0.kind == .wording } ?? !$0.wording.isEmpty }
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                GuestTimelineStep(title: "What happened · your words", done: true, isLast: false) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(entry.createdAt, format: .dateTime.hour().minute())
+                            .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                            .accessibilityLabel(Text("Created \(entry.createdAt.formatted(date: .complete, time: .shortened))"))
+                        Text(entry.originalWords).font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityLabel(Text("My words: \(entry.originalWords)"))
+                        HStack(spacing: 8) {
+                            tagButton(entry.context.map { ($0.title, $0.asset) }, empty: "+ Context", entry: entry)
+                            tagButton(entry.feeling.map { ($0.title, $0.asset) }, empty: "+ Feeling", entry: entry)
                         }
-                        .buttonStyle(.plain)
+                    }
+                    .padding(16).guestCard(in: RoundedRectangle(cornerRadius: 18))
+                }
+                GuestTimelineStep(title: "Reflection", done: hasReflection, isLast: false) {
+                    if hasReflection {
+                        GuestEntryReflectionSection(entry: entry, journal: journal)
+                    } else {
+                        GuestTimelinePlaceholder(text: "Not yet. It can help to see what’s underneath.")
                     }
                 }
-                Button { practiceRoute = .new(sourceEntryID: entry.id) } label: {
-                    Label {
-                        Text("Practice what to say")
-                    } icon: {
-                        Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
+                GuestTimelineStep(title: "Conversation", done: !linked.isEmpty, isLast: !said) {
+                    if case .failed(let message) = practice.loadState {
+                        // Unknown is not "none": say so rather than hiding linked messages.
+                        HStack {
+                            Text(message).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+                            Button("Try again") { Task { await practice.load() } }
+                                .font(GuestBrand.font(.footnote, .semibold))
+                        }
+                    } else if linked.isEmpty {
+                        GuestTimelinePlaceholder(text: "Need to talk to someone about this? Prepare what to say.")
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(linked) { message in
+                                Button { practiceRoute = .message(message.id) } label: {
+                                    GuestPracticeRow(message: message, entries: journal.entries)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
                 }
-                .buttonStyle(GuestBrandButtonStyle(filled: false))
-                .padding(.top, 8)
+                if said {
+                    // Once something was said, this moment asks how it went.
+                    GuestTimelineStep(title: "How did it go?", done: linked.contains { $0.conversation?.turns.contains { $0.kind == .outcome } ?? false }, isLast: true) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(linked) { message in GuestOutcomeCard(message: message, practice: practice) }
+                        }
+                    }
+                }
                 if let deleteError {
                     Label(deleteError, systemImage: "exclamationmark.circle")
                         .font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
+                        .padding(.top, 12)
                 }
             }
             .padding(24)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardShown = true }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardShown = false }
+        .safeAreaInset(edge: .bottom) {
+            // One main action: the next step on the line. Hidden while typing.
+            if !keyboardShown {
+            VStack(spacing: 6) {
+                if linked.isEmpty && !hasReflection && suggester != nil {
+                    Button("Reflect") { reflecting = true }.buttonStyle(GuestBrandButtonStyle())
+                    Button("Talk it through instead") { practiceRoute = .new(sourceEntryID: entry.id) }
+                        .font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.blue).frame(minHeight: 44)
+                } else if linked.isEmpty {
+                    Button { practiceRoute = .new(sourceEntryID: entry.id) } label: {
+                        Label { Text("Talk it through") } icon: {
+                            Image("GuestIconPractice").renderingMode(.original).accessibilityHidden(true)
+                        }
+                    }
+                    .buttonStyle(GuestBrandButtonStyle())
+                } else if let latest = linked.first {
+                    Button("Continue the conversation") { practiceRoute = .message(latest.id) }
+                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                }
+            }
+            .padding(.horizontal, 24).padding(.vertical, 12)
+            .background { GuestBottomFade() }
+            }
         }
         .toolbar {
             Button { editor = GuestEntryEditorViewModel(entry: entry, store: journal.store) } label: {
@@ -721,6 +839,78 @@ struct GuestEntryDetailView: View {
             }
             .accessibilityLabel("More")
         }
+    }
+}
+
+extension GuestEntryDetailView {
+    /// A context or feeling chip; tapping opens the tag picker.
+    fileprivate func tagButton(_ value: (title: String, asset: String)?, empty: String, entry: GuestJournalEntry) -> some View {
+        Button { tagging = entry } label: {
+            HStack(spacing: 5) {
+                if let value {
+                    Image(value.asset).resizable().scaledToFit().frame(width: 24, height: 24).accessibilityHidden(true)
+                    Text(value.title)
+                } else { Text(empty) }
+            }
+            .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+            .padding(.horizontal, 10).padding(.vertical, 4)
+            .background(GuestBrand.wash, in: Capsule())
+            .guestSquish(on: value?.title)
+            .frame(minHeight: 44)
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(value.map { "\(empty.contains("Context") ? "Context" : "Feeling"): \($0.title)" } ?? empty.replacingOccurrences(of: "+ ", with: "Add "))
+    }
+}
+
+/// One stop on a moment's timeline: a dot (filled once it's done), a rail to the next stop, and its content.
+struct GuestTimelineStep<Content: View>: View {
+    let title: String
+    let done: Bool
+    let isLast: Bool
+    @ViewBuilder let content: Content
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The rail to the next stop grows down once the stop is shown.
+    @State private var grown = false
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(spacing: 0) {
+                Circle().fill(done ? GuestWarm.sage : GuestWarm.muted.opacity(0.3))
+                    .frame(width: 12, height: 12)
+                    .overlay(Circle().stroke(GuestWarm.oat, lineWidth: 2))
+                    .padding(.top, 3)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: done)
+                if !isLast {
+                    Rectangle().fill(done ? GuestWarm.sage.opacity(0.55) : GuestWarm.muted.opacity(0.22))
+                        .frame(width: 2).frame(maxHeight: .infinity)
+                        .scaleEffect(x: 1, y: grown || reduceMotion ? 1 : 0, anchor: .top)
+                        .onAppear { withAnimation(.easeOut(duration: 0.7).delay(0.25)) { grown = true } }
+                        .animation(.easeInOut(duration: 0.4), value: done)
+                }
+            }
+            .frame(width: 12)
+            .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title.uppercased()).font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.muted)
+                    .accessibilityAddTraits(.isHeader)
+                content
+            }
+            .padding(.bottom, isLast ? 0 : 18)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .guestRiseIn()
+    }
+}
+
+/// A stop that hasn't happened yet: a quiet dashed card.
+struct GuestTimelinePlaceholder: View {
+    let text: String
+    var body: some View {
+        Text(text).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+            .background(GuestWarm.cream.opacity(0.55), in: RoundedRectangle(cornerRadius: 18))
+            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(GuestWarm.muted.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
     }
 }
 
@@ -880,5 +1070,13 @@ struct GuestEntryReflectionSection: View {
         isUpdating = true
         defer { isUpdating = false }
         error = await journal.updateReflection(of: entry, reflection: reflection, nextStep: nextStep, nextStepDone: done)
+    }
+}
+
+/// The guide lights up the newest moment rather than the whole list.
+private struct GuestFirstRowTarget: ViewModifier {
+    let isFirst: Bool
+    func body(content: Content) -> some View {
+        if isFirst { content.guestTourTarget(.journalList) } else { content }
     }
 }

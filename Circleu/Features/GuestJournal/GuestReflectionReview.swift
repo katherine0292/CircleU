@@ -98,6 +98,8 @@ final class GuestReflectionReviewViewModel: ObservableObject {
 struct GuestReflectionReviewView: View {
     @StateObject private var review: GuestReflectionReviewViewModel
     let onDone: () -> Void
+    /// Saves, then opens Talk for this entry; nil hides the option.
+    var onPrepare: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var confirmDiscard = false
     @Environment(\.dynamicTypeSize) private var typeSize
@@ -106,7 +108,8 @@ struct GuestReflectionReviewView: View {
     @State private var revealed: Set<String> = []
 
     init(entry: GuestJournalEntry, journal: GuestJournalViewModel, suggester: any GuestSuggesting,
-         onDone: @escaping () -> Void) {
+         onDone: @escaping () -> Void, onPrepare: (() -> Void)? = nil) {
+        self.onPrepare = onPrepare
         _review = StateObject(wrappedValue: GuestReflectionReviewViewModel(entry: entry, journal: journal,
                                                                            suggester: suggester))
         self.onDone = onDone
@@ -135,11 +138,19 @@ struct GuestReflectionReviewView: View {
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
             if review.state == .ready {
+                VStack(spacing: 8) {
                 Button(review.isSaving ? "Saving…" : "Save reflection") {
                     Task { if await review.save() { onDone() } }
                 }
                 .buttonStyle(GuestBrandButtonStyle())
                 .disabled(!review.canSave)
+                if let onPrepare {
+                    // A bridge to Talk: the summary and next step fill in the scene there.
+                    Button("Save and prepare what to say") { Task { if await review.save() { onPrepare() } } }
+                        .buttonStyle(GuestBrandButtonStyle(filled: false))
+                        .disabled(!review.canSave)
+                }
+                }
                 .padding(.horizontal, 24).padding(.vertical, 12)
                 .background { GuestBottomFade() }
             }

@@ -11,12 +11,14 @@ nonisolated struct GuestPracticeConversation: Codable, Equatable, Sendable {
 
     struct Turn: Codable, Equatable, Identifiable, Sendable {
         enum Kind: String, Codable, Sendable {
-            case wording, theirReply, context
+            /// `outcome` is "How it went", written after something was said (Talk, 6 November 2026).
+            case wording, theirReply, context, outcome
             var label: String {
                 switch self {
                 case .wording: "Prepared wording"
                 case .theirReply: "Their reply"
                 case .context: "Added context"
+                case .outcome: "How it went"
                 }
             }
         }
@@ -24,6 +26,8 @@ nonisolated struct GuestPracticeConversation: Codable, Equatable, Sendable {
         var kind: Kind
         var text: String
         var createdAt = Date()
+        /// A feeling the person chose for an outcome; nil otherwise. Older saves have no value.
+        var feeling: String? = nil
     }
 
     var searchableText: String {

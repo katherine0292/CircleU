@@ -20,7 +20,7 @@ final class GuestFindControlUITests: XCTestCase {
         let tag = Int.random(in: 1000...9999)
         var app = launch(fresh: true)
         for words in ["Alpha moment \(tag)", "Beta moment \(tag)"] {
-            app.tabBars.buttons["Today"].tap()
+            app.tabBars.buttons["Write"].tap()
             XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10))
             let editor = app.textViews["Your words"]; XCTAssertTrue(editor.waitForExistence(timeout: 5))
             editor.tap(); editor.typeText(words)
@@ -55,22 +55,24 @@ final class GuestFindControlUITests: XCTestCase {
         app.buttons["Show all"].tap()
         app.buttons["Hide calendar"].tap()
 
-        // Practice draft survives relaunch
-        app.tabBars.buttons["Practice"].tap()
-        app.buttons["Practice a message"].tap()
-        let wording = app.textViews["Your wording"]; XCTAssertTrue(wording.waitForExistence(timeout: 5))
+        // A Talk draft survives relaunch
+        app.tabBars.buttons["Talk"].tap()
+        app.buttons["Start a conversation"].tap()
+        app.buttons["Start"].tap()
+        let wording = talkField(app); XCTAssertTrue(wording.waitForExistence(timeout: 5))
         wording.tap(); wording.typeText("Draft wording \(tag)")
-        app.buttons["Back"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["Continue your draft"].waitForExistence(timeout: 5))
         app = launch()
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         XCTAssertTrue(app.buttons["Continue your draft"].waitForExistence(timeout: 10), "kept across relaunch")
         app.buttons["Continue your draft"].tap()
-        XCTAssertTrue((app.textViews["Your wording"].value as? String ?? "").contains("Draft wording \(tag)"))
-        app.buttons["Back"].tap()
+        if app.buttons["Start"].waitForExistence(timeout: 3) { app.buttons["Start"].tap() }
+        XCTAssertTrue((talkField(app).value as? String ?? "").contains("Draft wording \(tag)"))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
 
         // Settings: export and delete all
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         app.buttons["Settings"].tap()
         XCTAssertTrue(has(app, "Kept on this iPhone"))
         shot(app, "f3-settings"); audit(app, "settings")
@@ -97,7 +99,7 @@ final class GuestFindControlUITests: XCTestCase {
         app = launch()
         app.tabBars.buttons["Journal"].tap()
         XCTAssertTrue(has(app, "Nothing saved yet.", 10), "nothing comes back after relaunch")
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         XCTAssertFalse(app.buttons["Continue your draft"].waitForExistence(timeout: 2))
         attach(findings.joined(separator: "\n"), "find-audit.txt")
     }

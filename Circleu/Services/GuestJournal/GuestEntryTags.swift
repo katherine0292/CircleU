@@ -2,7 +2,7 @@ import Foundation
 
 /// Explicit personal labels; never inferred from words or an AI reflection.
 nonisolated enum GuestEntryContext: String, CaseIterable, Sendable {
-    case study, work, friends, family
+    case study, work, friends, family, relationship
     var title: String { rawValue.capitalized }
 }
 
