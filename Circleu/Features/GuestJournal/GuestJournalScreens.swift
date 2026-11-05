@@ -381,6 +381,7 @@ struct GuestJournalListView: View {
                     .padding(24)
                 case .loaded(let entries) where entries.isEmpty:
                     GuestSceneMessage(scene: .journalDesk, text: "Nothing saved yet.")
+                        .guestTourTarget(.journalList)
                         .padding(24)
                 case .loaded(let all):
                     let byDay = selectedDay.map { GuestCalendarModel.entries(on: $0, in: all) } ?? all
@@ -939,5 +940,13 @@ struct GuestEntryReflectionSection: View {
         isUpdating = true
         defer { isUpdating = false }
         error = await journal.updateReflection(of: entry, reflection: reflection, nextStep: nextStep, nextStepDone: done)
+    }
+}
+
+/// The guide lights up the newest moment rather than the whole list.
+private struct GuestFirstRowTarget: ViewModifier {
+    let isFirst: Bool
+    func body(content: Content) -> some View {
+        if isFirst { content.guestTourTarget(.journalList) } else { content }
     }
 }
