@@ -20,12 +20,12 @@ struct GuestVoiceReviewSheet: View {
                     Image("GuestPinguListening").resizable().scaledToFit().frame(height: 130)
                         .frame(maxWidth: .infinity).accessibilityHidden(true)
                     Text(model.isActive ? "Listening to you" : "Review your words")
-                        .font(GuestBrand.font(.title2, .bold)).accessibilityAddTraits(.isHeader)
+                        .font(GuestWarm.heading(.title2)).accessibilityAddTraits(.isHeader)
                     Text("On-device transcription · no audio saved")
                         .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                     TextEditor(text: $model.transcript).focused($editing)
                         .scrollContentBackground(.hidden).frame(minHeight: 180).padding(12)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 20))
+                        .guestCard(in: RoundedRectangle(cornerRadius: 20))
                         .disabled(model.isActive).accessibilityLabel("Transcript")
                     if let error = model.error {
                         Text(error).font(GuestBrand.font(.subheadline)).foregroundStyle(GuestBrand.ink)
@@ -41,7 +41,7 @@ struct GuestVoiceReviewSheet: View {
                     }
                 }.padding(24)
             }
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground() }
             .scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 10) {
@@ -57,7 +57,7 @@ struct GuestVoiceReviewSheet: View {
                         Button("Record", systemImage: "mic") { editing = false; Task { await model.start() } }
                             .buttonStyle(GuestBrandButtonStyle())
                     }
-                }.padding(.horizontal, 24).padding(.vertical, 12).background(GuestBrand.ice)
+                }.padding(.horizontal, 24).padding(.vertical, 12).background { GuestBottomFade() }
             }
             .navigationTitle("Voice input").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) {
