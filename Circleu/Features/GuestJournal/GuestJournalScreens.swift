@@ -842,6 +842,78 @@ struct GuestEntryDetailView: View {
     }
 }
 
+extension GuestEntryDetailView {
+    /// A context or feeling chip; tapping opens the tag picker.
+    fileprivate func tagButton(_ value: (title: String, asset: String)?, empty: String, entry: GuestJournalEntry) -> some View {
+        Button { tagging = entry } label: {
+            HStack(spacing: 5) {
+                if let value {
+                    Image(value.asset).resizable().scaledToFit().frame(width: 24, height: 24).accessibilityHidden(true)
+                    Text(value.title)
+                } else { Text(empty) }
+            }
+            .font(GuestBrand.font(.caption, .semibold)).foregroundStyle(GuestBrand.blue)
+            .padding(.horizontal, 10).padding(.vertical, 4)
+            .background(GuestBrand.wash, in: Capsule())
+            .guestSquish(on: value?.title)
+            .frame(minHeight: 44)
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(value.map { "\(empty.contains("Context") ? "Context" : "Feeling"): \($0.title)" } ?? empty.replacingOccurrences(of: "+ ", with: "Add "))
+    }
+}
+
+/// One stop on a moment's timeline: a dot (filled once it's done), a rail to the next stop, and its content.
+struct GuestTimelineStep<Content: View>: View {
+    let title: String
+    let done: Bool
+    let isLast: Bool
+    @ViewBuilder let content: Content
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The rail to the next stop grows down once the stop is shown.
+    @State private var grown = false
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(spacing: 0) {
+                Circle().fill(done ? GuestWarm.sage : GuestWarm.muted.opacity(0.3))
+                    .frame(width: 12, height: 12)
+                    .overlay(Circle().stroke(GuestWarm.oat, lineWidth: 2))
+                    .padding(.top, 3)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: done)
+                if !isLast {
+                    Rectangle().fill(done ? GuestWarm.sage.opacity(0.55) : GuestWarm.muted.opacity(0.22))
+                        .frame(width: 2).frame(maxHeight: .infinity)
+                        .scaleEffect(x: 1, y: grown || reduceMotion ? 1 : 0, anchor: .top)
+                        .onAppear { withAnimation(.easeOut(duration: 0.7).delay(0.25)) { grown = true } }
+                        .animation(.easeInOut(duration: 0.4), value: done)
+                }
+            }
+            .frame(width: 12)
+            .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title.uppercased()).font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.muted)
+                    .accessibilityAddTraits(.isHeader)
+                content
+            }
+            .padding(.bottom, isLast ? 0 : 18)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .guestRiseIn()
+    }
+}
+
+/// A stop that hasn't happened yet: a quiet dashed card.
+struct GuestTimelinePlaceholder: View {
+    let text: String
+    var body: some View {
+        Text(text).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
+            .frame(maxWidth: .infinity, alignment: .leading).padding(14)
+            .background(GuestWarm.cream.opacity(0.55), in: RoundedRectangle(cornerRadius: 18))
+            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(GuestWarm.muted.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
+    }
+}
+
 struct GuestEntryEditView: View {
     @ObservedObject var editor: GuestEntryEditorViewModel
     let onDone: () -> Void
