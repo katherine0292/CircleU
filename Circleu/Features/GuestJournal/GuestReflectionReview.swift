@@ -101,6 +101,9 @@ struct GuestReflectionReviewView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var confirmDiscard = false
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Fields whose suggested words have finished arriving (see `field`).
+    @State private var revealed: Set<String> = []
 
     init(entry: GuestJournalEntry, journal: GuestJournalViewModel, suggester: any GuestSuggesting,
          onDone: @escaping () -> Void) {
@@ -114,12 +117,13 @@ struct GuestReflectionReviewView: View {
             VStack(alignment: .leading, spacing: 16) {
                 if !typeSize.isAccessibilitySize {
                     GuestScene(.reflectionGarden).clipShape(RoundedRectangle(cornerRadius: 24))
+                        .shadow(color: GuestWarm.ink.opacity(0.12), radius: 18, y: 8)
                 }
                 Text("My words").font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
                 Text(review.entry.originalWords)
                     .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
+                    .padding(16).guestCard(in: RoundedRectangle(cornerRadius: 18))
                 suggestion
                 if let error = review.saveError {
                     Label(error, systemImage: "exclamationmark.circle")
@@ -137,10 +141,10 @@ struct GuestReflectionReviewView: View {
                 .buttonStyle(GuestBrandButtonStyle())
                 .disabled(!review.canSave)
                 .padding(.horizontal, 24).padding(.vertical, 12)
-                .background(GuestBrand.ice)
+                .background { GuestBottomFade() }
             }
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Reflection")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -177,7 +181,7 @@ struct GuestReflectionReviewView: View {
         case .ready:
             VStack(alignment: .leading, spacing: 14) {
                 Label { Text("A suggestion") } icon: { GuestBrandIcon(asset: "GuestIconReflection", size: 30) }
-                    .font(GuestBrand.font(.title3, .bold)).foregroundStyle(GuestBrand.ink)
+                    .font(GuestWarm.heading(.title3)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
                 if let source = review.source {
                     Text(source.label).font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
@@ -186,9 +190,10 @@ struct GuestReflectionReviewView: View {
                     Label(reason.line, systemImage: "info.circle")
                         .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 }
-                field("What happened", text: $review.summary)
-                field("A feeling that might fit", text: $review.feeling)
-                field("Something to consider", text: $review.insight)
+                // The parts arrive one after another, so the suggestion reads as a gentle sequence.
+                field("What happened", text: $review.summary, order: 1).guestRiseIn(1)
+                field("A feeling that might fit", text: $review.feeling, order: 2).guestRiseIn(2)
+                field("Something to consider", text: $review.insight, order: 3).guestRiseIn(3)
                 Text("Clear any part you don’t want to keep.")
                     .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
                 if review.nextStep.isEmpty, !review.suggestedNextStep.isEmpty {
@@ -203,7 +208,7 @@ struct GuestReflectionReviewView: View {
                     }
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                    .guestCard(in: RoundedRectangle(cornerRadius: 16))
                 }
                 field("Your next step (optional)", text: $review.nextStep)
             }
@@ -212,7 +217,7 @@ struct GuestReflectionReviewView: View {
         }
     }
 
-    private func field(_ title: String, text: Binding<String>) -> some View {
+    private func field(_ title: String, text: Binding<String>, order: Int = 0) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(title).font(GuestBrand.font(.subheadline, .semibold)).foregroundStyle(GuestBrand.muted)
@@ -225,10 +230,25 @@ struct GuestReflectionReviewView: View {
                         .accessibilityLabel("Clear \(title)")
                 }
             }
+            // The suggestion arrives letter by letter over the field, which then takes over for editing.
+            let arriving = !reduceMotion && !revealed.contains(title) && !text.wrappedValue.isEmpty
             TextField(title, text: text, axis: .vertical)
                 .lineLimit(1...6)
+                .opacity(arriving ? 0 : 1)
                 .padding(12)
-                .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                .overlay(alignment: .topLeading) {
+                    if arriving {
+                        GuestRevealText(text: text.wrappedValue, delay: 0.15 + Double(order) * 0.25) {
+                            revealed.insert(title)
+                        }
+                        .foregroundStyle(GuestBrand.ink)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                    }
+                }
+                .guestCard(in: RoundedRectangle(cornerRadius: 14))
         }
     }
 }
