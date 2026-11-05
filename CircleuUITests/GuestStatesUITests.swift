@@ -21,7 +21,7 @@ final class GuestStatesUITests: XCTestCase {
         openSettings(app)
         let delete = app.buttons["Delete all data"]
         for _ in 0..<6 where !delete.isHittable { app.swipeUp() }
-        delete.tap()
+        delete.press(forDuration: 1.6) // S3: held, so a stray tap can't start it.
         app.buttons["Delete all"].tap()
         XCTAssertTrue(has(app, "was deleted from this iPhone", 10))
         app.navigationBars.buttons.element(boundBy: 0).tap()
