@@ -94,7 +94,7 @@ struct GuestImportView: View {
             }
             .padding(24)
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Earlier journal")
         .navigationBarTitleDisplayMode(.inline)
         .task { if model.state == .scanning { await model.scan() } }
@@ -143,7 +143,7 @@ struct GuestImportView: View {
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                    .guestCard(in: RoundedRectangle(cornerRadius: 14))
                 }
                 if scan.entries.count > 3 {
                     Text("and \(scan.entries.count - 3) more").font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
@@ -255,7 +255,7 @@ struct GuestWelcomeView: View {
                 .onPreferenceChange(GuestFooterHeight.self) { footerHeight = $0 }
                 .ignoresSafeArea()
             }
-            .background(GuestBrand.ice.ignoresSafeArea())
+            .background { GuestFlowingBackground() }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showsLogin) {
                 GuestSignInView(factory: .live, store: store, journal: journal, practice: practice, onSkip: onDone)
@@ -281,13 +281,19 @@ struct GuestWelcomeView: View {
                         Spacer()
                         Button { go(to: page + 1) } label: {
                             Image(systemName: "arrow.right").font(.title2.weight(.semibold)).foregroundStyle(.white)
-                                .frame(width: 60, height: 60).background(GuestBrand.blue, in: Circle())
+                                .frame(width: 60, height: 60)
+                                .background(LinearGradient(colors: [GuestWarm.cocoaLight, GuestWarm.cocoa],
+                                                           startPoint: .top, endPoint: .bottom), in: Circle())
+                                .overlay(Circle().strokeBorder(.white.opacity(0.3), lineWidth: 1))
+                                .shadow(color: GuestWarm.cocoa.opacity(0.3), radius: 10, y: 6)
                         }
+                        .buttonStyle(GuestSpringPressStyle())
                         .accessibilityLabel("Next")
                     }
                 }
             }
             .frame(minHeight: 120, alignment: .bottom)
+            .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.8), value: isLast)
         }
         .padding(.horizontal, 24).padding(.bottom, 16)
     }
@@ -319,6 +325,7 @@ struct GuestOnboardingPageView: View {
     /// The footer and home indicator, which sit over the bottom of the page.
     let bottomInset: CGFloat
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         GeometryReader { geo in
@@ -337,7 +344,8 @@ struct GuestOnboardingPageView: View {
     private func fitted(width: CGFloat) -> some View {
         VStack(spacing: 0) {
             scene(width: width).frame(minHeight: 160 + topInset)
-            words.padding(.horizontal, 24).padding(.top, 8)
+            // The title sits on the tail of the fade, closing the gap under the art.
+            words.padding(.horizontal, 24).padding(.top, -44)
             Color.clear.frame(height: bottomInset + 20)
         }
     }
@@ -351,17 +359,29 @@ struct GuestOnboardingPageView: View {
     }
 
     /// The scene in whatever band it's given: from the top when there's room, otherwise centred
-    /// on Pingu (about 38% down), with a soft edge into ice at the bottom.
+    /// on Pingu (about 38% down), with a soft edge into the background at the bottom.
     private func scene(width: CGFloat) -> some View {
         GeometryReader { band in
-            let artHeight = width * aspect, bandHeight = band.size.height
+            // The art always covers the band from the very top: when the band is taller than the
+            // art at screen width, the art grows (cropping its sides) instead of leaving a gap.
+            let bandHeight = band.size.height
+            let artHeight = max(width * aspect, bandHeight), artWidth = artHeight / aspect
             let y = max(bandHeight - artHeight, min(0, (bandHeight + topInset) / 2 - artHeight * 0.38))
             Color.clear
-                .overlay(alignment: .top) { art(width: width).offset(y: y) }
+                .overlay(alignment: .top) { art(width: artWidth).offset(y: y) }
                 .clipped()
-                .overlay(alignment: .bottom) {
-                    LinearGradient(colors: [GuestBrand.ice.opacity(0), GuestBrand.ice], startPoint: .top, endPoint: .bottom)
-                        .frame(height: min(80, bandHeight * 0.3))
+                // Fade straight into the flowing background, with no band of flat colour.
+                // An eased fade over the lower 45% of the band, so the art melts into the background
+                // behind the title instead of stopping at a line.
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .black, location: 0),
+                        .init(color: .black, location: 0.55),
+                        .init(color: .black.opacity(0.8), location: 0.68),
+                        .init(color: .black.opacity(0.45), location: 0.8),
+                        .init(color: .black.opacity(0.15), location: 0.91),
+                        .init(color: .clear, location: 1),
+                    ], startPoint: .top, endPoint: .bottom)
                 }
         }
         .accessibilityHidden(true)
@@ -375,25 +395,36 @@ struct GuestOnboardingPageView: View {
 
     private func art(width: CGFloat) -> some View {
         Image(page.asset).resizable().scaledToFill()
-            .frame(width: width, height: width * aspect).clipped()
+            .frame(width: width, height: width * aspect)
+            // Parallax: the art drifts slower than the page as you swipe.
+            .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                content.offset(x: reduceMotion ? 0 : phase.value * width * 0.3)
+                    .scaleEffect(reduceMotion ? 1 : 1 + abs(phase.value) * 0.05)
+            }
+            .clipped()
             .accessibilityHidden(true)
     }
 
     private var words: some View {
         VStack(spacing: 10) {
-            Text(page.title).font(GuestBrand.font(.title, .bold)).foregroundStyle(GuestBrand.ink)
+            Text(page.title).font(GuestWarm.heading(.title)).foregroundStyle(GuestBrand.ink)
                 .accessibilityAddTraits(.isHeader)
             GuestSummary(page.line)
         }
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity)
+        .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+            content.opacity(1 - abs(phase.value) * 0.7).offset(x: reduceMotion ? 0 : phase.value * 40)
+        }
     }
 }
 
-/// Page dots: the current one wider and blue. Spoken as "Page N of M".
+/// Page dots: the current one wider and cocoa, stretching across as the page changes.
+/// Spoken as "Page N of M".
 struct GuestPageDots: View {
     let count: Int
     let selected: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 8) {
@@ -402,6 +433,7 @@ struct GuestPageDots: View {
                     .frame(width: index == selected ? 24 : 8, height: 8)
             }
         }
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: selected)
         .accessibilityElement()
         .accessibilityLabel("Page \(selected + 1) of \(count)")
     }
