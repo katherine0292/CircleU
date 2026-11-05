@@ -83,7 +83,10 @@ final class GuestFindControlUITests: XCTestCase {
         if close.exists { close.tap() } else { app.swipeDown() }
         if !sheet.waitForNonExistence(timeout: 3) { if close.exists { close.tap() } else { app.swipeDown() } }
         XCTAssertTrue(sheet.waitForNonExistence(timeout: 5), "share sheet closed")
-        app.buttons["Delete all data"].tap()
+        let delete = app.buttons["Delete all data"]
+        delete.tap()
+        XCTAssertFalse(app.buttons["Delete all"].waitForExistence(timeout: 1), "a tap alone doesn't start deleting")
+        delete.press(forDuration: 1.6)
         XCTAssertTrue(app.buttons["Delete all"].waitForExistence(timeout: 3))
         shot(app, "f5-delete-confirm")
         app.buttons["Delete all"].tap()

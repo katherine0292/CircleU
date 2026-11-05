@@ -1,6 +1,12 @@
 {
-  "images" : [
-    { "filename" : "GuestPinguExplorer.png", "idiom" : "universal" }
+  "images": [
+    {
+      "filename": "GuestPinguExplorer.png",
+      "idiom": "universal"
+    }
   ],
-  "info" : { "author" : "xcode", "version" : 1 }
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
 }

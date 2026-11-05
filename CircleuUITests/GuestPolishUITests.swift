@@ -23,14 +23,14 @@ final class GuestPolishUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Start dictation"].exists, "with the big microphone")
         shot(app, "u1-today"); audit(app, "today")
         app.buttons["Settings"].tap()
-        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu")).firstMatch
+        let avatar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your otter")).firstMatch
         XCTAssertTrue(avatar.waitForExistence(timeout: 10))
         avatar.tap()
-        XCTAssertTrue(app.navigationBars["Choose your Pingu"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Choose your otter"].waitForExistence(timeout: 5))
         shot(app, "u2-picker"); audit(app, "picker")
-        app.buttons["Pingu with a warm drink"].tap()
+        app.buttons["Tuanwei the otter holding a warm mug"].tap()
         app.buttons["Done"].tap()
-        XCTAssertTrue(app.buttons["Your Pingu: Pingu with a warm drink"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Your otter: Tuanwei the otter holding a warm mug"].waitForExistence(timeout: 5))
         shot(app, "u3-pingu-changed")
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
@@ -71,9 +71,9 @@ final class GuestPolishUITests: XCTestCase {
         app.tabBars.buttons["Today"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 5), "Today is back at its start, not a blank screen")
         app.buttons["Settings"].tap()
-        // The "Your Pingu" caption is hidden from VoiceOver; the avatar button says it.
+        // The "Your otter" caption is hidden from VoiceOver; the avatar button says it.
         XCTAssertTrue(app.buttons["Kept on this iPhone"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your Pingu")).firstMatch.exists)
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your otter")).firstMatch.exists)
         shot(app, "u9-settings"); audit(app, "settings")
         app.swipeUp(); sleep(1); shot(app, "u9b-settings-lower")
         attach(findings.joined(separator: "\n"), "polish-audit.txt")

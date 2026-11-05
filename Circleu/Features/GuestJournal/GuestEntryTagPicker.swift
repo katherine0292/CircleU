@@ -95,7 +95,7 @@ struct GuestEntryTagPicker: View {
                 .padding(24)
             }
             .disabled(model.isSaving)
-            .background(GuestBrand.ice)
+            .background { GuestFlowingBackground(mood: model.feeling) }
             .navigationTitle("Your tags").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -109,7 +109,7 @@ struct GuestEntryTagPicker: View {
                 }
                 .buttonStyle(GuestBrandButtonStyle())
                 .disabled(model.isSaving || model.needsReopen)
-                .padding(.horizontal, 24).padding(.vertical, 12).background(GuestBrand.ice)
+                .padding(.horizontal, 24).padding(.vertical, 12).background { GuestBottomFade() }
             }
         }
         .font(GuestBrand.font(.body)).foregroundStyle(GuestBrand.ink).tint(GuestBrand.blue)
@@ -132,8 +132,9 @@ struct GuestEntryTagPicker: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(10).frame(maxWidth: .infinity, minHeight: 100)
-            .background(selected ? GuestBrand.wash : .white, in: RoundedRectangle(cornerRadius: 18))
+            .guestCard(in: RoundedRectangle(cornerRadius: 18), fill: selected ? GuestBrand.wash : nil)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(selected ? GuestBrand.blue : .clear, lineWidth: 2))
+            .guestSquish(on: selected)
         }
         .buttonStyle(.plain).accessibilityLabel(title)
         .accessibilityAddTraits(selected ? .isSelected : [])
