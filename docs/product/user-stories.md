@@ -191,7 +191,7 @@ Screen: Entry (delete dialog). States: in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeStoreTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeStoreTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | J5.2 | Given delete fails, when the error shows, then the entry and message are unchanged. | Unit `GuestPracticeStoreTests.testFailedEntryDeleteKeepsEntryAndMessage` |
 | J5.3 | Given a deleted entry, when an old screen saves, then it doesn't come back. | Unit `GuestJournalStoreTests.testUpdateAfterDeleteDoesNotResurrectEntry` |
 
@@ -203,7 +203,77 @@ Screen: Journal, Calendar, Entry. States: filled, one day chosen. Mocked in the 
 | J6.1 | Given entries, when Journal opens, then each row shows a date tile, the words, icons for a reflection, a next step (a tick when done) and a practice message, and the time; VoiceOver reads the icons in words. | No test (layout checked on screenshots; VoiceOver speech not checked) |
 | J6.2 | Given I just saved, when Journal opens, then the "Saved" card is one row: Pingu, "Saved", Reflect and ×. | UI (partial, checks "Saved" and Reflect, not the one-row layout) `GuestTodayUITests.testQuestionGuidancePreservesWordsAndResetsAfterSave` |
 | J6.3 | Given the calendar, when I choose a day, then a day chip with × replaces "Showing …" and Show all, each day shows up to three dots, and Go to today is an icon. | UI (partial, checks the day chip and Go to today, not the dots) `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
-| J6.4 | Given an entry, when it opens, then a compact date is the inline title and the time below exposes the full creation timestamp to accessibility, Edit is a pencil, Delete entry is in the ••• menu, and the reflection, feeling and next step show as icons with spoken names. | UI (partial, checks the actions, not the title or every spoken name) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| J6.4 | Given an entry, when it opens, then a compact date is the inline title and the time below exposes the full creation timestamp to accessibility, Edit is a pencil, Delete entry is in the ••• menu, and the reflection, feeling and next step show as icons with spoken names. | UI (partial, checks the actions, not the title or every spoken name) `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov), `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+
+## 3a. Moments, Talk and the guide — owner-approved direction, 6 November 2026
+
+Tabs are **Write · Journal · Talk** (Today and Practice renamed). A saved entry is a *moment*: its page is a timeline of what happened, the reflection, the conversation and how it went. Talk replaces the staged Practice pages (Prepare → Refine → Their reply) with one conversation thread. Saved data keeps the existing conversation format, so earlier Practice messages open in Talk. The staged Practice stories P1–P9 below remain true of the engine and its unit tests; their UI tests were replaced by the Talk ones here. See the [log](../agent-collaboration-log/2026-11-06-210000-claude-talk-moments-guide.md).
+
+**J8. A moment's timeline.** As a person, I want one page for everything about a moment, so that I can see where I am and what comes next.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| J8.1 | Given a saved entry, when it opens, then it shows What happened (my words and tags), Reflection, Conversation and, once something was said, How did it go?, in order; a stop not reached yet is a dashed placeholder. | UI `GuestTalkUITests.testMomentTimelineTalkAndHowItWent` |
+| J8.2 | Given a moment, then its one main action is the next stop: Reflect (with "Talk it through instead"), then Talk it through, then Continue the conversation; it hides while typing. | UI (partial, checks Reflect and Continue) `GuestTalkUITests.testMomentTimelineTalkAndHowItWent` |
+| J8.3 | Given a moment with something said and nothing written about how it went, then its Journal card says "How did it go?". | No test |
+| J8.4 | Given the contexts, then Relationship is one of them, with its art, and matches a Talk scene. | Unit `GuestTalkTests.testEveryJournalContextIsAScene` |
+
+**TK1. Say it in my tone.** As a person, I want to write what I mean and get it back in my tone, so that I can say it well.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| TK1.1 | Given a new conversation, then the scene card opens first: scene (with art), tone, and optional situation and hope, under my avatar. | UI `GuestTalkUITests.testComposerStaysAboveKeyboard` |
+| TK1.2 | Given my words, when I send, then a card shows the suggestion in my tone, with Soft / Balanced / Firm, As is / Shorter / Warmer / More direct, its source line, Copy, I said it and ↻. | UI `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce`, `GuestSuggestionUITests.testReflectionNextStepAndPracticeSuggestions` |
+| TK1.3 | Given a suggestion, when I tap ↻, then a new page is added (‹ 2/2 ›); switching tone or style never adds a page or asks again. | Unit `GuestTalkTests.testSayItRegenerateSaidAndTheirReplySaveAsAttributedTurns`, `testStylesComeFromOneSuggestionWithoutAskingAgain`; UI `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce` |
+| TK1.4 | Given a request is running, when I tap Stop, then it stops and Retry is offered. | No test |
+
+**TK2. Said, and saved.** As a person, I want to mark what I said, so that the conversation is kept without anything being sent.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| TK2.1 | Given a suggestion, when I tap I said it (copied or not), then it becomes a "You said" bubble, the composer switches to They replied, and the conversation is saved, linked to its moment. Nothing is ever sent. | Unit `GuestTalkTests.testSayItRegenerateSaidAndTheirReplySaveAsAttributedTurns`; UI `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce` |
+| TK2.2 | Given words typed but not sent, when I leave, then they're kept as a draft across relaunch. | UI `GuestFindControlUITests.testSearchCalendarDraftExportAndDeleteAll` |
+| TK2.3 | Given a saved conversation, when it reopens, then its said lines, replies and notes come back as the thread, once. | Unit `GuestTalkTests.testASavedConversationReopensAsTheThread`; UI `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce` |
+
+**TK3. Read their reply.** As a person, I want help understanding a reply, so that I can answer well.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| TK3.1 | Given their reply, then I get two possible readings, never one verdict, said to be a guess, and Neither fits. | Unit `GuestTalkTests.testTheirReplyAlwaysGetsTwoReadingsNeverAVerdict`; UI `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce` |
+| TK3.2 | Given a reading I picked, then reply ideas come in every tone; with Apple Intelligence they answer the actual reply; otherwise guided replies for that reading. | Unit `GuestTalkTests.testTheirReplyAlwaysGetsTwoReadingsNeverAVerdict`; UI (guided only) `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce` |
+
+**TK4. Edit and branches.** As a person, I want to change something I wrote earlier, so that the help fits what I meant.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| TK4.1 | Given an earlier message, when I edit it and send, then everything after it starts again and ‹ 1/2 › brings the earlier branch back whole. | Unit `GuestTalkTests.testEditingAnEarlierMessageBranchesAndKeepsTheOldBranch`; UI `GuestTalkUITests.testEditBranchesAndAnEarlierBranchComesBack` |
+| TK4.2 | Given a conversation, when I add a note from ••• , then it's kept as Added context. | Unit `GuestTalkTests.testANoteIsKeptAsAddedContext` |
+
+**TK5. From a moment.** As a person, I want Talk to start from what I already wrote, so that I don't fill it in twice.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| TK5.1 | Given a moment, when I tap Talk it through (or Save and prepare what to say after reflecting), then the scene card is filled in: its context as scene, its reflection (or first words) as situation, its next step as hope; tone is never guessed. | Unit `GuestTalkTests.testSetupComesFromTheEntryAndNeverGuessesTone`; UI `GuestTalkUITests.testMomentTimelineTalkAndHowItWent` |
+| TK5.2 | Given I came from a reflection, when I go back from Talk, then I land on the moment's timeline. | UI `GuestTalkUITests.testMomentTimelineTalkAndHowItWent` (from the moment) |
+| TK5.3 | Given moments with a context and no conversation, then Talk lists up to three under From your journal; earlier conversations follow under their own heading. | UI (partial, the heading) `GuestTalkUITests.testSayItCopySaidAndTheirReplyPersistOnce` |
+
+**TK6. How did it go?** As a person, I want to note how it went, so that the moment has an ending I can look back on.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| TK6.1 | Given something said, then the moment asks How did it go?; a feeling, a line, or both can be saved; it stays as How it went. | Unit `GuestTalkTests.testOutcomesDecodeFromOlderSavesAndKeepAFeeling`; UI `GuestTalkUITests.testMomentTimelineTalkAndHowItWent` |
+| TK6.2 | Given an older save without feelings, then it still opens. | Unit `GuestTalkTests.testOutcomesDecodeFromOlderSavesAndKeepAFeeling` |
+
+**TK7. Composer.** Given writing in Talk, then Send stays above the keyboard at normal and the largest text. UI `GuestTalkUITests.testComposerStaysAboveKeyboard`, `testComposerStaysAboveKeyboardAtLargestText`.
+
+**G1. Step-by-step guide.** As a new person, I want a guided tour, so that I understand the three parts quickly.
+
+| # | Given / When / Then | Test |
+| --- | --- | --- |
+| G1.1 | Given Write, when I tap the ?, then 13 steps move across Write, Journal and Talk; each lights one control or area and dims the rest, with an otter that changes pose and a pointing paw. | Unit `GuestTalkTests.testTheGuideCoversAllThreeTabsInOrder`; UI `GuestTalkUITests.testGuideWalksAllThreeTabs` |
+| G1.2 | Given the guide, when I tap Back, Next, Done or Skip, then it moves or ends at once. | UI `GuestTalkUITests.testGuideWalksAllThreeTabs` |
+
+**W3. Hello.** Given the first Welcome page, then the otter says "Hi, I’m Tuanwei!" in a bubble. No test.
 
 ## 4. Practice
 
@@ -212,7 +282,7 @@ Screen: Entry → Practice message. States: empty, filled, in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeStoreTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P1.1 | Given an entry, when I tap Practice what to say and save, then the message is tagged "From: …" and survives reopening. | Unit `GuestPracticeStoreTests.testStandaloneAndLinkedMessagesSurviveReopen`, `testTagShowsSourceEntryOrOnItsOwn`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | P1.2 | Given the source entry was deleted, when I save a message from it, then my words stay. | Unit `GuestPracticeViewModelTests.testDeletedSourceEntryKeepsWords` |
 
 **P2. A message on its own.** As a person, I want to practise without an entry, so that I can prepare for something I haven't written about.
@@ -223,21 +293,21 @@ Screen: Practice. States: empty, filled, error.
 | P2.1 | Given no messages, when Practice opens, then the shared Pingu start card and "Nothing practised yet." show; decorative art is omitted at accessibility text sizes. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | P2.2 | Given Prepare has no wording, Continue is off; after entering words and continuing to Refine, Save stores them and shows the saved conversation. | Unit `GuestPracticeViewModelTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeViewModelTests.testFailedSaveKeepsWordsAndShowsError` |
-| P2.4 | Given saved messages, when Practice opens, then an ice-toned Pingu card with one blue action strip starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
+| P2.4 | Given saved messages, when Practice opens, then an ice-toned Pingu card with one blue action strip starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | P2.5 | Given Prepare, when I choose a scene and tone or expand Situation and Goal, those values remain part of my draft; existing details reopen expanded. | Automated scene/detail interaction not yet covered; draft coding covered by `GuestConversationTests.testDraftRoundTripPreservesPendingReplyAndOriginalWords` |
-| P2.6 | Given Refine and the software keyboard are open, when I write or scroll at default or largest text, then Save stays fully above the keyboard; saving dismisses the keyboard and preserves my wording. | UI `GuestPracticeUITests.testPracticeSaveStaysAboveKeyboard`, `testPracticeSaveStaysAboveKeyboardAtLargestText` |
+| P2.6 | Given Refine and the software keyboard are open, when I write or scroll at default or largest text, then Save stays fully above the keyboard; saving dismisses the keyboard and preserves my wording. | UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov), `testPracticeSaveStaysAboveKeyboardAtLargestText` |
 
 **P3. Copy and edit.** As a person, I want to copy or edit a message, so that I can send it myself or improve it.
 Screen: Practice message. States: filled, error (stale).
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeViewModelTests.testCopyDoesNotSave`; UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeViewModelTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains`; UI (saved edit, reopen and no duplicate; concurrent edits remain unit-tested) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
+| P3.1 | Given a message, when I tap Copy (the icon in the bubble, or the button once saved), then it is copied and nothing is saved or sent; "Copied. Not saved or sent." shows (or "Copied. Not sent." once saved). | Unit `GuestPracticeViewModelTests.testCopyDoesNotSave`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
+| P3.2 | Given a saved message, when I edit and save, then the same message updates; if it changed elsewhere, my words are kept with an explanation. | Unit `GuestPracticeViewModelTests.testEditingASavedMessageUpdatesTheSameMessage`, `testStaleEditKeepsWordsAndExplains`; UI (saved edit, reopen and no duplicate; concurrent edits remain unit-tested) `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | P3.3 | Given delete fails, when the error shows, then the message is kept. | Unit `GuestPracticeViewModelTests.testFailedMessageDeleteKeepsIt` |
-| P3.4 | Given a saved message, when I look at it, then my words are a blue prepared-wording bubble labelled Saved · not sent, Copy is primary, Continue conversation is secondary, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestPracticeUITests.testPracticeDirectFromEntryAndDeleteChoices` |
-| P3.5 | Given copied wording, when I type, clear it or undo a suggestion, then the Copied confirmation clears; copying again confirms the new wording without saving. | Unit `GuestPracticeViewModelTests.testEditingCopiedWordingClearsConfirmationUntilCopiedAgain`, `testClearingCopiedWordingClearsConfirmationAndDisablesCopy`, `testUndoingACopiedSuggestionClearsConfirmation`; UI (typing and visible confirmation) `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
-| P3.6 | Given unsaved edits to a saved message, when I tap Back, then Keep editing preserves those edits and Discard leaves the saved message unchanged. | UI `GuestPracticeUITests.testCopyEditAndDiscardKeepTheRightWording` |
+| P3.4 | Given a saved message, when I look at it, then my words are a blue prepared-wording bubble labelled Saved · not sent, Copy is primary, Continue conversation is secondary, and Edit (pencil) and Delete message (in the ••• menu, asks first) are in the toolbar. | UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
+| P3.5 | Given copied wording, when I type, clear it or undo a suggestion, then the Copied confirmation clears; copying again confirms the new wording without saving. | Unit `GuestPracticeViewModelTests.testEditingCopiedWordingClearsConfirmationUntilCopiedAgain`, `testClearingCopiedWordingClearsConfirmationAndDisablesCopy`, `testUndoingACopiedSuggestionClearsConfirmation`; UI (typing and visible confirmation) `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
+| P3.6 | Given unsaved edits to a saved message, when I tap Back, then Keep editing preserves those edits and Discard leaves the saved message unchanged. | UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 
 **P4. Practice draft and suggestions.** As a person, I want my unfinished message kept and optional wording ideas, so that I can come back and get unstuck.
 Screen: Practice → Continue your draft. States: filled (restored), in progress, error.
@@ -254,7 +324,7 @@ Screens: Prepare → Refine → Their reply → Refine → Conversation. States:
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P5.1 | Given prepared wording, when I paste a reply and/or context and continue, previous wording and attributed additions stay in the timeline; the next draft starts empty and nothing is sent. | Unit `GuestConversationTests.testReplyPreservesAttributedHistoryAndSurvivesReopenAndExport`; UI `GuestPracticeUITests.testConversationAndVoiceReviewPersistWithoutDuplicating` |
+| P5.1 | Given prepared wording, when I paste a reply and/or context and continue, previous wording and attributed additions stay in the timeline; the next draft starts empty and nothing is sent. | Unit `GuestConversationTests.testReplyPreservesAttributedHistoryAndSurvivesReopenAndExport`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | P5.2 | Given a saved conversation, when I continue and save, the same ID and journal link remain, the revision advances, and history survives reopening, export and search. | Unit `GuestConversationTests.testConversationReopensAndStaleUpdateCannotReplaceHistory`, `testReplyPreservesAttributedHistoryAndSurvivesReopenAndExport`; UI P5.1 |
 | P5.3 | Given a V4 practice record, when the V5 store opens, its original fields and revision survive with no invented turns; unreadable conversation data shows an error. | Unit `GuestConversationTests.testV4MigrationPreservesOldMessageWithoutInventingHistory`, `testUnreadableConversationIsAnErrorInsteadOfEmptyHistory` |
 | P5.4 | Given only added context, when guided suggestions are requested, no received reply is invented; actual replies are not repeated as my voice. | Unit `GuestConversationTests.testContextOnlyDoesNotInventAnIncomingReply`, `testGuidedReplyDoesNotEchoTheirWordsOrMetadataAsMine` |
@@ -265,7 +335,7 @@ Screens: Prepare / Refine / Their reply → Voice input. States: idle, requestin
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P6.1 | Given existing wording, when I record, stop and use the reviewed transcript, it appends without replacing existing words. | UI (scripted engine) `GuestPracticeUITests.testConversationAndVoiceReviewPersistWithoutDuplicating`; owner confirmed physical Record → Stop → Use text on 27 October; appending to existing text remains simulator-tested |
+| P6.1 | Given existing wording, when I record, stop and use the reviewed transcript, it appends without replacing existing words. | UI (scripted engine) `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov); owner confirmed physical Record → Stop → Use text on 27 October; appending to existing text remains simulator-tested |
 | P6.2 | Given cancelled recording, when a late recognition callback arrives, it cannot modify the transcript or selected field. | Unit `GuestVoiceReviewTests.testTranscriptIsReviewedAndCancelledLateEventsAreIgnored` |
 | P6.3 | Given denied permission, when access fails, typing and transcript review remain available. | Unit `GuestVoiceReviewTests.testDeniedPermissionKeepsTypingAvailable`; real permission/VoiceOver checks pending |
 
@@ -306,7 +376,7 @@ Screen: Practice → "What would you like to say?" → optional "What do you wan
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P9.1 | Given direct Practice entry, when I begin, then I can type or choose voice without a journal entry, account, profile or required situation/tone form. | Unit `GuestPracticeMessageFirstTests.testStartsWithWordsAndNoRequiredForm`; UI `GuestPracticeMessageFirstUITests.testWordsFirstGuidanceAndUseUndoSave` |
+| P9.1 | Given direct Practice entry, when I begin, then I can type or choose voice without a journal entry, account, profile or required situation/tone form. | Unit `GuestPracticeMessageFirstTests.testStartsWithWordsAndNoRequiredForm`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | P9.2 | Given existing wording, when I open optional guidance and return, then my wording survives and I need not repeat it. | Unit `testGuidanceRoundTripKeepsWording`; UI `testWordsFirstGuidanceAndUseUndoSave` |
 | P9.3 | Given no wording, when I choose Help me get started, then I can provide an outcome and optional context; they remain labelled as intent/context, never as a message I wrote or sent. Blank input cannot start generation. | Unit `testBlankStartNeedsIntentThenFindsWordsFromIt`; UI `testBlankStartFindsWordsFromIntentOnly` |
 | P9.4 | Given wording or explicit intent, when I request review, then only selected information is confirmed for an online request; completing guidance alone sends nothing. | Guidance Continue requests nothing (`testGuidanceRoundTripKeepsWording`). No online request exists natively; the confirmation step waits on P8 |
