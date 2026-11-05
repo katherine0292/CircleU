@@ -578,7 +578,7 @@ private struct GuestReflectionOfferCard: View {
     private var heading: some View {
         HStack(spacing: 12) {
             if !typeSize.isAccessibilitySize {
-                Image("GuestPinguJournal").resizable().scaledToFit().frame(width: 40, height: 40)
+                GuestLivingImage(asset: "GuestPinguJournal", breathes: true).frame(width: 40, height: 40)
                     .guestHop().accessibilityHidden(true)
             }
             Text("Saved").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
