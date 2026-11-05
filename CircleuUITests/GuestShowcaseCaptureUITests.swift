@@ -22,11 +22,11 @@ final class GuestShowcaseCaptureUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Context: Family"].exists && app.buttons["Feeling: Calm"].exists, "seeded tags")
         shot(app, "showcase-journal")
 
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 5))
         shot(app, "showcase-today")
 
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         XCTAssertTrue(app.buttons["Practice a message"].waitForExistence(timeout: 10))
         app.buttons["Practice a message"].tap()
         let wording = app.textViews["Your wording"]

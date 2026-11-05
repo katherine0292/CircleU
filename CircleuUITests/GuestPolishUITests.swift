@@ -18,7 +18,7 @@ final class GuestPolishUITests: XCTestCase {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUGuidedSuggestions", "YES"]; app.launch()
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 10), "Today opens straight to writing")
         XCTAssertTrue(app.buttons["Start dictation"].exists, "with the big microphone")
         shot(app, "u1-today"); audit(app, "today")
@@ -58,7 +58,7 @@ final class GuestPolishUITests: XCTestCase {
         let dismiss = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "Done"])).firstMatch
         if dismiss.exists { dismiss.tap() }
 
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         app.buttons["Practice a message"].tap()
         let wording = app.textViews["Your wording"]; XCTAssertTrue(wording.waitForExistence(timeout: 5))
         wording.tap(); wording.typeText("Could we talk about the slides?")
@@ -68,7 +68,7 @@ final class GuestPolishUITests: XCTestCase {
         shot(app, "u8-message-saved")
         app.buttons["Back"].tap()
 
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 5), "Today is back at its start, not a blank screen")
         app.buttons["Settings"].tap()
         // The "Your otter" caption is hidden from VoiceOver; the avatar button says it.

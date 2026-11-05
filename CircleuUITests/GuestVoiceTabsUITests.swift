@@ -20,13 +20,13 @@ final class GuestVoiceTabsUITests: XCTestCase {
         app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode",
                                                 "-CircleUAssumeOnDeviceSpeech", "YES"]; app.launch()
         XCTAssertTrue(app.textViews["Your words"].waitForExistence(timeout: 15))
-        for tab in ["Today", "Journal", "Practice"] { XCTAssertTrue(app.tabBars.buttons[tab].exists, tab) }
+        for tab in ["Write", "Journal", "Talk"] { XCTAssertTrue(app.tabBars.buttons[tab].exists, tab) }
         shot(app, "v1-today")
         app.tabBars.buttons["Journal"].tap(); sleep(1); shot(app, "v2-journal")
-        app.tabBars.buttons["Practice"].tap()
+        app.tabBars.buttons["Talk"].tap()
         XCTAssertTrue(app.buttons["Practice a message"].waitForExistence(timeout: 5))
         audit(app, "practice"); shot(app, "v3-practice")
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         let mic = app.buttons["Start dictation"]
         XCTAssertTrue(mic.waitForExistence(timeout: 5))
         audit(app, "write"); shot(app, "v4-write")
@@ -59,7 +59,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
         let app = XCUIApplication()
         app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode"]; app.launch()
         for i in 1...2 {
-            app.tabBars.buttons["Today"].tap()
+            app.tabBars.buttons["Write"].tap()
             let start = app.textViews["Your words"]
             XCTAssertTrue(start.waitForExistence(timeout: 10), "start \(i)")
             start.tap()
@@ -82,7 +82,7 @@ final class GuestVoiceTabsUITests: XCTestCase {
         app.terminate(); app.launchArguments = ["-CircleUResetGuestData", "-circleu.guest.welcomeSeen.v1", "YES", "-CircleUGuestMode", "-CircleUScriptedDictation", "Spoken words \(tag)"]; app.launch()
         let expected = ["Typed one \(tag)", "Spoken words \(tag)", "Spoken words \(tag) plus typing"]
         for (i, mode) in ["type", "voice", "voice+type"].enumerated() {
-            app.tabBars.buttons["Today"].tap()
+            app.tabBars.buttons["Write"].tap()
             let start = app.textViews["Your words"]
             XCTAssertTrue(start.waitForExistence(timeout: 10), "start \(i)")
             start.tap()

@@ -38,7 +38,7 @@ final class GuestTodayUITests: XCTestCase {
         XCTAssertTrue(has(app, "Saved", 10))
         app.buttons["Not now"].tap()
         XCTAssertTrue(has(app, "I wanted to say: no, thank you."))
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         XCTAssertEqual(words(app), "")
         XCTAssertTrue(app.buttons["Suggest a question"].exists)
@@ -80,7 +80,7 @@ final class GuestTodayUITests: XCTestCase {
         app.buttons["Save"].tap()
         app.buttons["Reflect on it"].tap()
         XCTAssertTrue(app.buttons["Save reflection"].waitForExistence(timeout: 10))
-        app.tabBars.buttons["Today"].tap()
+        app.tabBars.buttons["Write"].tap()
         app.buttons["Settings"].tap()
         let delete = app.buttons["Delete all data"]
         for _ in 0..<6 where !delete.isHittable { app.swipeUp() }
