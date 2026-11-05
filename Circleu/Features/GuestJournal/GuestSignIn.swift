@@ -259,7 +259,7 @@ struct GuestSignInView: View {
             .padding(24)
         }
         .scrollDismissesKeyboard(.interactively)
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Log in")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .primaryAction) { info } }
@@ -290,8 +290,9 @@ struct GuestSignInView: View {
         VStack(alignment: .leading, spacing: 14) {
             if !typeSize.isAccessibilitySize {
                 GuestScene(.keepsakeShelf).clipShape(RoundedRectangle(cornerRadius: 24))
+                    .shadow(color: GuestWarm.ink.opacity(0.12), radius: 18, y: 8)
             }
-            Text("Bring in your earlier journal").font(GuestBrand.font(.title2, .bold))
+            Text("Bring in your earlier journal").font(GuestWarm.heading(.title2))
                 .foregroundStyle(GuestBrand.ink).accessibilityAddTraits(.isHeader)
             GuestChipRow {
                 GuestChip(text: "Nothing uploaded", systemImage: "icloud.slash")
@@ -323,7 +324,7 @@ struct GuestSignInView: View {
     }
 
     @ViewBuilder private func preview(_ backup: GuestCloudBackup, already: Int) -> some View {
-        Text("Your account’s backup").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+        Text("Your account’s backup").font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
             .accessibilityAddTraits(.isHeader)
         GuestChipRow {
             GuestChip(text: "\(backup.entries.count + backup.messages.count) to copy", systemImage: "square.and.arrow.down")
@@ -336,7 +337,7 @@ struct GuestSignInView: View {
                     .font(GuestBrand.font(.caption)).foregroundStyle(GuestBrand.muted)
             }
             .padding(12).frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white, in: RoundedRectangle(cornerRadius: 14))
+            .guestCard(in: RoundedRectangle(cornerRadius: 14))
         }
         if model.canCopy {
             Button("Copy into this journal") { Task { await model.copy() } }
@@ -354,7 +355,7 @@ struct GuestSignInView: View {
         let title = added == 0 ? "Nothing new to copy" : "Copied \(added) \(added == 1 ? "item" : "items")"
         VStack(spacing: 12) {
             GuestPinguDecoration(asset: "GuestPinguReading", height: 160)
-            Text(title).font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+            Text(title).font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                 .multilineTextAlignment(.center).accessibilityAddTraits(.isHeader)
             if signedOut {
                 GuestChip(text: "Signed out", systemImage: "rectangle.portrait.and.arrow.right")
@@ -420,7 +421,7 @@ struct GuestPasswordResetView: View {
             VStack(alignment: .leading, spacing: 14) {
                 GuestSymbolArt(systemImage: model.sent ? "envelope.badge" : "envelope")
                 if model.sent {
-                    Text("Check your email").font(GuestBrand.font(.title2, .bold)).foregroundStyle(GuestBrand.ink)
+                    Text("Check your email").font(GuestWarm.heading(.title2)).foregroundStyle(GuestBrand.ink)
                         .frame(maxWidth: .infinity).accessibilityAddTraits(.isHeader)
                     // Same answer whether or not an account uses the email.
                     GuestSummary("If an account uses this email, a link is on its way.")
@@ -440,7 +441,7 @@ struct GuestPasswordResetView: View {
             }
             .padding(24)
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Reset password")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -563,7 +564,7 @@ struct GuestDeleteAccountView: View {
             }
             .padding(24)
         }
-        .background(GuestBrand.ice.ignoresSafeArea())
+        .background { GuestFlowingBackground() }
         .navigationTitle("Delete my account")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(model.step == .working) // Can't leave while it's deleting.
@@ -634,7 +635,7 @@ struct GuestInfoButton<Content: View>: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(24)
                 }
-                .background(GuestBrand.ice.ignoresSafeArea())
+                .background { GuestFlowingBackground() }
                 .navigationTitle(label)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -677,7 +678,7 @@ struct GuestFactCard: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white, in: RoundedRectangle(cornerRadius: 16))
+        .guestCard(in: RoundedRectangle(cornerRadius: 16))
         .accessibilityElement(children: .combine)
     }
 }
@@ -685,6 +686,6 @@ struct GuestFactCard: View {
 extension View {
     /// A text field on a white rounded background; its placeholder is its spoken name.
     func guestField() -> some View {
-        padding(12).background(.white, in: RoundedRectangle(cornerRadius: 14))
+        padding(12).guestCard(in: RoundedRectangle(cornerRadius: 14))
     }
 }
