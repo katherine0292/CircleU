@@ -387,6 +387,8 @@ struct GuestOnboardingPageView: View {
         .accessibilityHidden(true)
     }
 
+    static let bubbles = ["GuestOnboardingHardMoment": "Hi, I’m Tuanwei!"]
+
     /// Height over width; the scenes aren't all the same shape.
     private var aspect: CGFloat {
         guard let size = UIImage(named: page.asset)?.size, size.width > 0 else { return 1.5 }
@@ -394,8 +396,16 @@ struct GuestOnboardingPageView: View {
     }
 
     private func art(width: CGFloat) -> some View {
-        Image(page.asset).resizable().scaledToFill()
+        GuestLivingImage(asset: page.asset)
             .frame(width: width, height: width * aspect)
+            .overlay {
+                // The otter speaks: hello on the first page, the way in on the last.
+                if let line = Self.bubbles[page.asset], let eyes = GuestEyeMap.eyes[page.asset] {
+                    GuestHelloBubble(text: line)
+                        .frame(maxWidth: 190)
+                        .position(x: min(width - 104, eyes.right.x * width + 120), y: eyes.right.y * width * aspect - 44)
+                }
+            }
             // Parallax: the art drifts slower than the page as you swipe.
             .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                 content.offset(x: reduceMotion ? 0 : phase.value * width * 0.3)
