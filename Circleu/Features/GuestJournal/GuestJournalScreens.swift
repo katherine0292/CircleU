@@ -419,7 +419,12 @@ struct GuestJournalListView: View {
                                 ForEach(group.entries) { entry in
                                     GuestJournalRow(entry: entry,
                                         hasPractice: !practice.linkedMessages(to: entry.id).isEmpty,
+                                        asksOutcome: practice.linkedMessages(to: entry.id).contains { m in
+                                            let turns = m.conversation?.turns ?? []
+                                            return turns.contains { $0.kind == .wording } && !turns.contains { $0.kind == .outcome }
+                                        },
                                         onTags: { taggingEntry = entry })
+                                        .modifier(GuestFirstRowTarget(isFirst: entry.id == entries.first?.id))
                                         .guestRiseIn()
                                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                                         .listRowSeparator(.hidden).listRowBackground(Color.clear)
@@ -488,6 +493,8 @@ struct GuestJournalListView: View {
 private struct GuestJournalRow: View {
     let entry: GuestJournalEntry
     let hasPractice: Bool
+    /// Something was said in a linked conversation, and how it went isn't written yet.
+    var asksOutcome = false
     let onTags: () -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -508,6 +515,10 @@ private struct GuestJournalRow: View {
                                     .font(.system(size: 16)).foregroundStyle(GuestBrand.blue)
                             }
                             if hasPractice { GuestBrandIcon(asset: "GuestIconPractice", size: 18) }
+                            if asksOutcome {
+                                Text("How did it go?").font(GuestBrand.font(.caption2, .bold)).foregroundStyle(GuestBrand.blue)
+                                    .padding(.horizontal, 8).padding(.vertical, 2).background(GuestBrand.wash, in: Capsule())
+                            }
                         }
                         .accessibilityElement(children: .ignore).accessibilityLabel(statuses)
                     }
@@ -564,7 +575,8 @@ private struct GuestJournalRow: View {
         var parts: [String] = []
         if entry.reflection != nil { parts.append("Has a reflection") }
         if entry.nextStep != nil { parts.append(entry.nextStepDone ? "Next step done" : "Next step not done") }
-        if hasPractice { parts.append("Has a practice message") }
+        if hasPractice { parts.append("Has a conversation") }
+        if asksOutcome { parts.append("How did it go? Not written yet") }
         return parts.joined(separator: ", ")
     }
 }
