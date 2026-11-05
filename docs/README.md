@@ -32,6 +32,8 @@ For UI work, follow **[brief](product/overview.md) → [MVP requirements](produc
 
 ## Project Reviews
 
+- [AI answer acceptance cases — 5 November](qa/ai-acceptance-cases.md): 19 invented journal inputs, what a reflection should and must never say, and what the local engine returns today.
+
 - [Project audit — 31 October](qa/project-audit-2026-10-31/README.md): prioritised code, Firebase, release, Figma and documentation findings; fresh unit/UI verification and recommended next work.
 
 - [Practice usability session guide — 30 October](design/practice-usability-session-2026-10-30.md): neutral review 08 tasks, moderator setup, anonymous results template and explicit prototype limitations; sessions pending.
