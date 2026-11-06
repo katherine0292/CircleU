@@ -213,7 +213,7 @@ struct GuestWelcomeView: View {
         GuestOnboardingPage(asset: "GuestOnboardingFindWords", title: "Write or talk it through",
                             line: "Kept on this iPhone. Not uploaded or synced."),
         GuestOnboardingPage(asset: "GuestOnboardingSayItKindly", title: "Find your words",
-                            line: "Practise what you want to say, when you’re ready."),
+                            line: "Prepare what you want to say, when you’re ready."),
     ]
     private var isLast: Bool { page == Self.pages.count - 1 }
 
