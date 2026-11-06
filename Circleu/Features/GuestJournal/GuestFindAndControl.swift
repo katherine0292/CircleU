@@ -167,7 +167,7 @@ enum GuestExport {
             }
             if let step = entry.nextStep { lines.append("Next step: \(step)\(entry.nextStepDone ? " (done)" : "")") }
         }
-        lines += ["", "PRACTICE"]
+        lines += ["", "CONVERSATIONS"]
         for message in messages.sorted(by: { $0.createdAt < $1.createdAt }) {
             // copy: export
             lines += ["", "— \(message.createdAt.formatted(date)) · \(GuestPracticeTag.label(sourceEntryID: message.sourceEntryID, entries: entries))"]
