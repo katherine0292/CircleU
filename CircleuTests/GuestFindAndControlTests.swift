@@ -72,7 +72,7 @@ final class GuestFindAndControlTests: XCTestCase {
         let message = GuestPracticeMessage(id: UUID(), situation: "Group work", goal: "", wording: "Can we talk?",
                                            sourceEntryID: source.id, revision: 0, createdAt: Date(), updatedAt: Date())
         let text = GuestExport.text(entries: [source], messages: [message])
-        XCTAssertTrue(text.contains("1 journal entry and 1 practice message."))
+        XCTAssertTrue(text.contains("1 journal entry and 1 conversation."))
         XCTAssertTrue(text.contains("My words:\nMy groupmate missed the deadline"))
         XCTAssertTrue(text.contains("Reflection (guided prompts):"))
         XCTAssertTrue(text.contains("Feeling: Let down"))
@@ -418,7 +418,7 @@ final class GuestFindAndControlTests: XCTestCase {
         let folder = root.appendingPathComponent("Export")
         let made = await GuestSettingsViewModel(journal: journal, practice: practice).makeExportFile(directory: folder)
         let text = try String(contentsOf: try XCTUnwrap(made), encoding: .utf8)
-        XCTAssertTrue(text.contains("1 journal entry and 1 practice message."))
+        XCTAssertTrue(text.contains("1 journal entry and 1 conversation."))
         XCTAssertTrue(GuestSettingsViewModel.removeExports(in: folder))
         XCTAssertFalse(FileManager.default.fileExists(atPath: folder.path))
     }
