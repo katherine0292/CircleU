@@ -107,7 +107,7 @@ On the moment's page, the one main action is always the next stop that isn't don
 </tr>
 </table>
 
-- **Welcome:** three scenes with Tuanwei the otter. There is no account wall: *Get started* goes straight in, and *Log in* is only for recovering data from version 1.
+- **Welcome:** three scenes with Podo the otter. There is no account wall: *Get started* goes straight in, and *Log in* is only for recovering data from version 1.
 - **Guide:** a 13-step tour across all three tabs. A spotlight lights one control and dims the rest, a paw points at it, and the otter changes pose at each step. It can be skipped at any step.
 
 ## AI product decisions
@@ -185,7 +185,7 @@ The full walk-through of both versions (screens, data, AI and privacy) is in **[
 - **Product definition:** cut the MVP from five tabs to three, removed social and rewards, and chose guest-first, local-only.
 - **AI experience:** the seven principles above, including *two readings, you choose* and visible fallback reasons.
 - **Interaction design:** the Talk thread (styles bundled per generation, ↻ for another take, edit to branch), the moment timeline and the spotlight guide. Each was clickable-prototyped before it was built.
-- **Visual direction:** the warm glass UI and the Tuanwei otter illustration set.
+- **Visual direction:** the warm glass UI and the Podo otter illustration set.
 - **Building with AI agents:** most of the version 2 code was written with Claude Code and Codex, under project rules, tests and a dated [collaboration log](docs/agent-collaboration-log/README.md). Version 1 contributions are in the [contribution map](docs/portfolio/katherine-contribution-map.md).
 
 ## Run it
