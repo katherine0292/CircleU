@@ -194,29 +194,36 @@ The full walk-through of every version, with a map of which folders belong to wh
 
 ## My contributions
 
-**Version 1 (June 2026, 23 commits):**
-- **UI:** built the liquid frosted-glass visual system (`PinguGlassKit`) and applied it to all 15 screens.
-- **Live Coach:** redesigned it, splitting the coach's reply from its context and adding copy feedback.
-- **Circles and Profile:** built the community feed, public circles on Firebase, and the account flow.
-- **Privacy and wellbeing:** scoped each account's on-device data so two people on one phone never see each other's journal, and hid point scores in Profile.
-- **Release:** App Store readiness (privacy manifest, signing and Firebase config kept out of Git).
+**130 commits · +11.7k lines of code** (GitHub Insights), across research, product, design and engineering. I took part in every iteration of the product, from the first concept to the current version.
 
-**Version 3 (November 2026, 94 commits):**
-- **Research:** usability and heuristic reviews of Practice and of the whole app, which led to the redesign.
-- **Product and interaction design:**
-  - the Talk thread (tone and style, ↻ for another take, edit to branch, two readings of a reply);
-  - the moment timeline with *How did it go?*;
-  - the 13-step spotlight guide;
-  - the Write · Journal · Talk structure.
-- **AI experience:**
-  - no model call on too few words;
-  - a visible reason whenever Apple Intelligence isn't used;
-  - a reply-specific prompt;
-  - [AI acceptance cases](docs/qa/ai-acceptance-cases.md).
-- **UI and motion:** the warm glass restyle, Podo the otter across Welcome, scenes and avatars, and motion that respects Reduce Motion.
-- **Quality:** unit and UI tests for Talk and the guide, user stories with acceptance criteria, and a dated [collaboration log](docs/agent-collaboration-log/README.md). The code was written with Claude Code.
-
-Commit-level detail is in the [contribution map](docs/portfolio/katherine-contribution-map.md).
+- **Concept and research:**
+  - shaped the original product concept;
+  - led discovery research with 20 participants (survey and in-depth interviews), followed by personas, synthesis and competitive analysis (Finch, Yoodli). This defined the core loop.
+- **Product definition:**
+  - defined the MVP (10 features in P0/P1 tiers) and the user stories;
+  - cut community and rewards to keep the focus on reflection;
+  - set the direction of each iteration, up to the Write · Journal · Talk structure.
+- **Usability and evaluation:**
+  - ran 10 usability sessions and heuristic evaluations of every core flow;
+  - cut the reflection card from five sections to three and added an on-device privacy note, which raised retest task completion from **6/10 to 9/10**.
+- **AI strategy:**
+  - led the move from cloud Gemini to Apple's on-device Foundation Models;
+  - designed the fallback from the on-device model to a local rules engine, with input-quality gating, balancing privacy, cost and availability.
+- **AI experience design:** defined the inputs, outputs and interaction of the AI reflection card and the AI communication coach:
+  - AI kept apart from the user's own words;
+  - rewrites that need confirmation and can be undone;
+  - two readings of the other person's reply;
+  - visible fallback reasons;
+  - no core task that depends on AI.
+- **UI/UX:**
+  - built the liquid-glass visual system for the first release;
+  - led the warm-glass redesign with Podo the otter, the moment timeline, the Talk thread, the spotlight guide and motion.
+- **Privacy and wellbeing:** isolated on-device data per account, and toned down gamification.
+- **Delivery:**
+  - owned product decisions and design reviews;
+  - built core screens with AI coding agents (Claude Code, Codex);
+  - shipped to TestFlight (6 installs, 143 sessions);
+  - the project is covered by 339 automated tests.
 
 ## Run it
 
