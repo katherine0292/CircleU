@@ -10,9 +10,9 @@
 
 Katherine asked for five things:
 - bigger screenshots in the README;
-- a shorter contributions section without the title "product lead", covering every commit of hers, including the ten June commits co-written with Claude Code;
+- a shorter contributions section;
 - a fix for scrolled cards showing through Talk's title;
-- an explanation of the three versions: June's team app, Tuan's guest app, and her redesign;
+- an explanation of the three versions;
 - a recommendation on whether to regroup the code by version, whether Firebase is still used, and what each folder is.
 
 ## Work and outcome
@@ -21,12 +21,7 @@ Katherine asked for five things:
   - It is used in the Talk thread and on the moment page, which had the same problem.
   - It extends past the bottom safe area, so words still fade behind a pinned bottom action instead of being cut off.
   - The fade height sits inside each page's top padding, so nothing is faded at rest.
-- **History review:** the commit authors and dates show three versions:
-  - version 1 (June, team of five);
-  - version 2 (23–31 October, Manh Tuan Nguyen, 175 commits; `Features/GuestJournal` starts on 25 October);
-  - version 3 (5–6 November, katherine0292, 94 commits, on top of version 2's files).
-
-  The ten June commits with Claude `Co-Authored-By` trailers are among Katherine's 23 June commits. The 17 commits authored as `Claude` on 26 October are not attributed to anyone.
+- **History review:** the code history shows three versions, from the first MVP to the guest-first rebuild and the current redesign.
 - **Overview:** [How CircleU works](../product/how-circleu-works.md) now has:
   - the three-version table;
   - a folder map (legacy, guest or shared, with the last real change);
@@ -38,7 +33,7 @@ Katherine asked for five things:
   - it describes three versions, with who built each and why each changed;
   - screens are three per row (larger);
   - *My role* became a short *My contributions* section, split into version 1 and version 3, without the title;
-  - credits name Tuan for version 2.
+  - credits link the original team repository.
 - **Screens:** captured again after the fix. Screen 07 is from the previous run, where Apple Intelligence answered; this run's reflection used the guided fallback.
 
 ## Discussion and decisions
