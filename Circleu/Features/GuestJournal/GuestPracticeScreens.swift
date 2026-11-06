@@ -240,7 +240,7 @@ struct GuestPracticeRouteView: View {
                 GuestPracticeMessageView(composer: composer, practice: practice, journal: journal)
             } else if let draft = otherDraft {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("You have an unsaved practice draft")
+                    Text("You have an unsaved conversation")
                         .font(GuestWarm.heading(.title3)).foregroundStyle(GuestBrand.ink)
                         .accessibilityAddTraits(.isHeader)
                     Text(GuestPracticeTag.label(sourceEntryID: draft.sourceEntryID, entries: journal.entries))
@@ -345,7 +345,7 @@ struct GuestPracticeMessageView: View {
             }
             .padding(24)
         }
-        .accessibilityIdentifier("Practice form")
+        .accessibilityIdentifier("Talk form")
         .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) {
             if composer.isEditing {
