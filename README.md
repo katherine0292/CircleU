@@ -168,6 +168,15 @@ SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/Gu
 - Every store is a protocol, so tests use the same code with in-memory or deliberately failing stores. A failed save keeps the person's words and says so.
 - Conversations are stored as attributed turns (*wording*, *their reply*, *context*, *outcome*). Old messages open as Talk threads without migration.
 
+**Tech stack:**
+- SwiftUI and Swift Concurrency (`@MainActor` ViewModels);
+- SwiftData with versioned schemas;
+- Apple Foundation Models;
+- Speech and AVFoundation for on-device dictation;
+- XCTest and XCUITest.
+
+Version 1 also uses Firebase Auth and Cloud Firestore.
+
 The full walk-through of both versions (screens, data, AI and privacy) is in **[How CircleU works](docs/product/how-circleu-works.md)**.
 
 ## Quality
