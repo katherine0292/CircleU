@@ -29,8 +29,7 @@ An iPhone app for difficult conversations: it turns a raw journal entry into a r
 | **For** | Students, new graduates and people new to a team or country, preparing for a talk with a groupmate, manager, friend, family member or partner. |
 | **Solution** | One loop: **Write → Reflect → Talk → How did it go?** Each saved entry becomes a *moment* with a timeline of everything that grew from it. |
 | **AI approach** | On-device Apple Intelligence that suggests and never decides. Every suggestion shows its source, and the app still works when the model doesn't. |
-| **Status** | Version 1 shipped to TestFlight (June 2026). Version 2 (this README) runs in the Simulator; physical-device validation is pending. |
-| **My role** | Product lead (PM and UX). Research, design reviews, AI interaction rules, and most of the version 2 code, written with AI coding agents. |
+| **Status** | Version 1 shipped to TestFlight (June 2026). Version 3, described here, runs in the Simulator; physical-device validation is pending. |
 
 ## The product loop
 
@@ -53,10 +52,9 @@ On the moment's page, the one main action is always the next stop that isn't don
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/04-write.jpg" alt="Write"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/06-saved.jpg" alt="Saved, with Reflect offered"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/07-reflection.jpg" alt="Reflection suggested by Apple Intelligence"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/write-save.gif" alt="Writing and saving"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/04-write.jpg" alt="Write"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/06-saved.jpg" alt="Saved, with Reflect offered"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/07-reflection.jpg" alt="Reflection suggested by Apple Intelligence"></td>
 </tr>
 </table>
 
@@ -67,10 +65,14 @@ On the moment's page, the one main action is always the next stop that isn't don
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/08-talk-setup.jpg" alt="Set the scene"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/09-talk-suggestion.jpg" alt="Say it like this, with tone and style"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/12-talk-readings.jpg" alt="Two ways to read their reply"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/13-talk-reply-ideas.jpg" alt="Reply ideas for the chosen reading"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/08-talk-setup.jpg" alt="Set the scene"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/09-talk-suggestion.jpg" alt="Say it like this, with tone and style"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/11-talk-said.jpg" alt="I said it"></td>
+</tr>
+<tr>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/12-talk-readings.jpg" alt="Two ways to read their reply"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/13-talk-reply-ideas.jpg" alt="Reply ideas for the chosen reading"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/10-talk-style.jpg" alt="A style from the same suggestion"></td>
 </tr>
 </table>
 
@@ -84,26 +86,24 @@ On the moment's page, the one main action is always the next stop that isn't don
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/14-moment-asks.jpg" alt="Moment timeline asking How did it go"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/15-moment-timeline.jpg" alt="Complete moment timeline"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/16-journal.jpg" alt="Journal"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/17-talk-home.jpg" alt="Talk home with From your journal"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/14-moment-asks.jpg" alt="Moment timeline asking How did it go"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/15-moment-timeline.jpg" alt="Complete moment timeline"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/16-journal.jpg" alt="Journal"></td>
 </tr>
 </table>
 
 - **Moment timeline:** what happened, then the reflection, the conversation and how it went. Dots fill in and the rail grows as each stop is done.
 - **How did it go?:** a feeling alone is enough. The Journal card keeps asking until it is answered, which closes the loop.
 - **Journal:** entries by day, with search, a calendar, and context and feeling chips.
-- **Talk home:** *From your journal* suggests moments that have a context but no conversation yet.
+- **Talk home:** *From your journal* suggests moments that have a context but no conversation yet, then lists *Earlier conversations*.
 
 ### 4. First-run experience
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/01-welcome-1.jpg" alt="Welcome 1"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/03-welcome-3.jpg" alt="Welcome 3"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/20-guide-3.jpg" alt="Guide step 3"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/21-guide-8.jpg" alt="Guide step 8"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/01-welcome-1.jpg" alt="Welcome, Podo says hello"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/20-guide-3.jpg" alt="Guide step 3"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/21-guide-8.jpg" alt="Guide step 8"></td>
 </tr>
 </table>
 
@@ -128,20 +128,26 @@ Supporting docs: the [AI acceptance cases](docs/qa/ai-acceptance-cases.md) list 
 
 ## How the product evolved
 
-| | Version 1: team TestFlight app (June 2026) | Version 2: this redesign (Oct–Nov 2026) |
-| --- | --- | --- |
-| Structure | Five tabs: Home · Journal · Tips · Circle · Profile | Three tabs: **Write · Journal · Talk** |
-| Entry | Account required before first use | Guest-first; no account |
-| Data | Firestore sync | On this iPhone only (SwiftData, file protection) |
-| AI | Cloud model, then Apple Intelligence | Apple Intelligence only, with an explained fallback |
-| Coaching | *Live Coach*, a separate tool | **Talk**, linked to the journal moment and to how it went |
-| Engagement | Circles, quests, rewards | Removed; the moment timeline is the progress cue |
+The repository holds three versions. Each one is visible in the code history.
 
-**What drove the change:**
-- Usability sessions and heuristic reviews ([Practice usability session](docs/design/practice-usability-session-2026-10-30.md), [flow review](docs/design/flow-review-2026-10-23.md)) found that the account wall came before any value.
-- Circles and rewards pulled attention from reflection.
-- Practice felt disconnected from what people had written.
-- Each finding became a decision in the [MVP definition](docs/product/mvp-definition.md).
+| | **Version 1** · June 2026 | **Version 2** · Oct 2026 | **Version 3** · Nov 2026 (this README) |
+| --- | --- | --- | --- |
+| Who | Five-person team, Apple Foundation Program | Manh Tuan Nguyen, with Codex | Katherine (katherine0292), with Claude Code |
+| Structure | Home · Journal · Tips · Circle · Profile | Today · Journal · Practice | **Write · Journal · Talk** |
+| Entry | Account required | Guest-first, no account | Guest-first, plus a 13-step guide |
+| Data | Firestore sync | SwiftData on this iPhone | Same, plus moments and outcomes |
+| Coaching | *Live Coach* chat | Staged Practice: Prepare → Refine → Their reply | **Talk** thread with readings and branches, linked to the moment |
+| AI | Cloud model, then Apple Intelligence | Apple Intelligence with guided fallback | Plus an input check, visible fallback reasons, and reply readings |
+| Look | Liquid frosted glass, penguin mascot | Brand refresh, penguin scenes | Warm glass, Podo the otter, motion |
+
+**Why each version changed:**
+- **Version 1 → 2:** usability sessions and flow reviews ([flow review](docs/design/flow-review-2026-10-23.md)) found three problems: the account wall came before any value, Circles and rewards pulled attention from reflection, and sensitive text went to the cloud. See the [MVP definition](docs/product/mvp-definition.md).
+- **Version 2 → 3:** a usability and heuristic review of Practice ([earlier session](docs/design/practice-usability-session-2026-10-30.md)) found three more:
+  - its staged pages were hard to follow;
+  - it stopped once the person said the words;
+  - it wasn't linked to the journal.
+
+  Talk, the moment timeline and *How did it go?* answer those, and the guide answers first-run confusion.
 
 <details>
 <summary>Version 1 screens</summary>
@@ -164,7 +170,7 @@ Store / Engine          GuestJournalStore · GuestConversationStore · GuestSugg
 SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/GuestJournal/
 ```
 
-- A launch switch ([`AppStartup`](Circleu/App/AppStartup.swift)) keeps version 1 intact for existing TestFlight testers while version 2 is built in the same project. The guest graph never configures Firebase or analytics, and tests check this.
+- A launch switch ([`AppStartup`](Circleu/App/AppStartup.swift)) keeps version 1 intact for existing TestFlight testers. Versions 2 and 3 share the guest app's code, which only Debug builds open. The guest graph never configures Firebase or analytics, and tests check this.
 - Every store is a protocol, so tests use the same code with in-memory or deliberately failing stores. A failed save keeps the person's words and says so.
 - Conversations are stored as attributed turns (*wording*, *their reply*, *context*, *outcome*). Old messages open as Talk threads without migration.
 
@@ -177,7 +183,7 @@ SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/Gu
 
 Version 1 also uses Firebase Auth and Cloud Firestore.
 
-The full walk-through of both versions (screens, data, AI and privacy) is in **[How CircleU works](docs/product/how-circleu-works.md)**.
+The full walk-through of every version, with a map of which folders belong to which (screens, data, AI and privacy), is in **[How CircleU works](docs/product/how-circleu-works.md)**.
 
 ## Quality
 
@@ -186,16 +192,31 @@ The full walk-through of both versions (screens, data, AI and privacy) is in **[
 - **User stories with acceptance criteria:** [user-stories.md](docs/product/user-stories.md) maps each Given/When/Then to its test.
 - **Copy lint:** the [screen content guidelines](docs/design/screen-content-guidelines.md) are enforced by `GuestCopyLintTests` (length limits, one primary action, banned wording).
 
-## My role
+## My contributions
 
-**Product lead (PM and UX)**, on a five-person team in the Apple Foundation Program 2026, then owner of the version 2 redesign.
+**Version 1 (June 2026, 23 commits):**
+- **UI:** built the liquid frosted-glass visual system (`PinguGlassKit`) and applied it to all 15 screens.
+- **Live Coach:** redesigned it, splitting the coach's reply from its context and adding copy feedback.
+- **Circles and Profile:** built the community feed, public circles on Firebase, and the account flow.
+- **Privacy and wellbeing:** scoped each account's on-device data so two people on one phone never see each other's journal, and hid point scores in Profile.
+- **Release:** App Store readiness (privacy manifest, signing and Firebase config kept out of Git).
 
-- **Research and evaluation:** usability sessions, heuristic reviews of every flow, and competitive analysis.
-- **Product definition:** cut the MVP from five tabs to three, removed social and rewards, and chose guest-first, local-only.
-- **AI experience:** the seven principles above, including *two readings, you choose* and visible fallback reasons.
-- **Interaction design:** the Talk thread (styles bundled per generation, ↻ for another take, edit to branch), the moment timeline and the spotlight guide. Each was clickable-prototyped before it was built.
-- **Visual direction:** the warm glass UI and the Podo otter illustration set.
-- **Building with AI agents:** most of the version 2 code was written with Claude Code and Codex, under project rules, tests and a dated [collaboration log](docs/agent-collaboration-log/README.md). Version 1 contributions are in the [contribution map](docs/portfolio/katherine-contribution-map.md).
+**Version 3 (November 2026, 94 commits):**
+- **Research:** usability and heuristic reviews of Practice and of the whole app, which led to the redesign.
+- **Product and interaction design:**
+  - the Talk thread (tone and style, ↻ for another take, edit to branch, two readings of a reply);
+  - the moment timeline with *How did it go?*;
+  - the 13-step spotlight guide;
+  - the Write · Journal · Talk structure.
+- **AI experience:**
+  - no model call on too few words;
+  - a visible reason whenever Apple Intelligence isn't used;
+  - a reply-specific prompt;
+  - [AI acceptance cases](docs/qa/ai-acceptance-cases.md).
+- **UI and motion:** the warm glass restyle, Podo the otter across Welcome, scenes and avatars, and motion that respects Reduce Motion.
+- **Quality:** unit and UI tests for Talk and the guide, user stories with acceptance criteria, and a dated [collaboration log](docs/agent-collaboration-log/README.md). The code was written with Claude Code.
+
+Commit-level detail is in the [contribution map](docs/portfolio/katherine-contribution-map.md).
 
 ## Run it
 
@@ -208,7 +229,7 @@ cp Config/Signing.xcconfig.example Config/Signing.xcconfig   # set your team for
 open Circleu.xcodeproj
 ```
 
-- Run the **`CircleU Guest Review`** scheme to open version 2.
+- Run the **`CircleU Guest Review`** scheme to open the current app (version 3).
 - The **`Circleu`** scheme opens version 1.
 - Tests: scheme `Circleu` (unit) and `CircleuUITests` (UI).
 
@@ -221,4 +242,4 @@ Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [
 
 ## Credits
 
-Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
+Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was built by Manh Tuan Nguyen; version 3 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
