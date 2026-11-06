@@ -273,7 +273,7 @@ Tabs are **Write · Journal · Talk** (Today and Practice renamed). A saved entr
 | G1.1 | Given Write, when I tap the ?, then 13 steps move across Write, Journal and Talk; each lights one control or area and dims the rest, with an otter that changes pose and a pointing paw. | Unit `GuestTalkTests.testTheGuideCoversAllThreeTabsInOrder`; UI `GuestTalkUITests.testGuideWalksAllThreeTabs` |
 | G1.2 | Given the guide, when I tap Back, Next, Done or Skip, then it moves or ends at once. | UI `GuestTalkUITests.testGuideWalksAllThreeTabs` |
 
-**W3. Hello.** Given the first Welcome page, then the otter says "Hi, I’m Tuanwei!" in a bubble. No test.
+**W3. Hello.** Given the first Welcome page, then the otter says "Hi, I’m Podo!" in a bubble (named Tuanwei until 6 November 2026). No test.
 
 ## 4. Practice
 
