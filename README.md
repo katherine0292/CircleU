@@ -19,17 +19,6 @@ An iPhone app for difficult conversations: it turns a raw journal entry into a r
 
 </div>
 
-<details>
-<summary><b>中文简介</b></summary>
-
-CircleU 是一款帮助人们面对"难开口的对话"的 iPhone 应用。用户先记下发生了什么（Write），再由端侧 AI 帮忙梳理情绪和背后的需要（Reflect），然后在 Talk 里把想说的话变成自己语气的表达。对方回复后，App 会给出"两种可能的理解"让用户自己选，而不是替用户下判断。最后，用户还可以回到这件事上，记一句"后来怎么样了"。
-
-- **AI 全部在手机上运行**（Apple Intelligence / Foundation Models）。模型不可用时，会退回到用用户自己的话生成的引导模板，并说明原因。
-- **没有账号墙**：不注册也能用，数据只存在本机。
-- **我的角色**：产品负责人（PM + 体验设计）。负责可用性测试与启发式评估、信息架构重构（Write · Journal · Talk）、AI 交互原则、新手引导设计，并用 Claude Code 和 Codex 等 AI 编程工具实现了大部分新版本。
-
-</details>
-
 ---
 
 ## At a glance
