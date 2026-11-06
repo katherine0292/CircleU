@@ -1,6 +1,6 @@
 # How CircleU works: three versions, two apps in one project
 
-Written 6 November 2026 from a full read of the source and the Git history on `main`. It covers four things:
+Written 6 November 2026 from a full read of the source on `main`. It covers four things:
 - what each version does;
 - which folders belong to which version;
 - how data and AI move through the app;
@@ -10,9 +10,8 @@ For screens, see the [final screens](../design/final-screens-2026-11-06/README.m
 
 ## 1. Three versions, two apps
 
-| | **Version 1** · June 2026 | **Version 2** · 23–31 Oct 2026 | **Version 3** · 5–6 Nov 2026 |
+| | **Version 1** · first MVP | **Version 2** · guest-first rebuild | **Version 3** · current redesign |
 | --- | --- | --- | --- |
-| Who (from commits) | Team of five: tuannm3812, ShellyHZX, katherine0292, Dev.Dave, Mike | Manh Tuan Nguyen (175 commits), with Codex | katherine0292 (94 commits), with Claude Code |
 | App | **Legacy app**: what every Release build opens | **Guest app**: opened only in Debug and the `CircleU Guest Review` scheme | **The same guest app**, redesigned |
 | Tabs | Home · Journal · Tips · Circle · Profile | Today · Journal · Practice | Write · Journal · Talk |
 | Account | Required (Firebase Auth) | None; Log in only to recover old data | Same |
@@ -20,7 +19,7 @@ For screens, see the [final screens](../design/final-screens-2026-11-06/README.m
 | AI | Cloud Gemini (removed 4 Nov), then Apple Intelligence | Apple Intelligence with a guided fallback | Plus an input check, fallback reasons, reply readings and a reply prompt |
 | Coaching | Live Coach | Staged Practice (Prepare → Refine → Their reply) | Talk thread, moment timeline, How did it go?, step-by-step guide |
 
-Versions 2 and 3 are not separate apps. Version 3 changed version 2's files in `Features/GuestJournal/` and `Services/GuestJournal/` and added new ones, so the two can't be split by folder. Their difference is in the history: `git log --author=katherine0292 --after=2026-11-01`.
+Versions 2 and 3 are not separate apps. Version 3 changed version 2's files in `Features/GuestJournal/` and `Services/GuestJournal/` and added new ones, so the two can't be split by folder.
 
 The switch between the legacy and guest apps is [`AppStartup`](../../Circleu/App/AppStartup.swift). Guest mode only exists in Debug, and it never configures Firebase or analytics. This keeps the data of testers who have version 1 from TestFlight safe while the guest app is built and checked.
 
@@ -62,12 +61,12 @@ Firebase can go once two things are true: Release opens the guest app, and teste
 ### Why the folders aren't regrouped by version
 
 - **Versions 2 and 3 share files,** so a `v2/` and `v3/` split can't exist.
-- **Moving the legacy folders into a `Legacy/` group** would touch hundreds of paths. Git blame and Tuan's upstream merges would get harder, and the project's rules ask for no bulk renaming.
+- **Moving the legacy folders into a `Legacy/` group** would touch hundreds of paths. Git blame and merges with the team repository would get harder, and the project's rules ask for no bulk renaming.
 - **The clean step is deletion,** once Firebase can go (above). Until then, this map, the `Guest` prefix and `AppStartup` mark the line.
 
 ## 2. Version 1: the team TestFlight app
 
-The first version was built for the Apple Foundation Program by a five-person team. It is still what Release builds open.
+The first version was built for the Apple Foundation Program. It is still what Release builds open.
 
 | Area | What it does | Main code |
 | --- | --- | --- |

@@ -29,7 +29,7 @@ An iPhone app for difficult conversations: it turns a raw journal entry into a r
 | **For** | Students, new graduates and people new to a team or country, preparing for a talk with a groupmate, manager, friend, family member or partner. |
 | **Solution** | One loop: **Write → Reflect → Talk → How did it go?** Each saved entry becomes a *moment* with a timeline of everything that grew from it. |
 | **AI approach** | On-device Apple Intelligence that suggests and never decides. Every suggestion shows its source, and the app still works when the model doesn't. |
-| **Status** | Version 1 shipped to TestFlight (June 2026). Version 3, described here, runs in the Simulator; physical-device validation is pending. |
+| **Status** | Shipped to TestFlight. The current version, described here, is in Simulator testing. |
 
 ## The product loop
 
@@ -128,11 +128,10 @@ Supporting docs: the [AI acceptance cases](docs/qa/ai-acceptance-cases.md) list 
 
 ## How the product evolved
 
-The repository holds three versions. Each one is visible in the code history.
+The repository holds three versions of the product. Each one kept what worked and fixed what testing showed.
 
-| | **Version 1** · June 2026 | **Version 2** · Oct 2026 | **Version 3** · Nov 2026 (this README) |
+| | **Version 1** · first MVP | **Version 2** · guest-first rebuild | **Version 3** · current redesign |
 | --- | --- | --- | --- |
-| Who | Five-person team, Apple Foundation Program | Manh Tuan Nguyen, with Codex | Katherine (katherine0292), with Claude Code |
 | Structure | Home · Journal · Tips · Circle · Profile | Today · Journal · Practice | **Write · Journal · Talk** |
 | Entry | Account required | Guest-first, no account | Guest-first, plus a 13-step guide |
 | Data | Firestore sync | SwiftData on this iPhone | Same, plus moments and outcomes |
@@ -249,4 +248,4 @@ Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [
 
 ## Credits
 
-Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was built by Manh Tuan Nguyen; version 3 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
+Built with the CircleU team in the Apple Foundation Program 2026. The original team repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). MIT License, see [LICENSE](LICENSE).
