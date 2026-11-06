@@ -191,7 +191,7 @@ Screen: Entry (delete dialog). States: in progress, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| J5.1 | Given an entry with a message, when I delete it, then I can keep the message on its own or delete both. | Unit `GuestPracticeStoreTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
+| J5.1 | Given an entry with a message, when I delete it, then I can keep the conversation on its own (Keep conversation) or delete both. | Unit `GuestPracticeStoreTests.testDeletingAnEntryCanKeepItsMessageOnItsOwn`, `testDeletingAnEntryCanDeleteBoth`; UI `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
 | J5.2 | Given delete fails, when the error shows, then the entry and message are unchanged. | Unit `GuestPracticeStoreTests.testFailedEntryDeleteKeepsEntryAndMessage` |
 | J5.3 | Given a deleted entry, when an old screen saves, then it doesn't come back. | Unit `GuestJournalStoreTests.testUpdateAfterDeleteDoesNotResurrectEntry` |
 
@@ -290,7 +290,7 @@ Screen: Practice. States: empty, filled, error.
 
 | # | Given / When / Then | Test |
 | --- | --- | --- |
-| P2.1 | Given no messages, when Practice opens, then the shared Pingu start card and "Nothing practised yet." show; decorative art is omitted at accessibility text sizes. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
+| P2.1 | Given no messages, when Practice opens, then the shared Pingu start card and "No conversations yet." show (was "Nothing practised yet." before 6 November); decorative art is omitted at accessibility text sizes. | UI (partial, checks the text, not the art) `GuestStatesUITests.testEmptyJournalPracticeAndCalendarDay` |
 | P2.2 | Given Prepare has no wording, Continue is off; after entering words and continuing to Refine, Save stores them and shows the saved conversation. | Unit `GuestPracticeViewModelTests.testNewMessageNeedsWordingThenSavesAndShowsAsSaved` |
 | P2.3 | Given saving fails, when the error shows, then my words are kept. | Unit `GuestPracticeViewModelTests.testFailedSaveKeepsWordsAndShowsError` |
 | P2.4 | Given saved messages, when Practice opens, then an ice-toned Pingu card with one blue action strip starts a new message and each message shows as a bubble with a journal icon (if it came from an entry) and its date, with no header. | UI (partial, checks the button and text) `GuestTalkUITests` (staged-Practice UI test replaced 6 Nov) |
