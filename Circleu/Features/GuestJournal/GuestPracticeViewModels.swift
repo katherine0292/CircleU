@@ -28,7 +28,7 @@ final class GuestPracticeViewModel: ObservableObject {
 
     @Published private(set) var loadState: LoadState = .loading
 
-    static let loadFailedMessage = "Couldn’t open your practice. Try again."
+    static let loadFailedMessage = "Couldn’t open your conversations. Try again."
     static let deleteFailedMessage = "Couldn’t delete. Try again."
 
     let store: any GuestPracticeStore
@@ -54,10 +54,10 @@ final class GuestPracticeViewModel: ObservableObject {
     /// Whether this screen still owns the kept draft (an older screen doesn't).
     func ownsDraft(_ owner: ObjectIdentifier) -> Bool { draftOwner == nil || draftOwner == owner }
 
-    static let draftNotKeptMessage = "Your practice draft couldn’t be kept on this phone. Save it before you close the app."
-    static let otherDraftMessage = "Another practice draft is kept. Save this one, or go back to choose."
-    static let draftUnprotectedMessage = "Your practice draft is kept, but this phone couldn’t fully secure it."
-    static let draftUnreadableMessage = "An earlier practice draft couldn’t be opened. New writing here isn’t kept, so save before closing."
+    static let draftNotKeptMessage = "Your unsent words couldn’t be kept on this phone. Save it before you close the app."
+    static let otherDraftMessage = "Another unsaved conversation is kept. Save this one, or go back to choose."
+    static let draftUnprotectedMessage = "Your unsent words are kept, but this phone couldn’t fully secure them."
+    static let draftUnreadableMessage = "Earlier unsent words couldn’t be opened. New writing here isn’t kept, so save before closing."
 
     init(store: any GuestPracticeStore, suggester: (any GuestSuggesting)? = nil, drafts: (any GuestDraftStore)? = nil) {
         self.store = store
@@ -407,7 +407,7 @@ final class GuestPracticeComposerViewModel: ObservableObject {
     static let saveFailedMessage = "Couldn’t save. Try again. Your words are still here."
     static let staleMessage = "This message changed somewhere else. Go back and open it again. Your words are still here."
     static let closedByDeleteMessage = "Everything was deleted after this screen opened, so this wasn’t saved."
-    static let alreadySavedMessage = "This draft was already saved in Practice, so it wasn’t saved again."
+    static let alreadySavedMessage = "This was already saved in Talk, so it wasn’t saved again."
     static let missingMessage = "This message or its journal entry no longer exists. Your words are still here to copy."
 
     let sourceEntryID: UUID?
