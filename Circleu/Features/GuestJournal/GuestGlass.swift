@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The warm, glass look for Tuanwei the otter (visual proposal of 6 November 2026), rolled out one
+/// The warm, glass look for Podo the otter (visual proposal of 6 November 2026), rolled out one
 /// screen at a time: Today and the tab bar first. Colours come from the otter and its scenes.
 enum GuestWarm {
     /// Cocoa, the otter's fur: the one filled action. White text on it is 8.9:1.

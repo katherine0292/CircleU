@@ -6,7 +6,7 @@ import UIKit
 /// the new guest journal screens only; the existing app keeps its own design. Every text style
 /// scales with Dynamic Type.
 enum GuestBrand {
-    // Warm palette from Tuanwei the otter (6 November 2026); the names are kept so every screen
+    // Warm palette from Podo the otter (6 November 2026); the names are kept so every screen
     // moves together. Contrast is measured on `ice` (now oat).
     /// Text: cocoa ink, 13:1.
     static let ink = GuestWarm.ink
