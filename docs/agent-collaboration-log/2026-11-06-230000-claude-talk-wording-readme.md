@@ -53,7 +53,6 @@ She also asked whether a Chinese version is worth adding. That was answered in c
   - version 1 → 2 evolution, with the old screens collapsed;
   - architecture, quality, role, run steps and credits.
 
-  It leaves out the unconfirmed research numbers in the portfolio draft.
 - **Docs:** the screen content guidelines note the Write / Journal / Talk names. The user stories P2.1 and J5.1 use the new copy, and the documentation index links the overview.
 
 ## Verification
@@ -69,6 +68,5 @@ She also asked whether a Chinese version is worth adding. That was answered in c
 
 - Owner: Katherine
 - Remaining:
-  - confirm the README's role wording, and the research numbers if she wants them added;
   - a Simplified Chinese localization, if she decides to build one;
   - a physical-iPhone check of the captured flows.
