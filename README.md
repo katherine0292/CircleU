@@ -29,7 +29,7 @@ An iPhone app for difficult conversations: it turns a raw journal entry into a r
 | **For** | Students, new graduates and people new to a team or country, preparing for a talk with a groupmate, manager, friend, family member or partner. |
 | **Solution** | One loop: **Write → Reflect → Talk → How did it go?** Each saved entry becomes a *moment* with a timeline of everything that grew from it. |
 | **AI approach** | On-device Apple Intelligence that suggests and never decides. Every suggestion shows its source, and the app still works when the model doesn't. |
-| **Status** | Version 1 shipped to TestFlight (June 2026). Version 3, described here, runs in the Simulator; physical-device validation is pending. |
+| **Status** | Shipped to TestFlight. The current version, described here, is in Simulator testing. |
 
 ## The product loop
 
@@ -128,11 +128,10 @@ Supporting docs: the [AI acceptance cases](docs/qa/ai-acceptance-cases.md) list 
 
 ## How the product evolved
 
-The repository holds three versions. Each one is visible in the code history.
+The repository holds three versions of the product. Each one kept what worked and fixed what testing showed.
 
-| | **Version 1** · June 2026 | **Version 2** · Oct 2026 | **Version 3** · Nov 2026 (this README) |
+| | **Version 1** · first MVP | **Version 2** · guest-first rebuild | **Version 3** · current redesign |
 | --- | --- | --- | --- |
-| Who | Five-person team, Apple Foundation Program | Manh Tuan Nguyen, with Codex | Katherine (katherine0292), with Claude Code |
 | Structure | Home · Journal · Tips · Circle · Profile | Today · Journal · Practice | **Write · Journal · Talk** |
 | Entry | Account required | Guest-first, no account | Guest-first, plus a 13-step guide |
 | Data | Firestore sync | SwiftData on this iPhone | Same, plus moments and outcomes |
@@ -194,29 +193,36 @@ The full walk-through of every version, with a map of which folders belong to wh
 
 ## My contributions
 
-**Version 1 (June 2026, 23 commits):**
-- **UI:** built the liquid frosted-glass visual system (`PinguGlassKit`) and applied it to all 15 screens.
-- **Live Coach:** redesigned it, splitting the coach's reply from its context and adding copy feedback.
-- **Circles and Profile:** built the community feed, public circles on Firebase, and the account flow.
-- **Privacy and wellbeing:** scoped each account's on-device data so two people on one phone never see each other's journal, and hid point scores in Profile.
-- **Release:** App Store readiness (privacy manifest, signing and Firebase config kept out of Git).
+**130 commits · +11.7k lines of code** (GitHub Insights), across research, product, design and engineering. I took part in every iteration of the product, from the first concept to the current version.
 
-**Version 3 (November 2026, 94 commits):**
-- **Research:** usability and heuristic reviews of Practice and of the whole app, which led to the redesign.
-- **Product and interaction design:**
-  - the Talk thread (tone and style, ↻ for another take, edit to branch, two readings of a reply);
-  - the moment timeline with *How did it go?*;
-  - the 13-step spotlight guide;
-  - the Write · Journal · Talk structure.
-- **AI experience:**
-  - no model call on too few words;
-  - a visible reason whenever Apple Intelligence isn't used;
-  - a reply-specific prompt;
-  - [AI acceptance cases](docs/qa/ai-acceptance-cases.md).
-- **UI and motion:** the warm glass restyle, Podo the otter across Welcome, scenes and avatars, and motion that respects Reduce Motion.
-- **Quality:** unit and UI tests for Talk and the guide, user stories with acceptance criteria, and a dated [collaboration log](docs/agent-collaboration-log/README.md). The code was written with Claude Code.
-
-Commit-level detail is in the [contribution map](docs/portfolio/katherine-contribution-map.md).
+- **Concept and research:**
+  - shaped the original product concept;
+  - led discovery research with 20 participants (survey and in-depth interviews), followed by personas, synthesis and competitive analysis (Finch, Yoodli). This defined the core loop.
+- **Product definition:**
+  - defined the MVP (10 features in P0/P1 tiers) and the user stories;
+  - cut community and rewards to keep the focus on reflection;
+  - set the direction of each iteration, up to the Write · Journal · Talk structure.
+- **Usability and evaluation:**
+  - ran 10 usability sessions and heuristic evaluations of every core flow;
+  - cut the reflection card from five sections to three and added an on-device privacy note, which raised retest task completion from **6/10 to 9/10**.
+- **AI strategy:**
+  - led the move from cloud Gemini to Apple's on-device Foundation Models;
+  - designed the fallback from the on-device model to a local rules engine, with input-quality gating, balancing privacy, cost and availability.
+- **AI experience design:** defined the inputs, outputs and interaction of the AI reflection card and the AI communication coach:
+  - AI kept apart from the user's own words;
+  - rewrites that need confirmation and can be undone;
+  - two readings of the other person's reply;
+  - visible fallback reasons;
+  - no core task that depends on AI.
+- **UI/UX:**
+  - built the liquid-glass visual system for the first release;
+  - led the warm-glass redesign with Podo the otter, the moment timeline, the Talk thread, the spotlight guide and motion.
+- **Privacy and wellbeing:** isolated on-device data per account, and toned down gamification.
+- **Delivery:**
+  - owned product decisions and design reviews;
+  - built core screens with AI coding agents (Claude Code, Codex);
+  - shipped to TestFlight (6 installs, 143 sessions);
+  - the project is covered by 339 automated tests.
 
 ## Run it
 
@@ -242,4 +248,4 @@ Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [
 
 ## Credits
 
-Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was built by Manh Tuan Nguyen; version 3 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
+Built with the CircleU team in the Apple Foundation Program 2026. The original team repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). MIT License, see [LICENSE](LICENSE).

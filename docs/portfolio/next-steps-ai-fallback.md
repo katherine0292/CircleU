@@ -1,6 +1,6 @@
 # Next steps: AI input check, fallback reason, acceptance table
 
-Handoff from the 5 November 2026 cloud session (see [contribution map](katherine-contribution-map.md) and the [log entry](../agent-collaboration-log/2026-11-05-213000-claude-portfolio-contribution-map.md)). Katherine continues on her Mac with Xcode.
+Katherine's plan for three AI experience improvements, carried out on her Mac with Xcode.
 
 ## Goal
 
