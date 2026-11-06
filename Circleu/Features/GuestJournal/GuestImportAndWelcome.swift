@@ -130,7 +130,7 @@ struct GuestImportView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Found").font(GuestBrand.font(.headline, .semibold)).foregroundStyle(GuestBrand.ink)
                     .accessibilityAddTraits(.isHeader)
-                Text("\(scan.entries.count) journal \(scan.entries.count == 1 ? "entry" : "entries") and \(scan.messages.count) practice \(scan.messages.count == 1 ? "message" : "messages") to copy.")
+                Text("\(scan.entries.count) journal \(scan.entries.count == 1 ? "entry" : "entries") and \(scan.messages.count) \(scan.messages.count == 1 ? "conversation" : "conversations") to copy.")
                 if already > 0 {
                     Text("\(already) already copied before; they won’t be copied again.")
                         .font(GuestBrand.font(.footnote)).foregroundStyle(GuestBrand.muted)
