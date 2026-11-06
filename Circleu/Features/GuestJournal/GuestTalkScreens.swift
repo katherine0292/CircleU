@@ -597,12 +597,9 @@ struct GuestTalkScreen: View {
                 .padding(.horizontal, 16).padding(.vertical, 12)
             }
             .scrollDismissesKeyboard(.interactively)
-            .onChange(of: model.items.count) { _, _ in
-                // Once the new card has its height, so it never sits under the composer.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { proxy.scrollTo(model.items.last?.id, anchor: .bottom) }
-                }
-            }
+            .onChange(of: model.items.count) { _, _ in scrollToLast(proxy) }
+            // A card that fills in after thinking (readings, reply ideas) grows in place, so follow it too.
+            .onChange(of: model.isThinking) { _, thinking in if !thinking { scrollToLast(proxy) } }
         }
         .safeAreaInset(edge: .bottom) { composer }
         .background { GuestFlowingBackground() }
@@ -699,6 +696,13 @@ struct GuestTalkScreen: View {
                 .transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.7, anchor: .trailing).combined(with: .opacity)))
         case .reading(let r): GuestTalkReadingCard(choice: r, live: model.isLive(r.id), model: model)
         case .thinking: GuestTalkThinking()
+        }
+    }
+
+    /// Once the new card has its height, so it never sits under the composer.
+    private func scrollToLast(_ proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { proxy.scrollTo(model.items.last?.id, anchor: .bottom) }
         }
     }
 
