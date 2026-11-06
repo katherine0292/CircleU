@@ -109,7 +109,7 @@ struct GuestPracticeHomeView: View {
         VStack(spacing: 18) {
             startCard
             fromJournal
-            Text("Nothing practised yet.").foregroundStyle(GuestBrand.muted)
+            Text("No conversations yet.").foregroundStyle(GuestBrand.muted)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
