@@ -682,15 +682,15 @@ struct GuestEntryDetailView: View {
                     Button("Cancel", role: .cancel) {}
                     Button("Delete", role: .destructive) { Task { await delete(.keepMessages) } }
                 } else {
-                    // Keeping the message is the default; it stays in Practice, on its own.
-                    Button("Keep message") { Task { await delete(.keepMessages) } }
+                    // Keeping the conversation is the default; it stays in Talk, on its own.
+                    Button("Keep conversation") { Task { await delete(.keepMessages) } }
                         .keyboardShortcut(.defaultAction)
                     Button("Delete both", role: .destructive) { Task { await delete(.deleteBoth) } }
                     Button("Cancel", role: .cancel) {}
                 }
             } message: {
                 if !practice.linkedMessages(to: entryID).isEmpty {
-                    Text("A practice message was made from it. Keep the message, or delete both?")
+                    Text("A conversation was started from it. Keep the conversation, or delete both?")
                 }
             }
             .navigationDestination(isPresented: Binding(get: { editor != nil },
