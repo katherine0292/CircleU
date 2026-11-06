@@ -88,7 +88,7 @@ enum GuestCloudBackupMapper {
         for document in practice {
             guard let session = TipsPracticeSession(firebaseData: document) else { rejected += 1; continue }
             guard let mapped = GuestLegacyImport.map(session) else {
-                backup.skipped.append(.init(what: "A practice message from \(session.createdAt.formatted(date: .abbreviated, time: .omitted))",
+                backup.skipped.append(.init(what: "A conversation from \(session.createdAt.formatted(date: .abbreviated, time: .omitted))",
                                             reason: .noWords))
                 continue
             }

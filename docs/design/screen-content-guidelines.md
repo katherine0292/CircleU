@@ -30,7 +30,7 @@ Words are for the person's own writing and for what honesty needs. Everything el
 
 ## Voice and wording
 
-- Plain, warm and brief, for adults working through difficult conversations. No motivational filler, praise, pressure or exclamation marks. Sentence case. Australian English in prose ("practise" as a verb), with the approved "Practice" destination name.
+- Plain, warm and brief, for adults working through difficult conversations. No motivational filler, praise, pressure or exclamation marks. Sentence case. Australian English in prose ("practise" as a verb), with the approved "Practice" destination name. Since 6 November 2026 the destinations are Write, Journal and Talk; on-screen copy says "conversation", not "practice" (internal storage names keep the old spelling).
 - **Banned:** "AI analysis" or any claim of analysing the person, "diagnose" or "diagnosis", "Demo", "Sample", "lorem", and placeholder or debug wording. Templates are labelled "Guided prompts, not a personal analysis"; on-device model output is labelled as such.
 - **Shared terms:**
   - Today, Journal and Practice.
@@ -49,7 +49,7 @@ The supporting line is the single line under the heading; "—" means none.
 
 | Screen | Heading | Supporting line | Primary | Secondary (≤ 2) | Learn more |
 | --- | --- | --- | --- | --- | --- |
-| Welcome (3 pages, full-bleed Pingu scene) | Something on your mind? · Write or talk it through · Find your words | A private place for the moments that stay with you. · Kept on this iPhone. Not uploaded or synced. · Practise what you want to say, when you’re ready. | Next (round arrow, pages 1–2); Get started (page 3) | Skip (pages 1–2); Log in (page 3) | — |
+| Welcome (3 pages, full-bleed Pingu scene) | Something on your mind? · Write or talk it through · Find your words | A private place for the moments that stay with you. · Kept on this iPhone. Not uploaded or synced. · Prepare what you want to say, when you’re ready. | Next (round arrow, pages 1–2); Get started (page 3) | Skip (pages 1–2); Log in (page 3) | — |
 | Today (capture) | What’s on your mind? | — (the shallow ice-floe scene, the microphone and a Pingu badge share a card; no instruction line) | Save | Question chips with icons when empty (prompts, not actions), or Pingu’s pale speech bubble while writing (Add; Another question and Hide are icons); microphone (control; Stop and Cancel are icons while listening); Pingu badge (opens the picker); logo and Settings in the toolbar | — (guided prompts: only a sentence starter is added, never the question) |
 | Reflection review (after saving) | Reflection (title) / A suggestion | Source label | Save reflection (off when nothing is kept) | Back | — |
 | Journal | Journal | — (empty: Pingu + "Nothing saved yet."; rows: date tile, words, status icons, time; after saving: one-row “Saved” card) | Reflect (in the card, after saving) | × Not now (in the card); Calendar (icon); a chosen day is a chip with × | — |

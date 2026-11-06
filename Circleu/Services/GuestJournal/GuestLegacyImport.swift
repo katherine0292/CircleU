@@ -77,12 +77,12 @@ enum GuestLegacyImport {
         for key in keys where key == practiceKey {
             guard let data = defaults.data(forKey: key),
                   let sessions = try? decoder.decode([TipsPracticeSession].self, from: data) else {
-                scan.skipped.append(.init(what: "Saved practice", reason: .unreadable))
+                scan.skipped.append(.init(what: "Saved conversations", reason: .unreadable))
                 continue
             }
             for session in sessions where seen.insert(session.id).inserted {
                 guard let mapped = map(session) else {
-                    scan.skipped.append(.init(what: "A practice message from \(session.createdAt.formatted(date: .abbreviated, time: .omitted))",
+                    scan.skipped.append(.init(what: "A conversation from \(session.createdAt.formatted(date: .abbreviated, time: .omitted))",
                                               reason: .noWords))
                     continue
                 }
