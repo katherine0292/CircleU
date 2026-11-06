@@ -19,7 +19,7 @@ enum GuestAvatars {
         GuestAvatar(id: "GuestPinguListening", name: "Tuanwei the otter cupping a paw to one ear"),
         GuestAvatar(id: "GuestPinguWriting", name: "Tuanwei the otter writing in a diary"),
         GuestAvatar(id: "GuestPinguReading", name: "Tuanwei the otter reading a book"),
-        GuestAvatar(id: "GuestPinguPractising", name: "Tuanwei the otter practising speaking aloud"),
+        GuestAvatar(id: "GuestPinguPractising", name: "Tuanwei the otter speaking aloud"),
         GuestAvatar(id: "GuestPinguStretching", name: "Tuanwei the otter stretching both arms"),
         GuestAvatar(id: "GuestPinguQuietBreath", name: "Tuanwei the otter taking a slow breath"),
         GuestAvatar(id: "GuestPinguHeart", name: "Tuanwei the otter holding a heart-shaped cushion"),

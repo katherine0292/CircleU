@@ -597,12 +597,9 @@ struct GuestTalkScreen: View {
                 .padding(.horizontal, 16).padding(.vertical, 12)
             }
             .scrollDismissesKeyboard(.interactively)
-            .onChange(of: model.items.count) { _, _ in
-                // Once the new card has its height, so it never sits under the composer.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { proxy.scrollTo(model.items.last?.id, anchor: .bottom) }
-                }
-            }
+            .onChange(of: model.items.count) { _, _ in scrollToLast(proxy) }
+            // A card that fills in after thinking (readings, reply ideas) grows in place, so follow it too.
+            .onChange(of: model.isThinking) { _, thinking in if !thinking { scrollToLast(proxy) } }
         }
         .safeAreaInset(edge: .bottom) { composer }
         .background { GuestFlowingBackground() }
@@ -702,6 +699,13 @@ struct GuestTalkScreen: View {
         }
     }
 
+    /// Once the new card has its height, so it never sits under the composer.
+    private func scrollToLast(_ proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { proxy.scrollTo(model.items.last?.id, anchor: .bottom) }
+        }
+    }
+
     private var composer: some View {
         VStack(spacing: 8) {
             if !model.hint.isEmpty {
@@ -733,6 +737,7 @@ struct GuestTalkScreen: View {
             .guestCard(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .padding(.horizontal, 16).padding(.top, 8).padding(.bottom, 8)
+        .background { GuestBottomFade() } // Scrolled cards fade out instead of showing through the hint.
         .background { GuestBottomFade() }
     }
 }

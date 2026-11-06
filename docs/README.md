@@ -10,6 +10,7 @@ This folder holds the current project knowledge the team should follow while bui
 
 ## Start Here
 
+0. [How CircleU works](product/how-circleu-works.md): both versions, screens, data, AI and privacy, from a full source read (6 November 2026); [final screens and motion](design/final-screens-2026-11-06/README.md)
 1. [Product brief](product/overview.md) — current audience, scope and screen boundaries
 2. [Product website](index.html)
 3. [App flow](product/app-flow.md) and [guest user stories](product/user-stories.md)

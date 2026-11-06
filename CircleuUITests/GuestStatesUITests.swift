@@ -102,7 +102,7 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 5))
         sleep(1); shot(app, "w3-page3-ax5")
         XCTAssertTrue(onPage(app, 3, "Find your words"))
-        XCTAssertTrue(onScreen(app, app.staticTexts["Practise what you want to say, when you’re ready."]), "the line is readable")
+        XCTAssertTrue(onScreen(app, app.staticTexts["Prepare what you want to say, when you’re ready."]), "the line is readable")
         XCTAssertTrue(app.buttons["Get started"].isHittable)
         XCTAssertTrue(app.buttons["Log in"].isHittable)
     }
@@ -119,7 +119,7 @@ final class GuestStatesUITests: XCTestCase {
         XCTAssertTrue(has(app, "Nothing saved yet.", 10))
         shot(app, "journal-empty")
         app.tabBars.buttons["Talk"].tap()
-        XCTAssertTrue(has(app, "Nothing practised yet."))
+        XCTAssertTrue(has(app, "No conversations yet."))
         shot(app, "practice-empty")
 
         app.tabBars.buttons["Write"].tap()

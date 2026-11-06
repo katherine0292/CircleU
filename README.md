@@ -1,123 +1,221 @@
-# 🌌 CircleU — Privacy-First Reflection & Support Circles
+<div align="center">
 
-[![Swift Version](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
-[![iOS Version](https://img.shields.io/badge/iOS-17.0%2B-blue.svg)](https://developer.apple.com/ios)
-[![Platform](https://img.shields.io/badge/Platform-iPhone-lightgrey.svg)](https://apple.com)
-[![Firebase](https://img.shields.io/badge/Backend-Firebase-yellow.svg)](https://firebase.google.com)
+<img src="Circleu/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="96" alt="CircleU app icon">
 
-> **Transforming raw thoughts into actionable insights. Securely. Collaborative. Private.**
+# CircleU
 
-**CircleU** is a premium, privacy-first iOS journaling and reflection companion. Designed to bridge the gap between daily emotional check-ins and personal growth, it allows users to record spoken reflections, receive real-time AI-assisted emotional analysis, commit to active wellbeing challenges, and safely share support updates within trusted spaces ("Circles"). 
+**Write down a hard moment. Understand it. Say what you mean.**
 
----
+An iPhone app for difficult conversations: it turns a raw journal entry into a reflection, then into words you can actually say. Its AI runs entirely on the iPhone.
 
-## 📸 App Experience
+![SwiftUI](https://img.shields.io/badge/SwiftUI-iOS%2017%2B-0A84FF)
+![Apple Intelligence](https://img.shields.io/badge/AI-Apple%20Intelligence%20on--device-8E5CF7)
+![SwiftData](https://img.shields.io/badge/Storage-SwiftData%2C%20local%20only-34C759)
+![Tests](https://img.shields.io/badge/tests-311%20unit%20%C2%B7%2028%20UI-5E5CE6)
 
-| 🎤 Reflect | 🧠 Insight | 📔 Private Journal |
-| :---: | :---: | :---: |
-| ![Reflect](docs/product/snapshots/app-store/01-reflect-in-your-own-voice.png) | ![Insight](docs/product/snapshots/app-store/02-turn-check-ins-into-insight.png) | ![Journal](docs/product/snapshots/app-store/03-save-your-private-journal.png) |
-| *Speak your mind with microphone-integrated voice check-ins and speech-to-text fallbacks.* | *Translate transcriptions into actionable emotional summaries, quotes, and quests.* | *Curate your local journal entries with tags, emotions, and personal annotations.* |
+<img src="docs/design/final-screens-2026-11-06/talk.gif" width="250" alt="Talk: a suggestion, I said it, their reply read two ways, reply ideas">&nbsp;&nbsp;
+<img src="docs/design/final-screens-2026-11-06/moment.gif" width="250" alt="A moment's timeline filling in after How did it go">&nbsp;&nbsp;
+<img src="docs/design/final-screens-2026-11-06/guide.gif" width="250" alt="The step-by-step guide lighting one control at a time">
 
-| 🎯 Growth Quests | 👥 Secure Circles |
-| :---: | :---: |
-| ![Quests](docs/product/snapshots/app-store/04-practice-one-small-step.png) | ![Circles](docs/product/snapshots/app-store/05-share-support-with-circles.png) |
-| *Practice relationship-focused tips with real-time coaching feedback.* | *Share selected support posts securely inside firewalled Firestore-backed group circles.* |
+</div>
 
----
+<details>
+<summary><b>中文简介</b></summary>
 
-## ✨ Core Pillars & Features
+CircleU 是一款帮助人们面对"难开口的对话"的 iPhone 应用。用户先记下发生了什么（Write），再由端侧 AI 帮忙梳理情绪和背后的需要（Reflect），然后在 Talk 里把想说的话变成自己语气的表达。对方回复后，App 会给出"两种可能的理解"让用户自己选，而不是替用户下判断。最后，用户还可以回到这件事上，记一句"后来怎么样了"。
 
-### 🎙️ 1. Ambient Voice Reflection
-* **Speech-to-Text Integration**: Leveraging Apple's native `Speech` framework for instant local transcription, paired with a reliable typed keyboard fallback.
-* **Low-Signal Resilience**: Built-in fallback engines to gracefully process fragmented speech or rough inputs, providing comforting local responses under offline or network-limited states.
+- **AI 全部在手机上运行**（Apple Intelligence / Foundation Models）。模型不可用时，会退回到用用户自己的话生成的引导模板，并说明原因。
+- **没有账号墙**：不注册也能用，数据只存在本机。
+- **我的角色**：产品负责人（PM + 体验设计）。负责可用性测试与启发式评估、信息架构重构（Write · Journal · Talk）、AI 交互原则、新手引导设计，并用 Claude Code 和 Codex 等 AI 编程工具实现了大部分新版本。
 
-### 🧠 2. AI Emotional Insights
-* **Cognitive Extraction**: Distills spoken streams into primary emotions, summary cards, and inspirational quotes using standard LLM schemas and Apple Intelligence frameworks.
-* **Suggested Quests**: Dynamically generates bite-sized daily relationship and communication challenges based on the user's reflection transcript.
-
-### 👥 3. Secure Support Circles
-* **Privacy-First Design**: Users have full control over what leaves their device. Insights are kept local unless explicitly shared with a circle.
-* **Collaborative Spaces**: Share, like, bookmark, and reply to posts in shared circles. All circle memberships are gated via secure, identity-aware Firestore database rules.
-
-### 🔒 4. Local-First Synchronization
-* **Automatic Cloud Sync**: Fully authenticated data model backups across devices using Firebase Authentication and encrypted Firestore synchronization.
-* **Data Sovereignty**: Complete "Delete Account" flow that purges the entire Firebase Authentication record, resets local device stores, and purges all Firestore backup collections.
+</details>
 
 ---
 
-## Contributor workflow
+## At a glance
 
-Start with [AGENTS.md](AGENTS.md) and the [project coding standards](docs/0_coding_standards.md). Record meaningful work, actual review discussions and handoffs in the [agent collaboration log](docs/agent-collaboration-log/README.md). The same instructions are available to Claude through `CLAUDE.md`.
+| | |
+| --- | --- |
+| **Problem** | People replay a hard conversation for days and still don't know what to say next time. Journaling apps stop at "how do you feel"; speaking coaches assume a presentation. |
+| **For** | Students, new graduates and people new to a team or country, preparing for a talk with a groupmate, manager, friend, family member or partner. |
+| **Solution** | One loop: **Write → Reflect → Talk → How did it go?** Each saved entry becomes a *moment* with a timeline of everything that grew from it. |
+| **AI approach** | On-device Apple Intelligence that suggests and never decides. Every suggestion shows its source, and the app still works when the model doesn't. |
+| **Status** | Version 1 shipped to TestFlight (June 2026). Version 2 (this README) runs in the Simulator; physical-device validation is pending. |
+| **My role** | Product lead (PM and UX). Research, design reviews, AI interaction rules, and most of the version 2 code, written with AI coding agents. |
 
-## Next MVP planning
+## The product loop
 
-Use the [flow and delivery checklist](docs/product/flow-status-checklist.md) for the current status of every MVP journey, completed prototype work and pending validation/implementation. Earlier feature descriptions above do not establish production readiness for the new guest-local direction.
+```mermaid
+flowchart LR
+    W["✍️ Write<br/>type or dictate"] --> M["🗂 Moment<br/>saved entry"]
+    M --> R["💭 Reflect<br/>what happened · feeling · what's underneath"]
+    R --> T["💬 Talk<br/>words in my tone"]
+    T --> Y["🗣 I said it<br/>their reply → two readings → reply ideas"]
+    Y --> H["🌱 How did it go?<br/>a feeling or a line"]
+    H --> J["📔 Journal<br/>search · calendar · tags"]
+    J -. reopen .-> M
+```
 
-The [legacy release/Firebase inventory](docs/engineering/legacy-data-inventory.md) records verified backend findings and outstanding TestFlight checks. Review the [previous-data recovery prototype](docs/design/legacy-recovery-flow.md) before implementing migration or retiring cloud features.
+On the moment's page, the one main action is always the next stop that isn't done yet. Nobody has to learn the order.
 
-The [legacy data-format catalog](docs/engineering/legacy-data-format.md) and [personal-account release options](docs/product/personal-account-release-plan.md) explain how existing data could move to an independently released app. The current TestFlight-only app is not yet eligible for Apple's standard transfer process.
+## Features
 
-The owner-approved direction is guest-first Today, Journal and Practice, with circles and rewards deferred. This is a planned transition; the current implementation still contains Firebase and cloud features. Start with the [MVP definition](docs/product/mvp-definition.md), [privacy/storage plan](docs/product/privacy-storage-plan.md), [supported-device proposal](docs/product/supported-devices.md) and [legacy TestFlight transition plan](docs/superpowers/plans/2026-10-23-local-first-transition.md). Device validation and migration remain pending.
+### 1. Write and Reflect
 
-## 🛠️ Technical Stack & Architecture
+<table>
+<tr>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/04-write.jpg" alt="Write"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/06-saved.jpg" alt="Saved, with Reflect offered"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/07-reflection.jpg" alt="Reflection suggested by Apple Intelligence"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/write-save.gif" alt="Writing and saving"></td>
+</tr>
+</table>
+
+- **Write:** type or dictate on the device, or tap *What stayed with you?* for a guiding question that never changes your words. Unsent words survive a relaunch.
+- **Reflect:** Apple Intelligence suggests what happened, a feeling and what's underneath, plus an optional next step. Everything is editable. With too few words it asks for more instead of guessing.
+
+### 2. Talk: prepare what to say, then respond to what they said
+
+<table>
+<tr>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/08-talk-setup.jpg" alt="Set the scene"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/09-talk-suggestion.jpg" alt="Say it like this, with tone and style"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/12-talk-readings.jpg" alt="Two ways to read their reply"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/13-talk-reply-ideas.jpg" alt="Reply ideas for the chosen reading"></td>
+</tr>
+</table>
+
+- **Set the scene:** where it is (Study, Work, Friends, Family, Relationship, Other) and how you want to sound (Soft, Balanced, Firm). It is filled in from the journal moment, and the tone is never guessed.
+- **Say it like this:** one request returns the suggestion plus *Shorter*, *Warmer* and *More direct*, so styles switch instantly. **↻** asks for another take, and ‹ › keeps every take.
+- **I said it:** the card turns into a *You said* bubble. Paste their reply.
+- **Two ways to read this:** the app offers two possible readings of their reply, plus *Neither fits*. You choose, and only then get reply ideas.
+- **Branches:** edit an earlier message and the thread starts again from there. The earlier branch stays one tap away, as in Claude or ChatGPT.
+
+### 3. Moments and the journal
+
+<table>
+<tr>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/14-moment-asks.jpg" alt="Moment timeline asking How did it go"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/15-moment-timeline.jpg" alt="Complete moment timeline"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/16-journal.jpg" alt="Journal"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/17-talk-home.jpg" alt="Talk home with From your journal"></td>
+</tr>
+</table>
+
+- **Moment timeline:** what happened, then the reflection, the conversation and how it went. Dots fill in and the rail grows as each stop is done.
+- **How did it go?:** a feeling alone is enough. The Journal card keeps asking until it is answered, which closes the loop.
+- **Journal:** entries by day, with search, a calendar, and context and feeling chips.
+- **Talk home:** *From your journal* suggests moments that have a context but no conversation yet.
+
+### 4. First-run experience
+
+<table>
+<tr>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/01-welcome-1.jpg" alt="Welcome 1"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/03-welcome-3.jpg" alt="Welcome 3"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/20-guide-3.jpg" alt="Guide step 3"></td>
+<td width="25%"><img src="docs/design/final-screens-2026-11-06/21-guide-8.jpg" alt="Guide step 8"></td>
+</tr>
+</table>
+
+- **Welcome:** three scenes with Tuanwei the otter. There is no account wall: *Get started* goes straight in, and *Log in* is only for recovering data from version 1.
+- **Guide:** a 13-step tour across all three tabs. A spotlight lights one control and dims the rest, a paw points at it, and the otter changes pose at each step. It can be skipped at any step.
+
+## AI product decisions
+
+These are the rules the AI features were designed and tested against.
+
+| # | Principle | How it shows up in the product | Why |
+| :-: | --- | --- | --- |
+| 1 | **Private by architecture** | Apple's on-device Foundation Models. No AI request leaves the phone, and the app has no upload path for new content. | Journal text is the most sensitive data a person has. Inference also costs nothing and works offline. |
+| 2 | **Never a dead end** | When the model is unavailable or fails, guided templates built from the person's own words answer instead. | No core task depends on AI availability. |
+| 3 | **Honest about the source** | Every suggestion says *Suggested on this iPhone by Apple Intelligence* or *Guided prompts, not a personal analysis*, plus one of six reasons (for example *Apple Intelligence is off in Settings*). | Trust comes from knowing what produced the text. |
+| 4 | **Suggest, never decide** | Nothing is applied without a tap (Use this, Copy, I said it). The person's original words are never rewritten. | The person stays the author. |
+| 5 | **No mind reading** | Their reply gets two possible readings and *Neither fits*, never one verdict. | A model can't know someone's motive. Offering two guesses keeps the judgement with the person. |
+| 6 | **Don't call the model when it can't help** | Too few words get one prompt (*Add what happened and how it felt*) instead of a generated card. | It avoids confident nonsense. |
+| 7 | **Latency by design** | One request returns the suggestion and all three styles; only ↻ calls the model again. | Instant switching and fewer calls. |
+
+Supporting docs: the [AI acceptance cases](docs/qa/ai-acceptance-cases.md) list good and bad answers for 15–20 invented inputs, and the [fallback reasons](Circleu/Services/GuestJournal/GuestSuggestionEngine.swift) are each tested.
+
+## How the product evolved
+
+| | Version 1: team TestFlight app (June 2026) | Version 2: this redesign (Oct–Nov 2026) |
+| --- | --- | --- |
+| Structure | Five tabs: Home · Journal · Tips · Circle · Profile | Three tabs: **Write · Journal · Talk** |
+| Entry | Account required before first use | Guest-first; no account |
+| Data | Firestore sync | On this iPhone only (SwiftData, file protection) |
+| AI | Cloud model, then Apple Intelligence | Apple Intelligence only, with an explained fallback |
+| Coaching | *Live Coach*, a separate tool | **Talk**, linked to the journal moment and to how it went |
+| Engagement | Circles, quests, rewards | Removed; the moment timeline is the progress cue |
+
+**What drove the change:**
+- Usability sessions and heuristic reviews ([Practice usability session](docs/design/practice-usability-session-2026-10-30.md), [flow review](docs/design/flow-review-2026-10-23.md)) found that the account wall came before any value.
+- Circles and rewards pulled attention from reflection.
+- Practice felt disconnected from what people had written.
+- Each finding became a decision in the [MVP definition](docs/product/mvp-definition.md).
+
+<details>
+<summary>Version 1 screens</summary>
+
+| Reflect | Insight | Journal | Quests | Circles |
+| :-: | :-: | :-: | :-: | :-: |
+| ![](docs/product/snapshots/app-store/01-reflect-in-your-own-voice.png) | ![](docs/product/snapshots/app-store/02-turn-check-ins-into-insight.png) | ![](docs/product/snapshots/app-store/03-save-your-private-journal.png) | ![](docs/product/snapshots/app-store/04-practice-one-small-step.png) | ![](docs/product/snapshots/app-store/05-share-support-with-circles.png) |
+
+</details>
+
+## Architecture
 
 ```text
-Circleu/
-├── App/                 # App initialization, main coordinators, dependency injection
-├── Assets.xcassets/     # Styling assets, color tokens, and app icon assets
-├── Components/          # Reusable UI elements, premium button configurations, haptics
-├── Design/              # Global spacing, layout tokens, and typography definitions
-├── Engines/             # Core business rules, reflection logic, local fallback logic
-├── Features/            # Workflows grouped by domain (Journal, Profile, Onboarding, Circles)
-├── Models/              # Codable domain structures, persistence-friendly schemas
-├── Services/            # Device API boundaries (Firebase Auth, Firestore, Speech)
-└── Stores/              # ObservableObject state managers holding local cache bindings
+View (SwiftUI)          Write · Journal · Talk · Guide          Features/GuestJournal/
+   ↓
+ViewModel (@MainActor)  loading, saving, error states, drafts
+   ↓ protocols
+Store / Engine          GuestJournalStore · GuestConversationStore · GuestSuggesting
+   ↓
+SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/GuestJournal/
 ```
 
-* **Frontend Framework**: SwiftUI
-* **Database & Auth**: Firebase Authentication & Cloud Firestore (NoSQL)
-* **Media & Processing**: `AVFoundation` for low-latency recording & `Speech` for speech-to-text transcription
-* **Concurrency Model**: Modern Swift Concurrency (`async/await`) with `@MainActor` thread-safe UI bounds
+- A launch switch ([`AppStartup`](Circleu/App/AppStartup.swift)) keeps version 1 intact for existing TestFlight testers while version 2 is built in the same project. The guest graph never configures Firebase or analytics, and tests check this.
+- Every store is a protocol, so tests use the same code with in-memory or deliberately failing stores. A failed save keeps the person's words and says so.
+- Conversations are stored as attributed turns (*wording*, *their reply*, *context*, *outcome*). Old messages open as Talk threads without migration.
 
----
+The full walk-through of both versions (screens, data, AI and privacy) is in **[How CircleU works](docs/product/how-circleu-works.md)**.
 
-## 🚀 Getting Started
+## Quality
 
-### Prerequisites
-* macOS Sonoma or later
-* Xcode 15.0+ (iOS 17.0+ SDK)
-* Cocoapods or Swift Package Manager (dependencies resolve automatically in Xcode)
+- **311 unit tests:** stores and migrations, ViewModels, the AI fallback, Talk branches and readings, the guide, and export.
+- **28 UI tests:** the main path of each flow, including the keyboard at the largest text size and accessibility audits.
+- **User stories with acceptance criteria:** [user-stories.md](docs/product/user-stories.md) maps each Given/When/Then to its test.
+- **Copy lint:** the [screen content guidelines](docs/design/screen-content-guidelines.md) are enforced by `GuestCopyLintTests` (length limits, one primary action, banned wording).
 
-### Setup & Run
-1. Clone the repository:
-   ```bash
-   git clone git@github.com:tuannm3812/CircleU.git
-   ```
-2. Open `Circleu.xcodeproj` in Xcode.
-3. Configure the active target:
-   * Target Scheme: `Circleu`
-   * Target Device: `iPhone 17 Pro` Simulator (or a physical test device running iOS 17+)
-4. Click **Run** (`⌘R`).
+## My role
 
-> [!NOTE]
-> The application uses a local fallback mode if a valid `GoogleService-Info.plist` is not found, allowing offline testing of all local journaling, speech-to-text, and AI insight modules. For cloud-synced test runs, place your team's `GoogleService-Info.plist` into the `Circleu/App/` folder.
+**Product lead (PM and UX)**, on a five-person team in the Apple Foundation Program 2026, then owner of the version 2 redesign.
 
----
+- **Research and evaluation:** usability sessions, heuristic reviews of every flow, and competitive analysis.
+- **Product definition:** cut the MVP from five tabs to three, removed social and rewards, and chose guest-first, local-only.
+- **AI experience:** the seven principles above, including *two readings, you choose* and visible fallback reasons.
+- **Interaction design:** the Talk thread (styles bundled per generation, ↻ for another take, edit to branch), the moment timeline and the spotlight guide. Each was clickable-prototyped before it was built.
+- **Visual direction:** the warm glass UI and the Tuanwei otter illustration set.
+- **Building with AI agents:** most of the version 2 code was written with Claude Code and Codex, under project rules, tests and a dated [collaboration log](docs/agent-collaboration-log/README.md). Version 1 contributions are in the [contribution map](docs/portfolio/katherine-contribution-map.md).
 
-## 🧪 Unit Testing
+## Run it
 
-We maintain high coverage across auth stores, persistence syncing, and local fallback engines. To run the test suite:
+Requirements: Xcode 26 and an iOS 26 Simulator for Apple Intelligence. iOS 17 is the minimum and uses the guided fallback.
 
 ```bash
-xcodebuild test \
-  -project Circleu.xcodeproj \
-  -scheme Circleu \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+git clone https://github.com/katherine0292/CircleU.git
+cd CircleU
+cp Config/Signing.xcconfig.example Config/Signing.xcconfig   # set your team for a device build
+open Circleu.xcodeproj
 ```
 
----
+- Run the **`CircleU Guest Review`** scheme to open version 2.
+- The **`Circleu`** scheme opens version 1.
+- Tests: scheme `Circleu` (unit) and `CircleuUITests` (UI).
 
-## 📜 License & Support
-CircleU is released under the MIT License. See [LICENSE](LICENSE) for details.
+Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [docs/README.md](docs/README.md).
 
-For support, feedback, or contribution inquiries, please open an issue in the GitHub repository or contact the project maintainers.
+## Credits
+
+Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
