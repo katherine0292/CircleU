@@ -148,7 +148,7 @@ enum GuestExport {
     static func text(entries: [GuestJournalEntry], messages: [GuestPracticeMessage], now: Date = Date()) -> String {
         let date = Date.FormatStyle(date: .abbreviated, time: .shortened)
         var lines = ["CircleU export, \(now.formatted(date))",
-                     "\(entries.count) journal \(entries.count == 1 ? "entry" : "entries") and \(messages.count) practice \(messages.count == 1 ? "message" : "messages").",
+                     "\(entries.count) journal \(entries.count == 1 ? "entry" : "entries") and \(messages.count) \(messages.count == 1 ? "conversation" : "conversations").",
                      "", "JOURNAL"]
         for entry in entries.sorted(by: { $0.createdAt < $1.createdAt }) {
             lines += ["", "— \(entry.createdAt.formatted(date))", "My words:", entry.originalWords]
@@ -194,7 +194,7 @@ final class GuestSettingsViewModel: ObservableObject {
     @Published private(set) var message: String?
 
     static let exportFailedMessage = "Couldn’t prepare the export. Try again."
-    static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and practice are unchanged."
+    static let deleteFailedMessage = "Couldn’t delete. Try again. Your journal and conversations are unchanged."
     static let deletedMessage = "Everything in this journal was deleted from this iPhone."
     static let deletedExportPendingMessage = "Everything was deleted. A leftover copy is still here; CircleU will try again to remove it."
     static let exportedMessage = "Export done."
