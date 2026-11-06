@@ -737,6 +737,7 @@ struct GuestTalkScreen: View {
             .guestCard(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .padding(.horizontal, 16).padding(.top, 8).padding(.bottom, 8)
+        .background { GuestBottomFade() } // Scrolled cards fade out instead of showing through the hint.
         .background { GuestBottomFade() }
     }
 }
