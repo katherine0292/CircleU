@@ -800,6 +800,7 @@ struct GuestEntryDetailView: View {
             .padding(24)
         }
         .scrollDismissesKeyboard(.interactively)
+        .guestFadesUnderTitle(20) // Within the 24 pt padding.
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardShown = true }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardShown = false }
         .safeAreaInset(edge: .bottom) {
