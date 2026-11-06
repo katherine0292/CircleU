@@ -10,7 +10,7 @@ CircleU version 2 on an iPhone 17 Pro Simulator (iOS 26.5, English, Apple Intell
 
 ## Screens
 
-| Welcome 1: Tuanwei says hello | Welcome 2: kept on this iPhone | Welcome 3: Get started or Log in | Write |
+| Welcome 1: Podo says hello | Welcome 2: kept on this iPhone | Welcome 3: Get started or Log in | Write |
 | :-: | :-: | :-: | :-: |
 | <img src="01-welcome-1.jpg" width="200"> | <img src="02-welcome-2.jpg" width="200"> | <img src="03-welcome-3.jpg" width="200"> | <img src="04-write.jpg" width="200"> |
 

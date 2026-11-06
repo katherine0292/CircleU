@@ -28,9 +28,9 @@ final class GuestPolishUITests: XCTestCase {
         avatar.tap()
         XCTAssertTrue(app.navigationBars["Choose your otter"].waitForExistence(timeout: 5))
         shot(app, "u2-picker"); audit(app, "picker")
-        app.buttons["Tuanwei the otter holding a warm mug"].tap()
+        app.buttons["Podo the otter holding a warm mug"].tap()
         app.buttons["Done"].tap()
-        XCTAssertTrue(app.buttons["Your otter: Tuanwei the otter holding a warm mug"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Your otter: Podo the otter holding a warm mug"].waitForExistence(timeout: 5))
         shot(app, "u3-pingu-changed")
         app.navigationBars.buttons.element(boundBy: 0).tap()
 

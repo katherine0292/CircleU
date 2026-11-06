@@ -19,17 +19,6 @@ An iPhone app for difficult conversations: it turns a raw journal entry into a r
 
 </div>
 
-<details>
-<summary><b>中文简介</b></summary>
-
-CircleU 是一款帮助人们面对"难开口的对话"的 iPhone 应用。用户先记下发生了什么（Write），再由端侧 AI 帮忙梳理情绪和背后的需要（Reflect），然后在 Talk 里把想说的话变成自己语气的表达。对方回复后，App 会给出"两种可能的理解"让用户自己选，而不是替用户下判断。最后，用户还可以回到这件事上，记一句"后来怎么样了"。
-
-- **AI 全部在手机上运行**（Apple Intelligence / Foundation Models）。模型不可用时，会退回到用用户自己的话生成的引导模板，并说明原因。
-- **没有账号墙**：不注册也能用，数据只存在本机。
-- **我的角色**：产品负责人（PM + 体验设计）。负责可用性测试与启发式评估、信息架构重构（Write · Journal · Talk）、AI 交互原则、新手引导设计，并用 Claude Code 和 Codex 等 AI 编程工具实现了大部分新版本。
-
-</details>
-
 ---
 
 ## At a glance
@@ -118,7 +107,7 @@ On the moment's page, the one main action is always the next stop that isn't don
 </tr>
 </table>
 
-- **Welcome:** three scenes with Tuanwei the otter. There is no account wall: *Get started* goes straight in, and *Log in* is only for recovering data from version 1.
+- **Welcome:** three scenes with Podo the otter. There is no account wall: *Get started* goes straight in, and *Log in* is only for recovering data from version 1.
 - **Guide:** a 13-step tour across all three tabs. A spotlight lights one control and dims the rest, a paw points at it, and the otter changes pose at each step. It can be skipped at any step.
 
 ## AI product decisions
@@ -179,6 +168,15 @@ SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/Gu
 - Every store is a protocol, so tests use the same code with in-memory or deliberately failing stores. A failed save keeps the person's words and says so.
 - Conversations are stored as attributed turns (*wording*, *their reply*, *context*, *outcome*). Old messages open as Talk threads without migration.
 
+**Tech stack:**
+- SwiftUI and Swift Concurrency (`@MainActor` ViewModels);
+- SwiftData with versioned schemas;
+- Apple Foundation Models;
+- Speech and AVFoundation for on-device dictation;
+- XCTest and XCUITest.
+
+Version 1 also uses Firebase Auth and Cloud Firestore.
+
 The full walk-through of both versions (screens, data, AI and privacy) is in **[How CircleU works](docs/product/how-circleu-works.md)**.
 
 ## Quality
@@ -196,7 +194,7 @@ The full walk-through of both versions (screens, data, AI and privacy) is in **[
 - **Product definition:** cut the MVP from five tabs to three, removed social and rewards, and chose guest-first, local-only.
 - **AI experience:** the seven principles above, including *two readings, you choose* and visible fallback reasons.
 - **Interaction design:** the Talk thread (styles bundled per generation, ↻ for another take, edit to branch), the moment timeline and the spotlight guide. Each was clickable-prototyped before it was built.
-- **Visual direction:** the warm glass UI and the Tuanwei otter illustration set.
+- **Visual direction:** the warm glass UI and the Podo otter illustration set.
 - **Building with AI agents:** most of the version 2 code was written with Claude Code and Codex, under project rules, tests and a dated [collaboration log](docs/agent-collaboration-log/README.md). Version 1 contributions are in the [contribution map](docs/portfolio/katherine-contribution-map.md).
 
 ## Run it
@@ -213,6 +211,11 @@ open Circleu.xcodeproj
 - Run the **`CircleU Guest Review`** scheme to open version 2.
 - The **`Circleu`** scheme opens version 1.
 - Tests: scheme `Circleu` (unit) and `CircleuUITests` (UI).
+
+```bash
+xcodebuild test -project Circleu.xcodeproj -scheme Circleu \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
 
 Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [docs/README.md](docs/README.md).
 
