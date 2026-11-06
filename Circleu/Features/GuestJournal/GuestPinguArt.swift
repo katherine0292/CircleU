@@ -1,11 +1,11 @@
 import SwiftUI
 import UIKit
 
-/// One of the 21 otter avatars (Tuanwei) from the brand collection.
+/// One of the 21 otter avatars (Podo) from the brand collection.
 struct GuestAvatar: Identifiable, Equatable {
     /// The asset name, also what's stored as the choice.
     let id: String
-    /// What VoiceOver says, e.g. "Tuanwei the otter holding a warm mug".
+    /// What VoiceOver says, e.g. "Podo the otter holding a warm mug".
     let name: String
 }
 
@@ -13,27 +13,27 @@ struct GuestAvatar: Identifiable, Equatable {
 /// the person's choice, kept on this iPhone only. Mascot poses, never moods or rewards.
 enum GuestAvatars {
     static let all: [GuestAvatar] = [
-        GuestAvatar(id: "GuestPinguJournal", name: "Tuanwei the otter holding a closed diary"),
-        GuestAvatar(id: "GuestPinguWelcome", name: "Tuanwei the otter waving hello"),
-        GuestAvatar(id: "GuestPinguThoughtful", name: "Tuanwei the otter examining a smooth pebble"),
-        GuestAvatar(id: "GuestPinguListening", name: "Tuanwei the otter cupping a paw to one ear"),
-        GuestAvatar(id: "GuestPinguWriting", name: "Tuanwei the otter writing in a diary"),
-        GuestAvatar(id: "GuestPinguReading", name: "Tuanwei the otter reading a book"),
-        GuestAvatar(id: "GuestPinguPractising", name: "Tuanwei the otter speaking aloud"),
-        GuestAvatar(id: "GuestPinguStretching", name: "Tuanwei the otter stretching both arms"),
-        GuestAvatar(id: "GuestPinguQuietBreath", name: "Tuanwei the otter taking a slow breath"),
-        GuestAvatar(id: "GuestPinguHeart", name: "Tuanwei the otter holding a heart-shaped cushion"),
-        GuestAvatar(id: "GuestPinguIceCream", name: "Tuanwei the otter holding an ice cream cone"),
-        GuestAvatar(id: "GuestPinguBackpack", name: "Tuanwei the otter wearing a backpack"),
-        GuestAvatar(id: "GuestPinguThumbsUp", name: "Tuanwei the otter holding a rolled map"),
-        GuestAvatar(id: "GuestPinguExplorer", name: "Tuanwei the otter exploring with a magnifying glass"),
-        GuestAvatar(id: "GuestPinguRunning", name: "Tuanwei the otter running"),
-        GuestAvatar(id: "GuestPinguMusic", name: "Tuanwei the otter listening to music on headphones"),
-        GuestAvatar(id: "GuestPinguLaptop", name: "Tuanwei the otter using a laptop"),
-        GuestAvatar(id: "GuestPinguGardening", name: "Tuanwei the otter watering a potted flower"),
-        GuestAvatar(id: "GuestPinguWarmDrink", name: "Tuanwei the otter holding a warm mug"),
-        GuestAvatar(id: "GuestPinguSleeping", name: "Tuanwei the otter sleeping curled up"),
-        GuestAvatar(id: "GuestPinguPillowHug", name: "Tuanwei the otter hugging a pillow"),
+        GuestAvatar(id: "GuestPinguJournal", name: "Podo the otter holding a closed diary"),
+        GuestAvatar(id: "GuestPinguWelcome", name: "Podo the otter waving hello"),
+        GuestAvatar(id: "GuestPinguThoughtful", name: "Podo the otter examining a smooth pebble"),
+        GuestAvatar(id: "GuestPinguListening", name: "Podo the otter cupping a paw to one ear"),
+        GuestAvatar(id: "GuestPinguWriting", name: "Podo the otter writing in a diary"),
+        GuestAvatar(id: "GuestPinguReading", name: "Podo the otter reading a book"),
+        GuestAvatar(id: "GuestPinguPractising", name: "Podo the otter speaking aloud"),
+        GuestAvatar(id: "GuestPinguStretching", name: "Podo the otter stretching both arms"),
+        GuestAvatar(id: "GuestPinguQuietBreath", name: "Podo the otter taking a slow breath"),
+        GuestAvatar(id: "GuestPinguHeart", name: "Podo the otter holding a heart-shaped cushion"),
+        GuestAvatar(id: "GuestPinguIceCream", name: "Podo the otter holding an ice cream cone"),
+        GuestAvatar(id: "GuestPinguBackpack", name: "Podo the otter wearing a backpack"),
+        GuestAvatar(id: "GuestPinguThumbsUp", name: "Podo the otter holding a rolled map"),
+        GuestAvatar(id: "GuestPinguExplorer", name: "Podo the otter exploring with a magnifying glass"),
+        GuestAvatar(id: "GuestPinguRunning", name: "Podo the otter running"),
+        GuestAvatar(id: "GuestPinguMusic", name: "Podo the otter listening to music on headphones"),
+        GuestAvatar(id: "GuestPinguLaptop", name: "Podo the otter using a laptop"),
+        GuestAvatar(id: "GuestPinguGardening", name: "Podo the otter watering a potted flower"),
+        GuestAvatar(id: "GuestPinguWarmDrink", name: "Podo the otter holding a warm mug"),
+        GuestAvatar(id: "GuestPinguSleeping", name: "Podo the otter sleeping curled up"),
+        GuestAvatar(id: "GuestPinguPillowHug", name: "Podo the otter hugging a pillow"),
     ]
 
     static let defaultID = "GuestPinguJournal"

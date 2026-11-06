@@ -387,7 +387,7 @@ struct GuestOnboardingPageView: View {
         .accessibilityHidden(true)
     }
 
-    static let bubbles = ["GuestOnboardingHardMoment": "Hi, I’m Tuanwei!"]
+    static let bubbles = ["GuestOnboardingHardMoment": "Hi, I’m Podo!"]
 
     /// Height over width; the scenes aren't all the same shape.
     private var aspect: CGFloat {
