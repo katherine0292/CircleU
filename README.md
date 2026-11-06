@@ -29,8 +29,7 @@ An iPhone app for difficult conversations: it turns a raw journal entry into a r
 | **For** | Students, new graduates and people new to a team or country, preparing for a talk with a groupmate, manager, friend, family member or partner. |
 | **Solution** | One loop: **Write → Reflect → Talk → How did it go?** Each saved entry becomes a *moment* with a timeline of everything that grew from it. |
 | **AI approach** | On-device Apple Intelligence that suggests and never decides. Every suggestion shows its source, and the app still works when the model doesn't. |
-| **Status** | Version 1 shipped to TestFlight (June 2026). Version 2 (this README) runs in the Simulator; physical-device validation is pending. |
-| **My role** | Product lead (PM and UX). Research, design reviews, AI interaction rules, and most of the version 2 code, written with AI coding agents. |
+| **Status** | Version 1 shipped to TestFlight (June 2026). Version 3, described here, runs in the Simulator; physical-device validation is pending. |
 
 ## The product loop
 
@@ -129,20 +128,26 @@ Supporting docs: the [AI acceptance cases](docs/qa/ai-acceptance-cases.md) list 
 
 ## How the product evolved
 
-| | Version 1: team TestFlight app (June 2026) | Version 2: this redesign (Oct–Nov 2026) |
-| --- | --- | --- |
-| Structure | Five tabs: Home · Journal · Tips · Circle · Profile | Three tabs: **Write · Journal · Talk** |
-| Entry | Account required before first use | Guest-first; no account |
-| Data | Firestore sync | On this iPhone only (SwiftData, file protection) |
-| AI | Cloud model, then Apple Intelligence | Apple Intelligence only, with an explained fallback |
-| Coaching | *Live Coach*, a separate tool | **Talk**, linked to the journal moment and to how it went |
-| Engagement | Circles, quests, rewards | Removed; the moment timeline is the progress cue |
+The repository holds three versions. Each one is visible in the code history.
 
-**What drove the change:**
-- Usability sessions and heuristic reviews ([Practice usability session](docs/design/practice-usability-session-2026-10-30.md), [flow review](docs/design/flow-review-2026-10-23.md)) found that the account wall came before any value.
-- Circles and rewards pulled attention from reflection.
-- Practice felt disconnected from what people had written.
-- Each finding became a decision in the [MVP definition](docs/product/mvp-definition.md).
+| | **Version 1** · June 2026 | **Version 2** · Oct 2026 | **Version 3** · Nov 2026 (this README) |
+| --- | --- | --- | --- |
+| Who | Five-person team, Apple Foundation Program | Manh Tuan Nguyen, with Codex | Katherine (katherine0292), with Claude Code |
+| Structure | Home · Journal · Tips · Circle · Profile | Today · Journal · Practice | **Write · Journal · Talk** |
+| Entry | Account required | Guest-first, no account | Guest-first, plus a 13-step guide |
+| Data | Firestore sync | SwiftData on this iPhone | Same, plus moments and outcomes |
+| Coaching | *Live Coach* chat | Staged Practice: Prepare → Refine → Their reply | **Talk** thread with readings and branches, linked to the moment |
+| AI | Cloud model, then Apple Intelligence | Apple Intelligence with guided fallback | Plus an input check, visible fallback reasons, and reply readings |
+| Look | Liquid frosted glass, penguin mascot | Brand refresh, penguin scenes | Warm glass, Podo the otter, motion |
+
+**Why each version changed:**
+- **Version 1 → 2:** usability sessions and flow reviews ([flow review](docs/design/flow-review-2026-10-23.md)) found three problems: the account wall came before any value, Circles and rewards pulled attention from reflection, and sensitive text went to the cloud. See the [MVP definition](docs/product/mvp-definition.md).
+- **Version 2 → 3:** a usability and heuristic review of Practice ([earlier session](docs/design/practice-usability-session-2026-10-30.md)) found three more:
+  - its staged pages were hard to follow;
+  - it stopped once the person said the words;
+  - it wasn't linked to the journal.
+
+  Talk, the moment timeline and *How did it go?* answer those, and the guide answers first-run confusion.
 
 <details>
 <summary>Version 1 screens</summary>
@@ -165,7 +170,7 @@ Store / Engine          GuestJournalStore · GuestConversationStore · GuestSugg
 SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/GuestJournal/
 ```
 
-- A launch switch ([`AppStartup`](Circleu/App/AppStartup.swift)) keeps version 1 intact for existing TestFlight testers while version 2 is built in the same project. The guest graph never configures Firebase or analytics, and tests check this.
+- A launch switch ([`AppStartup`](Circleu/App/AppStartup.swift)) keeps version 1 intact for existing TestFlight testers. Versions 2 and 3 share the guest app's code, which only Debug builds open. The guest graph never configures Firebase or analytics, and tests check this.
 - Every store is a protocol, so tests use the same code with in-memory or deliberately failing stores. A failed save keeps the person's words and says so.
 - Conversations are stored as attributed turns (*wording*, *their reply*, *context*, *outcome*). Old messages open as Talk threads without migration.
 
@@ -178,7 +183,7 @@ SwiftData (V1→V6 migrations) · FoundationModels · Speech         Services/Gu
 
 Version 1 also uses Firebase Auth and Cloud Firestore.
 
-The full walk-through of both versions (screens, data, AI and privacy) is in **[How CircleU works](docs/product/how-circleu-works.md)**.
+The full walk-through of every version, with a map of which folders belong to which (screens, data, AI and privacy), is in **[How CircleU works](docs/product/how-circleu-works.md)**.
 
 ## Quality
 
@@ -224,7 +229,7 @@ cp Config/Signing.xcconfig.example Config/Signing.xcconfig   # set your team for
 open Circleu.xcodeproj
 ```
 
-- Run the **`CircleU Guest Review`** scheme to open version 2.
+- Run the **`CircleU Guest Review`** scheme to open the current app (version 3).
 - The **`Circleu`** scheme opens version 1.
 - Tests: scheme `Circleu` (unit) and `CircleuUITests` (UI).
 
@@ -237,4 +242,4 @@ Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [
 
 ## Credits
 
-Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
+Version 1 was built by the CircleU team in the Apple Foundation Program 2026. The engineering lead was Manh Tuan Nguyen, and the original repository is [tuannm3812/CircleU](https://github.com/tuannm3812/CircleU). Version 2 was built by Manh Tuan Nguyen; version 3 was redesigned and built in this fork. MIT License, see [LICENSE](LICENSE).
