@@ -53,10 +53,9 @@ On the moment's page, the one main action is always the next stop that isn't don
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/04-write.jpg" alt="Write"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/06-saved.jpg" alt="Saved, with Reflect offered"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/07-reflection.jpg" alt="Reflection suggested by Apple Intelligence"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/write-save.gif" alt="Writing and saving"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/04-write.jpg" alt="Write"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/06-saved.jpg" alt="Saved, with Reflect offered"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/07-reflection.jpg" alt="Reflection suggested by Apple Intelligence"></td>
 </tr>
 </table>
 
@@ -67,10 +66,14 @@ On the moment's page, the one main action is always the next stop that isn't don
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/08-talk-setup.jpg" alt="Set the scene"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/09-talk-suggestion.jpg" alt="Say it like this, with tone and style"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/12-talk-readings.jpg" alt="Two ways to read their reply"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/13-talk-reply-ideas.jpg" alt="Reply ideas for the chosen reading"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/08-talk-setup.jpg" alt="Set the scene"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/09-talk-suggestion.jpg" alt="Say it like this, with tone and style"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/11-talk-said.jpg" alt="I said it"></td>
+</tr>
+<tr>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/12-talk-readings.jpg" alt="Two ways to read their reply"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/13-talk-reply-ideas.jpg" alt="Reply ideas for the chosen reading"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/10-talk-style.jpg" alt="A style from the same suggestion"></td>
 </tr>
 </table>
 
@@ -84,26 +87,24 @@ On the moment's page, the one main action is always the next stop that isn't don
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/14-moment-asks.jpg" alt="Moment timeline asking How did it go"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/15-moment-timeline.jpg" alt="Complete moment timeline"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/16-journal.jpg" alt="Journal"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/17-talk-home.jpg" alt="Talk home with From your journal"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/14-moment-asks.jpg" alt="Moment timeline asking How did it go"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/15-moment-timeline.jpg" alt="Complete moment timeline"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/16-journal.jpg" alt="Journal"></td>
 </tr>
 </table>
 
 - **Moment timeline:** what happened, then the reflection, the conversation and how it went. Dots fill in and the rail grows as each stop is done.
 - **How did it go?:** a feeling alone is enough. The Journal card keeps asking until it is answered, which closes the loop.
 - **Journal:** entries by day, with search, a calendar, and context and feeling chips.
-- **Talk home:** *From your journal* suggests moments that have a context but no conversation yet.
+- **Talk home:** *From your journal* suggests moments that have a context but no conversation yet, then lists *Earlier conversations*.
 
 ### 4. First-run experience
 
 <table>
 <tr>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/01-welcome-1.jpg" alt="Welcome 1"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/03-welcome-3.jpg" alt="Welcome 3"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/20-guide-3.jpg" alt="Guide step 3"></td>
-<td width="25%"><img src="docs/design/final-screens-2026-11-06/21-guide-8.jpg" alt="Guide step 8"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/01-welcome-1.jpg" alt="Welcome, Podo says hello"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/20-guide-3.jpg" alt="Guide step 3"></td>
+<td width="33%"><img src="docs/design/final-screens-2026-11-06/21-guide-8.jpg" alt="Guide step 8"></td>
 </tr>
 </table>
 
