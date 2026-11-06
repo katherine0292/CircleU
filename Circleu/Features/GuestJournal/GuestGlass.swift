@@ -181,6 +181,21 @@ extension View {
     }
 }
 
+extension View {
+    /// For a scroll view under a see-through navigation bar: content fades out over `height` at the
+    /// top instead of showing through the title. Keep `height` at or below the content's top
+    /// padding so nothing is faded at rest.
+    func guestFadesUnderTitle(_ height: CGFloat = 12) -> some View {
+        mask {
+            VStack(spacing: 0) {
+                LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom).frame(height: height)
+                Color.black
+            }
+            .ignoresSafeArea(edges: .bottom) // Words still fade behind a pinned bottom action, not cut off.
+        }
+    }
+}
+
 /// Behind a pinned bottom action: the page fades to oat so scrolled words don't show through.
 struct GuestBottomFade: View {
     var body: some View {

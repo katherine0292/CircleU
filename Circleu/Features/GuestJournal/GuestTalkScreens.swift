@@ -597,6 +597,7 @@ struct GuestTalkScreen: View {
                 .padding(.horizontal, 16).padding(.vertical, 12)
             }
             .scrollDismissesKeyboard(.interactively)
+            .guestFadesUnderTitle(12) // Matches the 12 pt top padding.
             .onChange(of: model.items.count) { _, _ in scrollToLast(proxy) }
             // A card that fills in after thinking (readings, reply ideas) grows in place, so follow it too.
             .onChange(of: model.isThinking) { _, thinking in if !thinking { scrollToLast(proxy) } }
