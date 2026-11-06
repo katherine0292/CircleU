@@ -187,16 +187,31 @@ The full walk-through of both versions (screens, data, AI and privacy) is in **[
 - **User stories with acceptance criteria:** [user-stories.md](docs/product/user-stories.md) maps each Given/When/Then to its test.
 - **Copy lint:** the [screen content guidelines](docs/design/screen-content-guidelines.md) are enforced by `GuestCopyLintTests` (length limits, one primary action, banned wording).
 
-## My role
+## My contributions
 
-**Product lead (PM and UX)**, on a five-person team in the Apple Foundation Program 2026, then owner of the version 2 redesign.
+**Version 1 (June 2026, 23 commits):**
+- **UI:** built the liquid frosted-glass visual system (`PinguGlassKit`) and applied it to all 15 screens.
+- **Live Coach:** redesigned it, splitting the coach's reply from its context and adding copy feedback.
+- **Circles and Profile:** built the community feed, public circles on Firebase, and the account flow.
+- **Privacy and wellbeing:** scoped each account's on-device data so two people on one phone never see each other's journal, and hid point scores in Profile.
+- **Release:** App Store readiness (privacy manifest, signing and Firebase config kept out of Git).
 
-- **Research and evaluation:** usability sessions, heuristic reviews of every flow, and competitive analysis.
-- **Product definition:** cut the MVP from five tabs to three, removed social and rewards, and chose guest-first, local-only.
-- **AI experience:** the seven principles above, including *two readings, you choose* and visible fallback reasons.
-- **Interaction design:** the Talk thread (styles bundled per generation, ↻ for another take, edit to branch), the moment timeline and the spotlight guide. Each was clickable-prototyped before it was built.
-- **Visual direction:** the warm glass UI and the Podo otter illustration set.
-- **Building with AI agents:** most of the version 2 code was written with Claude Code and Codex, under project rules, tests and a dated [collaboration log](docs/agent-collaboration-log/README.md). Version 1 contributions are in the [contribution map](docs/portfolio/katherine-contribution-map.md).
+**Version 3 (November 2026, 94 commits):**
+- **Research:** usability and heuristic reviews of Practice and of the whole app, which led to the redesign.
+- **Product and interaction design:**
+  - the Talk thread (tone and style, ↻ for another take, edit to branch, two readings of a reply);
+  - the moment timeline with *How did it go?*;
+  - the 13-step spotlight guide;
+  - the Write · Journal · Talk structure.
+- **AI experience:**
+  - no model call on too few words;
+  - a visible reason whenever Apple Intelligence isn't used;
+  - a reply-specific prompt;
+  - [AI acceptance cases](docs/qa/ai-acceptance-cases.md).
+- **UI and motion:** the warm glass restyle, Podo the otter across Welcome, scenes and avatars, and motion that respects Reduce Motion.
+- **Quality:** unit and UI tests for Talk and the guide, user stories with acceptance criteria, and a dated [collaboration log](docs/agent-collaboration-log/README.md). The code was written with Claude Code.
+
+Commit-level detail is in the [contribution map](docs/portfolio/katherine-contribution-map.md).
 
 ## Run it
 
