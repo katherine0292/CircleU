@@ -1,29 +1,69 @@
-# How CircleU works: the two apps in one project
+# How CircleU works: three versions, two apps in one project
 
-Written 6 November 2026 from a full read of the source on `main`. It explains what each version does, how the code is organised and how data and AI move through it. For screens, see the [final screens](../design/final-screens-2026-11-06/README.md).
+Written 6 November 2026 from a full read of the source and the Git history on `main`. It covers four things:
+- what each version does;
+- which folders belong to which version;
+- how data and AI move through the app;
+- whether Firebase is still needed.
 
-## 1. One project, two apps
+For screens, see the [final screens](../design/final-screens-2026-11-06/README.md).
 
-The repository builds two separate experiences. A launch-time switch picks one, and they share no screens and no stores.
+## 1. Three versions, two apps
 
-| | **Version 1: team TestFlight app** (June 2026) | **Version 2: CircleU guest app** (Oct–Nov 2026) |
-| --- | --- | --- |
-| Started by | Every Release build (TestFlight, App Store) | Debug builds with `-CircleUGuestMode`, or the `CircleU Guest Review` scheme |
-| Tabs | Home · Journal · Tips · Circle · Profile | **Write · Journal · Talk** |
-| Account | Required (Firebase Auth) | None. Optional **Log in** only to recover old data |
-| Storage | Local caches plus Firestore sync | **SwiftData on this iPhone only**, file protection on |
-| AI | Cloud Gemini (removed 4 Nov), then Apple Intelligence | Apple Intelligence on device, with a guided fallback |
-| Social | Circles (community feed), likes, rewards, quests | Removed from the MVP |
-| Code | `App/`, `Features/{Home,Journal,Tips,Circle,Profile,…}`, `Stores/`, `Engines/` | `Features/GuestJournal/`, `Services/GuestJournal/` |
+| | **Version 1** · June 2026 | **Version 2** · 23–31 Oct 2026 | **Version 3** · 5–6 Nov 2026 |
+| --- | --- | --- | --- |
+| Who (from commits) | Team of five: tuannm3812, ShellyHZX, katherine0292, Dev.Dave, Mike | Manh Tuan Nguyen (175 commits), with Codex | katherine0292 (94 commits), with Claude Code |
+| App | **Legacy app**: what every Release build opens | **Guest app**: opened only in Debug and the `CircleU Guest Review` scheme | **The same guest app**, redesigned |
+| Tabs | Home · Journal · Tips · Circle · Profile | Today · Journal · Practice | Write · Journal · Talk |
+| Account | Required (Firebase Auth) | None; Log in only to recover old data | Same |
+| Storage | Local caches plus Firestore sync | SwiftData on this iPhone | Same, plus outcome turns and the Relationship context |
+| AI | Cloud Gemini (removed 4 Nov), then Apple Intelligence | Apple Intelligence with a guided fallback | Plus an input check, fallback reasons, reply readings and a reply prompt |
+| Coaching | Live Coach | Staged Practice (Prepare → Refine → Their reply) | Talk thread, moment timeline, How did it go?, step-by-step guide |
 
-The switch is [`AppStartup`](../../Circleu/App/AppStartup.swift). Guest mode is only possible in Debug, and it never configures Firebase or analytics. This is so the testers who already have version 1 on TestFlight keep their data while version 2 is built and checked.
+Versions 2 and 3 are not separate apps. Version 3 changed version 2's files in `Features/GuestJournal/` and `Services/GuestJournal/` and added new ones, so the two can't be split by folder. Their difference is in the history: `git log --author=katherine0292 --after=2026-11-01`.
+
+The switch between the legacy and guest apps is [`AppStartup`](../../Circleu/App/AppStartup.swift). Guest mode only exists in Debug, and it never configures Firebase or analytics. This keeps the data of testers who have version 1 from TestFlight safe while the guest app is built and checked.
 
 ```text
 CircleuApp.init
  └─ AppStartup.resolve()
      ├─ .existingApp  → Firebase + analytics → ContentView → RootView (5 tabs)      [version 1]
-     └─ .guestJournal → no Firebase → GuestRootView → Welcome → Write/Journal/Talk  [version 2]
+     └─ .guestJournal → no Firebase → GuestRootView → Welcome → Write/Journal/Talk  [versions 2 + 3]
 ```
+
+## 1a. Folder map
+
+Every folder is under `Circleu/`. **Legacy** means only the version 1 app uses it. **Guest** means versions 2 and 3. **Shared** means both use it.
+
+| Folder | Belongs to | What it holds | Last real change |
+| --- | --- | --- | --- |
+| `App/` | Shared | `CircleuApp`, `AppStartup` (the switch), `ContentView` and `RootView` (version 1's tab shell) | Oct 2026 |
+| `Features/GuestJournal/` | **Guest** | Every guest screen and ViewModel: Welcome, Write, Reflect, Journal, moment timeline, Talk, guide, Settings, Log in recovery | **Nov 2026 (version 3)** |
+| `Services/GuestJournal/` | **Guest** | SwiftData store (schema V1–V6), drafts, tags, conversation turns, suggestion engine, dictation, legacy import, account recovery | **Nov 2026 (version 3)** |
+| `Engines/` | Shared | `ReflectionEngine` (Apple Intelligence and local reflection) and `TranscriptQuality`, used by both apps; `CommunicationCoachEngine` and the rest are legacy | Nov 2026 (Gemini removed) |
+| `Models/` | Mostly legacy | Version 1 data shapes. The guest app reuses `AIReflectionResult` and `TipsPracticeSession` only to read old data | Jun 2026 |
+| `Services/` (top level) | Legacy, except one file | Firebase Auth, Firestore sync, circles, analytics, recorder, CloudKit notes. The guest app uses `FirebaseRuntime` for Log in recovery only | Nov 2026 |
+| `Stores/` | Legacy | `ObservableObject` stores for journal, quests, rewards, tips, circles and the session | Oct 2026 |
+| `Features/Home`, `Recording`, `Reflection`, `Journal`, `Tips`, `Circle`, `Profile`, `Onboarding` | Legacy | Version 1 screens | Jun–Jul 2026 |
+| `Components/`, `Design/` | Legacy | Version 1 shared UI and the liquid-glass kit (`PinguGlassKit`) | Jun–Oct 2026 |
+| `PreviewSupport/` | Legacy | Preview data | Jun 2026 |
+| `Assets.xcassets/` | Shared | Both apps' art. The `Guest…` images are the Podo set (version 3) | Nov 2026 |
+
+Test targets: `CircleuTests/` mixes both. Files named `Guest…` test the guest app, the rest test version 1. `CircleuUITests/` tests only the guest app.
+
+### Is Firebase still needed?
+
+Yes, for two reasons, though not for the guest app's everyday use:
+1. **Release builds still open version 1.** TestFlight testers sign in and their data syncs through Firestore. Removing Firebase would break the app they have installed.
+2. **Log in in the guest app** uses a separate, named Firebase app (Dev project only). It copies a tester's old entries onto the iPhone and can delete the old cloud account.
+
+Firebase can go once two things are true: Release opens the guest app, and testers have had a chance to recover their data. That's when the legacy folders above can be deleted, keeping only the recovery path. The [transition plan](../superpowers/plans/2026-10-23-local-first-transition.md) sets the order.
+
+### Why the folders aren't regrouped by version
+
+- **Versions 2 and 3 share files,** so a `v2/` and `v3/` split can't exist.
+- **Moving the legacy folders into a `Legacy/` group** would touch hundreds of paths. Git blame and Tuan's upstream merges would get harder, and the project's rules ask for no bulk renaming.
+- **The clean step is deletion,** once Firebase can go (above). Until then, this map, the `Guest` prefix and `AppStartup` mark the line.
 
 ## 2. Version 1: the team TestFlight app
 
