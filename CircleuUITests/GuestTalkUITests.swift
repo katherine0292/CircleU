@@ -83,8 +83,8 @@ final class GuestTalkUITests: XCTestCase {
 
         app.buttons["More"].tap()
         app.buttons["Delete entry"].tap()
-        XCTAssertTrue(app.buttons["Keep message"].waitForExistence(timeout: 3))
-        app.buttons["Keep message"].tap()
+        XCTAssertTrue(app.buttons["Keep conversation"].waitForExistence(timeout: 3))
+        app.buttons["Keep conversation"].tap()
         XCTAssertTrue(app.navigationBars["Journal"].waitForExistence(timeout: 5))
         app.tabBars.buttons["Talk"].tap()
         XCTAssertTrue(app.staticTexts["Earlier conversations"].waitForExistence(timeout: 5), "the conversation is kept")
