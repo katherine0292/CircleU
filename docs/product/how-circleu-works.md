@@ -80,7 +80,7 @@ The first version was built for the Apple Foundation Program by a five-person te
 | Profile | Quests, rewards (point numbers hidden), settings, delete account | `Features/Profile`, `Stores/QuestStore`, `RewardsStore` |
 | Sync | Local caches scoped per Firebase user, uploaded and restored through Firestore | `Services/FirebaseFirestoreSyncService`, `Stores/BackendSessionStore` |
 
-**Why version 2 exists.** Usability sessions and the owner's review (23–24 October) found four problems:
+**Why the guest app exists (version 2).** Usability sessions and the owner's review (23–24 October) found four problems:
 - the account wall came before any value;
 - Circles and rewards pulled attention away from reflection;
 - sensitive journal text went to the cloud;
@@ -88,7 +88,7 @@ The first version was built for the Apple Foundation Program by a five-person te
 
 The approved direction is **guest-first, local-only, three tabs**. See the [MVP definition](mvp-definition.md).
 
-## 3. Version 2: the guest app, flow by flow
+## 3. The guest app (versions 2 and 3), flow by flow
 
 ### 3.1 The core loop
 
@@ -116,6 +116,11 @@ Each saved entry is a **moment**. Its page is a timeline with four stops. The on
 | **Talk home** | Start a conversation, *From your journal* (moments with a context and no conversation yet), *Earlier conversations*. | `GuestPracticeScreens.swift` (`GuestPracticeHomeView`) |
 | **Guide** | The **?** starts a 13-step tour across the three tabs. A spotlight lights one control and dims the rest; the otter changes pose at each step. | `GuestTour.swift` |
 | **Settings** | Choose your otter, export everything as text, copy data from the earlier app, delete all. | `GuestFindAndControl.swift`, `GuestImportAndWelcome.swift`, `GuestSignIn.swift` |
+
+**Which version added each flow:**
+- **Version 2** built Welcome, Write, Reflect, Journal (search, calendar, tags), Settings, Log in recovery, the data layer and the Practice home.
+- **Version 3** added the moment timeline, Talk (replacing staged Practice), *How did it go?*, the guide and the Relationship context.
+- **Version 3** also restyled every screen (warm glass, Podo) and added the AI input check and fallback reasons.
 
 ### 3.3 Layers
 
