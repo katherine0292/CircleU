@@ -212,6 +212,11 @@ open Circleu.xcodeproj
 - The **`Circleu`** scheme opens version 1.
 - Tests: scheme `Circleu` (unit) and `CircleuUITests` (UI).
 
+```bash
+xcodebuild test -project Circleu.xcodeproj -scheme Circleu \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
 Contributor rules are in [AGENTS.md](AGENTS.md). The documentation index is at [docs/README.md](docs/README.md).
 
 ## Credits
