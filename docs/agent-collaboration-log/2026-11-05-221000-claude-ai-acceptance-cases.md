@@ -4,7 +4,7 @@
 - Agent / role: Claude Code (desktop app, Katherine's Mac), QA documentation
 - Status: completed; docs only, no app code changed
 - Base revision and branch: `codex/ai-acceptance-cases` from `katherine/amazing-cray-w6rap2` at `8b3ba00` (that commit and its parent were re-authored under katherine0292 as `43b3a6d` and `738ce98` before merging, at her request)
-- Related record: [portfolio contribution map](2026-11-05-213000-claude-portfolio-contribution-map.md); item 3 of [next steps](../portfolio/next-steps-ai-fallback.md)
+- Related record: item 3 of [next steps](../portfolio/next-steps-ai-fallback.md)
 
 ## Request and scope
 
