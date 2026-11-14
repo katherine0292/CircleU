@@ -8,6 +8,8 @@
 
 An iPhone app for difficult conversations: it turns a raw journal entry into a reflection, then into words you can actually say. Its AI runs entirely on the iPhone.
 
+[**Portfolio case study**](https://claude.ai/artifact/6ZDw7JPbcwfr9DfZnk4i38) · [page source](portfolio/)
+
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-iOS%2017%2B-0A84FF)
 ![Apple Intelligence](https://img.shields.io/badge/AI-Apple%20Intelligence%20on--device-8E5CF7)
 ![SwiftData](https://img.shields.io/badge/Storage-SwiftData%2C%20local%20only-34C759)
