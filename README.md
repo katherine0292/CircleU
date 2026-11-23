@@ -199,7 +199,7 @@ The full walk-through of every version, with a map of which folders belong to wh
 
 - **Concept and research:**
   - shaped the original product concept;
-  - led discovery research with 20 participants (survey and in-depth interviews), followed by personas, synthesis and competitive analysis (Finch, Yoodli). This defined the core loop.
+  - led discovery research through 20 survey responses and 3 in-depth interviews, followed by personas, synthesis and competitive analysis (Finch, Yoodli). These inputs informed the core loop.
 - **Product definition:**
   - defined the MVP (10 features in P0/P1 tiers) and the user stories;
   - cut community and rewards to keep the focus on reflection;
